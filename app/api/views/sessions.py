@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotFou
 from core.models import WidgetInstance
 from util.logging.session_logger import SessionLogger
 from util.logging.session_play import SessionPlay
+from util.message_util import MsgUtil
 from util.widget.validator import ValidatorUtil
 
 
@@ -45,13 +46,11 @@ class SessionsApi:
         preview_play_id = request_body.get("previewPlayId")
 
         # Validate request params
-        if not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id):
-            # TODO better error reporting, was originally Msg:invalid_input(playId)
-            return HttpResponseBadRequest()
+        if not play_id or (not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id)):
+            return MsgUtil.create_invalid_input_msg(msg=play_id)
 
         if not logs or not isinstance(logs, list):
-            # TODO: better error reporting, was originally Msg::invalid_input('missing log array')
-            return HttpResponseBadRequest()
+            return MsgUtil.create_invalid_input_msg(msg="Missing log array")
 
         # Save logs
         if ValidatorUtil.is_valid_hash(preview_instance_id):
@@ -74,14 +73,14 @@ class SessionsApi:
             # Confirm user session for real play
             instance = session_play.data.instance
             if not instance.playable_by_current_user():
-                return HttpResponseForbidden()  # TODO was Msg::no_login
-            # if not instance.guest_access and TODO: self::session_play_verify($playId) !== true
-            #     return Msg::no_login();
+                return MsgUtil.create_no_login_msg()
+            # if not instance.guest_access and TODO: self::session_play_verify($play_id) !== true
+            #     return MsgUtil.create_no_login_msg()
 
             # Validate session play
             is_valid = session_play.validate()
             if not is_valid:
-                return HttpResponseNotFound()  # TODO: was Msg::invalid_input('invalid play session')
+                return MsgUtil.create_invalid_input_msg(msg="Invalid play session")
 
             # Store
             SessionLogger.store_log_array(session_play, logs)
