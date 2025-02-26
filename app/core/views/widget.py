@@ -136,6 +136,17 @@ class WidgetGuideView(TemplateView):
         )
 
 
+class WidgetQsetImportView(TemplateView):
+    template_name = "react.html"
+
+    def get_context_data(self):
+        return ContextUtil.create(
+            js_resources="dist/js/help.js",
+            css_resources="dist/css/help.css",
+            request=self.request,
+        )
+
+
 # View page creation methods
 
 # Creates a player page for a real, logged play session

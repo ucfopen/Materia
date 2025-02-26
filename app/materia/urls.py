@@ -45,6 +45,7 @@ urlpatterns = [
     path("widgets/<slug:widget_slug>/create/<str:instance_id>", WidgetCreatorView.as_view(),
          name="widget creator existing instance"),
     path("preview/<slug:widget_instance_id>/", WidgetPreviewView.as_view(), name="widget preview"),
+    path("questions/import/", WidgetQsetImportView.as_view(), name="widget qset import"),
 
     # Scores
     path("scores/preview/<slug:widget_instance_id>/", ScoresView.as_view(is_preview=True), name="preview scores"),
