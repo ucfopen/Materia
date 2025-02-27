@@ -4,8 +4,9 @@ import logging
 from django.http import JsonResponse, HttpResponseNotFound
 
 from core.models import WidgetInstance, Widget
-from util.message_util import MsgUtil, MsgType
+from util.message_util import MsgBuilder
 from util.logging.session_play import SessionPlay
+from util.serialization import SerializationUtil
 from util.widget.instance.instance_util import WidgetInstanceUtil
 from util.widget.validator import ValidatorUtil
 
@@ -53,11 +54,11 @@ class WidgetInstanceAPI:
 
         # Get and validate widget
         if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
-            return MsgUtil.create_invalid_input_msg(msg=widget_id)
+            return MsgBuilder.invalid_input(msg=widget_id).as_json_response()
 
         widget = Widget.objects.filter(pk=widget_id).first()
         if not widget:
-            return MsgUtil.create_invalid_input_msg("Invalid widget type")
+            return MsgBuilder.invalid_input(msg="Invalid widget type").as_json_response()
 
         return JsonResponse({
             "publishPermsValid": widget.publishable_by(-0)  # TODO
@@ -79,19 +80,21 @@ class WidgetInstanceAPI:
 
         # Get and validate widget
         if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
-            return MsgUtil.create_invalid_input_msg(msg=widget_id)
+            return MsgBuilder.invalid_input(msg=widget_id).as_json_response()
         widget_id = int(widget_id)
 
         widget = Widget.objects.filter(pk=widget_id).first()
 
         if not widget:
-            return MsgUtil.create_invalid_input_msg("Invalid widget type")
+            return MsgBuilder.invalid_input(msg="Invalid widget type").as_json_response()
         if not is_draft and not widget.publishable_by(-0):  # TODO Model_User::find_current_id()
-            return MsgUtil.create_no_perm_msg("Widget type can not be published by students.")
+            return MsgBuilder.no_perm(msg="Widget type can not be published by students.").as_json_response()
         if is_draft and not widget.is_editable:
-            return MsgUtil.create_failure_msg("Non-editable widgets can not be saved as drafts!")
+            return MsgBuilder.failure(msg="Non-editable widgets can not be saved as drafts!").as_json_response()
 
-        widget_instance = WidgetInstanceUtil.save(widget_id, name, qset, is_draft)
+        widget_instance, msg = WidgetInstanceUtil.save(widget_id, name, qset, is_draft)
+        if msg is not None:
+            return msg.as_json_response()
 
         # Save and return ID
         serialized_model = widget_instance.as_dict(serialize_fks=["widget", "qset"])
@@ -113,7 +116,7 @@ class WidgetInstanceAPI:
         embedded_only = json_data.get("embeddedOnly")
         is_student_made = json_data.get("isStudentMade")
 
-        widget_instance = WidgetInstanceUtil.update(
+        widget_instance, msg = WidgetInstanceUtil.update(
             widget_instance_id,
             name,
             qset,
@@ -126,6 +129,9 @@ class WidgetInstanceAPI:
             is_student_made,
         )
 
+        if msg is not None:
+            return msg.as_json_response()
+
         return JsonResponse(widget_instance.as_dict(serialize_fks=["widget", "qset"]))
 
     # WAS question_set_get
@@ -136,22 +142,41 @@ class WidgetInstanceAPI:
         play_id = json_data.get("playId")  # Empty if in preview mode
         timestamp = json_data.get("timestamp")
         if not instance_id:
-            return MsgUtil.create_invalid_input_msg(msg="Missing instance ID")
+            return MsgBuilder.invalid_input(msg="Missing instance ID").as_json_response()
 
         # Grab widget instance, verify it exists
         instance = WidgetInstance.objects.get(pk=instance_id)
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user():
-            return MsgUtil.create_no_login_msg()
+            return MsgBuilder.no_login().as_json_response()
 
         # Validate play ID
         if play_id and not timestamp and not SessionPlay.validate_by_play_id(play_id):
-            return MsgUtil.create_no_login_msg()
+            return MsgBuilder.no_login().as_json_response()
 
         # TODO check preview mode, see php
 
         return JsonResponse({"qset": instance.qset.as_dict()})
+
+    @staticmethod
+    def history(request):
+        instance_id = request.GET.get("inst_id")
+
+        if instance_id is None:
+            return MsgBuilder.invalid_input(msg="Missing instance ID").as_json_response()
+        if not ValidatorUtil.is_valid_hash(instance_id):
+            return MsgBuilder.invalid_input(msg=f"Invalid instance ID '{instance_id}'").as_json_response()
+
+        instance = WidgetInstance.objects.filter(pk=instance_id).first()
+        if not instance:
+            return MsgBuilder.not_found(msg="Instance not found").as_json_response()
+
+        # TODO if (! \Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id,  \Materia\Perm::INSTANCE, [\Materia\Perm::FULL])) return $this->response(\Materia\Msg::no_perm(), 401);
+
+        return JsonResponse({
+            "history": SerializationUtil.serialize_set(instance.get_qset_history())
+        })
 
     @staticmethod
     def lock(request):

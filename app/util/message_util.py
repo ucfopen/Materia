@@ -6,67 +6,88 @@ from enum import Enum
 from django.http import JsonResponse
 
 
-class MsgType(Enum):
+class MsgSeverity(Enum):
     ERROR = "error"
     NOTICE = "notice"
     WARN = "warn"
 
 
-class MsgUtil:
-    @staticmethod
-    def create(
-        title: str, msg: str, msg_type: MsgType = MsgType.ERROR, halt: bool = False, status: int = 403
-    ) -> JsonResponse:
+class MsgType(Enum):
+    GENERAL = 0
+    INVALID_INPUT = 1
+    NO_LOGIN = 2
+    NO_PERM = 3
+    STUDENT_COLLAB = 4
+    FAILURE = 5
+    NOT_FOUND = 6
+    EXPIRED = 7
+
+
+class Msg:
+    def __init__(
+            self, title: str, msg: str, msg_type: MsgType = MsgType.GENERAL, severity: MsgSeverity = MsgSeverity.ERROR,
+            halt: bool = False, status: int = 403
+    ):
+        self.msg_type = msg_type
+        self.title = title
+        self.msg = msg
+        self.severity = severity
+        self.halt = halt
+        self.status = status
+
+    def as_json_response(self) -> JsonResponse:
         return JsonResponse({
-            "msg": msg,
-            "title": title,
-            "type": msg_type.value,
-            "halt": halt,
-        }, status=status)
+            "title": self.title,
+            "msg": self.msg,
+            "type": self.severity.value,
+            "halt": self.halt,
+        }, status=self.status)
+
+
+class MsgBuilder:
+    @staticmethod
+    def invalid_input(title: str = "Validation Error", msg: str = "") -> Msg:
+        return Msg(title, msg, MsgType.INVALID_INPUT, MsgSeverity.ERROR, True)
 
     @staticmethod
-    def create_invalid_input_msg(title: str = "Validation Error", msg: str = "") -> JsonResponse:
-        return MsgUtil.create(title, msg, msg_type=MsgType.ERROR, halt=True)
-
-    @staticmethod
-    def create_no_login_msg(
+    def no_login(
         title="Invalid Login",
         msg="You have been logged out, and must login again to continue",
-    ):
-        return MsgUtil.create(title, msg, MsgType.ERROR, True)
+    ) -> Msg:
+        return Msg(title, msg, MsgType.NO_LOGIN, MsgSeverity.ERROR, True)
         # TODO set_flash, see php
 
     @staticmethod
-    def create_no_perm_msg(
+    def no_perm(
         title: str = "Permission Denied",
         msg: str = "You do not have permission to access the requested content",
-    ) -> JsonResponse:
-        return MsgUtil.create(title, msg, MsgType.WARN, False, 401)
+    ) -> Msg:
+        return Msg(title, msg, MsgType.NO_PERM, MsgSeverity.WARN, False, 401)
 
     @staticmethod
-    def create_student_collab_msg(
+    def student_collab(
         title="Share Not Allowed",
         msg="Students cannot be added as collaborator to widgets that have guest access disabled"
-    ) -> JsonResponse:
-        return MsgUtil.create(title, msg, MsgType.ERROR, False, 401)
+    ) -> Msg:
+        return Msg(title, msg, MsgType.STUDENT_COLLAB, MsgSeverity.ERROR, False, 401)
 
     @staticmethod
-    def create_failure_msg(
+    def failure(
         title: str = "Action Failed",
         msg: str = "The requested action could not be completed",
-    ):
-        return MsgUtil.create(title, msg, MsgType.ERROR, False, 403)
+    ) -> Msg:
+        return Msg(title, msg, MsgType.FAILURE, MsgSeverity.ERROR, False, 403)
 
     @staticmethod
-    def create_not_found_msg(
+    def not_found(
         title="Not Found",
         msg="The requested content could not be found",
-    ) -> JsonResponse:
-        return MsgUtil.create(title, msg, MsgType.ERROR, False, 404)
+    ) -> Msg:
+        return Msg(title, msg, MsgType.NOT_FOUND, MsgSeverity.ERROR, False, 404)
 
     @staticmethod
-    def create_expired_msg(
+    def expired(
         title="Expired",
         msg="The requested content has been expired and is no longer available",
-    ):
-        return MsgUtil.create(title, msg, MsgType.ERROR, False, 410)
+    ) -> Msg:
+        return Msg(title, msg, MsgType.EXPIRED, MsgSeverity.ERROR, False, 410)

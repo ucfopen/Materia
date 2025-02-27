@@ -561,7 +561,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const showQsetHistoryImporter = () => {
-		showEmbedDialog(`${window.BASE_URL}qsets/import/?inst_id=${instance.id}`, 'embed_dialog')
+		showEmbedDialog(`${window.BASE_URL}qsets/history/?inst_id=${instance.id}`, 'embed_dialog')
 	}
 
 	const showQuestionGenerator = () => {

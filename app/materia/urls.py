@@ -14,7 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
+from api.views.users_api import UsersApi
 from core.views import main as core_views
 from core.views.catalog import CatalogView
 
@@ -46,6 +46,7 @@ urlpatterns = [
          name="widget creator existing instance"),
     path("preview/<slug:widget_instance_id>/", WidgetPreviewView.as_view(), name="widget preview"),
     path("questions/import/", WidgetQsetImportView.as_view(), name="widget qset import"),
+    path("qsets/history/", WidgetQsetHistoryView.as_view(), name="widget qset history"),
 
     # Scores
     path("scores/preview/<slug:widget_instance_id>/", ScoresView.as_view(is_preview=True), name="preview scores"),

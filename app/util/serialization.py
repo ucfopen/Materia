@@ -50,13 +50,12 @@ class SerializationUtil:
             results = [d for d in source]
             return results
 
-        unprocessed_jsons = json.loads(serializers.serialize("json", source))
         results = []
-        for unprocessed_json in unprocessed_jsons:
-            processed_json = unprocessed_json["fields"]
-            processed_json["id"] = unprocessed_json["pk"]
-            SerializationUtil.convert_booleans(processed_json)
-            results.append(processed_json)
+        for item in source:
+            if hasattr(item, "as_dict"):
+                results.append(item.as_dict())
+            else:
+                results.append(json.loads(serializers.serialize("json", item)))
 
         return results
 

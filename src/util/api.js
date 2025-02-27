@@ -445,8 +445,9 @@ export const apiUpdateUserRoles = (roles) => {
 /** Controller_Api_Instance */
 
 export const apiGetQuestionSetHistory = (instId) => {
-	return fetch(`/api/instance/history?inst_id=${instId}`)
+	return fetch(`/api/widget_instances/history/?inst_id=${instId}`)
 		.then(handleErrors)
+		.then(data => data['history'])
 }
 
 // Request access to widget

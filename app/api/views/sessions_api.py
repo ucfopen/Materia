@@ -1,11 +1,11 @@
 import json
 
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, HttpResponse
+from django.http import JsonResponse, HttpResponseNotFound
 
 from core.models import WidgetInstance
 from util.logging.session_logger import SessionLogger
 from util.logging.session_play import SessionPlay
-from util.message_util import MsgUtil
+from util.message_util import MsgBuilder
 from util.widget.validator import ValidatorUtil
 
 
@@ -21,16 +21,16 @@ class SessionsApi:
         # Verify request params
         instance_id = json.loads(request.body)["instanceId"]
         if instance_id is None:
-            return MsgUtil.create_invalid_input_msg(msg="Missing instance ID")
+            return MsgBuilder.invalid_input(msg="Missing instance ID").as_json_response()
 
         # Get and verify widget
         instance = WidgetInstance.objects.get(pk=instance_id)
         if instance is None:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user:
-            return MsgUtil.create_no_login_msg()
+            return MsgBuilder.no_login().as_json_response()
         if instance.is_draft:
-            return MsgUtil.create_failure_msg("Drafts Not Playable", "Must use Preview mode to play a draft")
+            return MsgBuilder.failure("Drafts Not Playable", "Must use Preview mode to play a draft").as_json_response()
 
         # Create and start play session
         session_play = SessionPlay()
@@ -49,18 +49,18 @@ class SessionsApi:
         preview_play_id = request_body.get("previewPlayId")
 
         # Validate request params
-        if not play_id or (not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id)):
-            return MsgUtil.create_invalid_input_msg(msg=play_id)
+        if not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id):
+            return MsgBuilder.invalid_input(msg=play_id).as_json_response()
 
         if not logs or not isinstance(logs, list):
-            return MsgUtil.create_invalid_input_msg(msg="Missing log array")
+            return MsgBuilder.invalid_input(msg="Missing log array").as_json_response()
 
         # Save logs
         if ValidatorUtil.is_valid_hash(preview_instance_id):
             ##### PREVIEW MODE #####
             # Confirm preview_play_id is present
             if preview_play_id is None:
-                return MsgUtil.create_invalid_input_msg(msg="Missing preview play ID")
+                return MsgBuilder.invalid_input(msg="Missing preview play ID").as_json_response()
             # Confirm user session for preview
             # TODO: if (\Service_User::verify_session() !== true) return Msg::no_login();
             SessionLogger.save_preview_logs(request.session, preview_instance_id, preview_play_id, logs)
@@ -76,14 +76,14 @@ class SessionsApi:
             # Confirm user session for real play
             instance = session_play.data.instance
             if not instance.playable_by_current_user():
-                return MsgUtil.create_no_login_msg()
+                return MsgBuilder.no_login().as_json_response()
             # if not instance.guest_access and TODO: self::session_play_verify($play_id) !== true
             #     return MsgUtil.create_no_login_msg()
 
             # Validate session play
             is_valid = session_play.validate()
             if not is_valid:
-                return MsgUtil.create_invalid_input_msg(msg="Invalid play session")
+                return MsgBuilder.invalid_input(msg="Invalid play session").as_json_response()
 
             # Store
             SessionLogger.store_log_array(session_play, logs)

@@ -14,6 +14,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.core import serializers
 from django.db import models, transaction
+from django.db.models import QuerySet
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 
@@ -781,10 +782,8 @@ class WidgetInstance(SerializableModel):
     @qset.setter
     def qset(self, new_qset: dict):
         # TODO: when using this setter, we might want to create a whole new WidgetQset for history
-        if "data" in new_qset:
-            self.qset.data = new_qset["data"]
-        if "version" in new_qset:
-            self.qset.version = new_qset["version"]
+        self._qset = WidgetQset(version=new_qset["version"], instance=self)
+        self._qset.data = new_qset["data"]
 
     def playable_by_current_user(self):
         return self.guest_access  # TODO: || ServiceUser::verify_session();
@@ -859,7 +858,11 @@ class WidgetInstance(SerializableModel):
         # value_2 = self.widget.id
         # activity.save()
 
-        return success
+        return
+
+    def get_qset_history(self) -> QuerySet["WidgetQset"]:
+        qsets = WidgetQset.objects.filter(instance=self).order_by("-created_at")
+        return qsets
 
     class Meta:
         db_table = "widget_instance"

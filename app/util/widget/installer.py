@@ -440,7 +440,7 @@ class WidgetInstaller:
 
             if existing_inst_id:
                 # update the existing instance by adding a new qset
-                saved_demo = WidgetInstanceUtil.update(
+                saved_demo, msg = WidgetInstanceUtil.update(
                     widget_instance_id=existing_inst_id,
                     name=demo_data["name"],
                     qset=qset,
@@ -448,21 +448,28 @@ class WidgetInstaller:
                     guest_access=True,
                 )
 
-                if not saved_demo.id:
+                if msg is not None:
+                    print(msg)
                     raise Exception("Error saving demo instance")
             else:
                 # new instance, nothing to upgrade
-                saved_demo = WidgetInstanceUtil.save(
+                saved_demo, msg = WidgetInstanceUtil.save(
                     widget_id, demo_data["name"], demo_data["qset"], False
                 )
 
-                if not saved_demo.id:
+                if msg is not None:
+                    print(msg)
                     raise Exception("Error saving demo instance")
 
                 # update it to make sure it allows guest access
-                WidgetInstanceUtil.update(
+                _, msg = WidgetInstanceUtil.update(
                     widget_instance_id=saved_demo.id, guest_access=True
                 )
+
+                if msg is not None:
+                    print(msg)
+                    raise Exception("Error updating demo instance")
+
                 # make sure nobody owns the demo widget
                 access = PermObjectToUser.objects.filter(
                     object_id=saved_demo.id,

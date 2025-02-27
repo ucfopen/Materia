@@ -95,7 +95,7 @@ class WidgetPreviewView(TemplateView):
         if not widget_instance.widget.is_playable:
             return _create_draft_not_playable_page(self.request)
 
-        return _display_widget(instance=widget_instance, play_id=None, is_embedded=True)
+        return _display_widget(instance=widget_instance, play_id=None, is_embedded=True, request=self.request)
 
 
 class WidgetGuideView(TemplateView):
@@ -140,12 +140,27 @@ class WidgetQsetImportView(TemplateView):
     template_name = "react.html"
 
     def get_context_data(self):
+        # TODO if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
         return ContextUtil.create(
-            js_resources="dist/js/help.js",
-            css_resources="dist/css/help.css",
+            title="Qset Catalog",
+            page_type="import",
+            js_resources="dist/js/question-import.js",
+            css_resources="dist/css/question-import.css",
             request=self.request,
         )
 
+class WidgetQsetHistoryView(TemplateView):
+    template_name = "react.html"
+
+    def get_context_data(self):
+        # TODO if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
+        return ContextUtil.create(
+            title="Qset Catalog",
+            page_type="import",
+            js_resources="dist/js/qset-history.js",
+            css_resources="dist/css/qset-history.css",
+            request=self.request,
+        )
 
 # View page creation methods
 

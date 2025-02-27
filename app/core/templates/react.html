@@ -35,7 +35,9 @@
 		{% if js_global_variables %}
 			<script>
 				{% for key, value in js_global_variables.items %}
-					{% if value|get_type == "str" %}
+					{% if value|get_type == "NoneType" %}
+						var {{key}} = null;
+					{% elif value|get_type == "str" %}
 						var {{key}} = '{{value}}';
 					{% elif value|get_type == "bool" and value %}
 						var {{key}} = true;

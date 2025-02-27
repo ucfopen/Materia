@@ -9,4 +9,5 @@ urlpatterns = [
     path("lock/", WidgetInstanceAPI.lock),
     path("get/", WidgetInstanceAPI.get),
     path("get_question_set/", WidgetInstanceAPI.get_qset),
+    path("history/", WidgetInstanceAPI.history)
 ]
