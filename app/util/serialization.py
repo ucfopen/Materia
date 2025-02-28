@@ -55,7 +55,7 @@ class SerializationUtil:
             if hasattr(item, "as_dict"):
                 results.append(item.as_dict())
             else:
-                results.append(json.loads(serializers.serialize("json", item)))
+                results.append(SerializationUtil.serialize(item))
 
         return results
 

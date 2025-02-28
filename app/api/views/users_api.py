@@ -1,7 +1,8 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-from core.models import UserSettings
+from core.models import UserSettings, Question
+from util.message_util import MsgBuilder
 from util.perm_manager import PermManager
 from django.contrib.auth import logout
 from django.shortcuts import redirect
@@ -9,6 +10,10 @@ from django.shortcuts import redirect
 import hashlib
 import json
 import datetime
+
+from util.qset.QuestionUtil import QuestionUtil
+from util.serialization import SerializationUtil
+
 
 def get_gravatar(email):
     clean_email = email.strip().lower().encode('utf-8')
@@ -114,4 +119,33 @@ class UsersApi:
     def logout(request):
         logout(request)
         return redirect('/')
+
+    @staticmethod
+    def get_questions(request):
+        data = json.loads(request.body)
+        ids = data.get("ids", [])
+        q_types = data.get("types", "")
+
+        # Data validation
+        if ids is None:
+            ids = []
+        if type(ids) is not list:
+            return MsgBuilder.invalid_input(msg="Expected 'ids' to be list").as_json_response()
+
+        # TODO if (\Service_User::verify_session() !== true) return Msg::no_login();
+
+        # If IDs are specified, get those IDs
+        if len(ids) > 0:
+            questions = Question.objects.filter(pk__in=ids)
+            questions_as_dicts = SerializationUtil.serialize_set(questions)
+            questions_data_only = [question["data"] for question in questions_as_dicts]
+            return JsonResponse({"questions": questions_data_only})
+
+        # Else, just get all of this user's questions
+        else:
+            # TODO use real user's id. i'm using this one rn bc they have a lot of questions to their name in QA lol
+            questions = QuestionUtil.get_users_question(50757, q_types)
+            return JsonResponse({"questions": questions})
+
+
 

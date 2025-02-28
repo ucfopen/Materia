@@ -36,7 +36,7 @@ const QuestionHistory = () => {
 					data: qset.data,
 					version: qset.version,
 					count: readQuestionCount(qset.data),
-					created_at: new Date(parseInt(qset.created_at) * 1000).toLocaleString(),
+					created_at: new Date(qset.created_at).toLocaleString(),
 				}
 			})
 			setSaves(qsetHistory)
@@ -90,7 +90,7 @@ const QuestionHistory = () => {
 			return (
 				<tr onClick={() => loadSaveData(save.id)} key={index}>
 					<td>Save #{saves.length - index}</td>
-					<td>{new Date(parseInt(save.created_at) * 1000).toLocaleString()}</td>
+					<td>{new Date(save.created_at).toLocaleString()}</td>
 				</tr>
 			)
 		})

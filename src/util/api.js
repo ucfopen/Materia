@@ -142,7 +142,7 @@ export const apiSaveWidget = (_params) => {
 }
 
 export const apiGetUser = () => {
-	return fetchGet('/api/user/get', { body: `data=${formatFetchBody([])}` })
+	return fetchGet('/api/user/get/')
 		.then(user => {
 			writeToStorage('user', user)
 			return user
@@ -365,8 +365,12 @@ export const apiSavePlayLogs = ({ request }) => {
 	return fetchGet('/api/sessions/play_save/', ({ body: request }))
 }
 
-export const apiGetQuestionsByType = (arrayOfQuestionIds, arrayOfQuestionTypes) => {
-	return fetchGet('/api/json/questions_get', ({ body: `data=${formatFetchBody([arrayOfQuestionIds, arrayOfQuestionTypes])}` }))
+export const apiGetQuestionsByType = (arrayOfQuestionIds, questionTypes) => {
+	return fetchGet('/api/user/get_questions/', ({ body: { ids: arrayOfQuestionIds, types: questionTypes } }))
+		.then(data => {
+			console.log(data.questions[0])
+			return data["questions"]
+		})
 }
 
 export const apiGetAssets = () => {

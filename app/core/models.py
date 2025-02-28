@@ -568,7 +568,7 @@ class PermObjectToUser(models.Model):
         ]
 
 
-class Question(models.Model):
+class Question(SerializableModel):
     id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(
         User,
@@ -581,11 +581,26 @@ class Question(models.Model):
     type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
     text = models.TextField()
     created_at = models.DateTimeField(default=datetime.now)
-    data = models.TextField(blank=True, null=True)
+    _data = models.TextField(blank=True, null=True, db_column="data")
     hash = models.CharField(unique=True, max_length=32)
     qset = models.ManyToManyField(
         "WidgetQset", through=MapQuestionToQset, related_name="questions"
     )
+
+    @property
+    def data(self) -> dict:
+        decoded_data = base64.b64decode(self._data).decode("utf-8")
+        return json.loads(decoded_data)
+
+    @data.setter
+    def data(self, new_data: dict):
+        self._data = base64.b64encode(json.dumps(new_data).encode("utf-8")).decode("utf-8")
+
+    def as_dict(self, *args, **kwargs):
+        result = super().as_dict(*args, **kwargs)
+        del result["_data"]
+        result["data"] = self.data
+        return result
 
     class Meta:
         db_table = "question"

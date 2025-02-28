@@ -144,8 +144,8 @@ class WidgetQsetImportView(TemplateView):
         return ContextUtil.create(
             title="Qset Catalog",
             page_type="import",
-            js_resources="dist/js/question-import.js",
-            css_resources="dist/css/question-import.css",
+            js_resources="dist/js/question-importer.js",
+            css_resources="dist/css/question-importer.css",
             request=self.request,
         )
 
