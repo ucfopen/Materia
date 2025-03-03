@@ -20,9 +20,7 @@ class Command(base.BaseCommand):
         parser.add_argument(
             "subcommand", type=str, help="Which subcommand function to run"
         )
-        parser.add_argument(  # this works for now (in regard to above comment)
-            "arguments", nargs="+", type=str
-        )
+        parser.add_argument("arguments", nargs="*", type=str, default=[])
 
     def handle(self, *args, **kwargs):
         subcommand = kwargs["subcommand"]
@@ -33,10 +31,13 @@ class Command(base.BaseCommand):
             logger.info(e)
             logger.exception("")
 
-    def install_from_config(self):
+    def install_from_config(self, *args):
         widgets = settings.WIDGETS
+        install_all = len(args) < 1
+
         for w in widgets:
-            self.install_from_url(w["package"], w["checksum"], w["id"])
+            if install_all or str(w["id"]) in list(args):
+                self.install_from_url(w["package"], w["checksum"], w["id"])
 
     def install_from_url(self, package_url, checksum_url, desired_id):
         local_package = self.download_package(package_url)
