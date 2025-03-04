@@ -219,4 +219,4 @@ class WidgetInstanceUtil:
         except Exception as e:
             logger.info("WHAT THE FUCK")
             logger.exception(e)
-            return None, MsgBuilder.failure(msg="Widget instance could not be created.")
+            return None, MsgBuilder.failure(msg="Widget instance could not be updated.")

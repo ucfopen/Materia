@@ -796,7 +796,6 @@ class WidgetInstance(SerializableModel):
 
     @qset.setter
     def qset(self, new_qset: dict):
-        # TODO: when using this setter, we might want to create a whole new WidgetQset for history
         self._qset = WidgetQset(version=new_qset["version"], instance=self)
         self._qset.data = new_qset["data"]
 
