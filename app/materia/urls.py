@@ -47,6 +47,7 @@ urlpatterns = [
     path("preview/<slug:widget_instance_id>/", WidgetPreviewView.as_view(), name="widget preview"),
     path("questions/import/", WidgetQsetImportView.as_view(), name="widget qset import"),
     path("qsets/history/", WidgetQsetHistoryView.as_view(), name="widget qset history"),
+    path("qsets/generate/", WidgetQsetGenerateView.as_view(), name="widget qset generate"),
 
     # Scores
     path("scores/preview/<slug:widget_instance_id>/", ScoresView.as_view(is_preview=True), name="preview scores"),

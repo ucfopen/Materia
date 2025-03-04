@@ -162,6 +162,19 @@ class WidgetQsetHistoryView(TemplateView):
             request=self.request,
         )
 
+class WidgetQsetGenerateView(TemplateView):
+    template_name = "react.html"
+
+    def get_context_data(self):
+        # TODO if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
+        return ContextUtil.create(
+            title="Qset Generation",
+            page_type="generate",
+            js_resources="dist/js/qset-generator.js",
+            css_resources="dist/css/qset-generator.css",
+            request=self.request,
+        )
+
 # View page creation methods
 
 # Creates a player page for a real, logged play session

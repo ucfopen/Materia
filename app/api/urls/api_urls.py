@@ -18,4 +18,7 @@ urlpatterns = [
 
     # Scores
     path("scores/", include("api.urls.scores_urls")),
+
+    # AI generation
+    path("generate/", include("api.urls.generation_urls"))
 ]

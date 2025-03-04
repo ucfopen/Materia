@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 
+from util.widget.validator import ValidatorUtil
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 APP_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -173,6 +175,17 @@ LOGGING = {
             "level": "ERROR",  # change to DEBUG to see all queries
         },
     },
+}
+
+AI_GENERATION = {  # TODO load from env
+    "ENABLED": ValidatorUtil.validate_bool(os.environ.get("GENERATION_ENABLED"), False),
+    "ALLOW_IMAGES": ValidatorUtil.validate_bool(os.environ.get("GENERATION_ALLOW_IMAGES"), False),
+    "PROVIDER": os.environ.get("GENERATION_API_PROVIDER"),
+    "ENDPOINT": os.environ.get("GENERATION_API_ENDPOINT"),
+    "API_KEY": os.environ.get("GENERATION_API_KEY"),
+    "API_VERSION": os.environ.get("GENERATION_API_VERSION"),
+    "MODEL": os.environ.get("GENERATION_API_MODEL"),
+    "LOG_STATS": ValidatorUtil.validate_bool(os.environ.get("GENERATION_LOG_STATS"), False),
 }
 
 WIDGETS = [

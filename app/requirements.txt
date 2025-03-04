@@ -10,3 +10,4 @@ pytz==2024.1
 PyYAML==6.0.1
 django-webpack-loader==0.7.0
 whitenoise
+openai==1.65.2
