@@ -75,8 +75,8 @@ class SessionsApi:
         preview_play_id = request_body.get("previewPlayId")
 
         # Validate request params
-        if not play_id or (not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id)):
-            return MsgUtil.create_invalid_input_msg(msg=play_id)
+        if not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id):
+            return MsgUtil.create_invalid_input_msg(msg="Invalid play ID")
 
         if not logs or not isinstance(logs, list):
             return MsgUtil.create_invalid_input_msg(msg="Missing log array")

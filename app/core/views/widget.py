@@ -137,14 +137,14 @@ class WidgetGuideView(TemplateView):
             "page_type": "guide",
             "js_global_variables": {
                 # TODO: make these config variables, and export these to somewhere where it can be reused easily
-                "BASE_URL": "http://localhost/",
-                "WIDGET_URL": "http://localhost/widget/",
-                "STATIC_CROSSDOMAIN": "http://localhost/",
+                "BASE_URL": settings.URLS["BASE_URL"],
+                "WIDGET_URL": settings.URLS["WIDGET_URL"],
+                "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"],
                 "NAME": widget.name,
                 "TYPE": guide_type,
                 "HAS_PLAYER_GUIDE": True if widget.player_guide else False,
                 "HAS_CREATOR_GUIDE": True if widget.creator_guide else False,
-                "DOC_PATH": "http://localhost/widget/" + str(widget.id) + "-" + widget.clean_name + "/" + guide  # TODO Config::get('materia.urls.engines').$widget->dir.$guide
+                "DOC_PATH": settings.URLS["WIDGET_URL"] + str(widget.id) + "-" + widget.clean_name + "/" + guide  # TODO Config::get('materia.urls.engines').$widget->dir.$guide
             }
         }
 
@@ -213,9 +213,9 @@ def _create_editor_page(title: str, widget: Widget):
         "css_resources": ["dist/css/creator-page.css"],
         "js_global_variables": {
             # TODO: make these config variables, and export these to somewhere where it can be reused easily
-            "BASE_URL": "http://localhost/",
-            "WIDGET_URL": "http://localhost/widget/",
-            "STATIC_CROSSDOMAIN": "http://localhost/",
+            "BASE_URL": settings.URLS["BASE_URL"],
+            "WIDGET_URL": settings.URLS["WIDGET_URL"],
+            "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"],
             "WIDGET_HEIGHT": widget.height, # TODO these are prolly supposed to be numbers, not strings
             "WIDGET_WIDTH": widget.width,
         }

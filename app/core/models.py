@@ -890,8 +890,10 @@ class WidgetQset(SerializableModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._data_dict: dict | None = None
-        if hasattr(self, "_data") and self._data is not None:
+        if hasattr(self, "_data") and self._data:  # Loaded from DB
             self._data_dict = self._decode_data()
+        elif "data" in kwargs:  # Initializing new instance from Python
+            self._data_dict = kwargs["data"]
 
     id = models.BigAutoField(primary_key=True)
     instance = models.ForeignKey(
