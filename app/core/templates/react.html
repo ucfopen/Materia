@@ -14,11 +14,18 @@
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		{{ css_render|safe }} {{ partials.google_analytics|default:''|safe }}
 
+		{% if fonts %}
+			{% for font in fonts %}
+				<link rel="stylesheet" href="{{ font }}" />
+			{% endfor %}
+		{% endif %}
+
 		{% if css_resources %}
 			{% for css in css_resources %}
 				<link rel="stylesheet" type="text/css" href="{% static css %}">
 			{% endfor %}
 		{% endif %}
+		<link rel="stylesheet" type="text/css" href="{% static 'dist/css/commons.css' %}" />
 
 	</head>
 	<body class="{{ page_type|default:'' }} {% if darkMode %}darkMode{% endif %}">

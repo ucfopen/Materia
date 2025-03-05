@@ -162,21 +162,86 @@ export const apiGetUsers = arrayOfUserIds => {
 }
 
 export const apiAuthorSuper = () => {
-	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody(['super_user'])}` })
-		.then(user => user)
-		.catch(error => false)
+	const data = { perm: 'super_user' }
+	const body = Object.keys(data)
+		.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+		.join('&')
+
+	return fetch('/api/json/session_role_verify/', {
+		...fetchPOSTOptions({}),
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
+		},
+		body: body
+	})
+	.then(response => response.json())
+	.then(data => {
+		return data.isSuperuser
+	})
+	.catch(error => false)
 }
 
 export const apiAuthorSupport = () => {
-	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody(['support_user'])}` })
-		.then(user => user)
-		.catch(error => false)
+
+	const data = { perm: 'support_user' }
+	const body = Object.keys(data)
+		.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+		.join('&')
+
+	return fetch('/api/json/session_role_verify/', {
+		...fetchPOSTOptions({}),
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
+		},
+		body: body
+	})
+	.then(response => response.json())
+	.then(data => {
+		return data.isSupportUser
+	})
+	.catch(error => false)
 }
 
 export const apiAuthorVerify = () => {
-	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody([])}` })
-		.then(user => user)
-		.catch(error => false)
+	const data = { perm: 'author' }
+	const body = Object.keys(data)
+		.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+		.join('&')
+
+	return fetch('/api/json/session_role_verify/', {
+		...fetchPOSTOptions({}),
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
+		},
+		body: body
+	})
+	.then(response => response.json())
+	.then(data => {
+		return data
+	})
+	.catch(error => false)
+}
+
+export const apiUserVerify = () => {
+	return fetch('/api/json/session_author_verify/', {
+		...fetchPOSTOptions({}),
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
+		}
+	})
+	.then(response => response.json())
+	.then(data => {
+		return data
+	})
+	.catch(error => false)
 }
 
 export const apiGetNotifications = () => {

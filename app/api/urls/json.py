@@ -20,6 +20,7 @@ urlpatterns = [
 
     path("user/activity", UsersApi.activity),
     path("session_author_verify/", SessionsApi.author_verify),
+    path("session_role_verify/", SessionsApi.role_verify),
     path("notifications_get/", NotificationsApi.get),
 
     # Sessions
