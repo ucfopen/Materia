@@ -51,11 +51,12 @@ urlpatterns = [
     path("scores/preview/<slug:widget_instance_id>/", ScoresView.as_view(is_preview=True), name="preview scores"),
     path("scores/<slug:widget_instance_id>/<slug:play_id>/", ScoresView.as_view(), name="scores"),
 
-    # API
+    # API (TODO: improve API routing, retire api/json)
     path("api/", include("api.urls.api_urls")),
     path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
     path("settings/", profile_views.settings, name="settings"),
+	path("users/login", login_views.login, name="login"),
     path("login/", login_views.login, name="login"),
     path("admin/", admin.site.urls),
     path("users/logout/", UsersApi.logout, name="logout"),

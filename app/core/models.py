@@ -993,6 +993,7 @@ class WidgetQset(SerializableModel):
 
     def _decode_data(self) -> dict:
         result = str(self._data)  # Might be loaded as a bytes object, not str
+        # TODO determine if we need to conditionally check for b'...' wrapper around qset data blob
         # Remove the b' ... ' that appears when stringifying the bytes object
         if result.startswith("b'") and result.endswith("'"):
             result = result[2:-1]

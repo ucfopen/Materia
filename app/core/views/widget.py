@@ -1,4 +1,5 @@
 from django.http import HttpResponseNotFound, HttpResponseServerError
+from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from core.models import WidgetInstance, Widget
@@ -12,13 +13,14 @@ class WidgetDetailView(TemplateView):
     def get_context_data(self, widget_slug):
         context = {
             "title": "Materia Widget Catalog",
-            "js_resources": ["dist/js/detail.js"],
-            "css_resources": ["dist/css/detail.css"],
+            "js_resources": settings.JS_GROUPS["detail"],
+            "css_resources": settings.CSS_GROUPS["detail"],
+            "fonts": settings.FONTS_DEFAULT,
             "js_global_variables": {
                 # TODO: make these config variables, and export these to somewhere where it can be reused easily
-                "BASE_URL": "http://localhost/",
-                "WIDGET_URL": "http://localhost/widget/",
-                "STATIC_CROSSDOMAIN": "http://localhost/",
+                "BASE_URL": settings.URLS["BASE_URL"],
+                "WIDGET_URL": settings.URLS["WIDGET_URL"],
+                "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"]
             },
             **get_dark_mode(self.request),
         }
@@ -184,15 +186,16 @@ def _create_player_page(
 def _display_widget(instance: WidgetInstance, play_id: str | None = None, is_embedded: bool = False):
     return {
         "title": f"{instance.name} - {instance.widget.name}",
-        "js_resources": ["dist/js/player-page.js"],
-        "css_resources": ["dist/css/player-page.css"],
+        "js_resources": settings.JS_GROUPS["player"],
+        "css_resources": settings.CSS_GROUPS["player"],
+        "fonts": settings.FONTS_DEFAULT,
         "html_class": "embedded" if is_embedded else "",
         "page_type": "widget",
         "js_global_variables": {
             # TODO: make these config variables, and export these to somewhere where it can be reused easily
-            "BASE_URL": "http://localhost/",
-            "WIDGET_URL": "http://localhost/widget/",
-            "STATIC_CROSSDOMAIN": "http://localhost/",
+            "BASE_URL": settings.URLS["BASE_URL"],
+            "WIDGET_URL": settings.URLS["WIDGET_URL"],
+            "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"],
             "PLAY_ID": play_id,
             "DEMO_ID": instance.id,
             "WIDGET_WIDTH": instance.widget.width,
@@ -228,6 +231,7 @@ def _create_widget_login_page(instance: WidgetInstance, is_embedded: bool = Fals
     context = {
         "js_resources": [],
         "css_resources": [],
+        "fonts": settings.FONTS_DEFAULT,
         "js_global_variables": {
             "NAME": instance.name,
             "WIDGET_NAME": instance.widget.name,
@@ -238,8 +242,8 @@ def _create_widget_login_page(instance: WidgetInstance, is_embedded: bool = Fals
     if login_messages["is_open"]:
         context["title"] = "Login"
         # TODO look at the theme override stuff? see php code
-        context["js_resources"].append("dist/js/login.js")
-        context["css_resources"].append("dist/css/login.css")
+        context["js_resources"].append(settings.JS_GROUPS["login"])
+        context["css_resources"].append(settings.CSS_GROUPS["login"])
 
         context["js_global_variables"]["EMBEDDED"] = str(
             is_embedded)  # TODO is this supposed to be IS_EMBEDDED? also, find a way to embed as a pure boolean
@@ -255,8 +259,8 @@ def _create_widget_login_page(instance: WidgetInstance, is_embedded: bool = Fals
         context["js_global_variables"]["LOGIN_LINKS"] = ""
     else:
         context["title"] = "Widget Unavailable"
-        context["js_resources"].append("dist/js/closed.js")
-        context["css_resources"].append("dist/css/login.css")
+        context["js_resources"].append(settings.JS_GROUPS["closed"])
+        context["css_resources"].append(settings.CSS_GROUPS["login"])
 
         context["js_global_variables"]["IS_EMBEDDED"] = str(is_embedded)
         context["js_global_variables"]["SUMMARY"] = login_messages["summary"]
@@ -268,16 +272,18 @@ def _create_widget_login_page(instance: WidgetInstance, is_embedded: bool = Fals
 def _create_draft_not_playable_page():
     return {
         "title": "Draft Not Playable",
-        "js_resources": ["dist/js/draft-not-playable.js"],
-        "css_resources": ["dist/css/login.css"],
+        "js_resources": settings.JS_GROUPS["draft-not-playable"],
+        "css_resources": settings.CSS_GROUPS["login"],
+        "fonts": settings.FONTS_DEFAULT
     }
 
 
 def _create_widget_retired_page(is_embedded: bool = False):
     return {
         "title": "Retired Widget",
-        "js_resources": ["dist/js/retired.js"],
-        "css_resources": ["dist/css/login.css"],
+        "js_resources": settings.JS_GROUPS["retired"],
+        "css_resources": settings.CSS_GROUPS["login"],
+        "fonts": settings.FONTS_DEFAULT,
         "js_global_variables": {
             "IS_EMBEDDED": is_embedded,
         }

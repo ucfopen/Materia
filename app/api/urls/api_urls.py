@@ -27,7 +27,8 @@ urlpatterns = [
     # Sessions
     path("json/session_play_create/", SessionsApi.session_play_create),
     path("json/play_logs_save/", SessionsApi.play_logs_save),
-    path("json/session_author_verify/", SessionsApi.session_author_verify),
+    path("json/session_author_verify/", SessionsApi.author_verify),
+    path("json/session_role_verify/", SessionsApi.role_verify),
 
     # Scores
     path("json/widget_instance_scores_get/", ScoresApi.widget_instance_scores_get),

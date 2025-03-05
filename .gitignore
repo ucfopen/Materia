@@ -11,6 +11,7 @@ build
 nbproject/
 *.pem
 .phpunit.result.cache
+.vscode
 
 # custom config
 .env.local
