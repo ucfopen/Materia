@@ -26,7 +26,6 @@ const Header = ({
 	})
 
 	useEffect(() => {
-		console.log(userPerms)
 		if (userPerms != undefined) {
 			
 			setVerified(!!userPerms.isAuthenticated)

@@ -28,6 +28,9 @@ JS_GROUPS = {
     "draft-not-playable": [
         JS_BASEURL + "draft-not-playable.js"
     ],
+    "retired": [
+        JS_BASEURL + "retired.js"
+    ],
     "profile": [
         JS_BASEURL + "profile.js"
     ],
