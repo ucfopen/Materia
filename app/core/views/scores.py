@@ -1,4 +1,5 @@
 from django.http import HttpResponseNotFound, HttpResponseForbidden
+from django.conf import settings
 from django.views.generic import TemplateView
 
 from core.models import WidgetInstance
@@ -26,9 +27,9 @@ class ScoresView(TemplateView):
 
         # Set up context and return
         js_globals = {
-            "BASE_URL": "http://localhost/",  # TODO: make these config variables, and export these to somewhere where it can be reused easily
-            "WIDGET_URL": "http://localhost/widget/",
-            "STATIC_CROSSDOMAIN": "http://localhost/",
+            "BASE_URL": settings.URLS["BASE_URL"],
+            "WIDGET_URL": settings.URLS["WIDGET_URL"],
+            "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"],
             "IS_EMBEDDED": is_embedded,
             "IS_PREVIEW": is_preview,
         }
@@ -40,7 +41,8 @@ class ScoresView(TemplateView):
 
         return {
             "title": "Score Results",
-            "js_resources": ["dist/js/scores.js"],
-            "css_resources": ["dist/css/scores.css"],
+            "js_resources": settings.JS_GROUPS["scores"],
+            "css_resources": settings.CSS_GROUPS["scores"],
+            "fonts": settings.FONTS_DEFAULT,
             "js_global_variables": js_globals
         }

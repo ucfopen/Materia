@@ -1,6 +1,7 @@
 import logging
 import json
 from django.http import HttpResponseNotFound, JsonResponse
+from django.conf import settings
 from django.shortcuts import render
 from api.views.users import UsersApi
 
@@ -27,9 +28,9 @@ def get_dark_mode(request):
 def index(request, *args, **kwargs):
     context = {
         "title": "Welcome to Materia",
-        # "bundle_name": "homepage"
-        "js_resources": ["dist/js/homepage.js"],
-        "css_resources": ["dist/css/homepage.css"],
+        "js_resources": settings.JS_GROUPS["main"],
+        "css_resources": settings.CSS_GROUPS["main"],
+        "fonts": settings.FONTS_DEFAULT,
         **get_dark_mode(request),
     }
 
@@ -49,8 +50,9 @@ def help(request):
     context = {
         "title": "Help",
         "page_type": "docs help",
-        "js_resources": ["dist/js/help.js"],
-        "css_resources": ["dist/css/help.css"],
+        "js_resources": settings.JS_GROUPS["help"],
+        "css_resources": settings.CSS_GROUPS["help"],
+        "fonts": settings.FONTS_DEFAULT,
         **get_dark_mode(request),
     }
 
