@@ -7,10 +7,11 @@ from pathlib import Path
 from .widgets import *
 from .urls import *
 from .css import *
+from .js import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-APP_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+APP_PATH = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))).resolve().parent
 
 DIRS = {
     "media": os.path.realpath(os.path.join(APP_PATH, "media")),  # + os.sep,

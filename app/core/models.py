@@ -20,6 +20,9 @@ from django.utils.translation import gettext_lazy
 from util.serialization import SerializableModel
 from util.widget.validator import ValidatorUtil
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 logger = logging.getLogger("django")
 
 
@@ -903,7 +906,8 @@ class WidgetQset(SerializableModel):
 
     def as_json(self, *select_fields):
         json_qset = super().as_json(*select_fields)
-        decoded_qset_data = base64.b64decode(json_qset["data"]).decode("utf-8")  # Slicing removes the b' ... '
+        # TODO determine if we need to conditionally check for b'...' wrapper around qset data blob
+        decoded_qset_data = base64.b64decode(json_qset["data"]).decode("utf-8")
         json_qset["data"] = json.loads(decoded_qset_data)
         return json_qset
 
@@ -956,9 +960,24 @@ class WidgetQset(SerializableModel):
 
 
 class UserSettings(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="settings")
-    profile_fields = models.JSONField(default=dict, blank=True)
-    settings = models.TextField()
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile_settings")
+    profile_fields = models.JSONField(default=dict)
 
-    def __str__(self):
-        return self.user.username
+
+    def set_profile_fields(self, key, value):
+        self.profile_fields[key] = value
+        self.save()
+
+
+    def get_profile_fields(self):
+        return self.profile_fields
+
+@receiver(post_save, sender=User)
+def create_user_settings(sender, instance, created, **kwargs):
+    if created:
+        UserSettings.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_settings(sender, instance, **kwargs):
+    instance.profile_settings.save()

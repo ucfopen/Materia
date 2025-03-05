@@ -1,6 +1,11 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
+from core.models import UserSettings
+from util.perm_manager import PermManager
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
 import hashlib
 import json
 import datetime
@@ -37,7 +42,7 @@ class UsersApi:
 
     @staticmethod
     def activity(request):
-        # some dummy data, should get it from db somehow.
+        #TODO: get actual activity data instead of dummy data
         activity_data = {
             "activity": [
                 {
@@ -76,5 +81,33 @@ class UsersApi:
             return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
+    def update_settings(request):
+        if not request.user.is_authenticated:
+            return JsonResponse({"error": "Not authenticated"}, status=403)
 
+        try:
+            data = json.loads(request.body)
+            user_profile, _ = UserSettings.objects.get_or_create(user=request.user)
+            profile_fields = user_profile.get_profile_fields()
+
+            for key, value in data.items():
+                profile_fields[key] = value
+
+            user_profile.profile_fields = profile_fields
+            user_profile.save()
+
+            return JsonResponse({"success": True, "profile_fields": user_profile.profile_fields})
+
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+
+    def logout(request):
+        logout(request)
+        return redirect('/')
 

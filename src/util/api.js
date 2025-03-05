@@ -495,7 +495,7 @@ export const apiGetUserActivity = ({ pageParam = 0 }) => {
 }
 
 export const apiUpdateUserSettings = (settings) => {
-	return fetch('/api/user/settings', {
+	return fetch('/api/json/user/settings', {
 		...fetchPOSTOptions({}),
 		headers: {
 			pragma: 'no-cache',

@@ -76,9 +76,6 @@ class Command(base.BaseCommand):
                 start_at = parser.parse(start_str).replace(tzinfo=tz.UTC)
                 end_at = parser.parse(end_str).replace(tzinfo=tz.UTC)
 
-                # print(f"{season} {year_counter} start: {start_at}")
-                # print(f"{season} {year_counter} end: {end_at}")
-
                 from core.models import DateRange
 
                 try:
