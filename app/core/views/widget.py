@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseServerError, HttpRequest
 from django.views.generic import TemplateView
 from core.models import WidgetInstance, Widget
@@ -11,8 +12,9 @@ class WidgetDetailView(TemplateView):
     def get_context_data(self, widget_slug):
         return ContextUtil.create(
             title="Materia Widget Catalog",
-            js_resources="dist/js/detail.js",
-            css_resources="dist/css/detail.css",
+            js_resources=settings.JS_GROUPS["detail"],
+            css_resources=settings.CSS_GROUPS["detail"],
+            fonts=settings.FONTS_DEFAULT,
             request=self.request,
         )
 
@@ -130,7 +132,7 @@ class WidgetGuideView(TemplateView):
                 "TYPE": guide_type,
                 "HAS_PLAYER_GUIDE": True if widget.player_guide else False,
                 "HAS_CREATOR_GUIDE": True if widget.creator_guide else False,
-                "DOC_PATH": "http://localhost/widget/" + str(widget.id) + "-" + widget.clean_name + "/" + guide,  # TODO Config::get('materia.urls.engines').$widget->dir.$guide
+                "DOC_PATH": settings.URLS["WIDGET_URL"] + str(widget.id) + "-" + widget.clean_name + "/" + guide
             },
             request=self.request,
         )
@@ -161,6 +163,7 @@ class WidgetQsetHistoryView(TemplateView):
             css_resources="dist/css/qset-history.css",
             request=self.request,
         )
+
 
 class WidgetQsetGenerateView(TemplateView):
     template_name = "react.html"
@@ -215,8 +218,9 @@ def _display_widget(
 ):
     return ContextUtil.create(
         title=f"{instance.name} - {instance.widget.name}",
-        js_resources="dist/js/player-page.js",
-        css_resources="dist/css/player-page.css",
+        js_resources=settings.JS_GROUPS["player"],
+        css_resources=settings.CSS_GROUPS["player"],
+        fonts=settings.FONTS_DEFAULT,
         html_class="embedded" if is_embedded else "",
         page_type="widget",
         js_globals={
@@ -237,11 +241,7 @@ def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
         js_resources="dist/js/creator-page.js",
         css_resources="dist/css/creator-page.css",
         js_globals={
-            # TODO: make these config variables, and export these to somewhere where it can be reused easily
-            "BASE_URL": "http://localhost/",
-            "WIDGET_URL": "http://localhost/widget/",
-            "STATIC_CROSSDOMAIN": "http://localhost/",
-            "WIDGET_HEIGHT": widget.height,
+            "WIDGET_HEIGHT": widget.height, # TODO these are prolly supposed to be numbers, not strings
             "WIDGET_WIDTH": widget.width,
         },
         request=request,
@@ -266,9 +266,8 @@ def _create_widget_login_page(
 
     if login_messages["is_open"]:
         title = "Login"
-        # TODO look at the theme override stuff? see php code
-        js_resources.append("dist/js/login.js")
-        css_resources.append("dist/css/login.css")
+        js_resources.append(settings.JS_GROUPS["login"])
+        css_resources.append(settings.CSS_GROUPS["login"])
 
         js_globals["EMBEDDED"] = is_embedded  # TODO is this supposed to be IS_EMBEDDED?
         js_globals["ACTION_LOGIN"] = ""  # TODO fix these empty strings
@@ -283,8 +282,8 @@ def _create_widget_login_page(
         js_globals["LOGIN_LINKS"] = ""
     else:
         title = "Widget Unavailable"
-        js_resources.append("dist/js/closed.js")
-        css_resources.append("dist/css/login.css")
+        js_resources.append(settings.JS_GROUPS["closed"])
+        css_resources.append(settings.JS_GROUPS["closed"])
 
         js_globals["IS_EMBEDDED"] = str(is_embedded)
         js_globals["SUMMARY"] = login_messages["summary"]
@@ -295,6 +294,7 @@ def _create_widget_login_page(
         js_resources=js_resources,
         css_resources=css_resources,
         js_globals=js_globals,
+        fonts=settings.FONTS_DEFAULT,
         request=request,
     )
 
@@ -302,8 +302,9 @@ def _create_widget_login_page(
 def _create_draft_not_playable_page(request: HttpRequest):
     return ContextUtil.create(
         title="Draft Not Playable",
-        js_resources="dist/js/draft-not-playable.js",
-        css_resources="dist/css/login.css",
+        js_resources=settings.JS_GROUPS["draft-not-playable"],
+        css_resources=settings.CSS_GROUPS["login"],
+        fonts=settings.FONTS_DEFAULT,
         request=request,
     )
 
@@ -311,8 +312,8 @@ def _create_draft_not_playable_page(request: HttpRequest):
 def _create_widget_retired_page(request: HttpRequest, is_embedded: bool = False):
     return ContextUtil.create(
         title="Retired Widget",
-        js_resources="dist/js/retired.js",
-        css_resources="dist/css/login.css",
+        js_resources=settings.JS_GROUPS["retired"],
+        css_resources=settings.CSS_GROUPS["login"],
         js_globals={
             "IS_EMBEDDED": is_embedded,
         },

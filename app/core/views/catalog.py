@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
@@ -9,8 +10,8 @@ class CatalogView(TemplateView):
     def index(request):
         context = ContextUtil.create(
             title="Materia Widget Catalog",
-            js_resources="dist/js/catalog.js",
-            css_resources="dist/css/catalog.css",
+            js_resources=settings.JS_GROUPS["catalog"],
+            css_resources=settings.JS_GROUPS["catalog"],
             request=request,
         )
 

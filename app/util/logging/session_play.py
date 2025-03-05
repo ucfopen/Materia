@@ -42,7 +42,7 @@ class SessionPlay:
                 self.data.percent = 0
                 self.data.elapsed = 0
                 self.data.context_id = ''
-                self.data.semester = DateRange.objects.get(pk=5)  # TODO
+                self.data.semester = DateRange.objects.first()  # TODO make it grab the current semester
                 self.is_preview = True
 
         # self.id: str | None = None

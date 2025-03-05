@@ -1,4 +1,5 @@
 from django.http import HttpResponseNotFound, HttpResponseForbidden
+from django.conf import settings
 from django.views.generic import TemplateView
 
 from core.models import WidgetInstance
@@ -39,8 +40,9 @@ class ScoresView(TemplateView):
 
         return ContextUtil.create(
             title="Score Results",
-            js_resources="dist/js/scores.js",
-            css_resources="dist/css/scores.css",
+            js_resources=settings.JS_GROUPS["scores"],
+            css_resources=settings.CSS_GROUPS["scores"],
+            fonts=settings.FONTS_DEFAULT,
             js_globals=js_globals,
             request=self.request,
         )

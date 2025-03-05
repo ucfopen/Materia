@@ -18,7 +18,7 @@ from django.db.models import F
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0015_remove_usersettings_settings_and_more'),
+        ('core', '0014_alter_widget_is_generable_and_more'),
     ]
 
     @staticmethod

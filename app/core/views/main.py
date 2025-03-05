@@ -1,13 +1,15 @@
 import logging
 from django.http import HttpResponseNotFound
+from django.conf import settings
 from django.shortcuts import render
 from util.context_util import ContextUtil
 
 def index(request, *args, **kwargs):
     context = ContextUtil.create(
         title="Welcome to Materia",
-        js_resources="dist/js/homepage.js",
-        css_resources="dist/css/homepage.css",
+        js_resources=settings.JS_GROUPS["main"],
+        css_resources=settings.CSS_GROUPS["main"],
+        fonts=settings.FONTS_DEFAULT,
         request=request,
     )
 
@@ -27,8 +29,9 @@ def help(request):
     context = ContextUtil.create(
         title="Help",
         page_type="docs help",
-        js_resources="dist/js/help.js",
-        css_resources="dist/css/help.css",
+        js_resources=settings.JS_GROUPS["help"],
+        css_resources=settings.CSS_GROUPS["help"],
+        fonts=settings.FONTS_DEFAULT,
         request=request,
     )
 

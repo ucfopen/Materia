@@ -2,6 +2,7 @@ import json
 import logging
 
 from django.http import HttpRequest, JsonResponse
+from django.conf import settings
 
 from api.views.users_api import UsersApi
 
@@ -15,6 +16,7 @@ class ContextUtil:
             title: str = "",
             page_type: str = "",
             html_class: str = "",
+            fonts: list[str] = settings.FONTS_DEFAULT,
             js_globals: dict = None,
     ) -> dict:
         # Flesh out the JS globals with some defaults
@@ -35,6 +37,7 @@ class ContextUtil:
             "page_type": page_type,
             "js_global_variables": processed_js_globals,
             "css_global_variables": processed_css_resources,
+            "fonts": fonts,
             **ContextUtil.get_dark_mode(request)
         }
 
