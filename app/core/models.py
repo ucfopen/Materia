@@ -780,10 +780,12 @@ class WidgetInstance(SerializableModel):
 
     @qset.setter
     def qset(self, new_qset):
-        if "data" in new_qset:
-            self.qset.data = new_qset["data"]
-        if "version" in new_qset:
-            self.qset.version = new_qset["version"]
+        if type(new_qset) is WidgetQset:
+            self._qset = new_qset
+        elif type(new_qset) is dict:
+            self._qset = WidgetQset(version=new_qset["version"], data=new_qset["data"], instance=self)
+        else:
+            logger.error(f"Invalid qset type passed into setter: {type(new_qset)}")
 
     def playable_by_current_user(self):
         return self.guest_access  # TODO: || ServiceUser::verify_session();
@@ -888,6 +890,8 @@ class WidgetQset(SerializableModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._data_dict: dict | None = None
+        if hasattr(self, "_data") and self._data is not None:
+            self._data_dict = self._decode_data()
 
     id = models.BigAutoField(primary_key=True)
     instance = models.ForeignKey(
