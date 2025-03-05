@@ -229,7 +229,7 @@ export const apiAuthorVerify = () => {
 }
 
 export const apiUserVerify = () => {
-	return fetch('/api/json/session_author_verify/', {
+	return fetch('/api/sessions/author_verify/', {
 		...fetchPOSTOptions({}),
 		headers: {
 			pragma: 'no-cache',

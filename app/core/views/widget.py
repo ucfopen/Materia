@@ -32,7 +32,8 @@ class WidgetDemoView(TemplateView):
         if not demo_instance:
             return HttpResponseNotFound()  # TODO: change this into a more valid code or an error message
 
-        return _create_player_page(demo_instance, is_demo=False, autoplay=autoplay, is_preview=False)
+        return _create_player_page(
+            demo_instance, is_demo=False, autoplay=autoplay, is_preview=False, request=self.request)
 
 
 class WidgetPlayView(TemplateView):
@@ -46,7 +47,7 @@ class WidgetPlayView(TemplateView):
         if not instance:
             return HttpResponseNotFound()  # TODO: change this into a more valid code or an error message
 
-        return _create_player_page(instance, is_demo=False, autoplay=autoplay, is_preview=False)
+        return _create_player_page(instance, is_demo=False, autoplay=autoplay, is_preview=False, request=self.request)
 
 
 class WidgetCreatorView(TemplateView):
