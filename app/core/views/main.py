@@ -28,7 +28,7 @@ def get_dark_mode(request):
 def index(request, *args, **kwargs):
     context = {
         "title": "Welcome to Materia",
-        "js_resources": ["dist/js/homepage.js"],
+        "js_resources": settings.JS_GROUPS["main"],
         "css_resources": settings.CSS_GROUPS["main"],
         "fonts": settings.FONTS_DEFAULT,
         **get_dark_mode(request),
@@ -50,8 +50,9 @@ def help(request):
     context = {
         "title": "Help",
         "page_type": "docs help",
-        "js_resources": ["dist/js/help.js"],
+        "js_resources": settings.JS_GROUPS["help"],
         "css_resources": settings.CSS_GROUPS["help"],
+        "fonts": settings.FONTS_DEFAULT,
         **get_dark_mode(request),
     }
 

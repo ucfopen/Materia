@@ -113,6 +113,7 @@ def _create_widget_login_page(instance: WidgetInstance, is_embedded: bool = Fals
     context = {
         "js_resources": [],
         "css_resources": [],
+        "fonts": settings.FONTS_DEFAULT,
         "js_global_variables": {
             "NAME": instance.name,
             "WIDGET_NAME": instance.widget.name,
@@ -124,7 +125,7 @@ def _create_widget_login_page(instance: WidgetInstance, is_embedded: bool = Fals
         context["title"] = "Login"
         # TODO look at the theme override stuff? see php code
         context["js_resources"].append("dist/js/login.js")
-        context["css_resources"].append("dist/css/login.css")
+        context["css_resources"].append(settings.CSS_GROUPS["login"])
 
         context["js_global_variables"]["EMBEDDED"] = str(
             is_embedded)  # TODO is this supposed to be IS_EMBEDDED? also, find a way to embed as a pure boolean
@@ -141,7 +142,7 @@ def _create_widget_login_page(instance: WidgetInstance, is_embedded: bool = Fals
     else:
         context["title"] = "Widget Unavailable"
         context["js_resources"].append("dist/js/closed.js")
-        context["css_resources"].append("dist/css/login.css")
+        context["css_resources"].append(settings.CSS_GROUPS["login"])
 
         context["js_global_variables"]["IS_EMBEDDED"] = str(is_embedded)
         context["js_global_variables"]["SUMMARY"] = login_messages["summary"]

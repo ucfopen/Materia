@@ -33,5 +33,8 @@ CSS_GROUPS = {
     ],
     "settings": [
         CSS_BASEURL + "settings.css"
+    ],
+    "scores": [
+        CSS_BASEURL + "scores.css"
     ]
 }

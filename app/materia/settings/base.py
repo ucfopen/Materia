@@ -7,6 +7,7 @@ from pathlib import Path
 from .widgets import *
 from .urls import *
 from .css import *
+from .js import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
