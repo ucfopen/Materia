@@ -22,6 +22,12 @@ JS_GROUPS = {
     "login": [
         JS_BASEURL + "login.js"
     ],
+    "closed": [
+        JS_BASEURL + "closed.js"
+    ],
+    "draft-not-playable": [
+        JS_BASEURL + "draft-not-playable.js"
+    ],
     "profile": [
         JS_BASEURL + "profile.js"
     ],
