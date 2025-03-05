@@ -17,7 +17,17 @@ $ mkdir materia-django
 $ git clone git@github.com:ucfopen/Materia.git materia-django
 ```
 
-Additional instructions forthcoming.
+### Local dev with pyenv
+
+[Install pyenv](https://github.com/pyenv/pyenv?tab=readme-ov-file#installation).
+[Install pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv?tab=readme-ov-file#installation).
+Using `pyenv`, make sure the required version of Python is installed and available. This may change over time.
+
+Make sure [make](https://www.gnu.org/software/make/manual/make.html) is installed. Typically you can confirm this by checking the output of `which make` in *nix systems. Otherwise, it's up to you to determine how to use Makefiles on your operating system.
+
+Several `make` commands are provided for your convenience:
+ * `make dev-check` will check to ensure that the requisite tools `pyenv` and `pyenv-virtualenv` are installed, as well as the required version of Python. If any of the prerequisites are unavailable, you will be notified.
+ * `make dev-setup` will, assuming all requirements in `dev-check` pass, automatically create a local dev environment with `pyenv` and `virtualenv`, install all necessary Python packages, and install pre-commit hooks.
 
 ---
 
