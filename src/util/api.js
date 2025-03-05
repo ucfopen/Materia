@@ -349,8 +349,8 @@ export const apiGetQuestionSet = (instanceId, playId = null) => {
     .then(resp => resp["qset"])
 }
 
-export const apiGenerateQset = ({inst_id, widget_id, topic, include_images, num_questions, build_off_existing}) => {
-	return fetchGet('/api/generate/qset/', ({ body: { inst_id, widget_id, topic, include_images, num_questions, build_off_existing } }))
+export const apiGenerateQset = ({instId, widgetId, topic, includeImages, numQuestions, buildOffExisting}) => {
+	return fetchGet('/api/generate/qset/', ({ body: { instId, widgetId, topic, includeImages, numQuestions, buildOffExisting } }))
 }
 
 export const apiSessionVerify = (play_id) => {

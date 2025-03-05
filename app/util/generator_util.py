@@ -68,7 +68,7 @@ class GeneratorUtil:
 
             qset_encoded = json.dumps(instance.qset.data)
 
-            prompt_text = f"""{widget.name} is a 'widget', is a 'widget', an interactive piece of educational web 
+            prompt_text = f"""{widget.name} is a 'widget', an interactive piece of educational web 
             content described as: '{about}'. Using the exact same json format of the following question set, without 
             changing any field keys or data types and without changing any of the existing questions, generate 
             {num_questions} more questions and add them to the existing question set. The name of this particular 
@@ -90,7 +90,7 @@ class GeneratorUtil:
                 prompt_text += f""" Lastly, the following instructions apply to the {widget.name} widget specifically,
                 and supersede earlier instructions where applicable: {custom_engine_prompt}"""
 
-            # Insert qset
+            # Insert existing qset
             prompt_text += f"\n{qset_encoded}"
 
         # Building a brand new qset
@@ -133,7 +133,7 @@ class GeneratorUtil:
         result = GeneratorUtil._query(prompt_text, "json")
         time_elapsed_seconds = datetime.now().timestamp() - start_time.timestamp()
 
-        if result is Msg:
+        if type(result) is Msg:
             logger.error(f"""
                 Error generating question set:
                 - Widget: {widget.name}\n
@@ -141,7 +141,7 @@ class GeneratorUtil:
                 - Time to complete (seconds): {time_elapsed_seconds}\n
                 - Number of questions asked to generate: {num_questions}\n
                 - Error: {result}
-            """)
+            """)  # TODO this doesnt print the way I want it to lol
             return result
 
         # A qset was received - decode it
@@ -174,9 +174,6 @@ class GeneratorUtil:
 
     @staticmethod
     def is_enabled() -> bool:
-        print(settings.AI_GENERATION)
-        print(settings.AI_GENERATION["ENABLED"])
-        print(os.environ.get("GENERATION_ENABLED"))
         return bool(settings.AI_GENERATION["ENABLED"])
 
     @staticmethod
@@ -244,8 +241,9 @@ class GeneratorUtil:
             return None
 
         # Set up based on type of provider
-        # OPENAI
+        # AZURE OPENAI
         if settings.AI_GENERATION["PROVIDER"] == "azure_openai":
+            print(settings.AI_GENERATION)
             api_key = settings.AI_GENERATION["API_KEY"]
             endpoint = settings.AI_GENERATION["ENDPOINT"]
             api_version = settings.AI_GENERATION["API_VERSION"]

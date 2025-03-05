@@ -13,11 +13,11 @@ class GenerationApi:
     @staticmethod
     def generate_qset(request):
         json_body = json.loads(request.body)
-        instance_id = json_body.get("instance_id")
-        widget_id = json_body.get("widget_id")
+        instance_id = json_body.get("instId")
+        widget_id = json_body.get("widgetId")
         topic = json_body.get("topic")
-        num_questions = json_body.get("num_questions")
-        build_off_existing = json_body.get("build_off_existing")
+        num_questions = int(json_body.get("numQuestions"))
+        build_off_existing = json_body.get("buildOffExisting")
 
         # Check if generation is available
         if False:  # TODO
