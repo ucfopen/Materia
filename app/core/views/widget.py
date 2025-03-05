@@ -152,6 +152,7 @@ class WidgetQsetImportView(TemplateView):
             request=self.request,
         )
 
+
 class WidgetQsetHistoryView(TemplateView):
     template_name = "react.html"
 
