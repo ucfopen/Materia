@@ -1,4 +1,5 @@
-COMPOSE_FILE=docker/docker-compose.local.yml
+PYTHON_VERSION="3.12.1"
+COMPOSE_FILE=docker/docker-compose.yml
 DOCKER_COMPOSE=docker compose -f $(COMPOSE_FILE)
 
 BLACK        := $(shell tput -Txterm setaf 0)
@@ -12,6 +13,30 @@ WHITE        := $(shell tput -Txterm setaf 7)
 RESET := $(shell tput -Txterm sgr0)
 
 default: build
+
+#==============================================
+# Setting up the local development environment
+#==============================================
+dev-check: ## Check to make sure pyenv and virtualenv are installed
+	@echo "Checking for pyenv"
+	@pyenv --version 2> /dev/null || echo "${YELLOW}pyenv not installed${RESET}"
+	@echo "Checking for virtualenv"
+	@pyenv virtualenv --version 2> /dev/null || echo "${YELLOW}virtualenv not installed${RESET}"
+	@echo "Checking for Python version $(PYTHON_VERSION)"
+	@pyenv versions | grep $(PYTHON_VERSION) 2> /dev/null || echo "${YELLOW}python version $(PYTHON_VERSION) not installed${RESET} - run ${RED}pyenv install $(PYTHON_VERSION)${RESET}"
+
+dev-setup: ## Create virtual environment
+	@make dev-check
+	@echo "Creating virtual environment named 'materia-local'"
+	@pyenv virtualenv $(PYTHON_VERSION) materia-local || echo "Virtual environment 'materia-local' already exists"
+	@pyenv local materia-local
+	@echo "Installing Python dependencies"
+	@pip install -r ./requirements-dev.txt
+	@echo "Installing pre-commit hooks"
+	@pre-commit install
+
+dev-remove: ## Remove virtual environment
+	@pyenv uninstall materia-local
 
 #==============================================
 # Building and cleaning the Docker environment
