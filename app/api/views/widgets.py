@@ -7,36 +7,27 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotFou
 
 from util.widget.widget_util import WidgetUtil
 
+from rest_framework import permissions, viewsets
+from core.serializers import WidgetSerializer
+
 logger = logging.getLogger("django")
 
+class WidgetViewSet(viewsets.ModelViewSet):
+    serializer_class = WidgetSerializer
+    permission_classes = [permissions.AllowAny]
+
+    queryset = Widget.objects.all()
+
+    def get_queryset(self):
+        widgets = Widget.objects.all().order_by("name")
+        if self.request.query_params.get("ids",""):
+            return widgets.filter(id__in=self.request.query_params.get("ids","").split(","))
+        else:
+            return widgets
+        
+## API stuff below this line is not yet fully converted to DRF ##
 
 class WidgetsApi:
-    @staticmethod
-    def widgets_get(request):
-        widget_ids = json.loads(request.body).get("widgetIds") or []
-        all_widgets = Widget.objects.all().order_by("name")
-
-        # Filter out widgets based on ID. Treat empty lists as 'all widgets'.
-        if widget_ids:
-            all_widgets = all_widgets.filter(id__in=widget_ids)
-
-        return JsonResponse(WidgetUtil.hack_return(all_widgets), safe=False)
-
-    @staticmethod
-    def widgets_get_by_type(request):
-        widget_type = json.loads(request.body).get("widgetType") or "default"
-        all_widgets = Widget.objects.all().order_by("name")
-
-        # Filter out all widgets based on type
-        # TODO look more into this
-        if widget_type == "admin":
-            pass
-        elif widget_type in ["all", "playable"]:
-            all_widgets = all_widgets.filter(is_playable=True)
-        elif widget_type in ["featured", "catalog", "default"]:
-            all_widgets = all_widgets.filter(in_catalog=True, is_playable=True)
-
-        return JsonResponse(WidgetUtil.hack_return(all_widgets), safe=False)
 
     @staticmethod
     def widget_instances_get(request):

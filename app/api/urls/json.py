@@ -8,24 +8,24 @@ from django.urls import path
 
 urlpatterns = [
     # Widgets
-    path("widgets_get_by_type/", WidgetsApi.widgets_get_by_type),
-    path("widgets_get/", WidgetsApi.widgets_get),
+    # path("widgets_get_by_type/", WidgetsApi.widgets_get_by_type),
+    # path("widgets_get/", WidgetsApi.widgets_get),
     path("widget_instances_get/", WidgetsApi.widget_instances_get),
     path("question_set_get/", WidgetsApi.question_set_get),
 
     # Users
-    path("user_get", UsersApi.get),
+    # path("user_get", UsersApi.get),
     path("auth/login/", UsersApi.service_user_login, name="service_user_login"),
 
     path("user/activity", UsersApi.activity),
-    path("session_author_verify/", SessionsApi.author_verify),
+    # path("session_author_verify/", SessionsApi.author_verify),
     path("session_role_verify/", SessionsApi.role_verify),
     path("notifications_get/", NotificationsApi.get),
 
     # Sessions
     path("session_play_create/", SessionsApi.play_create),
     path("play_logs_save/", SessionsApi.play_save),
-    path("session_author_verify/", SessionsApi.author_verify),
+    # path("session_author_verify/", SessionsApi.author_verify),
 
     # Scores
     path("widget_instance_scores_get/", ScoresApi.widget_instance_scores_get),

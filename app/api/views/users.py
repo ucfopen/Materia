@@ -5,40 +5,35 @@ import hashlib
 import json
 import datetime
 
+from core.permissions import IsSuperuserOrReadOnly
+
+from rest_framework import permissions, viewsets
+from core.serializers import UserSerializer
+
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated, IsSuperuserOrReadOnly]
+    # NEVER allow user creation or deletion from the API
+    # PATCH requires SU
+    http_method_names = ['get', 'patch', 'head']
+
+    queryset = User.objects.none()
+
+    def get_queryset(self):
+        user = self.request.user
+        # TODO even superusers don't need a list of every user
+        # if user.is_superuser:
+        #     return User.objects.all()
+        return User.objects.filter(pk=user.pk)
+
 def get_gravatar(email):
     clean_email = email.strip().lower().encode('utf-8')
     hash_email = hashlib.md5(clean_email).hexdigest()
     return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
 
+## API stuff below this line is not yet fully converted to DRF ##
 
 class UsersApi:
-    @staticmethod
-    def get(request):
-        if not request.user.is_authenticated:
-            return JsonResponse({"error": "Not authenticated"}, status=403)
-
-        is_student = request.user.groups.filter(name="Student").exists()
-        is_support_user = request.user.groups.filter(name="Support").exists()
-        avatar_url = get_gravatar(request.user.email)
-        user = request.user
-
-        #TODO: figure out better way to handle profile_fields
-        user_data = {
-            "id": user.id,
-            "username": user.username,
-            "first": user.first_name,
-            "last": user.last_name,
-            "email": user.email,
-            "is_student": False,
-            "is_support_user": user.is_staff,
-            "avatar": avatar_url,
-            "profile_fields": {
-                "useGravitar": True,
-                "beardMode": True,
-            }
-        }
-        return JsonResponse(user_data)
-
 
     @staticmethod
     def activity(request):

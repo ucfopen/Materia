@@ -83,10 +83,10 @@ const Detail = ({widget, isFetching}) => {
 				hasPlayerGuide: widget.player_guide != '',
 				hasCreatorGuide: widget.creator_guide != '',
 				maxWidth: ((parseInt(widget.width) || 700) + 150) + 'px',
-				supported_data: widget.meta_data['supported_data'].map(_tooltipObject),
-				features: widget.meta_data['features'].map(_tooltipObject),
+				supported_data: widget.meta_data.supported_data.map(_tooltipObject),
+				features: widget.meta_data.features.map(_tooltipObject),
 				accessibility: getAccessibilityData(widget.meta_data),
-				date: new Date(widget['created_at'] * 1000).toLocaleDateString(),
+				date: new Date(widget.created_at * 1000).toLocaleDateString(),
 				dataLoading: false,
 			})
 		}

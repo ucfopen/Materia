@@ -75,11 +75,18 @@ export const apiGetWidgetsByType = (widgetType="default") => {
 }
 
 // Gets widget info
-export const apiGetWidget = widgetId => {
-	return fetchGet('/api/json/widgets_get/', { body: { widgetIds: [widgetId] } })
-		.then(widgets => {
-			return widgets?.length > 0 ? widgets[0] : {}
-		})
+export const apiGetWidget = (ids=[], type='default') => {
+	let params = `?type=${type}`
+
+	if (ids.length) {
+		const idsFilter = ids.toString()
+		params += `&ids=${idsFilter}`
+	}
+	return fetch(`/api/widgets/${params}`)
+		.then(response => response.json())
+		.then((data) => {
+			return data
+	})
 }
 
 /**
@@ -141,12 +148,17 @@ export const apiSaveWidget = (_params) => {
 	}
 }
 
-export const apiGetUser = () => {
-	return fetchGet('/api/json/user_get', { body: `data=${formatFetchBody([])}` })
-		.then(user => {
-			writeToStorage('user', user)
-			return user
-		})
+export const apiGetUser = (user) => {
+	if (!!user) user = ''
+	return fetch(`/api/users/${user}`)
+	.then(response => response.json())
+	.then((data) => {
+		return {
+			...data[0],
+			first: data[0].first_name,
+			last: data[0].last_name
+		}
+	})
 }
 
 export const apiGetUsers = arrayOfUserIds => {
@@ -229,14 +241,7 @@ export const apiAuthorVerify = () => {
 }
 
 export const apiUserVerify = () => {
-	return fetch('/api/json/session_author_verify/', {
-		...fetchPOSTOptions({}),
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
-		}
-	})
+	return fetch('/api/session/verify/')
 	.then(response => response.json())
 	.then(data => {
 		return data
@@ -405,8 +410,17 @@ export const apiGetStorageData = instId => {
 }
 
 // Widget player api calls
+// TODO not yet fully implemented
 export const apiGetPlaySession = ({ widgetId }) => {
-	return fetchGet('/api/json/session_play_create/', ({ body: { instanceId: widgetId } }))
+	// return fetchGet('/api/json/session_play_create/', ({ body: { instanceId: widgetId } }))
+	return fetch('/api/play-sessions/create', {
+		method: 'POST',
+		body: JSON.stringify({ instanceId: widgetId })
+	})
+	.then(resp => resp.json())
+	.then(data => {
+		console.log(data)
+	})
 }
 
 export const apiGetQuestionSet = (instanceId, playId = null) => {

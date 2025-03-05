@@ -26,7 +26,6 @@ const Header = ({
 	})
 
 	useEffect(() => {
-		console.log(userPerms)
 		if (userPerms != undefined) {
 			
 			setVerified(!!userPerms.isAuthenticated)
@@ -94,6 +93,7 @@ const Header = ({
 
 	let userRender = null
 	if (!userLoading) {
+		console.log(user)
 		let userAvatarRender = null;
 		let loginRender = null;
 

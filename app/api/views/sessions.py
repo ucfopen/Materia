@@ -7,10 +7,14 @@ from util.logging.session_logger import SessionLogger
 from util.logging.session_play import SessionPlay
 from util.widget.validator import ValidatorUtil
 
+from rest_framework import permissions
+from rest_framework.views import APIView
+from rest_framework.response import Response
+# from core.serializers import
 
-class SessionsApi:
-    @staticmethod
-    def author_verify(request):
+class SessionView(APIView):
+
+    def get(self, request):
         perm = ""
         if request.user.is_superuser:
             perm = "super_user"
@@ -23,8 +27,14 @@ class SessionsApi:
         else:
             perm = "anonymous"
 
-        return JsonResponse({"isAuthenticated": request.user.is_authenticated, "permLevel": perm})
+        return Response({
+            "isAuthenticated": request.user.is_authenticated,
+            "permLevel": perm
+        })
+    
+## API stuff below this line is not yet fully converted to DRF ##
 
+class SessionsApi:
     # formerly author_verify: provides a single endpoint to determine whether the user has a given role
     # TODO should really be removed or reworked
     @staticmethod

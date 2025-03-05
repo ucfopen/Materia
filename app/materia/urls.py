@@ -28,7 +28,22 @@ from django.urls import include, path
 from api.views.users import UsersApi
 from django.contrib import admin
 
+from rest_framework import routers
+from api.views import users
+from api.views import widgets
+from api.views import sessions
+from api.views import playsessions
+
+router = routers.DefaultRouter()
+router.register(r'users', users.UserViewSet)
+router.register(r'widgets', widgets.WidgetViewSet)
+router.register(r'play-sessions', playsessions.PlaySessionViewSet)
+
 urlpatterns = [
+    path("api/", include(router.urls)),
+    path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    path('api/session/verify/', sessions.SessionView.as_view(), name='session-verify'),
+
     path("", core_views.index, name="home page"),
     path("help/", core_views.help, name="help"),
 
