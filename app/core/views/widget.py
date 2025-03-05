@@ -3,6 +3,7 @@ from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from core.models import WidgetInstance, Widget
+from core.views.main import get_dark_mode
 from util.logging.session_play import SessionPlay
 
 
@@ -20,7 +21,8 @@ class WidgetDetailView(TemplateView):
                 "BASE_URL": settings.URLS["BASE_URL"],
                 "WIDGET_URL": settings.URLS["WIDGET_URL"],
                 "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"]
-            }
+            },
+            **get_dark_mode(self.request),
         }
         return context
 

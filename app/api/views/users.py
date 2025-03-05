@@ -1,6 +1,11 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
+from core.models import UserSettings
+from util.perm_manager import PermManager
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
 import hashlib
 import json
 import datetime
@@ -21,28 +26,27 @@ class UsersApi:
         is_support_user = request.user.groups.filter(name="Support").exists()
         avatar_url = get_gravatar(request.user.email)
         user = request.user
+        #we only care about the profile, normally it returns a tuple
+        user_profile, _= UserSettings.objects.get_or_create(user=user)
 
-        #TODO: figure out better way to handle profile_fields
         user_data = {
             "id": user.id,
             "username": user.username,
             "first": user.first_name,
             "last": user.last_name,
             "email": user.email,
-            "is_student": False,
+            "is_student": PermManager.user_is_student(user),
             "is_support_user": user.is_staff,
             "avatar": avatar_url,
-            "profile_fields": {
-                "useGravitar": True,
-                "beardMode": True,
-            }
+            "profile_fields": user_profile.get_profile_fields()
+
         }
         return JsonResponse(user_data)
 
 
     @staticmethod
     def activity(request):
-        # some dummy data, should get it from db somehow.
+        #TODO: get actual activity data instead of dummy data
         activity_data = {
             "activity": [
                 {
@@ -81,5 +85,33 @@ class UsersApi:
             return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
+    def update_settings(request):
+        if not request.user.is_authenticated:
+            return JsonResponse({"error": "Not authenticated"}, status=403)
 
+        try:
+            data = json.loads(request.body)
+            user_profile, _ = UserSettings.objects.get_or_create(user=request.user)
+            profile_fields = user_profile.get_profile_fields()
+
+            for key, value in data.items():
+                profile_fields[key] = value
+
+            user_profile.profile_fields = profile_fields
+            user_profile.save()
+
+            return JsonResponse({"success": True, "profile_fields": user_profile.profile_fields})
+
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+
+    def logout(request):
+        logout(request)
+        return redirect('/')
 
