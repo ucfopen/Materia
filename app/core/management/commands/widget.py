@@ -130,7 +130,9 @@ class Command(base.BaseCommand):
         # widget_files = self.get_files_from_args(however_we_get_args())
         widget_files = [package_path]
 
-        replace_id = int(self.replace_id)  # this could also possibly come from args
+        replace_id = (
+            int(self.replace_id) if hasattr(self, "replace_id") else 0
+        )  # this could also possibly come from args
         # file_count = len(widget_files)
         # if not file_count:
         # raise Exception(f"No widgets found in {','.join(however_we_get_args())}")

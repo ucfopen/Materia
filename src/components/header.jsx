@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetUser, apiAuthorVerify, apiAuthorSuper, apiAuthorSupport } from '../util/api'
+import { apiGetUser, apiUserVerify } from '../util/api'
 import Notifications from './notifications'
 
 const Header = ({
@@ -9,9 +9,12 @@ const Header = ({
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [optionsOpen, setOptionsOpen] = useState(false)
 
-	const { data: verified} = useQuery({
+	const [verified, setVerified] = useState(false)
+	const [permLevel, setPermLevel] = useState('anonymous')
+
+	const { data: userPerms } = useQuery({
 		queryKey: 'isLoggedIn',
-		queryFn: apiAuthorVerify,
+		queryFn: apiUserVerify,
 		staleTime: Infinity,
 		retry: false
 	})
@@ -21,18 +24,14 @@ const Header = ({
 		staleTime: Infinity,
 		enabled: !!verified
 	})
-	const { data: isAdmin} = useQuery({
-		queryKey: 'isAdmin',
-		enabled: !!user && user.loggedIn,
-		queryFn: apiAuthorSuper,
-		staleTime: Infinity
-	})
-	const { data: isSupport} = useQuery({
-		queryKey: 'isSupport',
-		enabled: !!user && user.loggedIn,
-		queryFn: apiAuthorSupport,
-		staleTime: Infinity
-	})
+
+	useEffect(() => {
+		if (userPerms != undefined) {
+			
+			setVerified(!!userPerms.isAuthenticated)
+			setPermLevel(userPerms.permLevel ?? 'anonymous')
+		}
+	},[userPerms])
 
 	const toggleMobileNavMenu = () => setMenuOpen(!menuOpen)
 
@@ -45,13 +44,11 @@ const Header = ({
 		setOptionsOpen(!optionsOpen);
 	}
 
-	let userDataRender = <span id='current-user' data-logged-in='false'></span>
-
 	let profileNavRender = null
 
-	let adminNavRender = null
-	if (isAdmin) {
-		adminNavRender = (
+	let elevatedPermsNavRender = null
+	if (permLevel == 'super_user') {
+		elevatedPermsNavRender = (
 			<li className='nav_expandable'>
 				<span className='elevated admin'>Admin</span>
 				<ul>
@@ -68,10 +65,8 @@ const Header = ({
 			</li>
 		)
 	}
-
-	let supportNavRender = null
-	if (isSupport) {
-		supportNavRender = (
+	else if (permLevel == 'support_user') {
+		elevatedPermsNavRender = (
 			<li className='nav_expandable'>
 				<span className='elevated support'>Support</span>
 				<ul>
@@ -189,8 +184,7 @@ const Header = ({
 						<a href='/help'>Help</a>
 					</li>
 
-					{ adminNavRender }
-					{ supportNavRender }
+					{ elevatedPermsNavRender }
 
 					{ logoutNavRender }
 				</ul>

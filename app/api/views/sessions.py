@@ -12,7 +12,36 @@ from util.widget.validator import ValidatorUtil
 class SessionsApi:
     @staticmethod
     def author_verify(request):
-        return JsonResponse({})
+        perm = ""
+        if request.user.is_superuser:
+            perm = "super_user"
+        elif request.user.groups.filter(name='support_user').exists():
+            perm = "support_user"
+        elif request.user.groups.filter(name='basic_author').exists():
+            perm = "author"
+        elif request.user.is_authenticated:
+            perm = "student"
+        else:
+            perm = "anonymous"
+
+        return JsonResponse({"isAuthenticated": request.user.is_authenticated, "permLevel": perm})
+
+    # formerly author_verify: provides a single endpoint to determine whether the user has a given role
+    # TODO should really be removed or reworked
+    @staticmethod
+    def role_verify(request):
+        if request.POST.dict()["perm"]:
+            match request.POST.dict()["perm"]:
+                case "super_user":
+                    return JsonResponse({ "isSuperuser": request.user.is_superuser })
+                case "support_user":
+                    return JsonResponse({ "isSupportUser": request.groups.filter(name='support_user').exists() })
+                case "basic_author":
+                    return JsonResponse({ "isBasicAuthor": request.user.groups.filter(name='basic_author').exists() })
+                case "student":
+                    return JsonResponse({ "isStudent": request.user.is_authenticated and not request.user.groups.filter(name='basic_author').exists() })
+                case _:
+                    return HttpResponseBadRequest()
 
     @staticmethod
     def play_create(request):
