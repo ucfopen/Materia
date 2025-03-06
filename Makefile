@@ -2,6 +2,11 @@ PYTHON_VERSION="3.12.1"
 COMPOSE_FILE=docker/docker-compose.yml
 DOCKER_COMPOSE=docker compose -f $(COMPOSE_FILE)
 
+# finds the path in which this makefile is running, for subsequent use in generating a docker container name
+APP_PATH := $(notdir $(abspath $(dir $(lastword $(MAKEFILE_LIST)))))
+# this is a bit presumptive, there may be a smarter way of confirming this via docker compose
+DOCKER_CONTAINER=${APP_PATH}-python-1
+
 BLACK        := $(shell tput -Txterm setaf 0)
 RED          := $(shell tput -Txterm setaf 1)
 GREEN        := $(shell tput -Txterm setaf 2)
@@ -94,33 +99,62 @@ logs: ## View container logs (optionally specifying a service name, like `python
 # Application management commands
 #==============================================
 create-superuser: ## Create a new superuser using the Django `createsuperuser` management command
-	$(DOCKER_COMPOSE) run --rm python python manage.py createsuperuser
+	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py createsuperuser"
 
 change-password: ## Change user password using 'changepassword' command. Example: make user=your_username change-password
-	$(DOCKER_COMPOSE) run --rm python python manage.py changepassword $(user)
+	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py changepassword $(user)"
 
 lint: lint-backend lint-frontend ## Run backend and frontend linters
+lint-check: lint-backend-check lint-frontend-check ## Run backend and frontend linters in check/no-fix mode
+
 lint-backend: ## Run backend code formatter and linter
-	$(DOCKER_COMPOSE) run --rm python black .
+	@if pyenv virtualenvs | grep materia-local >> /dev/null; then \
+		black ./app/**/*.py; \
+	else \
+		$(DOCKER_COMPOSE) run --rm python black .; \
+	fi
+lint-backend-check: ## Run backend code formatter and linter in check mode
+	@if pyenv virtualenvs | grep materia-local >> /dev/null; then \
+		black ./app/**/*.py --check; \
+	else \
+		$(DOCKER_COMPOSE) run --rm python black . --check; \
+	fi
+
 lint-frontend: ## Run frontend linter
 	@echo "${YELLOW}Frontend linting not yet implemented.${RESET}"
-lint-check: lint-backend-check lint-frontend-check ## Run backend and frontend linters in check/no-fix mode
-lint-backend-check: ## Run backend code formatter and linter in check mode
-	$(DOCKER_COMPOSE) run --rm python black . --check
 lint-frontend-check: ## Run frontend linter in no-fix mode
 	@echo "${YELLOW}Frontend linting not yet implemented.${RESET}"
 
-makemigrations: ## Create database migrations
-	@$(DOCKER_COMPOSE) run --rm python python manage.py makemigrations
-showmigrations: ## Show database migrations
-	@$(DOCKER_COMPOSE) run --rm python python manage.py showmigrations
-migrate: ## Run database migrations
-	@$(DOCKER_COMPOSE) run --rm python python manage.py migrate
-migrate-to: ## Run migrations to a specific point. Example: make migrate-to app=core migration=zero
-	@$(DOCKER_COMPOSE) run --rm python python manage.py migrate $(app) $(migration)
+# (technically) reusable recipe to run a command in the app container if it's available,
+#  or in a throwaway temporary container if it's not
+# optionally allow commands to run in -it mode for bash or shell sessions
+run-docker-command:
+	@if docker ps --filter name=${DOCKER_CONTAINER} | grep ${DOCKER_CONTAINER} > /dev/null; then \
+		if [ -n "$(IT_MODE)" ]; then \
+			docker exec -it ${DOCKER_CONTAINER} ${DOCKER_COMMAND}; \
+		else \
+			docker exec ${DOCKER_CONTAINER} ${DOCKER_COMMAND}; \
+		fi \
+	else \
+		$(DOCKER_COMPOSE) run --rm python ${DOCKER_COMMAND}; \
+	fi
 
+make-migrations: ## Create database migrations
+	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py makemigrations"
+show-migrations: ## Show database migrations
+	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py showmigrations"
+migrate: ## Run database migrations
+	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py migrate"
+migrate-to: ## Run migrations for a specific app to a specific point. Example: make migrate-to app=auth
+	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py migrate $(app)
+migrate-app-to: ## Run migrations for a specific app to a specific point. Example: make migrate-to app=core migration=zero
+	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py migrate $(app) $(migration)"
+
+# repeating container detection since these functions have to run in interactive TTY mode, unlike the rest
+bash: ## Start a Bash session in the application's Python container if it's running
+	@$(MAKE) run-docker-command IT_MODE=1 DOCKER_COMMAND="bash"
 shell: ## Run shell in Django context
-	@$(DOCKER_COMPOSE) run --rm python python manage.py shell
+	@$(MAKE) run-docker-command IT_MODE=1 DOCKER_COMMAND="python manage.py shell"
 
 manage: ## Run Django management command. Example: make manage command="showmigrations"
 	@$(DOCKER_COMPOSE) run --rm python python manage.py $(command)

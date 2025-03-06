@@ -29,6 +29,8 @@ Several `make` commands are provided for your convenience:
  * `make dev-check` will check to ensure that the requisite tools `pyenv` and `pyenv-virtualenv` are installed, as well as the required version of Python. If any of the prerequisites are unavailable, you will be notified.
  * `make dev-setup` will, assuming all requirements in `dev-check` pass, automatically create a local dev environment with `pyenv` and `virtualenv`, install all necessary Python packages, and install pre-commit hooks.
 
+Run `make help` to see a full list of commands that will simplify linting your code, running migrations, or starting interactive shell sessions within the container.
+
 ---
 
 View the [Materia Docs](http://ucfopen.github.io/Materia-Docs/) for info on installing, using, and developing Materia and widgets.
