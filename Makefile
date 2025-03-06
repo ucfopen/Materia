@@ -19,6 +19,20 @@ RESET := $(shell tput -Txterm sgr0)
 
 default: build
 
+# reusable recipe to run a command in the app container if it's available,
+#  or in a throwaway temporary container if it's not
+# optionally allow commands to run in -it mode for bash or shell sessions
+run-docker-command:
+	@if docker ps --filter name=${DOCKER_CONTAINER} | grep ${DOCKER_CONTAINER} > /dev/null; then \
+		if [ -n "$(IT_MODE)" ]; then \
+			docker exec -it ${DOCKER_CONTAINER} ${DOCKER_COMMAND}; \
+		else \
+			docker exec ${DOCKER_CONTAINER} ${DOCKER_COMMAND}; \
+		fi \
+	else \
+		$(DOCKER_COMPOSE) run --rm python ${DOCKER_COMMAND}; \
+	fi
+
 #==============================================
 # Setting up the local development environment
 #==============================================
@@ -125,27 +139,13 @@ lint-frontend: ## Run frontend linter
 lint-frontend-check: ## Run frontend linter in no-fix mode
 	@echo "${YELLOW}Frontend linting not yet implemented.${RESET}"
 
-# (technically) reusable recipe to run a command in the app container if it's available,
-#  or in a throwaway temporary container if it's not
-# optionally allow commands to run in -it mode for bash or shell sessions
-run-docker-command:
-	@if docker ps --filter name=${DOCKER_CONTAINER} | grep ${DOCKER_CONTAINER} > /dev/null; then \
-		if [ -n "$(IT_MODE)" ]; then \
-			docker exec -it ${DOCKER_CONTAINER} ${DOCKER_COMMAND}; \
-		else \
-			docker exec ${DOCKER_CONTAINER} ${DOCKER_COMMAND}; \
-		fi \
-	else \
-		$(DOCKER_COMPOSE) run --rm python ${DOCKER_COMMAND}; \
-	fi
-
 make-migrations: ## Create database migrations
 	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py makemigrations"
 show-migrations: ## Show database migrations
 	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py showmigrations"
 migrate: ## Run database migrations
 	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py migrate"
-migrate-to: ## Run migrations for a specific app to a specific point. Example: make migrate-to app=auth
+migrate-app: ## Run migrations for a specific app to a specific point. Example: make migrate-to app=auth
 	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py migrate $(app)
 migrate-app-to: ## Run migrations for a specific app to a specific point. Example: make migrate-to app=core migration=zero
 	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py migrate $(app) $(migration)"
