@@ -125,13 +125,13 @@ lint-backend: ## Run backend code formatter and linter
 	@if pyenv virtualenvs | grep materia-local >> /dev/null; then \
 		black ./app/**/*.py; \
 	else \
-		$(DOCKER_COMPOSE) run --rm python black .; \
+		$(MAKE) run-docker-command black .; \
 	fi
 lint-backend-check: ## Run backend code formatter and linter in check mode
 	@if pyenv virtualenvs | grep materia-local >> /dev/null; then \
 		black ./app/**/*.py --check; \
 	else \
-		$(DOCKER_COMPOSE) run --rm python black . --check; \
+		$(MAKE) run-docker-command black . --check; \
 	fi
 
 lint-frontend: ## Run frontend linter
