@@ -57,8 +57,101 @@ class WidgetPlayView(TemplateView):
         return _create_player_page(instance, is_demo=False, autoplay=autoplay, is_preview=False)
 
 
-# Util methods
+class WidgetCreatorView(TemplateView):
+    template_name = "react.html"
 
+    def get_context_data(self, widget_slug, instance_id=None):
+        # Check if player user session is valid
+        # TODO if (\Service_User::verify_session() !== true)
+		# {
+		# 	Session::set('redirect_url', URI::current());
+		# 	Session::set_flash('notice', 'Please log in to create this widget.');
+		# 	Response::redirect(Router::get('login').'?redirect='.URI::current());
+		# }
+
+        # Check for author permissions
+        # TODO if (\Materia\Perm_Manager::does_user_have_role(['no_author'])) throw new HttpNotFoundException;
+
+        # Create the widget instance
+        widget = Widget.objects.filter(pk=_get_id_from_slug(widget_slug)).first()
+        if not widget:
+            return HttpResponseNotFound()
+
+        # TODO View::set_global('me', Model_User::find_current());
+        return _create_editor_page("Create Widget", widget)
+
+
+class WidgetPreviewView(TemplateView):
+    template_name = "react.html"
+
+    def get_context_data(self, widget_instance_id):
+        # Verify user session
+        # TODO  if (\Service_User::verify_session() !== true)
+        # 		{
+        # 			$this->build_widget_login('Login to preview this widget', $instId);
+        # 		}
+
+        # Get widget instance
+        widget_instance = WidgetInstance.objects.filter(id=widget_instance_id).first()
+        if not widget_instance:
+            return HttpResponseNotFound()
+
+        # Check ownership of widget
+        # TODO if ( ! Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $instId, Materia\Perm::INSTANCE, [Materia\Perm::FULL, Materia\Perm::VISIBLE]))
+        if False:
+            return _create_no_permission_page()
+
+        # Check if widget is playable
+        if not widget_instance.widget.is_playable:
+            return _create_draft_not_playable_page()
+
+        return _display_widget(instance=widget_instance, play_id=None, is_embedded=True)
+
+
+class WidgetGuideView(TemplateView):
+    template_name = "react.html"
+
+    def get_context_data(self, widget_slug, guide_type):
+        # Get widget
+        widget = Widget.objects.filter(pk=_get_id_from_slug(widget_slug)).first()
+        if widget is None:
+            return HttpResponseNotFound()
+
+        # Build page title
+        title = widget.name
+        guide = ""
+        match guide_type:
+            case "creators":
+                title += " Creator's Guide"
+                guide = widget.creator_guide
+            case "players":
+                title += " Player's Guide"
+                guide = widget.player_guide
+            case _:
+                return HttpResponseNotFound()
+
+        return {
+            "title": title,
+            "js_resources": ["dist/js/guides.js"],
+            "css_resources": ["dist/css/guides.css"],
+            "page_type": "guide",
+            "js_global_variables": {
+                # TODO: make these config variables, and export these to somewhere where it can be reused easily
+                "BASE_URL": settings.URLS["BASE_URL"],
+                "WIDGET_URL": settings.URLS["WIDGET_URL"],
+                "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"],
+                "NAME": widget.name,
+                "TYPE": guide_type,
+                "HAS_PLAYER_GUIDE": True if widget.player_guide else False,
+                "HAS_CREATOR_GUIDE": True if widget.creator_guide else False,
+                "DOC_PATH": settings.URLS["WIDGET_URL"] + str(widget.id) + "-" + widget.clean_name + "/" + guide  # TODO Config::get('materia.urls.engines').$widget->dir.$guide
+            }
+        }
+
+
+# View page creation methods
+
+# Creates a player page for a real, logged play session
 def _create_player_page(
         instance: WidgetInstance, is_demo: bool = False, is_preview: bool = False,
         is_embedded: bool = False, autoplay: bool | None = None
@@ -87,11 +180,17 @@ def _create_player_page(
         return HttpResponseServerError()
 
     # Create and return player page context
+    return _display_widget(instance, play_id, is_embedded)
+
+
+def _display_widget(instance: WidgetInstance, play_id: str | None = None, is_embedded: bool = False):
     return {
         "title": f"{instance.name} - {instance.widget.name}",
         "js_resources": settings.JS_GROUPS["player"],
         "css_resources": settings.CSS_GROUPS["player"],
         "fonts": settings.FONTS_DEFAULT,
+        "html_class": "embedded" if is_embedded else "",
+        "page_type": "widget",
         "js_global_variables": {
             # TODO: make these config variables, and export these to somewhere where it can be reused easily
             "BASE_URL": settings.URLS["BASE_URL"],
@@ -103,6 +202,25 @@ def _create_player_page(
             "WIDGET_HEIGHT": instance.widget.height,
         }
     }
+
+
+def _create_editor_page(title: str, widget: Widget):
+    # TODO $this->_disable_browser_cache = true;
+
+    return {
+        "title": f"{title}",
+        "js_resources": ["dist/js/creator-page.js"],
+        "css_resources": ["dist/css/creator-page.css"],
+        "js_global_variables": {
+            # TODO: make these config variables, and export these to somewhere where it can be reused easily
+            "BASE_URL": settings.URLS["BASE_URL"],
+            "WIDGET_URL": settings.URLS["WIDGET_URL"],
+            "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"],
+            "WIDGET_HEIGHT": widget.height, # TODO these are prolly supposed to be numbers, not strings
+            "WIDGET_WIDTH": widget.width,
+        }
+    }
+
 
 
 def _create_widget_login_page(instance: WidgetInstance, is_embedded: bool = False, is_preview: bool = False):
@@ -172,6 +290,16 @@ def _create_widget_retired_page(is_embedded: bool = False):
     }
 
 
+def _create_no_permission_page():
+    # TODO $this->_disable_browser_cache = true;
+    return {
+        "title": "Permission Denied",
+        "js_resources": ["dist/js/no-permission.js"],
+        "css_resources": ["dist/css/no-permission.js"],
+    }
+
+
+# Utils functions
 def _generate_widget_login_messages(instance: WidgetInstance) -> dict:
     # TODO: get status stuffs
 

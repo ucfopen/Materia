@@ -40,8 +40,8 @@ const GuidePage = () => {
       	<div id="top">
       		<h1>{ name }</h1>
       		<div id="guide-tabs" className={`${type}-guide`}>
-      			{ hasPlayerGuide && <a href="./players-guide">Player Guide</a> }
-      			{ hasCreatorGuide && <a href="./creators-guide">Creator Guide</a>}
+      			{ hasPlayerGuide && <a href="../players-guide">Player Guide</a> }
+      			{ hasCreatorGuide && <a href="../creators-guide">Creator Guide</a>}
       		</div>
       	</div>
       	<div id="guide-container">

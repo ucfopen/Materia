@@ -11,6 +11,8 @@ from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
 
+# TODO this file is temporary just to make the installer work. django-creator-2 has a solution in it
+#      that unifies both this and widget_instance_api.py. this filed will be removed with django-creator-2.
 
 class WidgetInstancesApi:
     @staticmethod
@@ -49,6 +51,8 @@ class WidgetInstancesApi:
 
         instance = WidgetInstance()
         # instance.user = user
+        qset.instance = instance
+        instance.qset = qset
         instance.name = name
         instance.is_draft = is_draft
         instance.created_at = make_aware(datetime.now())
@@ -57,16 +61,7 @@ class WidgetInstancesApi:
         instance.guest_access = is_student
 
         try:
-            instance.db_store()
-
-            if qset.data and qset.version:
-                try:
-                    qset.instance = instance
-                    qset.db_store()
-                except Exception as e:
-                    logger.info("New instance qset could not be saved!")
-                    raise e
-
+            instance.save()
             return instance
         except Exception:
             # originally this called Msg
@@ -127,6 +122,9 @@ class WidgetInstancesApi:
                 )
             attempts = -1
             guest_access = True
+
+        if bool(qset):
+            instance.qset = qset
 
         if bool(name):
             # this is another thing that expects a user to be logged in and performing this action somehow

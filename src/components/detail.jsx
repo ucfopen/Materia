@@ -13,9 +13,9 @@ const initWidgetData = () => ({
 	dataLoading: true,
 	maxPageWidth: '0px',
 	date: '',
-	creatorurl: document.location.pathname + '/create',
-	creators_guide: document.location.pathname + '/creators-guide',
-	players_guide: document.location.pathname + '/players-guide',
+	creatorurl: document.location.pathname + 'create',
+	creators_guide: document.location.pathname + 'creators-guide',
+	players_guide: document.location.pathname + 'players-guide',
 	features: [],
 	supported_data: [],
 	accessibility: {},
@@ -135,7 +135,7 @@ const Detail = ({widget, isFetching}) => {
 			)
 		}
 
-		let accessibilityRender = null 
+		let accessibilityRender = null
 		if(!widgetData.dataLoading) {
 			accessibilityRender = <AccessibilityIndicator widget={widgetData} />
 		}

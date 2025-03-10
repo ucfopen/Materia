@@ -44,20 +44,20 @@ class SessionsApi:
                     return HttpResponseBadRequest()
 
     @staticmethod
-    def play_create(request):
+    def session_play_create(request):
         # Verify request params
         instance_id = json.loads(request.body)["instanceId"]
         if instance_id is None:
-            return HttpResponseBadRequest()
+            return MsgUtil.create_invalid_input_msg(msg="Missing instance ID")
 
         # Get and verify widget
         instance = WidgetInstance.objects.get(pk=instance_id)
         if instance is None:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user:
-            return HttpResponseForbidden()  # TODO: return no login message instead, refer to php code
+            return MsgUtil.create_no_login_msg()
         if instance.is_draft:
-            return HttpResponseForbidden()  # TODO: return message instead, see php code
+            return MsgUtil.create_failure_msg("Drafts Not Playable", "Must use Preview mode to play a draft")
 
         # Create and start play session
         session_play = SessionPlay()
@@ -66,37 +66,37 @@ class SessionsApi:
 
     @staticmethod
     # Gets called when a game ends with the play data. Scores the game, saves results, and submits score to LTI
-    def play_save(request):
+    def play_logs_save(request):
         # Get all request params
         request_body = json.loads(request.body)
         play_id = request_body.get("playId")
         logs = request_body.get("logs")
         preview_instance_id = request_body.get("previewInstanceId")
+        preview_play_id = request_body.get("previewPlayId")
 
         # Validate request params
-        if not play_id or (not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id)):
-            return MsgUtil.create_invalid_input_msg(msg=play_id)
+        if not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id):
+            return MsgUtil.create_invalid_input_msg(msg="Invalid play ID")
 
         if not logs or not isinstance(logs, list):
             return MsgUtil.create_invalid_input_msg(msg="Missing log array")
 
         # Save logs
-        if preview_instance_id:
+        if ValidatorUtil.is_valid_hash(preview_instance_id):
             ##### PREVIEW MODE #####
+            # Confirm preview_play_id is present
+            if preview_play_id is None:
+                return MsgUtil.create_invalid_input_msg(msg="Missing preview play ID")
             # Confirm user session for preview
             # TODO: if (\Service_User::verify_session() !== true) return Msg::no_login();
-
-            if ValidatorUtil.is_valid_hash(preview_instance_id):
-                pass
-                # TODO: Score_Manager::save_preview_logs($preview_inst_id, $logs);
-
-            return HttpResponse()  # TODO return true, look at PHP
+            SessionLogger.save_preview_logs(request.session, preview_instance_id, preview_play_id, logs)
+            return JsonResponse({"success": True})
         else:
             ##### PLAYING FOR KEEPS #####
             # Grab session play
             session_play = SessionPlay.get_or_none(play_id)
             if not session_play:
-                return HttpResponseNotFound()  # TODO: better error reporting
+                return HttpResponseNotFound()
 
             # TODO: the double verification of user session then session play seems like it might be redundant, take a look at later again
             # Confirm user session for real play
@@ -120,5 +120,6 @@ class SessionsApi:
             session_play.set_complete(150, 200, 75.0)
 
             return JsonResponse({  # TODO
+                "success": True,
                 "score": 150,
             })

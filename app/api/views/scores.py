@@ -92,21 +92,31 @@ class ScoresApi:
         json_body = json.loads(request.body)
         play_id = json_body.get("playId")
         preview_inst_id = json_body.get("previewInstId")
+        preview_play_id = json_body.get("previewPlayId")
 
         # Grab play details
-        if preview_inst_id:
+        if ValidatorUtil.is_valid_hash(preview_inst_id):
+            if preview_play_id is None:
+                return MsgUtil.create_invalid_input_msg(msg="Missing preview play ID")
             # Check if preview is valid and user has access
-            if not ValidatorUtil.is_valid_hash(preview_inst_id):
-                return HttpResponseBadRequest  # TODO: better error reporting
             if False:  # TODO: \Service_User::verify_session() !== true
                 return MsgUtil.create_no_login_msg()
 
-            # TODO: look at php
+            # Get widget instance and play details
+            widget_instance = WidgetInstance.objects.filter(pk=preview_inst_id).first()
+            if not widget_instance:
+                return HttpResponseNotFound()
+
+            play_details = ScoringUtil.get_preview_play_details(request.session, widget_instance, preview_play_id)
+            if not play_details:
+                return MsgUtil.create_expired_msg()
+
+            return JsonResponse(play_details)
         else:
             # Check if session play is valid and user has access
             session_play = SessionPlay.get_or_none(play_id)
             if not session_play:
-                return HttpResponseNotFound()  # TODO better error reporting
+                return HttpResponseNotFound()
             if not session_play.data.instance.playable_by_current_user():
                 return MsgUtil.create_no_login_msg()
 

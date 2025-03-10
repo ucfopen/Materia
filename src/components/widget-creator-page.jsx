@@ -18,8 +18,8 @@ const getWidgetType = path => {
 const WidgetCreatorPage = () => {
   const type = getWidgetType(window.location.pathname)
   const pathParams = window.location.pathname.split('/');
-  const widgetID = pathParams[pathParams.length - 2].split('-')[0];
-  const instanceID = window.location.hash.substr(1)
+  const widgetID = pathParams[pathParams.length - 3].split('-')[0];
+  const instanceID = window.location.hash.substring(1)
   const [state, setState] = useState({
     widgetHeight: 0,
     widgetWidth: 0,

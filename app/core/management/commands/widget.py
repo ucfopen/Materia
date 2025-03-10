@@ -38,14 +38,16 @@ class Command(base.BaseCommand):
         for w in widgets:
             self.install_from_url(w["package"], w["checksum"], w["id"])
 
-    def install_from_url(self, package_url, checksum_url, desired_id):
+    def install_from_url(self, package_url, checksum_url, desired_id=None):
         local_package = self.download_package(package_url)
         local_checksum = self.download_package(checksum_url)
 
         # temporarily hard-code file paths until the process is finished
         valid = self.validate_checksum(local_package, local_checksum)
 
-        self.replace_id = desired_id
+        if desired_id is not None:
+            self.replace_id = desired_id
+
         if valid:
             self.install(local_package)
 
