@@ -19,7 +19,6 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 
 	// collect all unique features and supported data
 	const filters = useMemo(() => {
-		console.log(widgets)
 			const features = new Set()
 			const accessibility = new Set()
 			widgets.forEach(w => {

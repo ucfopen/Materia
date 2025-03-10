@@ -93,7 +93,6 @@ const Header = ({
 
 	let userRender = null
 	if (!userLoading) {
-		console.log(user)
 		let userAvatarRender = null;
 		let loginRender = null;
 
