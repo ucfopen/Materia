@@ -150,10 +150,9 @@ migrate-app: ## Run migrations for a specific app to a specific point. Example: 
 migrate-app-to: ## Run migrations for a specific app to a specific point. Example: make migrate-to app=core migration=zero
 	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py migrate $(app) $(migration)"
 
-# repeating container detection since these functions have to run in interactive TTY mode, unlike the rest
-bash: ## Start a Bash session in the application's Python container if it's running
+bash: ## Start a Bash session in the application's Python container
 	@$(MAKE) run-docker-command IT_MODE=1 DOCKER_COMMAND="bash"
-shell: ## Run shell in Django context
+shell: ## Run a Python shell in the Django context
 	@$(MAKE) run-docker-command IT_MODE=1 DOCKER_COMMAND="python manage.py shell"
 
 manage: ## Run Django management command. Example: make manage command="showmigrations"
