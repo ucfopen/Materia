@@ -504,9 +504,11 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 
 /** Controller_Api_User */
 
-export const apiGetUserActivity = ({ pageParam = 0 }) => {
-	return fetch(`/api/user/activity?start=${pageParam * 6}`)
-		.then(handleErrors)
+export const apiGetUserPlaySessions = ({pageParam = 1}) => {
+	console.log(pageParam)
+	return fetch(`/api/play-sessions/?page=${pageParam}`)
+		.then(resp => resp.json())
+		.then(data => data)
 }
 
 export const apiUpdateUserSettings = (settings) => {

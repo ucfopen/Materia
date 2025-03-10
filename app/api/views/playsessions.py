@@ -4,12 +4,18 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotFou
 from rest_framework import permissions, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from core.serializers import PlaySessionSerializer
 from core.permissions import HasWidgetInstanceEditAccess
 from core.models import WidgetInstance, LogPlay
 
 from util.logging.session_play import SessionPlay
 from util.widget.validator import ValidatorUtil
+
+class PlaySessionPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 class PlaySessionViewSet(viewsets.ModelViewSet):
 
@@ -18,10 +24,13 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     #   must have instance play perms to CREATE, PUT play log
     permission_classes = [permissions.IsAuthenticated, HasWidgetInstanceEditAccess]
     serializer_class = PlaySessionSerializer
+    pagination_class = PlaySessionPagination
 
     queryset = LogPlay.objects.none()
 
     # default queryset returns all plays for the current user
+    # TODO:
+    # - inst_name and widget_name require additional model queries and are not present in LogPlay by default (add to serializer?)
     def get_queryset(self):
         if "pk" in self.kwargs:
             return LogPlay.objects.filter(pk=self.kwargs["pk"])
