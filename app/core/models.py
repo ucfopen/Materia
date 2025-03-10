@@ -377,7 +377,7 @@ class LogStorage(models.Model):
         LogPlay,
         related_name="storage_logs",
         on_delete=models.PROTECT,
-        db_column="play_d",
+        db_column="play_id",
     )
     user = models.ForeignKey(
         User,
