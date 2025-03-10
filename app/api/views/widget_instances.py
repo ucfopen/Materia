@@ -1,9 +1,15 @@
 import logging
 from datetime import datetime
 
-from core.models import PermObjectToUser, Widget, WidgetInstance
+from core.models import PermObjectToUser, WidgetQset, Widget, WidgetInstance
+from core.serializers import WidgetInstanceSerializer, QuestionSetSerializer
 from django.http import HttpResponseServerError
 from django.utils.timezone import make_aware
+
+from rest_framework import permissions, viewsets, status
+from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
+from rest_framework.decorators import action
 
 from util.message_util import MsgUtil
 from util.perm_manager import PermManager
@@ -11,6 +17,50 @@ from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
 
+class WidgetInstanceViewSet(viewsets.ModelViewSet):
+    serializer_class = WidgetInstanceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    queryset = WidgetInstance.objects.none()
+
+    # default queryset returns all instances owned by the current user
+    # TODO does not yet include instances owned via collaborator access
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return WidgetInstance.objects.all()
+        else:
+            return WidgetInstance.objects.filter(user=user)
+
+    # /api/instances/<inst id>/question_sets/
+    # ?latest=true GET param for only the latest qset
+    @action(detail=True, methods=["get"])
+    def question_sets(self, request, pk=None):
+        instance = self.get_object()
+
+        get_latest = request.query_params.get("latest", "false")
+        if get_latest is "true":
+            qset = instance.qset
+            serializer = QuestionSetSerializer(qset)
+            return Response(serializer.data)
+        else:
+            qsets = instance.qsets.all()
+            serializer = QuestionSetSerializer(qsets, many=True)
+            return Response(serializer.data)
+    
+    # /api/instances/<inst id>/question_sets/<qset id>
+    @action(detail=True, methods=["get"], url_path='question_sets/(?P<qset_id>[^/.]+)')
+    def question_set(self, request, pk=None, qset_id=None):
+        instance = self.get_object()
+        try:
+            qset = instance.qsets.get(id=qset_id)
+            serializer = QuestionSetSerializer(qset)
+            return Response(serializer.data)
+        except WidgetQset.DoesNotExist:
+            raise NotFound(detail="Qset not found.")
+
+
+## API stuff below this line is not yet converted to DRF ##
 
 class WidgetInstancesApi:
     @staticmethod

@@ -12,15 +12,17 @@ import datetime
 
 from core.permissions import IsSuperuserOrReadOnly
 
-from rest_framework import permissions, viewsets
-from core.serializers import UserSerializer
+from rest_framework import permissions, viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from core.serializers import UserSerializer, UserMetadataSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, IsSuperuserOrReadOnly]
     # NEVER allow user creation or deletion from the API
     # PATCH requires SU
-    http_method_names = ['get', 'patch', 'head']
+    http_method_names = ["get", "patch", "head", "put"]
 
     queryset = User.objects.none()
 
@@ -30,16 +32,37 @@ class UserViewSet(viewsets.ModelViewSet):
         # if user.is_superuser:
         #     return User.objects.all()
         return User.objects.filter(pk=user.pk)
+    
+    @action(detail=True, methods=['put'])
+    def profile_fields(self, request, pk=None):
+        serializer = UserMetadataSerializer(data=request.data)
+
+        if serializer.is_valid():
+            validated = serializer.validated_data
+
+            user_profile, _ = UserSettings.objects.get_or_create(user=request.user)
+            profile_fields = user_profile.get_profile_fields()
+            for key, value in validated.items():
+                profile_fields[key] = value
+
+            user_profile.profile_fields = profile_fields
+            user_profile.save()
+
+            # TODO try/catch required? at this point we've already validated input
+            return Response({"success": True, "profile_fields": user_profile.profile_fields})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def get_gravatar(email):
     clean_email = email.strip().lower().encode('utf-8')
     hash_email = hashlib.md5(clean_email).hexdigest()
     return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
 
-## API stuff below this line is not yet fully converted to DRF ##
+## API stuff below this line is not yet converted to DRF ##
 
 class UsersApi:
 
+    # TODO should this be under playsessions?
     @staticmethod
     def activity(request):
         #TODO: get actual activity data instead of dummy data
@@ -79,33 +102,6 @@ class UsersApi:
                 return JsonResponse({"error": "Invalid JSON"}, status=400)
 
             return JsonResponse({"error": "Invalid request method"}, status=405)
-
-
-    def update_settings(request):
-        if not request.user.is_authenticated:
-            return JsonResponse({"error": "Not authenticated"}, status=403)
-
-        try:
-            data = json.loads(request.body)
-            user_profile, _ = UserSettings.objects.get_or_create(user=request.user)
-            profile_fields = user_profile.get_profile_fields()
-
-            for key, value in data.items():
-                profile_fields[key] = value
-
-            user_profile.profile_fields = profile_fields
-            user_profile.save()
-
-            return JsonResponse({"success": True, "profile_fields": user_profile.profile_fields})
-
-
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON"}, status=400)
-
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-
 
     def logout(request):
         logout(request)

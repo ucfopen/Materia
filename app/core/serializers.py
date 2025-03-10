@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from core.models import Widget, LogPlay
+from core.models import Widget, LogPlay, UserSettings, WidgetInstance, WidgetQset
 import hashlib
 import os
 
+# User model serializer (outbound)
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
     profile_fields = serializers.SerializerMethodField()
@@ -14,7 +15,8 @@ class UserSerializer(serializers.ModelSerializer):
         return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
     
     def get_profile_fields(self, user):
-        return { "useGravatar": True, "beardMode": False }
+        user_profile, _ = UserSettings.objects.get_or_create(user=user)
+        return user_profile.get_profile_fields()
 
     class Meta:
         model = User
@@ -27,6 +29,35 @@ class UserSerializer(serializers.ModelSerializer):
             "profile_fields"
         ]
 
+# User metadata (profile fields) serializer (inbound)
+class UserMetadataSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField(max_value=None, min_value=0)
+    profile_fields = serializers.DictField(child=serializers.BooleanField())
+
+    def validate(self, data):
+        user = User.objects.filter(pk=data["user_id"])
+
+        if not user:
+            raise serializers.ValidationError("User ID invalid.")
+
+        valid_keys = ["useGravatar","notify","darkMode","beardMode"]
+
+        for key, value in data["profile_fields"].items():
+            if key not in valid_keys:
+                raise serializers.ValidationError(f"Invalid profile field provided: {key}")
+            
+            # TODO is this necessary? We're already enforcing booleans via BooleanField
+            if not isinstance(value, bool):
+                if value.lower() in ["true", "1"]:
+                    value = True
+                elif value.lower() in ["false", "0"]:
+                    value = False
+                else:
+                    raise serializers.ValidationError(f"Profile field {key} must provide boolean value.")
+
+        return data["profile_fields"]
+
+# Widget engine model serializer (outbound)
 class WidgetSerializer(serializers.ModelSerializer):
     meta_data = serializers.SerializerMethodField()
     dir = serializers.SerializerMethodField()
@@ -66,7 +97,30 @@ class WidgetSerializer(serializers.ModelSerializer):
     
     def get_dir(self, widget):
         return f"{widget.id}-{widget.clean_name}{os.sep}"
-    
+
+# instance model serializer (outbound)
+class WidgetInstanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WidgetInstance
+        fields = "__all__"
+
+# qset model serializer (outbound)
+class QuestionSetSerializer(serializers.ModelSerializer):
+    data = serializers.SerializerMethodField()
+    class Meta:
+        model = WidgetQset
+        fields = [
+            "id",
+            "instance",
+            "created_at",
+            "data",
+            "version"
+        ]
+
+    def get_data(self, qset):
+        return qset.as_json()
+
+# play session model (kinda) serializer (outbound)
 class PlaySessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = LogPlay

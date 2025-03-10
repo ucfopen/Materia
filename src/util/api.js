@@ -4,6 +4,16 @@ import { useQueryClient } from 'react-query'
 import { objectTypes } from '../components/materia-constants'
 import { error } from 'jquery'
 
+const getCSRFToken = () => {
+	const cookies = document.cookie.split(';')
+	for(let cookie of cookies) {
+		if(cookie.startsWith('csrftoken=')) {
+			return cookie.split('=')[1]
+		}
+	}
+	return ''
+}
+
 // checks response for errors and decodes json
 const handleErrors = async resp => {
 	if (!resp.ok) {
@@ -410,22 +420,23 @@ export const apiGetStorageData = instId => {
 }
 
 // Widget player api calls
-// TODO not yet fully implemented
-export const apiGetPlaySession = ({ widgetId }) => {
-	// return fetchGet('/api/json/session_play_create/', ({ body: { instanceId: widgetId } }))
-	return fetch('/api/play-sessions/create', {
+export const apiCreatePlaySession = ({ widgetId }) => {
+	return fetch('/api/play-sessions/', {
 		method: 'POST',
-		body: JSON.stringify({ instanceId: widgetId })
+		body: JSON.stringify({ instanceId: widgetId }),
+		headers: {
+			'content-type': 'application/json', 
+			'X-CSRFToken': getCSRFToken(),
+		}
 	})
 	.then(resp => resp.json())
-	.then(data => {
-		console.log(data)
-	})
+	.then(data => data)
 }
 
 export const apiGetQuestionSet = (instanceId, playId = null) => {
-	return fetchGet('/api/json/question_set_get/', ({ body: { instanceId, playId } }))
-    .then(resp => resp["qset"])
+	return fetch(`/api/instances/${instanceId}/question_sets/?latest=true`)
+	.then(resp => resp.json())
+	.then(data => data[0].data)
 }
 
 export const apiGenerateQset = ({inst_id, widget_id, topic, include_images, num_questions, build_off_existing}) => {
@@ -433,7 +444,11 @@ export const apiGenerateQset = ({inst_id, widget_id, topic, include_images, num_
 }
 
 export const apiSessionVerify = (play_id) => {
-	return fetchGet('/api/json/session_play_verify/', ({ body: `data=${formatFetchBody([play_id])}` }))
+	return fetch(`/api/play-sessions/${play_id}/verify/`)
+	.then(resp => resp.json())
+	.then(data => {
+		return data.valid
+	})
 }
 
 export const apiSavePlayStorage = ({ play_id, logs }) => {
@@ -495,16 +510,18 @@ export const apiGetUserActivity = ({ pageParam = 0 }) => {
 }
 
 export const apiUpdateUserSettings = (settings) => {
-	return fetch('/api/json/user/settings', {
-		...fetchPOSTOptions({}),
+	return fetch(`/api/users/${settings.user_id}/profile_fields/`, {
+		method: 'PUT',
+		body: JSON.stringify(settings),
 		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
+			'X-CSRFToken': getCSRFToken(),
 			'content-type': 'application/json'
-		},
-		body: JSON.stringify(settings)
+		}
 	})
-		.then(handleErrors)
+	.then(resp => resp.json())
+	.then(res => {
+		return res
+	})
 }
 
 export const apiUpdateUserRoles = (roles) => {

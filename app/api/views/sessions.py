@@ -33,7 +33,7 @@ class SessionView(APIView):
             "permLevel": perm
         })
     
-## API stuff below this line is not yet fully converted to DRF ##
+## API stuff below this line is not yet converted to DRF ##
 
 class SessionsApi:
     # formerly author_verify: provides a single endpoint to determine whether the user has a given role
@@ -53,6 +53,7 @@ class SessionsApi:
                 case _:
                     return HttpResponseBadRequest()
 
+    # TODO this is moving to playsessions
     @staticmethod
     def play_create(request):
         # Verify request params
@@ -74,6 +75,7 @@ class SessionsApi:
         play_id = session_play.start(instance, 0)
         return JsonResponse({"playId": play_id})
 
+    # TODO this is moving to playsessions
     @staticmethod
     # Gets called when a game ends with the play data. Scores the game, saves results, and submits score to LTI
     def play_save(request):

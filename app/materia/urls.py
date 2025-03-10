@@ -33,11 +33,13 @@ from api.views import users
 from api.views import widgets
 from api.views import sessions
 from api.views import playsessions
+from api.views import widget_instances
 
 router = routers.DefaultRouter()
 router.register(r'users', users.UserViewSet)
 router.register(r'widgets', widgets.WidgetViewSet)
 router.register(r'play-sessions', playsessions.PlaySessionViewSet)
+router.register(r'instances', widget_instances.WidgetInstanceViewSet)
 
 urlpatterns = [
     path("api/", include(router.urls)),
