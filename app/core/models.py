@@ -18,6 +18,7 @@ from django.db.models import QuerySet
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 
+from util.perm_manager import PermManager
 from util.serialization import SerializableModel
 from util.widget.validator import ValidatorUtil
 
@@ -692,10 +693,10 @@ class Widget(SerializableModel):
         self.meta_data = meta_final
         return self.meta_data
 
-    def publishable_by(self, user_id: int) -> bool:
+    def publishable_by(self, user: User) -> bool:
         if not self.restrict_publish:
             return True
-        return True  # TODO: return ! Perm_Manager::is_student($user_id);
+        return not PermManager.user_is_student(user)
 
 
     @staticmethod

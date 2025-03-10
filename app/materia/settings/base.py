@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 # import additional config files
+from .generation import *
 from .widgets import *
 from .urls import *
 from .css import *

@@ -15,24 +15,9 @@ logger = logging.getLogger("django")
 
 class WidgetInstanceUtil:
     @staticmethod
-    def save(
-            widget_id: int = None, name: str = None, qset=None, is_draft: bool = None
-    ) -> tuple[WidgetInstance | None, Msg | None]:
-        # Get and validate widget
-        if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
-            return None, MsgBuilder.invalid_input(msg=f"Widget ID '{widget_id}' invalid")
-        widget_id = int(widget_id)
-
-        widget = Widget.objects.filter(pk=widget_id).first()
-
-        if not widget:
-            return None, MsgBuilder.invalid_input(msg="Invalid widget type")
-        if not is_draft and not widget.publishable_by(-0):  # TODO Model_User::find_current_id()
-            return None, MsgBuilder.no_perm(msg="Widget type can not be published by students")
-        if is_draft and not widget.is_editable:
-            return None, MsgBuilder.failure(msg="Non-editable widgets can not be saved as drafts!")
-
-        is_student = False  # TODO was \Service_User::verify_session(['basic_author', 'super_user']);
+    def save_new(
+            widget: Widget, name: str = None, qset=None, is_draft: bool = None, student_made: bool = False
+    ) -> WidgetInstance | Msg:
 
         # Create the widget instance
         widget_instance = WidgetInstance(
@@ -41,7 +26,7 @@ class WidgetInstanceUtil:
             is_draft=is_draft,
             created_at=make_aware(datetime.now()),
             widget=widget,
-            is_student_made=is_student,
+            is_student_made=student_made,
             guest_access=True,  # TODO IMPORTANT should be is_student, always true just for easy development rn
             attempts=-1,
         )
@@ -52,15 +37,15 @@ class WidgetInstanceUtil:
         # Save and return ID
         try:
             widget_instance.save()
-            return widget_instance, None
+            return widget_instance
         except Exception as e:
             logger.error("Failed to save widget instance:")
             logger.error(e)
-            return None, MsgBuilder.failure(msg="Widget instance could not be saved")
+            return MsgBuilder.failure(msg="Widget instance could not be saved")
 
     @staticmethod
     def update(
-        widget_instance_id: int = None,
+        widget_instance: WidgetInstance,
         name: str = None,
         qset=None,
         is_draft: bool = None,
@@ -69,37 +54,11 @@ class WidgetInstanceUtil:
         attempts: int = None,
         guest_access: bool = None,
         embedded_only: bool = None,
-        is_student_made: bool = None,
-    ) -> tuple[WidgetInstance | None, Msg | None]:
+    ) -> WidgetInstance | Msg:
         # Verify user is logged in
         # TODO
         # if (\Service_User::verify_session() !== true) return Msg::no_login();
         # if (\Service_User::verify_session('no_author')) return Msg::invalid_input('You are not able to create or edit widgets.');
-
-        # Get and validate widget instance
-        if not ValidatorUtil.is_valid_hash(widget_instance_id):
-            return None, MsgBuilder.invalid_input(msg=f"Instance ID '{widget_instance_id}' is invalid")
-        # TODO if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
-
-        widget_instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
-        if not widget_instance:
-            return None, MsgBuilder.failure(msg=f"Widget instance '{widget_instance_id}' could not be found")
-        if is_draft and not widget_instance.widget.is_editable:
-            return None, MsgBuilder.failure(msg="Non-editable widgets can not be saved as drafts!")
-        if not is_draft and not widget_instance.widget.publishable_by(-0):  # TODO \Model_User::find_current_id()
-            return None, MsgBuilder.no_perm(msg="Widget type can not be published by students")
-
-        # Check if student-made, ensure guest access remains enabled
-        if widget_instance.is_student_made:
-            if not guest_access:
-                return None, Msg(
-                    title="Student Made",
-                    msg="Student-made widgets must stay in guest access mode",
-                    severity=MsgSeverity.ERROR,
-                    halt=False,
-                )
-            attempts = -1
-            guest_access = True
 
         # Update instance
         if qset is not None and "data" in qset and "version" in qset:
@@ -183,7 +142,7 @@ class WidgetInstanceUtil:
             # when disabling guest mode on a widget instance, make sure no students have access to it
             if not guest_access:
                 access = PermObjectToUser.objects.filter(
-                    object_id=widget_instance_id, object_type=PermObjectToUser.ObjectType.INSTANCE
+                    object_id=widget_instance.id, object_type=PermObjectToUser.ObjectType.INSTANCE
                 )
                 for a in access:
                     if (
@@ -215,8 +174,8 @@ class WidgetInstanceUtil:
 
         try:
             widget_instance.save()
-            return widget_instance, None
+            return widget_instance
         except Exception as e:
             logger.info("WHAT THE FUCK")
             logger.exception(e)
-            return None, MsgBuilder.failure(msg="Widget instance could not be updated.")
+            return MsgBuilder.failure(msg="Widget instance could not be updated.")

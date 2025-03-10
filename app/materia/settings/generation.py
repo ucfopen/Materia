@@ -1,3 +1,7 @@
+import os
+
+from util.widget.validator import ValidatorUtil
+
 AI_GENERATION = {
     "ENABLED": ValidatorUtil.validate_bool(os.environ.get("GENERATION_ENABLED"), False),
     "ALLOW_IMAGES": ValidatorUtil.validate_bool(os.environ.get("GENERATION_ALLOW_IMAGES"), False),

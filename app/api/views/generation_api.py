@@ -4,7 +4,7 @@ import re
 from django.http import JsonResponse
 
 from core.models import WidgetInstance, Widget
-from util.generator_util import GeneratorUtil
+from util.generator_util import GenerationUtil
 from util.message_util import MsgBuilder, Msg
 from util.widget.validator import ValidatorUtil
 
@@ -20,7 +20,7 @@ class GenerationApi:
         build_off_existing = json_body.get("buildOffExisting")
 
         # Check if generation is available
-        if False:  # TODO
+        if not GenerationUtil.is_enabled():
             return MsgBuilder.failure(msg="AI generation is not enabled on this instance of Materia").as_json_response()
 
         # Verify eligibility
@@ -52,7 +52,7 @@ class GenerationApi:
             num_questions = 32
 
         # Generate qset
-        result = GeneratorUtil.generate_qset(
+        result = GenerationUtil.generate_qset(
             widget=widget,
             instance=widget_instance,
             topic=topic,
@@ -70,6 +70,30 @@ class GenerationApi:
             "title": topic,
         })
 
+    @staticmethod
+    def generate_from_prompt(request):
+        json_body = json.loads(request.body)
+        prompt = json_body.get("prompt")
+
+        # Validate prompt
+        if not prompt:
+            return MsgBuilder.invalid_input(msg="Missing prompt").as_json_response()
+
+        # Check if generation is available
+        if not GenerationUtil.is_enabled():
+            return MsgBuilder.failure(msg="AI generation is not enabled on this instance of Materia").as_json_response()
+
+        # Verify eligibility
+        # TODO if (\Service_User::verify_session() !== true) return Msg::no_login();
+
+        result = GenerationUtil.generate_from_prompt(prompt)
+        if type(result) is Msg:
+            return result.as_json_response()
+        else:
+            return JsonResponse({
+                "success": True,
+                "response": result,
+            })
 
 
 

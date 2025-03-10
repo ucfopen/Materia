@@ -48,7 +48,6 @@ class UsersApi:
         }
         return JsonResponse(user_data)
 
-
     @staticmethod
     def activity(request):
         #TODO: get actual activity data instead of dummy data

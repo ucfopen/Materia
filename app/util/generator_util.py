@@ -1,5 +1,4 @@
 import json
-import os
 
 import logging
 from datetime import datetime
@@ -14,7 +13,7 @@ from util.message_util import Msg, MsgBuilder
 logger = logging.getLogger(__name__)
 
 
-class GeneratorUtil:
+class GenerationUtil:
     client = None
 
     @staticmethod
@@ -27,8 +26,8 @@ class GeneratorUtil:
             instance: WidgetInstance = None,
     ) -> dict | Msg:
         # Check if generation is enabled
-        if not GeneratorUtil.is_enabled():
-            return MsgBuilder.failure(msg="Question generation is not enabled")
+        if not GenerationUtil.is_enabled():
+            return MsgBuilder.failure(msg="Generation is not enabled")
 
         # Check if image generation is allowed. Overrides what parameter says.
         if not settings.AI_GENERATION["ALLOW_IMAGES"]:
@@ -130,18 +129,18 @@ class GeneratorUtil:
             prompt_text += f"\n{qset_encoded}"
 
         # Send the prompt to the generative AI provider
-        result = GeneratorUtil._query(prompt_text, "json")
+        result = GenerationUtil._query(prompt_text, "json")
         time_elapsed_seconds = datetime.now().timestamp() - start_time.timestamp()
 
         if type(result) is Msg:
-            logger.error(f"""
-                Error generating question set:
-                - Widget: {widget.name}\n
-                - Date: {datetime.now()}\n
-                - Time to complete (seconds): {time_elapsed_seconds}\n
-                - Number of questions asked to generate: {num_questions}\n
-                - Error: {result}
-            """)  # TODO this doesnt print the way I want it to lol
+            logger.error(
+                f"Error generating question set:" +
+                f"- Widget: {widget.name}\n" +
+                f"- Date: {datetime.now()}\n" +
+                f"- Time to complete (seconds): {time_elapsed_seconds}\n" +
+                f"- Number of questions asked to generate: {num_questions}\n" +
+                f"- Error: {result}"
+            )
             return result
 
         # A qset was received - decode it
@@ -151,20 +150,22 @@ class GeneratorUtil:
 
         # Log
         if settings.AI_GENERATION["LOG_STATS"]:
-            logger.debug(f"""
-                Successfully generated question set:
-                - Widget: {widget.name}\n
-                - Date: {datetime.now()}\n
-                - Time to complete (seconds): {time_elapsed_seconds}\n
-                - Number of questions asked to generate: {num_questions}\n
-                - Included images: {include_images}\n
-                - Prompt tokens: {result.usage.prompt_tokens}\n
-                - Completion tokens: {result.usage.completion_tokens}\n
-                - Total tokens: {result.usage.total_tokens}\n
-            """)
+            logger.debug(
+                f"Successfully generated question set:" +
+                f"- Widget: {widget.name}\n" +
+                f"- Date: {datetime.now()}\n" +
+                f"- Time to complete (seconds): {time_elapsed_seconds}\n" +
+                f"- Number of questions asked to generate: {num_questions}\n" +
+                f"- Included images: {include_images}\n" +
+                f"- Prompt tokens: {result.usage.prompt_tokens}\n" +
+                f"- Completion tokens: {result.usage.completion_tokens}\n" +
+                f"- Total tokens: {result.usage.total_tokens}\n"
+            )
 
         # Generate images, if requested
-        # TODO
+        # TODO image generation was never used in PHP docker, even though the code for it existed
+        #      reasons mainly include it being expensive and unreliable
+        #      so, for now at least, it's a low priority for me to port
 
         # Done!
         return {
@@ -173,13 +174,36 @@ class GeneratorUtil:
         }
 
     @staticmethod
+    def generate_from_prompt(prompt: str) -> str | Msg:
+        # Check if generation is enabled
+        if not GenerationUtil.is_enabled():
+            return MsgBuilder.failure(msg="Generation is not enabled")
+
+        # Check if prompt length is valid
+        if len(prompt) == 0 or len(prompt) > 10000:
+            return MsgBuilder.invalid_input(msg="Prompt text length invalid")
+
+        # Do query
+        result = GenerationUtil._query(prompt, "text")
+
+        if type(result) is Msg:
+            logger.error(f"GENERATION UTIL: Error while generation prompt:\n" +
+                         f"- Prompt: {prompt}\n" +
+                         f"- Exception: {result}")
+            return result
+
+        return result.choices[0].message.content
+
+
+
+    @staticmethod
     def is_enabled() -> bool:
         return bool(settings.AI_GENERATION["ENABLED"])
 
     @staticmethod
     def _query(prompt: str, response_format: str = "json") -> ChatCompletion | Msg:
         # Get client
-        client = GeneratorUtil._get_client()
+        client = GenerationUtil._get_client()
         if client is None:
             return MsgBuilder.failure(msg="Failed to initialize generation client")
 
@@ -227,9 +251,9 @@ class GeneratorUtil:
     @staticmethod
     def _get_client():
         # Initialize the client if not loaded
-        if GeneratorUtil.client is None and GeneratorUtil.is_enabled():
-            GeneratorUtil.client = GeneratorUtil._initialize_client()
-        return GeneratorUtil.client
+        if GenerationUtil.client is None and GenerationUtil.is_enabled():
+            GenerationUtil.client = GenerationUtil._initialize_client()
+        return GenerationUtil.client
 
     @staticmethod
     def _initialize_client():

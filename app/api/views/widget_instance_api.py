@@ -4,9 +4,11 @@ import logging
 from django.http import JsonResponse, HttpResponseNotFound
 
 from core.models import WidgetInstance, Widget
-from util.message_util import MsgBuilder
+from util.message_util import MsgBuilder, Msg, MsgSeverity
 from util.logging.session_play import SessionPlay
+from util.perm_manager import PermManager
 from util.serialization import SerializationUtil
+from util.user_util import UserUtil, require_login
 from util.widget.instance.instance_util import WidgetInstanceUtil
 from util.widget.validator import ValidatorUtil
 
@@ -42,15 +44,13 @@ class WidgetInstanceAPI:
 
     # WAS widget_publish_perms_verify
     @staticmethod
+    @require_login
     def publish_perms_verify(request):
         # Get, parse, validate body
         json_data = json.loads(request.body)
         widget_id = json_data.get("widgetId")
         if not widget_id:
             return HttpResponseNotFound()
-
-        # Verify user session
-        # TODO if (\Service_User::verify_session() !== true) return Msg::no_login();
 
         # Get and validate widget
         if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
@@ -61,11 +61,12 @@ class WidgetInstanceAPI:
             return MsgBuilder.invalid_input(msg="Invalid widget type").as_json_response()
 
         return JsonResponse({
-            "publishPermsValid": widget.publishable_by(-0)  # TODO
+            "publishPermsValid": widget.publishable_by(request.user)
         })
 
     # WAS widget_instance_save
     @staticmethod
+    @require_login
     def save(request):
         # Get, parse, validate body
         json_data = json.loads(request.body)
@@ -74,34 +75,37 @@ class WidgetInstanceAPI:
         qset = json_data.get("qset")
         is_draft = json_data.get("isDraft", True)
 
-        # Verify user session
-        # TODO if (\Service_User::verify_session() !== true) return Msg::no_login();
-        # TODO if (\Service_User::verify_session('no_author')) return Msg::invalid_input('You are not able to create or edit widgets.');
+        # Verify user doesn't have 'no_author' role
+        if PermManager.does_user_have_rolls(request.user, "no_author"):
+            return MsgBuilder.no_perm(msg="You are not able to create or edit widgets").as_json_response()
 
-        # Get and validate widget
+        # Get and validate widget and perms
         if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
-            return MsgBuilder.invalid_input(msg=widget_id).as_json_response()
+            return MsgBuilder.invalid_input(msg=f"Widget ID '{widget_id}' invalid").as_json_response()
         widget_id = int(widget_id)
 
         widget = Widget.objects.filter(pk=widget_id).first()
 
         if not widget:
             return MsgBuilder.invalid_input(msg="Invalid widget type").as_json_response()
-        if not is_draft and not widget.publishable_by(-0):  # TODO Model_User::find_current_id()
-            return MsgBuilder.no_perm(msg="Widget type can not be published by students.").as_json_response()
+        if not is_draft and not widget.publishable_by(request.user):
+            return MsgBuilder.no_perm(msg="Widget type can not be published by students").as_json_response()
         if is_draft and not widget.is_editable:
             return MsgBuilder.failure(msg="Non-editable widgets can not be saved as drafts!").as_json_response()
 
-        widget_instance, msg = WidgetInstanceUtil.save(widget_id, name, qset, is_draft)
-        if msg is not None:
-            return msg.as_json_response()
+        # Save new widget
+        is_student = not PermManager.does_user_have_rolls(request.user, ["basic_author", "super_user"])
+        result = WidgetInstanceUtil.save_new(widget, name, qset, is_draft, is_student)
+        if type(result) is Msg:
+            return result.as_json_response()
 
         # Save and return ID
-        serialized_model = widget_instance.as_dict(serialize_fks=["widget", "qset"])
+        serialized_model = result.as_dict(serialize_fks=["widget", "qset"])
         return JsonResponse(serialized_model)
 
     # WAS widget_instance_update
     @staticmethod
+    @require_login
     def update(request):
         # Get, parse, validate body
         json_data = json.loads(request.body)
@@ -114,10 +118,41 @@ class WidgetInstanceAPI:
         attempts = json_data.get("attempts")
         guest_access = json_data.get("guestAccess")
         embedded_only = json_data.get("embeddedOnly")
-        is_student_made = json_data.get("isStudentMade")
 
-        widget_instance, msg = WidgetInstanceUtil.update(
-            widget_instance_id,
+        # Make sure user doesn't have the no_author role
+        if PermManager.does_user_have_rolls(request.user, "no_author"):
+            return MsgBuilder.no_perm(msg="You are not able to create or edit widgets").as_json_response()
+
+        # Find widget instance and engine and check its perms
+        if not ValidatorUtil.is_valid_hash(widget_instance_id):
+            return MsgBuilder.invalid_input(msg=f"Instance ID '{widget_instance_id}' is invalid").as_json_response()
+
+        # TODO if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
+        widget_instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
+        if not widget_instance:
+            return (MsgBuilder.failure(msg=f"Widget instance '{widget_instance_id}' could not be found")
+                    .as_json_response())
+
+        if is_draft and not widget_instance.widget.is_editable:
+            return MsgBuilder.failure(msg="Non-editable widgets can not be saved as drafts!").as_json_response()
+
+        if not is_draft and not widget_instance.widget.publishable_by(request.user):
+            return MsgBuilder.no_perm(msg="Widget type can not be published by students").as_json_response()
+
+        # Check if student-made, ensure guest access remains enabled
+        if widget_instance.is_student_made:
+            if guest_access is not None and not guest_access:
+                return Msg(
+                    title="Student Made",
+                    msg="Student-made widgets must stay in guest access mode",
+                    severity=MsgSeverity.ERROR,
+                    halt=False,
+                ).as_json_response()
+            attempts = -1
+            guest_access = True
+
+        result = WidgetInstanceUtil.update(
+            widget_instance,
             name,
             qset,
             is_draft,
@@ -126,13 +161,12 @@ class WidgetInstanceAPI:
             attempts,
             guest_access,
             embedded_only,
-            is_student_made,
         )
 
-        if msg is not None:
-            return msg.as_json_response()
+        if type(result) is Msg:
+            return result.as_json_response()
 
-        return JsonResponse(widget_instance.as_dict(serialize_fks=["widget", "qset"]))
+        return JsonResponse(result.as_dict(serialize_fks=["widget", "qset"]))
 
     # WAS question_set_get
     @staticmethod
@@ -160,6 +194,7 @@ class WidgetInstanceAPI:
         return JsonResponse({"qset": instance.qset.as_dict()})
 
     @staticmethod
+    @require_login
     def history(request):
         instance_id = request.GET.get("inst_id")
 
