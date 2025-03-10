@@ -14,7 +14,7 @@ class MsgType(Enum):
 
 class MsgUtil:
     @staticmethod
-    def _create(
+    def create(
         title: str, msg: str, msg_type: MsgType = MsgType.ERROR, halt: bool = False, status: int = 403
     ) -> JsonResponse:
         return JsonResponse({
@@ -26,14 +26,14 @@ class MsgUtil:
 
     @staticmethod
     def create_invalid_input_msg(title: str = "Validation Error", msg: str = "") -> JsonResponse:
-        return MsgUtil._create(title, msg, msg_type=MsgType.ERROR, halt=True)
+        return MsgUtil.create(title, msg, msg_type=MsgType.ERROR, halt=True)
 
     @staticmethod
     def create_no_login_msg(
         title="Invalid Login",
         msg="You have been logged out, and must login again to continue",
     ):
-        return MsgUtil._create(title, msg, MsgType.ERROR, True)
+        return MsgUtil.create(title, msg, MsgType.ERROR, True)
         # TODO set_flash, see php
 
     @staticmethod
@@ -41,32 +41,32 @@ class MsgUtil:
         title: str = "Permission Denied",
         msg: str = "You do not have permission to access the requested content",
     ) -> JsonResponse:
-        return MsgUtil._create(title, msg, MsgType.WARN, False, 401)
+        return MsgUtil.create(title, msg, MsgType.WARN, False, 401)
 
     @staticmethod
     def create_student_collab_msg(
         title="Share Not Allowed",
         msg="Students cannot be added as collaborator to widgets that have guest access disabled"
     ) -> JsonResponse:
-        return MsgUtil._create(title, msg, MsgType.ERROR, False, 401)
+        return MsgUtil.create(title, msg, MsgType.ERROR, False, 401)
 
     @staticmethod
     def create_failure_msg(
         title: str = "Action Failed",
         msg: str = "The requested action could not be completed",
     ):
-        return MsgUtil._create(title, msg, MsgType.ERROR, False, 403)
+        return MsgUtil.create(title, msg, MsgType.ERROR, False, 403)
 
     @staticmethod
     def create_not_found_msg(
         title="Not Found",
         msg="The requested content could not be found",
     ) -> JsonResponse:
-        return MsgUtil._create(title, msg, MsgType.ERROR, False, 404)
+        return MsgUtil.create(title, msg, MsgType.ERROR, False, 404)
 
     @staticmethod
     def create_expired_msg(
         title="Expired",
         msg="The requested content has been expired and is no longer available",
     ):
-        return MsgUtil._create(title, msg, MsgType.ERROR, False, 410)
+        return MsgUtil.create(title, msg, MsgType.ERROR, False, 410)

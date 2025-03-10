@@ -8,10 +8,18 @@ from django.db.models import QuerySet, Model
 # A model containing an as_json function that will return a
 # proper JSON representation of itself.
 class SerializableModel(models.Model):
-    def as_json(self, *select_fields):
-        result = SerializationUtil.serialize(self)
-        if len(select_fields) >= 1:
-            result = SerializationUtil.select(result, *select_fields)
+    def as_dict(self, select_fields: list[str] = None, serialize_fks: list[str] = None) -> dict:
+        if serialize_fks is None:
+            serialize_fks = []
+
+        result = SerializationUtil.serialize(self, select_fields)
+
+        # if len(select_fields) >= 1:
+        #     result = SerializationUtil.select(result, *select_fields)
+
+        for foreign_key in serialize_fks:
+            serialized_fk = getattr(self, foreign_key).as_dict()
+            result[foreign_key] = serialized_fk
 
         return result
 
@@ -21,11 +29,16 @@ class SerializableModel(models.Model):
 
 class SerializationUtil:
     @staticmethod
-    def serialize(source: Model) -> dict:
-        unprocessed_json = json.loads(serializers.serialize("json", [source]))[0]
+    def serialize(source: Model, select: list[str] | None = None) -> dict:
+        # TODO serialize the foreign keys
+        if select is None:
+            unprocessed_json = json.loads(serializers.serialize("json", [source]))[0]
+        else:
+            unprocessed_json = json.loads(serializers.serialize("json", [source], fields=select))[0]
         result = unprocessed_json["fields"]
         result["id"] = unprocessed_json["pk"]
         SerializationUtil.convert_booleans(result)
+
         return result
 
     @staticmethod
@@ -53,10 +66,10 @@ class SerializationUtil:
     def convert_booleans(fields: dict):
         for field in fields:
             if field[:3] in ["is_", "in_"]:
-                if fields[field] is True:
-                    fields[field] = "1"
-                if fields[field] is False:
-                    fields[field] = "0"
+                if fields[field] == "1":
+                    fields[field] = True
+                if fields[field] is "0":
+                    fields[field] = False
 
     # Filters a dict to only include the fields specified. Analogous to performing
     # a SELECT operation on a database query.

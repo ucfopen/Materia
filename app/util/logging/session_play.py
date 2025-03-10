@@ -42,7 +42,7 @@ class SessionPlay:
                 self.data.percent = 0
                 self.data.elapsed = 0
                 self.data.context_id = ''
-                self.data.semester = DateRange.objects.get(pk=5)  # TODO
+                self.data.semester = DateRange.objects.first()  # TODO make it grab the current semester
                 self.is_preview = True
 
         # self.id: str | None = None
@@ -177,6 +177,15 @@ class SessionPlay:
                 pass
 
         return False
+
+    # Util function for getting the SessionPlay for that play_Id and running its validate function.
+    @staticmethod
+    def validate_by_play_id(play_id: str) -> bool:
+        session_play = SessionPlay.get_or_none(play_id)
+        if not session_play:
+            return False
+
+        return session_play.validate()
 
     # def create_log_play(self, id: str):
     # log_play = LogPlay(

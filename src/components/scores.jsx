@@ -12,7 +12,7 @@ const STATE_RESTRICTED = 'restricted'
 const STATE_INVALID = 'invalid'
 const STATE_EXPIRED = 'expired'
 
-const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview }) => {
+const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded, isPreview, previewPlayId }) => {
 
 	const [playId, setPlayId] = useState(null)
 	const [previewInstId, setPreviewInstId] = useState(null)
@@ -61,9 +61,9 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	// Gets widget instance loads qset
   // No login required
 	const { isLoading: instanceIsLoading, data: instance } = useQuery({
-		queryKey: ['widget-inst', inst_id],
-		queryFn: () => apiGetWidgetInstance(inst_id), // TODO: this call also had a second parameter 'true', which i think would be the 'getDeleted' param? but that doesnt make sense in this case, and it's the only place where an additional 'true' was present on this call
-		enabled: !!inst_id,
+		queryKey: ['widget-inst', instId],
+		queryFn: () => apiGetWidgetInstance(instId), // TODO: this call also had a second parameter 'true', which i think would be the 'getDeleted' param? but that doesnt make sense in this case, and it's the only place where an additional 'true' was present on this call
+		enabled: !!instId,
 		staleTime: Infinity,
 	})
 
@@ -71,8 +71,8 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	// Because of how we handle the results object, we can't follow-up via useEffect targeting instanceScores
 	// As a result, instanceScores is never read.
 	const { isLoading: scoresAreLoading, data: instanceScores, refetch: loadInstanceScores } = useQuery({
-		queryKey: ['inst-scores', inst_id, send_token],
-		queryFn: () => apiGetWidgetInstanceScores(inst_id, send_token),
+		queryKey: ['inst-scores', instId, send_token, previewPlayId],
+		queryFn: () => apiGetWidgetInstanceScores(instId, send_token),
 		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
@@ -93,10 +93,10 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	// Gets guest widget instance scores
 	// important note: play_id is only set when the user first visits the score screen after completing a guest instance
 	// otherwise, single_id will contain the play ID and play_id will be null
-	const guestPlayId = play_id ? play_id : single_id
+	const guestPlayId = playIdProp ? playIdProp : single_id
 	const { data: guestScores, refetch: loadGuestScores } = useQuery({
-		queryKey: ['guest-scores', inst_id, guestPlayId],
-		queryFn: () => apiGetGuestWidgetInstanceScores(inst_id, guestPlayId),
+		queryKey: ['guest-scores', instId, guestPlayId],
+		queryFn: () => apiGetGuestWidgetInstanceScores(instId, guestPlayId),
 		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
@@ -116,17 +116,17 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	// Gets widget instance play scores when playId
 	// or previewInstId are changed
 	const { data: playScores } = useQuery({
-		queryKey: ['play-scores', playId, previewInstId],
-		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId),
+		queryKey: ['play-scores', playId, previewInstId, previewPlayId],
+		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId, previewPlayId),
 		staleTime: Infinity,
-		enabled: (!!playId || !!previewInstId),
+		enabled: (!!playId || (!!previewInstId && !!previewPlayId)),
 		refetchOnWindowFocus: false,
 		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setErrorState(STATE_RESTRICTED)
 			} else if (isPreview) {
-				setAttributes({...attributes, href: `/preview/${inst_id}/${instance?.clean_name}`})
+				setAttributes({...attributes, href: `/preview/${instId}/${instance?.clean_name}?previewId=${previewPlayId}`})
 				setErrorState(STATE_EXPIRED)
 			} else {
 				setErrorState(STATE_INVALID)
@@ -136,8 +136,8 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 	// Gets score distribution
 	const { refetch: loadScoreDistribution } = useQuery({
-		queryKey: ['score-dist', inst_id],
-		queryFn: () => apiGetScoreDistribution(inst_id),
+		queryKey: ['score-dist', instId],
+		queryFn: () => apiGetScoreDistribution(instId),
 		enabled: false,
 		staleTime: Infinity,
 		retry: false,
@@ -188,7 +188,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			if (isPreview) {
 				setPreviewInstId(instance.id)
 				setPlayId(null)
-				setAttributes({ ...attributes, href: `/preview/${inst_id}/${instance.clean_name}`, hidePlayAgain: false })
+				setAttributes({ ...attributes, href: `/preview/${instId}/${instance.clean_name}`, hidePlayAgain: false })
 			}
 			// Single play session
 			else if (single_id) {
@@ -197,7 +197,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			}
 			// Guest play session
 			else if (instance.guest_access) {
-				setAttributes({ ...attributes, href: `/${isEmbedded ? 'embed' : 'play'}/${inst_id}/${instance.clean_name}`, hidePlayAgain: false })
+				setAttributes({ ...attributes, href: `/${isEmbedded ? 'embed' : 'play'}/${instId}/${instance.clean_name}`, hidePlayAgain: false })
 				loadGuestScores()
 			}
 			// User play session
@@ -266,7 +266,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 					dates[i] = date
 					setAttemptDates(dates)
 
-					if (play_id === a.id) {
+					if (playIdProp === a.id) {
 						matchedAttempt = attempts.length // sets to uri attempt to the most resent one
 					}
 				})
@@ -295,7 +295,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	useEffect(() => {
 		if (!!currentAttempt) {
 			if (guestAccess) {
-				setPlayId(play_id)
+				setPlayId(playIdProp)
 			} else {
 				const hash = getAttemptNumberFromHash()
 				setPlayId(attempts[hash - 1].id)
@@ -338,7 +338,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			}
 
 			const referrerUrl = deets.overview.referrer_url
-			if (deets.overview.auth === 'lti' && !!referrerUrl && referrerUrl.indexOf(`/scores/${inst_id}`) === -1) {
+			if (deets.overview.auth === 'lti' && !!referrerUrl && referrerUrl.indexOf(`/scores/${instId}`) === -1) {
 				setPlayAgainUrl(referrerUrl)
 			} else if (!single_id) {
 				setPlayAgainUrl(attributes.href)
@@ -664,7 +664,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		}
 		else {
 			overviewRender = <ScoreOverview
-				inst_id={inst_id}
+				inst_id={instId}
 				single_id={single_id}
 				overview={overview}
 				attemptNum={attemptNum}
