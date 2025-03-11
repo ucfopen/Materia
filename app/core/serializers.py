@@ -142,3 +142,33 @@ class PlaySessionSerializer(serializers.ModelSerializer):
             "semester_id",
             "created_at"
         ]
+
+# play session model (kinda) with inst and widget names included (outbound)
+# these include hits to other tables, so only include them if specifically needed
+class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
+
+    inst_name = serializers.CharField(source="instance.name", read_only=True)
+    widget_name = serializers.CharField(source="instance.widget.name", read_only=True)
+
+    class Meta:
+        model = LogPlay
+        fields = [
+            "id",
+            "instance",
+            "is_valid",
+            "user_id",
+            "is_complete",
+            "score",
+            "score_possible",
+            "percent",
+            "elapsed",
+            "qset_id",
+            # "environment_data",
+            "auth",
+            "referrer_url",
+            "context_id",
+            "semester_id",
+            "created_at",
+            "inst_name",
+            "widget_name"
+        ]

@@ -5,9 +5,10 @@ from rest_framework import permissions, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from core.serializers import PlaySessionSerializer
+from core.serializers import PlaySessionSerializer, PlaySessionWithExtrasSerializer
 from core.permissions import HasWidgetInstanceEditAccess
 from core.models import WidgetInstance, LogPlay
+from util.message_util import MsgUtil
 
 from util.logging.session_play import SessionPlay
 from util.widget.validator import ValidatorUtil
@@ -23,8 +24,14 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     #   must have instance edit perms to access all logs associated with an instance
     #   must have instance play perms to CREATE, PUT play log
     permission_classes = [permissions.IsAuthenticated, HasWidgetInstanceEditAccess]
-    serializer_class = PlaySessionSerializer
     pagination_class = PlaySessionPagination
+
+    # we only need extras (widget name, inst name) when on the profile page
+    def get_serializer_class(self):
+        if self.request.query_params.get("include_activity"):
+            return PlaySessionWithExtrasSerializer
+        else:
+            return PlaySessionSerializer
 
     queryset = LogPlay.objects.none()
 
@@ -35,19 +42,21 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         if "pk" in self.kwargs:
             return LogPlay.objects.filter(pk=self.kwargs["pk"])
         else:
-            return LogPlay.objects.filter(user=self.request.user)
+            if self.request.query_params.get("include_activity"):
+                return LogPlay.objects.select_related("instance","instance__widget").filter(user=self.request.user)
+            else:
+                return LogPlay.objects.filter(user=self.request.user)
 
     def create(self, request):
         inst_id = request.data.get("instanceId")
         if inst_id:
             instance = WidgetInstance.objects.get(pk=inst_id)
             if instance is None:
-                return HttpResponseNotFound()
+                return MsgUtil.create_not_found()
             if not instance.playable_by_current_user:
-                return Response({
-                    "detail": "not playable by current user",
-                    "status": status.HTTP_403_FORBIDDEN
-                })
+                return MsgUtil.create_failure_msg("Not Allowed","Instance not playable by current user.")
+            if instance.is_draft:
+                return MsgUtil.create_failure_msg("Drafts not Playable","Must use Preview mode to play a draft")
             
             session_play = SessionPlay()
             # TODO context id?
@@ -55,10 +64,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             return JsonResponse({ "playId": play_id })
 
         else:
-            return Response({
-                "detail": "instance id required.",
-                "status": status.HTTP_403_FORBIDDEN
-            })
+            return MsgUtil.create_invalid_input_msg("Invalid input","Instance ID required.")
         
     def update(self, request):
         play_id = request.data.get("playId", None)

@@ -507,7 +507,7 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 
 export const apiGetUserPlaySessions = ({pageParam = 1}) => {
 	console.log(pageParam)
-	return fetch(`/api/play-sessions/?page=${pageParam}`)
+	return fetch(`/api/play-sessions/?include_activity=true&page=${pageParam}`)
 		.then(resp => resp.json())
 		.then(data => data)
 }
