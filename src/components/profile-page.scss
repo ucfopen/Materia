@@ -19,11 +19,12 @@
 			margin: 15px 10px 0px 10px !important;
 			width: auto !important;
 		}
+
 	}
 
 	section.page, aside {
 		/* The background for the sidebar (containing the profile and settings navigation) is styled in the section below using a repeating image */
-		background: #fff;
+		//background: #fff;
 		border-radius: 4px;
 		border: #e4e4e4 1px solid;
 		box-shadow: 1px 3px 10px #dcdcdc;
@@ -37,7 +38,7 @@
 		width: 575px; /*625px*/
 		padding: 10px 60px 30px 145px;
 		background: url('/img/user_page_background.gif') 0 0 repeat-y;
-		background-color: #fff;
+		//background-color: #fff;
 		min-height: 400px;
 
 		font-weight: 400;
@@ -102,10 +103,14 @@
 			line-height: 13px;
 
 
+
 			img {
 				width: 90px;
 				height: 90px;
 				border-radius: 10px;
+				position: relative;
+				bottom: 150px;
+
 			}
 
 			a:link,
@@ -360,6 +365,11 @@
 			padding: 0;
 			list-style-type: none;
 
+			.settings {
+				z-index: 9999;
+				position: relative;
+
+			}
 			li {
 				a {
 					display: block;
@@ -373,6 +383,7 @@
 					padding-right: 30px;
 					color: #333;
 
+
 					&:hover {
 						text-decoration: none;
 					}
@@ -382,8 +393,8 @@
 					a {
 						margin-left: 0px;
 						background: #fff;
-						border-right: 0;
-						border-left: 0;
+						// border-right: 0;
+						// border-left: 0;
 						color: #333;
 						text-decoration: none;
 
@@ -500,6 +511,8 @@
 		.avatar_big {
 			color: #fff;
 
+
+
 			a:link,
 			a:visited,
 			a:active {
@@ -601,13 +614,13 @@
 
 		.main_navigation {
 			li {
-				a {
-					color: #fff;
-				}
+				// a {
+				// 	color: #fff;
+				// }
 
 				&.selected {
 					a {
-						background: #21232a;
+						// background: #21232a;
 						color: #fff;
 					}
 				}
@@ -634,24 +647,208 @@
 			}
 		} // end settings
 	} // end section.page
-
-
 }
+
+
 	@media (max-width: 500px) {
+
+		.darkMode .user, .darkMode .settings {
+			section.page {
+			background: none;
+
+
+					.main_navigation
+				{
+
+					background-color: #212020;
+					height: 190px;
+					border-right: 1px solid #191818;
+					border-left: 1px solid #191818 !important;
+					border-top: 1px solid #191818 !important;
+					border-bottom: 1px solid #191818 !important;
+					top: 10px;
+					left: 0%;
+
+
+					.selected_profile
+					{
+							background:none;
+							font-weight: 100;
+							text-decoration: underline rgb(255, 255, 255) 3.5px;
+							border: none;
+							height: 45px;
+
+
+					}
+
+
+
+					ul  {
+						padding-left: 90px;
+						padding-top: 25px;
+	                    display: flex;
+				        flex-direction: row;
+
+
+					li {
+						a {
+							color: #ffff;
+						}
+
+						&.selected {
+							a {
+								background:none;
+								 text-decoration: underline rgb(255, 255, 255) 3.5px;
+								border: none;
+							}
+						}
+
+
+
+					}
+
+					}
+
+
+
+
+				}
+			}
+
+		}
+
+		  .user, .settings {
+				.avatar_big {
+						img {
+							position: relative;
+							width: 40px !important;
+							height: 40px !important;
+							left: 40%;
+							bottom: 10px !important;
+						}
+
+				}
+				section.page {
+					background: none;
+					.activity_log {
+						.date {
+							position: absolute;
+							right: 250px;
+							top: 9px;
+						}
+					}
+				}
+					.main_navigation
+				{
+					ul  {
+						padding-left: 90px !important;
+						padding-top: 25px !important;
+	                    display: flex;
+				        flex-direction: row;
+
+					}
+
+						height: 70px !important;
+						width: 100% !important;
+						left: 9px !important;
+						margin: -10px !important;
+						top: 10px !important;
+					li {
+
+					&.selected {
+						a {
+							  border: 1px solid #c4c4c4; // Add border to all sides
+ 							 border-bottom: none;
+							height: 25px;
+							width: 84% !important;
+						}
+
+					}
+				 }
+				}
+
+				.settings_content {
+
+				width: 180%;
+				position: relative;
+				right: 100px;
+				top: 95px;
+				}
+
+				.action_button {
+					top: 15px;
+					right: 12px;
+				}
+ 		 }
+
 		.user {
 			section.page {
 				overflow: hidden;
+				background: none;
+
+
+					.main_navigation
+				{
+						background-color: #dcdcdd;
+						height: 90px;
+						border-bottom: none;
+						top: 10px;
+						left: 0%;
+						margin: -10px;
+
+
+
+					.selected_profile
+					{
+
+							background-color: #ffffff;
+							height: 45px;
+							border: 1px solid #c4c4c4; // Add border to all sides
+ 							 border-bottom: none;
+
+					}
+					ul  {
+
+						padding-left: 90px;
+						padding-top: 25px;
+	                    display: flex;
+				        flex-direction: row;
+
+					}
+
+
+
+				}
+
+
+				.avatar_big img
+				{
+					position: relative;
+					width: 40px;
+					height: 40px;
+					left: 40%;
+					bottom: 0px;
+
+
+
+				};
 				.no_logs {
 					width: 25%;
 
 				}
-				.settings {
-					.exp {
-						.email_exp_addr {
-							font-size: 15px;
-						}
-					}
+
+				.profile {
+
+				width: 180%;
+				position: relative;
+				right: 120px;
+				top: 80px;
 				}
 			}
+
+
 		}
+
 	}
+
+
