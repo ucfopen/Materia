@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from core.models import Widget, LogPlay, UserSettings, WidgetInstance, WidgetQset
+from core.models import Widget, LogPlay, Notification, UserSettings, WidgetInstance, WidgetQset
 import hashlib
 import os
 
@@ -100,9 +100,26 @@ class WidgetSerializer(serializers.ModelSerializer):
 
 # instance model serializer (outbound)
 class WidgetInstanceSerializer(serializers.ModelSerializer):
+    
+    widget = WidgetSerializer(read_only=True)
+
     class Meta:
         model = WidgetInstance
-        fields = "__all__"
+        fields = [
+            "id",
+            "user_id",
+            "name",
+            "is_student_made",
+            "guest_access",
+            "is_draft",
+            "created_at",
+            "open_at",
+            "close_at",
+            "attempts",
+            "is_deleted",
+            "embedded_only",
+            "widget"
+        ]
 
 # qset model serializer (outbound)
 class QuestionSetSerializer(serializers.ModelSerializer):
@@ -118,7 +135,12 @@ class QuestionSetSerializer(serializers.ModelSerializer):
         ]
 
     def get_data(self, qset):
-        return qset.as_json()
+        return qset.data
+    
+# class PlayLogsSerializer(serializers.ModelSerializer):
+    #     user_id = serializers.IntegerField(max_value=None, min_value=0)
+    # profile_fields = serializers.DictField(child=serializers.BooleanField())
+    # play_id = serializers.UUIDField()
 
 # play session model (kinda) serializer (outbound)
 class PlaySessionSerializer(serializers.ModelSerializer):
@@ -172,3 +194,8 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
             "inst_name",
             "widget_name"
         ]
+
+class NotificationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = "__all__"

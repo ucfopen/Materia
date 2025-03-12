@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
@@ -9,6 +10,7 @@ from django.shortcuts import redirect
 import hashlib
 import json
 import datetime
+import logging
 
 from core.permissions import IsSuperuserOrReadOnly
 
@@ -16,6 +18,8 @@ from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from core.serializers import UserSerializer, UserMetadataSerializer
+
+logger = logging.getLogger("django")
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
@@ -44,6 +48,11 @@ class UserViewSet(viewsets.ModelViewSet):
             profile_fields = user_profile.get_profile_fields()
             for key, value in validated.items():
                 profile_fields[key] = value
+
+                # if key == "darkMode":
+                #     cache_key = f'user_dark_mode_{request.user.id}'
+                #     logger.error(f"located darkMode key for user {request.user.id} and deleting cache !!!")
+                #     cache.delete(cache_key)
 
             user_profile.profile_fields = profile_fields
             user_profile.save()

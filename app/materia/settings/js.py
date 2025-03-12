@@ -7,6 +7,9 @@ JS_GROUPS = {
     "main": [
         JS_BASEURL + "homepage.js"
     ],
+    "my-widgets": [
+        JS_BASEURL + "my-widgets.js"
+    ],
     "help": [
         JS_BASEURL + "help.js"
     ],
