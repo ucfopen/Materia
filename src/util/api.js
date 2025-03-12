@@ -56,10 +56,13 @@ const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 /** API v1 */
 
 export const apiGetWidgetInstance = (instId, getDeleted=false) => {
-	return fetchGet(`/api/json/widget_instances_get/`, { body: { instanceIds: [instId], getDeleted } })
-	  .then(widget => {
-			return widget['instances']?.[0] ?? {}
-		})
+	return fetch(`/api/instances/${instId}/`)
+	.then(resp => resp.json())
+	.then(data => data)
+	// return fetchGet(`/api/json/widget_instances_get/`, { body: { instanceIds: [instId], getDeleted } })
+	//   .then(widget => {
+	// 		return widget['instances']?.[0] ?? {}
+	// 	})
 }
 
 /**
@@ -183,73 +186,7 @@ export const apiGetUsers = arrayOfUserIds => {
 		})
 }
 
-export const apiAuthorSuper = () => {
-	const data = { perm: 'super_user' }
-	const body = Object.keys(data)
-		.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
-		.join('&')
-
-	return fetch('/api/json/session_role_verify/', {
-		...fetchPOSTOptions({}),
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
-		},
-		body: body
-	})
-	.then(response => response.json())
-	.then(data => {
-		return data.isSuperuser
-	})
-	.catch(error => false)
-}
-
-export const apiAuthorSupport = () => {
-
-	const data = { perm: 'support_user' }
-	const body = Object.keys(data)
-		.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
-		.join('&')
-
-	return fetch('/api/json/session_role_verify/', {
-		...fetchPOSTOptions({}),
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
-		},
-		body: body
-	})
-	.then(response => response.json())
-	.then(data => {
-		return data.isSupportUser
-	})
-	.catch(error => false)
-}
-
-export const apiAuthorVerify = () => {
-	const data = { perm: 'author' }
-	const body = Object.keys(data)
-		.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
-		.join('&')
-
-	return fetch('/api/json/session_role_verify/', {
-		...fetchPOSTOptions({}),
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
-		},
-		body: body
-	})
-	.then(response => response.json())
-	.then(data => {
-		return data
-	})
-	.catch(error => false)
-}
-
+// this endpoint now returns both authentication status and perm level
 export const apiUserVerify = () => {
 	return fetch('/api/session/verify/')
 	.then(response => response.json())
@@ -260,7 +197,11 @@ export const apiUserVerify = () => {
 }
 
 export const apiGetNotifications = () => {
-	return fetchGet('/api/json/notifications_get/', { body: `data=${formatFetchBody([])}` })
+	return fetch('/api/notifications/')
+	.then(response => response.json())
+	.then(data => {
+		return data
+	})
 }
 
 export const apiDeleteNotification = (data) => {

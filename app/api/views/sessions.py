@@ -36,45 +36,6 @@ class SessionView(APIView):
 ## API stuff below this line is not yet converted to DRF ##
 
 class SessionsApi:
-    # formerly author_verify: provides a single endpoint to determine whether the user has a given role
-    # TODO should really be removed or reworked
-    @staticmethod
-    def role_verify(request):
-        if request.POST.dict()["perm"]:
-            match request.POST.dict()["perm"]:
-                case "super_user":
-                    return JsonResponse({ "isSuperuser": request.user.is_superuser })
-                case "support_user":
-                    return JsonResponse({ "isSupportUser": request.groups.filter(name='support_user').exists() })
-                case "basic_author":
-                    return JsonResponse({ "isBasicAuthor": request.user.groups.filter(name='basic_author').exists() })
-                case "student":
-                    return JsonResponse({ "isStudent": request.user.is_authenticated and not request.user.groups.filter(name='basic_author').exists() })
-                case _:
-                    return HttpResponseBadRequest()
-
-    # TODO this is moving to playsessions
-    @staticmethod
-    def session_play_create(request):
-        # Verify request params
-        instance_id = json.loads(request.body)["instanceId"]
-        if instance_id is None:
-            return MsgUtil.create_invalid_input_msg(msg="Missing instance ID")
-
-        # Get and verify widget
-        instance = WidgetInstance.objects.get(pk=instance_id)
-        if instance is None:
-            return HttpResponseNotFound()
-        if not instance.playable_by_current_user:
-            return MsgUtil.create_no_login_msg()
-        if instance.is_draft:
-            return MsgUtil.create_failure_msg("Drafts Not Playable", "Must use Preview mode to play a draft")
-
-        # Create and start play session
-        session_play = SessionPlay()
-        play_id = session_play.start(instance, 0)
-        return JsonResponse({"playId": play_id})
-
     # TODO this is moving to playsessions
     @staticmethod
     # Gets called when a game ends with the play data. Scores the game, saves results, and submits score to LTI

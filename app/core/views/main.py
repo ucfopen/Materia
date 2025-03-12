@@ -6,23 +6,23 @@ from django.shortcuts import render
 from api.views.users import UsersApi
 
 
-def get_dark_mode(request):
-    """
-    Function to get if a user has dark mode enabled
-    """
-    user_settings = {"darkMode": False}  # Default settings
+# def get_dark_mode(request):
+#     """
+#     Function to get if a user has dark mode enabled
+#     """
+#     user_settings = {"darkMode": False}  # Default settings
 
-    try:
-        user_data = UsersApi.get(request)  # Call API to fetch user settings
-        if isinstance(user_data, JsonResponse):
-            user_json = user_data.content.decode("utf-8")
-            user_profile = json.loads(user_json)
-            user_settings["darkMode"] = user_profile.get("profile_fields", {}).get("darkMode", False)
+#     try:
+#         user_data = UsersApi.get(request)  # Call API to fetch user settings
+#         if isinstance(user_data, JsonResponse):
+#             user_json = user_data.content.decode("utf-8")
+#             user_profile = json.loads(user_json)
+#             user_settings["darkMode"] = user_profile.get("profile_fields", {}).get("darkMode", False)
 
-    except Exception as e:
-        logging.error(f"Error fetching user settings: {e}")
+#     except Exception as e:
+#         logging.error(f"Error fetching user settings: {e}")
 
-    return user_settings
+#     return user_settings
 
 
 def index(request, *args, **kwargs):
@@ -31,7 +31,6 @@ def index(request, *args, **kwargs):
         "js_resources": settings.JS_GROUPS["main"],
         "css_resources": settings.CSS_GROUPS["main"],
         "fonts": settings.FONTS_DEFAULT,
-        **get_dark_mode(request),
     }
 
     return render(request, "react.html", context)
@@ -53,7 +52,6 @@ def help(request):
         "js_resources": settings.JS_GROUPS["help"],
         "css_resources": settings.CSS_GROUPS["help"],
         "fonts": settings.FONTS_DEFAULT,
-        **get_dark_mode(request),
     }
 
     return render(request, "react.html", context)

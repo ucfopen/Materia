@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from core.models import Widget, LogPlay, UserSettings, WidgetInstance, WidgetQset
+from core.models import Widget, LogPlay, Notification, UserSettings, WidgetInstance, WidgetQset
 import hashlib
 import os
 
@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
         clean_email = user.email.strip().lower().encode('utf-8')
         hash_email = hashlib.md5(clean_email).hexdigest()
         return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
-    
+
     def get_profile_fields(self, user):
         user_profile, _ = UserSettings.objects.get_or_create(user=user)
         return user_profile.get_profile_fields()
@@ -45,7 +45,7 @@ class UserMetadataSerializer(serializers.Serializer):
         for key, value in data["profile_fields"].items():
             if key not in valid_keys:
                 raise serializers.ValidationError(f"Invalid profile field provided: {key}")
-            
+
             # TODO is this necessary? We're already enforcing booleans via BooleanField
             if not isinstance(value, bool):
                 if value.lower() in ["true", "1"]:
@@ -94,15 +94,32 @@ class WidgetSerializer(serializers.ModelSerializer):
 
     def get_meta_data(self, widget):
         return widget.metadata_clean()
-    
+
     def get_dir(self, widget):
         return f"{widget.id}-{widget.clean_name}{os.sep}"
 
 # instance model serializer (outbound)
 class WidgetInstanceSerializer(serializers.ModelSerializer):
+
+    widget = WidgetSerializer(read_only=True)
+
     class Meta:
         model = WidgetInstance
-        fields = "__all__"
+        fields = [
+            "id",
+            "user_id",
+            "name",
+            "is_student_made",
+            "guest_access",
+            "is_draft",
+            "created_at",
+            "open_at",
+            "close_at",
+            "attempts",
+            "is_deleted",
+            "embedded_only",
+            "widget"
+        ]
 
 # qset model serializer (outbound)
 class QuestionSetSerializer(serializers.ModelSerializer):
@@ -115,6 +132,12 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             "data",
             "version"
         ]
+
+
+# class PlayLogsSerializer(serializers.ModelSerializer):
+    #     user_id = serializers.IntegerField(max_value=None, min_value=0)
+    # profile_fields = serializers.DictField(child=serializers.BooleanField())
+    # play_id = serializers.UUIDField()
 
 # play session model (kinda) serializer (outbound)
 class PlaySessionSerializer(serializers.ModelSerializer):
@@ -168,3 +191,8 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
             "inst_name",
             "widget_name"
         ]
+
+class NotificationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = "__all__"

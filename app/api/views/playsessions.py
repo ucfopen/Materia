@@ -36,8 +36,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     queryset = LogPlay.objects.none()
 
     # default queryset returns all plays for the current user
-    # TODO:
-    # - inst_name and widget_name require additional model queries and are not present in LogPlay by default (add to serializer?)
+    # inst and widget names are only included via ?include_activity=true
     def get_queryset(self):
         if "pk" in self.kwargs:
             return LogPlay.objects.filter(pk=self.kwargs["pk"])

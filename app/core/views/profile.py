@@ -1,6 +1,5 @@
 from django.conf import settings as djangoSettings
 from django.shortcuts import render
-from .main import get_dark_mode
 
 def profile(request):
     context = {
@@ -8,7 +7,6 @@ def profile(request):
         "js_resources": djangoSettings.JS_GROUPS["profile"],
         "css_resources": djangoSettings.CSS_GROUPS["profile"],
         "fonts": djangoSettings.FONTS_DEFAULT,
-        **get_dark_mode(request),
     }
     return render(request, "react.html", context)
 
@@ -19,7 +17,6 @@ def settings(request):
         "js_resources": djangoSettings.JS_GROUPS["settings"],
         "css_resources": djangoSettings.CSS_GROUPS["settings"],
         "fonts": djangoSettings.FONTS_DEFAULT,
-        **get_dark_mode(request),
     }
     return render(request, "react.html", context)
 
