@@ -39,7 +39,7 @@ router = routers.DefaultRouter()
 router.register(r'users', users.UserViewSet)
 router.register(r'widgets', widgets.WidgetViewSet)
 router.register(r'play-sessions', playsessions.PlaySessionViewSet)
-router.register(r'instances', widget_instances.WidgetInstanceViewSet)
+router.register(r'instances', widget_instances.WidgetInstanceViewSet, basename="instances")
 
 urlpatterns = [
     path("api/", include(router.urls)),

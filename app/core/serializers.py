@@ -106,7 +106,6 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
 
 # qset model serializer (outbound)
 class QuestionSetSerializer(serializers.ModelSerializer):
-    data = serializers.SerializerMethodField()
     class Meta:
         model = WidgetQset
         fields = [
@@ -116,9 +115,6 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             "data",
             "version"
         ]
-
-    def get_data(self, qset):
-        return qset.as_json()
 
 # play session model (kinda) serializer (outbound)
 class PlaySessionSerializer(serializers.ModelSerializer):

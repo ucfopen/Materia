@@ -425,7 +425,7 @@ export const apiCreatePlaySession = ({ widgetId }) => {
 		method: 'POST',
 		body: JSON.stringify({ instanceId: widgetId }),
 		headers: {
-			'content-type': 'application/json', 
+			'content-type': 'application/json',
 			'X-CSRFToken': getCSRFToken(),
 		}
 	})
@@ -436,7 +436,7 @@ export const apiCreatePlaySession = ({ widgetId }) => {
 export const apiGetQuestionSet = (instanceId, playId = null) => {
 	return fetch(`/api/instances/${instanceId}/question_sets/?latest=true`)
 	.then(resp => resp.json())
-	.then(data => data[0].data)
+	.then(data => data[0])
 }
 
 export const apiGenerateQset = ({inst_id, widget_id, topic, include_images, num_questions, build_off_existing}) => {

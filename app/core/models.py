@@ -947,15 +947,6 @@ class WidgetQset(SerializableModel):
 
         return False
 
-    def as_dict(self, *select_fields):
-        json_qset = super().as_dict(*select_fields)
-        if "_data" in json_qset:
-            del json_qset["_data"]
-            json_qset["data"] = self._decode_data()
-        else:
-            json_qset["data"] = {}
-        return json_qset
-
     # TODO: implement this, old code below
     def find_questions(self):
         pass

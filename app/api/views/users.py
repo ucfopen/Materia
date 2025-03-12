@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-from core.models import UserSettings
+from core.models import UserSettings, WidgetQset, WidgetInstance
 from util.perm_manager import PermManager
 from django.contrib.auth import logout
 from django.shortcuts import redirect
@@ -15,7 +15,8 @@ from core.permissions import IsSuperuserOrReadOnly
 from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from core.serializers import UserSerializer, UserMetadataSerializer
+from core.serializers import UserSerializer, UserMetadataSerializer, QuestionSetSerializer, WidgetInstanceSerializer
+
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
@@ -52,6 +53,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({"success": True, "profile_fields": user_profile.profile_fields})
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 def get_gravatar(email):
     clean_email = email.strip().lower().encode('utf-8')

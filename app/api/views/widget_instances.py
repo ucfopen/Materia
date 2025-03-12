@@ -17,20 +17,29 @@ from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
 
+
 class WidgetInstanceViewSet(viewsets.ModelViewSet):
     serializer_class = WidgetInstanceSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    queryset = WidgetInstance.objects.none()
-
-    # default queryset returns all instances owned by the current user
-    # TODO does not yet include instances owned via collaborator access
     def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser:
-            return WidgetInstance.objects.all()
+        # If user param is specified, return that user's instances. Otherwise, return all.
+        user_query = self.request.query_params.get('user')
+        if user_query:
+            return WidgetInstance.objects.filter(user=user_query)
         else:
-            return WidgetInstance.objects.filter(user=user)
+            return WidgetInstance.objects.all()
+
+    def get_permissions(self):
+        user_query = self.request.query_params.get('user')
+        # Require superuser to use list without a user param
+        if user_query is None and self.action == 'list':
+            permission_classes = [permissions.IsAdminUser]
+        # Otherwise, all users can read details and make modifications if they are authenticated
+        else:
+            permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+        return [permission() for permission in permission_classes]
 
     # /api/instances/<inst id>/question_sets/
     # ?latest=true GET param for only the latest qset
