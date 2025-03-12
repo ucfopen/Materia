@@ -98,9 +98,9 @@ class WidgetSerializer(serializers.ModelSerializer):
     def get_dir(self, widget):
         return f"{widget.id}-{widget.clean_name}{os.sep}"
 
+
 # instance model serializer (outbound)
 class WidgetInstanceSerializer(serializers.ModelSerializer):
-
     widget = WidgetSerializer(read_only=True)
 
     class Meta:
@@ -120,6 +120,28 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "embedded_only",
             "widget"
         ]
+
+
+class WidgetInstanceSerializerNoIdentifyingInfo(serializers.ModelSerializer):
+    widget = WidgetSerializer(read_only=True)
+
+    class Meta:
+        model = WidgetInstance
+        fields = [
+            "id",
+            "name",
+            "is_student_made",
+            "guest_access",
+            "is_draft",
+            "created_at",
+            "open_at",
+            "close_at",
+            "attempts",
+            "is_deleted",
+            "embedded_only",
+            "widget"
+        ]
+
 
 # qset model serializer (outbound)
 class QuestionSetSerializer(serializers.ModelSerializer):

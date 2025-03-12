@@ -1,8 +1,12 @@
 import logging
 from datetime import datetime
 
+from django.template.context_processors import request
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+
 from core.models import PermObjectToUser, WidgetQset, Widget, WidgetInstance
-from core.serializers import WidgetInstanceSerializer, QuestionSetSerializer
+from core.permissions import IsSuperuser, HasWidgetInstanceEditAccess
+from core.serializers import WidgetInstanceSerializer, QuestionSetSerializer, WidgetInstanceSerializerNoIdentifyingInfo
 from django.http import HttpResponseServerError
 from django.utils.timezone import make_aware
 
@@ -19,27 +23,49 @@ logger = logging.getLogger("django")
 
 
 class WidgetInstanceViewSet(viewsets.ModelViewSet):
-    serializer_class = WidgetInstanceSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
     def get_queryset(self):
         # If user param is specified, return that user's instances. Otherwise, return all.
+        # Make sure the user cannot access other user's lists of instances (unless superuser)
+        user = self.request.user
         user_query = self.request.query_params.get('user')
-        if user_query:
+        if user_query is not None and (user.is_superuser or str(user.id) == user_query):
             return WidgetInstance.objects.filter(user=user_query)
+        elif user_query is not None:
+            return WidgetInstance.objects.none()
         else:
             return WidgetInstance.objects.all()
 
     def get_permissions(self):
         user_query = self.request.query_params.get('user')
-        # Require superuser to use list without a user param
-        if user_query is None and self.action == 'list':
-            permission_classes = [permissions.IsAdminUser]
-        # Otherwise, all users can read details and make modifications if they are authenticated
+
+        # Require special perms for list
+        if self.action == 'list':
+            # Allow all if user is superuser
+            if user_query is None:
+                permission_classes = [IsSuperuser]
+            # Otherwise, just make sure the user is authenticated. Do not allow reading if not. The queryset already
+            # only contain this user's instances if they have requested their own.
+            else:
+                permission_classes = [IsAuthenticated]
+        # All other actions have default perms
         else:
-            permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+            permission_classes = [IsAuthenticatedOrReadOnly]
 
         return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        # User isn't getting a widget detail, instead they are listing or updating.
+        # By that logic, they already can edit the widget.
+        if self.action != "retrieve":
+            return WidgetInstanceSerializer
+
+        # Check if user can play the instance. If they can't, don't include identifying info about the instance
+        else:
+            if self.get_object().playable_by_current_user(self.request.user):
+                return WidgetInstanceSerializer
+            else:
+                return WidgetInstanceSerializerNoIdentifyingInfo
+
 
     # /api/instances/<inst id>/question_sets/
     # ?latest=true GET param for only the latest qset
@@ -48,7 +74,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
 
         get_latest = request.query_params.get("latest", "false")
-        if get_latest is "true":
+        if get_latest == "true":
             qset = instance.qset
             serializer = QuestionSetSerializer(qset)
             return Response(serializer.data)
