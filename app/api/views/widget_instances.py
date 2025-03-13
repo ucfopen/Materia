@@ -22,6 +22,10 @@ from util.widget.validator import ValidatorUtil
 logger = logging.getLogger("django")
 
 
+# Viewset for widget instances.
+# All users can access any instance, but if they are unable to play that instance (e.g. guest mode is disabled),
+# any identifying info is stripped from the response.
+# Only the superuser is able to get a list of all instances. Users however can get a list of their own instances.
 class WidgetInstanceViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # If user param is specified, return that user's instances. Otherwise, return all.
@@ -65,7 +69,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 return WidgetInstanceSerializer
             else:
                 return WidgetInstanceSerializerNoIdentifyingInfo
-
 
     # /api/instances/<inst id>/question_sets/
     # ?latest=true GET param for only the latest qset
