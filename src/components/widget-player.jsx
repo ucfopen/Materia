@@ -239,6 +239,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 
 	// Starts the widget player once the instance and qset have loaded
 	useEffect(() => {
+		console.log("1")
+		console.log(inst)
+		console.log(qset)
 		if (!!inst && !inst.hasOwnProperty('id')) {
 			_onLoadFail('Unable to get widget info.')
 		}
@@ -377,9 +380,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 		} else {
 			const convertedInstance = _translateForApiVersion(inst, qset)
 			setStartTime(new Date().getTime())
-			console.log("QSET")
-			console.log(qset)
-			console.log(inst)
 			_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
 			setPlayState('playing')
 		}

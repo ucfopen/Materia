@@ -377,7 +377,6 @@ export const apiCreatePlaySession = ({ widgetId }) => {
 export const apiGetQuestionSet = (instanceId, playId = null) => {
 	return fetch(`/api/instances/${instanceId}/question_sets/?latest=true`)
 		.then(resp => resp.json())
-		.then(data => data[0])
 }
 
 export const apiGenerateQset = ({instId, widgetId, topic, includeImages, numQuestions, buildOffExisting}) => {
