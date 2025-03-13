@@ -334,8 +334,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 
 	// Receives messages from widget player
 	const _onPostMessage = e => {
-		console.log("RECEIVED POST MESSAGE")
-		console.log(e)
 		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
 			const msg = JSON.parse(e.data)
@@ -379,6 +377,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 		} else {
 			const convertedInstance = _translateForApiVersion(inst, qset)
 			setStartTime(new Date().getTime())
+			console.log("QSET")
+			console.log(qset)
+			console.log(inst)
 			_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
 			setPlayState('playing')
 		}

@@ -4,6 +4,16 @@ import { useQueryClient } from 'react-query'
 import { objectTypes } from '../components/materia-constants'
 import { error } from 'jquery'
 
+const getCSRFToken = () => {
+	const cookies = document.cookie.split(';')
+	for(let cookie of cookies) {
+		if(cookie.startsWith('csrftoken=')) {
+			return cookie.split('=')[1]
+		}
+	}
+	return ''
+}
+
 // checks response for errors and decodes json
 const handleErrors = async resp => {
 	if (!resp.ok) {
@@ -46,10 +56,13 @@ const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 /** API v1 */
 
 export const apiGetWidgetInstance = (instId, getDeleted=false) => {
-	return fetchGet(`/api/widget_instances/get/`, { body: { instanceIds: [instId], getDeleted } })
-	  .then(widget => {
-			return widget['instances']?.[0] ?? {}
-		})
+	return fetch(`/api/instances/${instId}/`)
+	.then(resp => resp.json())
+	.then(data => data)
+	// return fetchGet(`/api/json/widget_instances_get/`, { body: { instanceIds: [instId], getDeleted } })
+	//   .then(widget => {
+	// 		return widget['instances']?.[0] ?? {}
+	// 	})
 }
 
 /**
@@ -75,11 +88,18 @@ export const apiGetWidgetsByType = (widgetType="default") => {
 }
 
 // Gets widget info
-export const apiGetWidget = widgetId => {
-	return fetchGet('/api/widgets/get/', { body: { widgetIds: [widgetId] } })
-		.then(widgets => {
-			return widgets?.length > 0 ? widgets[0] : {}
-		})
+export const apiGetWidget = (ids=[], type='default') => {
+	let params = `?type=${type}`
+
+	if (ids.length) {
+		const idsFilter = ids.toString()
+		params += `&ids=${idsFilter}`
+	}
+	return fetch(`/api/widgets/${params}`)
+		.then(response => response.json())
+		.then((data) => {
+			return data
+	})
 }
 
 /**
@@ -141,11 +161,16 @@ export const apiSaveWidget = (_params) => {
 	}
 }
 
-export const apiGetUser = () => {
-	return fetchGet('/api/user/get/')
-		.then(user => {
-			writeToStorage('user', user)
-			return user
+export const apiGetUser = (user) => {
+	if (!!user) user = ''
+	return fetch(`/api/users/${user}`)
+		.then(response => response.json())
+		.then((data) => {
+			return {
+				...data[0],
+				first: data[0].first_name,
+				last: data[0].last_name
+			}
 		})
 }
 
@@ -161,82 +186,9 @@ export const apiGetUsers = arrayOfUserIds => {
 		})
 }
 
-export const apiAuthorSuper = () => {
-	const data = { perm: 'super_user' }
-	const body = Object.keys(data)
-		.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
-		.join('&')
-
-	return fetch('/api/sessions/role_verify/', {
-		...fetchPOSTOptions({}),
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
-		},
-		body: body
-	})
-	.then(response => response.json())
-	.then(data => {
-		return data.isSuperuser
-	})
-	.catch(error => false)
-}
-
-export const apiAuthorSupport = () => {
-
-	const data = { perm: 'support_user' }
-	const body = Object.keys(data)
-		.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
-		.join('&')
-
-	return fetch('/api/sessions/role_verify/', {
-		...fetchPOSTOptions({}),
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
-		},
-		body: body
-	})
-	.then(response => response.json())
-	.then(data => {
-		return data.isSupportUser
-	})
-	.catch(error => false)
-}
-
-export const apiAuthorVerify = () => {
-	const data = { perm: 'author' }
-	const body = Object.keys(data)
-		.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
-		.join('&')
-
-	return fetch('/api/sessions/role_verify/', {
-		...fetchPOSTOptions({}),
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
-		},
-		body: body
-	})
-	.then(response => response.json())
-	.then(data => {
-		return data
-	})
-	.catch(error => false)
-}
-
+// this endpoint now returns both authentication status and perm level
 export const apiUserVerify = () => {
-	return fetch('/api/sessions/author_verify/', {
-		...fetchPOSTOptions({}),
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
-		}
-	})
+	return fetch('/api/session/verify/')
 	.then(response => response.json())
 	.then(data => {
 		return data
@@ -245,7 +197,11 @@ export const apiUserVerify = () => {
 }
 
 export const apiGetNotifications = () => {
-	return fetchGet('/api/notifications/get/', { body: `data=${formatFetchBody([])}` })
+	return fetch('/api/notifications/')
+	.then(response => response.json())
+	.then(data => {
+		return data
+	})
 }
 
 export const apiDeleteNotification = (data) => {
@@ -405,13 +361,23 @@ export const apiGetStorageData = instId => {
 }
 
 // Widget player api calls
-export const apiGetPlaySession = ({ widgetId }) => {
-	return fetchGet('/api/sessions/play_start/', ({ body: { instanceId: widgetId } }))
+export const apiCreatePlaySession = ({ widgetId }) => {
+	return fetch('/api/play-sessions/', {
+		method: 'POST',
+		body: JSON.stringify({ instanceId: widgetId }),
+		headers: {
+			'content-type': 'application/json',
+			'X-CSRFToken': getCSRFToken(),
+		}
+	})
+		.then(resp => resp.json())
+		.then(data => data)
 }
 
 export const apiGetQuestionSet = (instanceId, playId = null) => {
-	return fetchGet('/api/widget_instances/get_question_set/', ({ body: { instanceId, playId } }))
-    .then(resp => resp["qset"])
+	return fetch(`/api/instances/${instanceId}/question_sets/?latest=true`)
+		.then(resp => resp.json())
+		.then(data => data[0])
 }
 
 export const apiGenerateQset = ({instId, widgetId, topic, includeImages, numQuestions, buildOffExisting}) => {
@@ -419,7 +385,11 @@ export const apiGenerateQset = ({instId, widgetId, topic, includeImages, numQues
 }
 
 export const apiSessionVerify = (play_id) => {
-	return fetchGet('/api/json/session_play_verify/', ({ body: `data=${formatFetchBody([play_id])}` }))
+	return fetch(`/api/play-sessions/${play_id}/verify/`)
+	.then(resp => resp.json())
+	.then(data => {
+		return data.valid
+	})
 }
 
 export const apiSavePlayStorage = ({ play_id, logs }) => {
@@ -480,22 +450,26 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 
 /** Controller_Api_User */
 
-export const apiGetUserActivity = ({ pageParam = 0 }) => {
-	return fetch(`/api/user/activity?start=${pageParam * 6}`)
-		.then(handleErrors)
+export const apiGetUserPlaySessions = ({pageParam = 1}) => {
+	console.log(pageParam)
+	return fetch(`/api/play-sessions/?include_activity=true&page=${pageParam}`)
+		.then(resp => resp.json())
+		.then(data => data)
 }
 
 export const apiUpdateUserSettings = (settings) => {
-	return fetch('/api/user/settings', {
-		...fetchPOSTOptions({}),
+	return fetch(`/api/users/${settings.user_id}/profile_fields/`, {
+		method: 'PUT',
+		body: JSON.stringify(settings),
 		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
+			'X-CSRFToken': getCSRFToken(),
 			'content-type': 'application/json'
-		},
-		body: JSON.stringify(settings)
+		}
 	})
-		.then(handleErrors)
+	.then(resp => resp.json())
+	.then(res => {
+		return res
+	})
 }
 
 export const apiUpdateUserRoles = (roles) => {

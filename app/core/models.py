@@ -379,7 +379,7 @@ class LogStorage(models.Model):
         LogPlay,
         related_name="storage_logs",
         on_delete=models.PROTECT,
-        db_column="play_d",
+        db_column="play_id",
     )
     user = models.ForeignKey(
         User,
@@ -804,7 +804,7 @@ class WidgetInstance(SerializableModel):
         else:
             logger.error(f"Invalid qset type passed into setter: {type(new_qset)}")
 
-    def playable_by_current_user(self):
+    def playable_by_current_user(self, user: User):
         return self.guest_access  # TODO: || ServiceUser::verify_session();
 
     def save(self, *args, **kwargs):
@@ -967,15 +967,6 @@ class WidgetQset(SerializableModel):
             logger.exception("")
 
         return False
-
-    def as_dict(self, *select_fields):
-        json_qset = super().as_dict(*select_fields)
-        if "_data" in json_qset:
-            del json_qset["_data"]
-            json_qset["data"] = self._decode_data()
-        else:
-            json_qset["data"] = {}
-        return json_qset
 
     # TODO: implement this, old code below
     def find_questions(self):

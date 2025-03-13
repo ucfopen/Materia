@@ -22,7 +22,7 @@ const DetailPage = () => {
 	} else {
 		mainRender = <>
 			<Header />
-			<Detail widget={widget} isFetching={isFetching}/>
+			<Detail widget={widget[0]} isFetching={isFetching}/>
 		</>
 	}
 

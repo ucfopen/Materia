@@ -1,7 +1,8 @@
+from django.core.cache import cache
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-from core.models import UserSettings, Question
+from core.models import UserSettings, Question, WidgetQset, WidgetInstance
 from util.message_util import MsgBuilder
 from util.perm_manager import PermManager
 from django.contrib.auth import logout
@@ -10,9 +11,62 @@ from django.shortcuts import redirect
 import hashlib
 import json
 import datetime
+import logging
+
+from core.permissions import IsSuperuserOrReadOnly
+
+from rest_framework import permissions, viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from core.serializers import UserSerializer, UserMetadataSerializer, QuestionSetSerializer, WidgetInstanceSerializer
 
 from util.qset.QuestionUtil import QuestionUtil
 from util.serialization import SerializationUtil
+
+
+logger = logging.getLogger("django")
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated, IsSuperuserOrReadOnly]
+    # NEVER allow user creation or deletion from the API
+    # PATCH requires SU
+    http_method_names = ["get", "patch", "head", "put"]
+
+    queryset = User.objects.none()
+
+    def get_queryset(self):
+        user = self.request.user
+        # TODO even superusers don't need a list of every user
+        # if user.is_superuser:
+        #     return User.objects.all()
+        return User.objects.filter(pk=user.pk)
+
+    @action(detail=True, methods=['put'])
+    def profile_fields(self, request, pk=None):
+        serializer = UserMetadataSerializer(data=request.data)
+
+        if serializer.is_valid():
+            validated = serializer.validated_data
+
+            user_profile, _ = UserSettings.objects.get_or_create(user=request.user)
+            profile_fields = user_profile.get_profile_fields()
+            for key, value in validated.items():
+                profile_fields[key] = value
+
+                # if key == "darkMode":
+                #     cache_key = f'user_dark_mode_{request.user.id}'
+                #     logger.error(f"located darkMode key for user {request.user.id} and deleting cache !!!")
+                #     cache.delete(cache_key)
+
+            user_profile.profile_fields = profile_fields
+            user_profile.save()
+
+            # TODO try/catch required? at this point we've already validated input
+            return Response({"success": True, "profile_fields": user_profile.profile_fields})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def get_gravatar(email):
@@ -20,34 +74,11 @@ def get_gravatar(email):
     hash_email = hashlib.md5(clean_email).hexdigest()
     return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
 
+## API stuff below this line is not yet converted to DRF ##
 
 class UsersApi:
-    @staticmethod
-    def get(request):
-        if not request.user.is_authenticated:
-            return JsonResponse({"error": "Not authenticated"}, status=403)
 
-        is_student = request.user.groups.filter(name="Student").exists()
-        is_support_user = request.user.groups.filter(name="Support").exists()
-        avatar_url = get_gravatar(request.user.email)
-        user = request.user
-        #we only care about the profile, normally it returns a tuple
-        user_profile, _= UserSettings.objects.get_or_create(user=user)
-
-        user_data = {
-            "id": user.id,
-            "username": user.username,
-            "first": user.first_name,
-            "last": user.last_name,
-            "email": user.email,
-            "is_student": PermManager.user_is_student(user),
-            "is_support_user": user.is_staff,
-            "avatar": avatar_url,
-            "profile_fields": user_profile.get_profile_fields()
-
-        }
-        return JsonResponse(user_data)
-
+    # TODO should this be under playsessions?
     @staticmethod
     def activity(request):
         #TODO: get actual activity data instead of dummy data
@@ -87,33 +118,6 @@ class UsersApi:
                 return JsonResponse({"error": "Invalid JSON"}, status=400)
 
             return JsonResponse({"error": "Invalid request method"}, status=405)
-
-
-    def update_settings(request):
-        if not request.user.is_authenticated:
-            return JsonResponse({"error": "Not authenticated"}, status=403)
-
-        try:
-            data = json.loads(request.body)
-            user_profile, _ = UserSettings.objects.get_or_create(user=request.user)
-            profile_fields = user_profile.get_profile_fields()
-
-            for key, value in data.items():
-                profile_fields[key] = value
-
-            user_profile.profile_fields = profile_fields
-            user_profile.save()
-
-            return JsonResponse({"success": True, "profile_fields": user_profile.profile_fields})
-
-
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON"}, status=400)
-
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-
 
     def logout(request):
         logout(request)

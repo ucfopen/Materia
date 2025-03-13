@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useQuery, useInfiniteQuery } from 'react-query'
 import LoadingIcon from './loading-icon'
-import {apiGetUser, apiGetUserActivity} from '../util/api'
+import {apiGetUser, apiGetUserPlaySessions} from '../util/api'
 import Header from './header'
 import './profile-page.scss'
 import Alert from './alert'
@@ -14,7 +14,8 @@ const ProfilePage = () => {
 		fatal: false,
 		enableLoginButton: false
 	})
-	const [activityPage, setActivityPage] = React.useState(0)
+	const [activityPage, setActivityPage] = useState(1)
+	const [activityData, setActivityData] = useState([])
 
 	const mounted = useRef(false)
 	const { data: currentUser, isFetching} = useQuery({
@@ -41,24 +42,25 @@ const ProfilePage = () => {
 		isFetchingNextPage: isFetchingNextActivityPage,
 		hasNextPage,
 		fetchNextPage: fetchNextActivityPage
-	} = useInfiniteQuery({
-		queryKey: 'user-activity',
-		queryFn: apiGetUserActivity,
-		getNextPageParam: (lastPage, pages) => {
-			return lastPage.more == true ? activityPage : undefined
-		},
-		staleTime: Infinity,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setAlertDialog({
-					enabled: true,
-					message: 'You must be logged in to view your profile.',
-					title: 'Login Required',
-					fatal: true,
-					enableLoginButton: true
-				})
-			}
-		}
+		} = useInfiniteQuery({
+			queryKey: 'user-activity',
+			queryFn: apiGetUserPlaySessions,
+			getNextPageParam: (lastPage, pages) => {
+				return lastPage.next != null ? activityPage : undefined
+			},
+			staleTime: Infinity,
+			onError: (err => {
+				// @TODO ensure error catching corresponds to message payload from server
+				if (err.message == "Invalid Login") {
+					setAlertDialog({
+						enabled: true,
+						message: 'You must be logged in to view your profile.',
+						title: 'Login Required',
+						fatal: true,
+						enableLoginButton: true
+					})
+				}
+			})
 	})
 
 	useEffect(() => {
@@ -66,6 +68,26 @@ const ProfilePage = () => {
 			fetchNextActivityPage()
 		}
 	}, [activityPage])
+
+	// @TODO widget_name and inst_name are not present in log records
+	// @TODO make this more robust?
+	useEffect(() => {
+		if (userActivity?.pages) {
+			const newActivity = userActivity.pages[0].results.map((log) => {
+				return {
+					is_complete: log.is_complete,
+					link: _getLink(log),
+					status: _getStatus(log),
+					widget: log.widget_name,
+					title: log.inst_name,
+					date: _getDate(log),
+					score: _getScore(log),
+					play_id: log.id
+				}
+			})
+			setActivityData(data => [...data, ...newActivity])
+		}
+	},[userActivity, userActivity?.pages])
 
 	useEffect(() => {
 		mounted.current = true
@@ -85,7 +107,7 @@ const ProfilePage = () => {
 	}
 
 	const _getDate = (activity) => {
-		let activityDate = new Date(activity.created_at * 1000)
+		let activityDate = new Date(activity.created_at)
 		return `${activityDate.toLocaleDateString([],{dateStyle: 'short'})} at ${activityDate.toLocaleTimeString([],{timeStyle: 'short'})}`
 	}
 
@@ -95,18 +117,17 @@ const ProfilePage = () => {
 
 	let noActivityRender = <p className='no_logs'>You don't have any activity! Once you play a widget, your score history will appear here.</p>
 
-	let activityContentRender = userActivity?.pages?.map((page) => {
-		return page.activity?.map((activity) => {
-			return <li className={`activity_log ${activity.is_complete == 1 ? 'complete' : 'incomplete'} ${activity.percent == 100 ? 'perfect_score' : ''}`} key={activity.play_id}>
-				<a className='score-link' href={_getLink(activity)}>
-					<div className="status">{_getStatus(activity)}</div>
-					<div className="widget">{activity.widget_name}</div>
-					<div className="title">{activity.inst_name}</div>
-					<div className="date">{_getDate(activity)}</div>
-					<div className="score">{_getScore(activity)}</div>
+	// let activityContentRender = <></>
+	let activityContentRender = activityData.map((record) => {
+			return <li className={`activity_log ${record.is_complete == 1 ? 'complete' : 'incomplete'} ${record.score == 100 ? 'perfect_score' : ''}`} key={record.play_id}>
+				<a className='score-link' href={record.link}>
+					<div className="status">{record.status}</div>
+					<div className="widget">{record.widget}</div>
+					<div className="title">{record.title}</div>
+					<div className="date">{record.date}</div>
+					<div className="score">{record.score}</div>
 				</a>
 			</li>
-		})
 	})
 
 	let alertDialogRender = null
@@ -157,7 +178,7 @@ const ProfilePage = () => {
 				<div className='activity'>
 					<div className={`loading-icon-holder ${isFetchingActivity ? 'loading' : ''}`}><LoadingIcon /></div>
 					<ul className='activity_list'>
-						{ userActivity?.pages[0]?.activity.length ? activityContentRender : noActivityRender }
+						{activityData.length ? activityContentRender : noActivityRender}
 					</ul>
 				</div>
 

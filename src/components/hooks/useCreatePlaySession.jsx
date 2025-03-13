@@ -1,10 +1,10 @@
 import { useMutation } from 'react-query'
-import { apiGetPlaySession } from '../../util/api'
+import { apiCreatePlaySession } from '../../util/api'
 
 
 export default function useCreatePlaySession() {
 	return useMutation(
-		apiGetPlaySession,
+		apiCreatePlaySession,
 		{
 			onSuccess: (data, variables) => {
 				variables.successFunc(data)

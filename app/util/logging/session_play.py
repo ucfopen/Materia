@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Self
 
 from django.utils.timezone import make_aware
-
+from django.contrib.auth.models import User
 from core.models import WidgetInstance, LogPlay, DateRange
 from util.scoring.scoring_util import ScoringUtil
 from util.widget.validator import ValidatorUtil
@@ -62,7 +62,8 @@ class SessionPlay:
         # TODO: if inst_id is not valid hash, return None (do we need this?)
 
         self.data.created_at = make_aware(datetime.now())
-        self.data.user = None if instance.guest_access else None  # TODO
+        # TODO this feels flimsy, can we be assured the user reference will be valid?
+        self.data.user = None if instance.guest_access else User.objects.get(pk=user_id)
         self.data.instance = instance
         self.data.context_id = context_id
         self.data.is_preview = is_preview
