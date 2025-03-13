@@ -23,6 +23,15 @@ $ git clone git@github.com:ucfopen/Materia.git materia-django
 [Install pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv?tab=readme-ov-file#installation).
 Using `pyenv`, make sure the required version of Python is installed and available. This may change over time.
 
+Keep in mind also that the following exports may be necessary in order to properly enable pyenv:
+```
+# pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+```
+
 Make sure [make](https://www.gnu.org/software/make/manual/make.html) is installed. Typically you can confirm this by checking the output of `which make` in *nix systems. Otherwise, it's up to you to determine how to use Makefiles on your operating system.
 
 Several `make` commands are provided for your convenience:
