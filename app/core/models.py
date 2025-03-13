@@ -676,7 +676,7 @@ class Widget(SerializableModel):
         self.meta_data = meta_final
         return self.meta_data
 
-    def publishable_by(self, user_id: int) -> bool:
+    def publishable_by(self, user: User) -> bool:
         if not self.restrict_publish:
             return True
         return True  # TODO: return ! Perm_Manager::is_student($user_id);

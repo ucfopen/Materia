@@ -5,7 +5,7 @@ from django.template.context_processors import request
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from core.models import PermObjectToUser, WidgetQset, Widget, WidgetInstance
-from core.permissions import IsSuperuser, HasWidgetInstanceEditAccess
+from core.permissions import IsSuperuser, HasWidgetInstanceEditAccessOrReadOnly
 from core.serializers import WidgetInstanceSerializer, QuestionSetSerializer, WidgetInstanceSerializerNoIdentifyingInfo
 from django.http import HttpResponseServerError
 from django.utils.timezone import make_aware
@@ -53,7 +53,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 permission_classes = [IsAuthenticated]
         # All other actions have default perms
         else:
-            permission_classes = [IsAuthenticatedOrReadOnly]
+            permission_classes = [IsAuthenticatedOrReadOnly & HasWidgetInstanceEditAccessOrReadOnly]
 
         return [permission() for permission in permission_classes]
 
@@ -90,12 +90,8 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"], url_path='question_sets/(?P<qset_id>[^/.]+)')
     def question_set(self, request, pk=None, qset_id=None):
         instance = self.get_object()
-        try:
-            qset = instance.qsets.get(id=qset_id)
-            serializer = QuestionSetSerializer(qset)
-            return Response(serializer.data)
-        except WidgetQset.DoesNotExist:
-            raise NotFound(detail="Qset not found.")
+        serializer = QuestionSetSerializer(instance.qset)
+        return Response(serializer.data)
 
 
 ## API stuff below this line is not yet converted to DRF ##

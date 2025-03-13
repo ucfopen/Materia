@@ -36,7 +36,7 @@ class WidgetInstanceAPI:
             return MsgUtil.create_invalid_input_msg("Invalid widget type")
 
         return JsonResponse({
-            "publishPermsValid": widget.publishable_by(-0)  # TODO
+            "publishPermsValid": widget.publishable_by(request.user)
         })
 
     # WAS widget_instance_save
@@ -62,7 +62,7 @@ class WidgetInstanceAPI:
 
         if not widget:
             return MsgUtil.create_invalid_input_msg("Invalid widget type")
-        if not is_draft and not widget.publishable_by(-0):  # TODO Model_User::find_current_id()
+        if not is_draft and not widget.publishable_by(request.user):
             return MsgUtil.create_no_perm_msg("Widget type can not be published by students.")
         if is_draft and not widget.is_editable:
             return MsgUtil.create_failure_msg("Non-editable widgets can not be saved as drafts!")
@@ -126,7 +126,7 @@ class WidgetInstanceAPI:
             return MsgUtil.create_failure_msg("Widget instance could not be found")
         if is_draft and not widget_instance.widget.is_editable:
             return MsgUtil.create_failure_msg("Non-editable widgets can not be saved as drafts!")
-        if not is_draft and not widget_instance.widget.publishable_by(-0):  # TODO \Model_User::find_current_id()
+        if not is_draft and not widget_instance.widget.publishable_by(request.user):
             return MsgUtil.create_no_perm_msg("Widget type can not be published by students.")
 
         # Check if student-made, ensure guest access remains enabled
