@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
-import fetchPOSTOptions from './fetch-options'
+import fetchWriteOptions from './fetch-options'
 import { useQueryClient } from 'react-query'
 import { objectTypes } from '../components/materia-constants'
 import { error } from 'jquery'
 
-const getCSRFToken = () => {
+export const getCSRFToken = () => {
 	const cookies = document.cookie.split(';')
 	for(let cookie of cookies) {
 		if(cookie.startsWith('csrftoken=')) {
@@ -48,7 +48,9 @@ const handleErrors = async resp => {
 	return data
 }
 
-const fetchPost = (url, options = null) => fetch(url, fetchPOSTOptions(options)).then(handleErrors)
+const fetchPost = (url, options = null) => fetch(url, fetchWriteOptions("POST", options)).then(handleErrors)
+const fetchPut = (url, options = null) => fetch(url, fetchWriteOptions("PUT", options)).then(handleErrors)
+const fetchPatch = (url, options = null) => fetch(url, fetchWriteOptions("PATCH", options)).then(handleErrors)
 const fetchGet = (url) => fetch(url).then(handleErrors)
 
 // Helper function to simplify encoding fetch body values
@@ -123,42 +125,27 @@ export const apiDeleteWidget = ({ instId }) => {
 }
 
 export const apiSaveWidget = (_params) => {
-	const defaults = {
-		qset: null,
-		isDraft: null,
-		openAt: null,
-		closeAt: null,
-		attempts: null,
-		guestAccess: null,
-		embeddedOnly: null,
-	}
-
-	const params = Object.assign({}, defaults, _params)
-
-	if (params.instId != null) {
+	if (_params.instId != null) {
 		// limit args to the following params
 		const body = {
-			instId: params.instId,
-			name: params.name,
-			qset: params.qset,
-			isDraft: params.isDraft,
-			openAt: params.open_at,
-			closeAt: params.close_at,
-			attempts: params.attempts,
-			guestAccess: params.guest_access,
-			embeddedOnly: params.embedded_only,
+			name: _params?.name ?? undefined,
+			qset: _params?.qset ?? undefined,
+			is_draft: _params?.isDraft ?? undefined,
+			open_at: _params?.open_at ?? undefined,
+			close_at: _params?.close_at ?? undefined,
+			attempts: _params?.attempts ?? undefined,
+			guest_access: _params?.guest_access ?? undefined,
+			embedded_only: _params?.embedded_only ?? undefined,
 		}
-
-		return fetchPost('/api/widget_instance/update/', { body })
-
+		return fetchPatch(`/api/instances/${_params.instId}/`, { body })
 	} else {
 		const body = {
-			widgetId: params.widgetId,
-			name: params.name,
-			qset: params.qset,
-			isDraft: params.isDraft,
+			widget_id: parseInt(_params.widgetId),
+			name: _params.name,
+			qset: _params.qset,
+			is_draft: _params.isDraft,
 		}
-		return fetchPost('/api/widget_instance/save/', { body })
+		return fetchPost('/api/instances/', { body })
 	}
 }
 
@@ -378,7 +365,6 @@ export const apiCreatePlaySession = ({ widgetId }) => {
 export const apiGetQuestionSet = (instanceId, playId = null) => {
 	return fetch(`/api/instances/${instanceId}/question_sets/?latest=true`)
 	.then(resp => resp.json())
-	.then(data => data[0])
 }
 
 export const apiGenerateQset = ({inst_id, widget_id, topic, include_images, num_questions, build_off_existing}) => {
@@ -471,7 +457,7 @@ export const apiUpdateUserSettings = (settings) => {
 
 export const apiUpdateUserRoles = (roles) => {
 	return fetch('/api/user/roles', {
-		...fetchPOSTOptions({}),
+		...fetchWriteOptions("POST", {}),
 		headers: {
 			pragma: 'no-cache',
 			'cache-control': 'no-cache',

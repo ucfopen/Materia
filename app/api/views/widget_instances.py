@@ -12,7 +12,7 @@ from django.utils.timezone import make_aware
 
 from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.decorators import action
 
 from util.message_util import MsgUtil
@@ -62,13 +62,22 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # By that logic, they already can edit the widget.
         if self.action != "retrieve":
             return WidgetInstanceSerializer
-
         # Check if user can play the instance. If they can't, don't include identifying info about the instance
         else:
             if self.get_object().playable_by_current_user(self.request.user):
                 return WidgetInstanceSerializer
             else:
                 return WidgetInstanceSerializerNoIdentifyingInfo
+
+    def get_serializer(self, *args, **kwargs):
+        if self.action == "create" or self.action == "update" or self.action == "partial_update":
+            # Include qset on instance creation/update
+            kwargs.setdefault("include_qset", True)
+        return super().get_serializer(*args, **kwargs)
+
+    def perform_create(self, serializer):
+        # Add requesting user as creator of this instance
+        serializer.save(user=self.request.user)
 
     # /api/instances/<inst id>/question_sets/
     # ?latest=true GET param for only the latest qset

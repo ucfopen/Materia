@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from rest_framework.fields import DictField
+
 from core.models import Widget, LogPlay, Notification, UserSettings, WidgetInstance, WidgetQset
 import hashlib
 import os
@@ -101,7 +103,27 @@ class WidgetSerializer(serializers.ModelSerializer):
 
 # instance model serializer (outbound)
 class WidgetInstanceSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        include_qet = kwargs.pop("include_qset", False)
+        super().__init__(*args, **kwargs)
+        if include_qet:
+            self.fields["qset"] = QuestionSetSerializer()
+
+    def create(self, validated_data):
+        if "qset" not in self.fields:
+            return super().create(validated_data)
+
+        # Handle creation with a qset to make sure qset's instance field is set correctly
+        raw_qset = validated_data.pop("qset")
+        widget_instance = WidgetInstance.objects.create(**validated_data)
+        widget_instance.qset = raw_qset
+        widget_instance.save()
+
+        return widget_instance
+
     widget = WidgetSerializer(read_only=True)
+    widget_id = serializers.PrimaryKeyRelatedField(queryset=Widget.objects.all(), source='widget', write_only=True)
+    id = serializers.CharField(required=False)  # Model's save function will auto-generate an ID if it is empty
 
     class Meta:
         model = WidgetInstance
@@ -118,7 +140,8 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "attempts",
             "is_deleted",
             "embedded_only",
-            "widget"
+            "widget",
+            "widget_id",
         ]
 
 
@@ -145,6 +168,8 @@ class WidgetInstanceSerializerNoIdentifyingInfo(serializers.ModelSerializer):
 
 # qset model serializer (outbound)
 class QuestionSetSerializer(serializers.ModelSerializer):
+    data = serializers.DictField()  # Need to specify what type this field is, since it's only a property on the model
+
     class Meta:
         model = WidgetQset
         fields = [
@@ -154,6 +179,13 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             "data",
             "version"
         ]
+        extra_kwargs = {
+            "id": {"required": False, "read_only": True},
+            "instance": {"required": False, "read_only": True},
+            "created_at": {"required": False, "read_only": True},
+            "data": {"required": True},
+            "version": {"required": True},
+        }
 
 
 # class PlayLogsSerializer(serializers.ModelSerializer):
