@@ -27,14 +27,14 @@ const handleErrors = async resp => {
 		})
 		// check if error has message
 		if (errMsg.msg && errMsg.title) {
-			throw new Error(errMsg.title, {cause: errMsg.msg, halt: errMsg.halt, type: errMsg.type})
+			throw new Error(errMsg.title, {cause: errMsg.msg, halt: errMsg.halt ?? true, type: errMsg.type})
 		}
 		// sometimes it's in body
 		else if (errMsg.body) {
 			let body = JSON.parse(errMsg.body)
 			// check if body has error message or warning
 			if (body) {
-				throw new Error(body.title, {cause: body.msg, halt: body.halt, type: body.type})
+				throw new Error(body.title, {cause: body.msg, halt: body.halt ?? true, type: body.type})
 			}
 		}
 		throw new Error(resp.statusText)
@@ -43,7 +43,7 @@ const handleErrors = async resp => {
 	const data = await resp.json().catch(() => { return null })
 	// just in case server side didn't return error status code with error
 	if (data?.type == "error") {
-		throw Error(data.title, {cause: data.msg, halt: data.halt, type: data.type})
+		throw Error(data.title, {cause: data.msg, halt: data.halt ?? true, type: data.type})
 	}
 	return data
 }
@@ -384,7 +384,15 @@ export const apiSavePlayStorage = ({ play_id, logs }) => {
 }
 
 export const apiSavePlayLogs = ({ request }) => {
-	return fetchPost('/api/json/play_logs_save/', ({ body: request }))
+	return fetch(`/api/play-sessions/${request.playId}/`, {
+		method: 'PUT',
+		body: JSON.stringify(request.logs),
+		headers: {
+			'X-CSRFToken': getCSRFToken(),
+			'content-type': 'application/json'
+		}
+	})
+	.then(handleErrors)
 }
 
 export const apiGetQuestionsByType = (arrayOfQuestionIds, arrayOfQuestionTypes) => {

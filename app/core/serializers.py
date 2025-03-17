@@ -2,9 +2,16 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework.fields import DictField
 
-from core.models import Widget, LogPlay, Notification, UserSettings, WidgetInstance, WidgetQset
+from core.models import Widget, Log, LogPlay, Notification, UserSettings, WidgetInstance, WidgetQset
 import hashlib
 import os
+
+from util.logging.session_logger import SessionLogger
+
+# debug logging
+import logging
+from pprint import pformat
+logger = logging.getLogger("django")
 
 # User model serializer (outbound)
 class UserSerializer(serializers.ModelSerializer):
@@ -198,10 +205,38 @@ class PlayIdSerializer(serializers.Serializer):
         
         return playLog
 
-# class PlayLogsSerializer(serializers.ModelSerializer):
-    #     user_id = serializers.IntegerField(max_value=None, min_value=0)
-    # profile_fields = serializers.DictField(child=serializers.BooleanField())
-    # play_id = serializers.UUIDField()
+# serializes and validates individual logs for a play (inbound)
+class PlayLogUpdateSerializer(serializers.Serializer):
+    game_time = serializers.FloatField()
+    item_id = serializers.UUIDField(required=False)
+    type = serializers.IntegerField()
+    text = serializers.CharField(required=False)
+    value = serializers.CharField(required=False)
+
+    def validate(self, data):
+        user = self.context["request"].user
+        try:
+            play = LogPlay.objects.get(pk=self.context["play_id"])
+
+            # if not play.is_valid or play.user.id != user.id:
+            # TODO user validation, must accommodate guest mode
+            if not play.is_valid:
+                raise serializers.ValidationError(f"Play ID {self.context["play_id"]} invalid.")
+
+            if not isinstance(data, list):
+                data = [data]
+
+            logs = []
+            for log in data:
+                log["type"] = SessionLogger.get_log_type(log["type"]) # TODO what if the log type is actually invalid? Right now it'll return LogType.EMPTY
+                log["text"] = log.get("text") or ""
+                log["value"] = log.get("value") or ""
+
+                logs.append(log)
+            return logs
+
+        except LogPlay.DoesNotExist:
+            raise serializers.ValidationError(f"Play ID {self.context["play_id"]} invalid.")
 
 # play session model (kinda) serializer (outbound)
 class PlaySessionSerializer(serializers.ModelSerializer):

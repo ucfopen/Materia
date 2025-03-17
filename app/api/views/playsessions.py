@@ -5,13 +5,18 @@ from rest_framework import permissions, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from core.serializers import PlaySessionSerializer, PlaySessionWithExtrasSerializer
+from core.serializers import PlaySessionSerializer, PlayLogUpdateSerializer, PlaySessionWithExtrasSerializer, PlayLogUpdateSerializer
 from core.permissions import HasWidgetInstanceEditAccess
-from core.models import WidgetInstance, LogPlay
+from core.models import WidgetInstance, Log, LogPlay
 from util.message_util import MsgUtil
 
 from util.logging.session_play import SessionPlay
 from util.widget.validator import ValidatorUtil
+
+# debug logging
+import logging
+from pprint import pformat
+logger = logging.getLogger("django")
 
 class PlaySessionPagination(PageNumberPagination):
     page_size = 100
@@ -65,37 +70,49 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         else:
             return MsgUtil.create_invalid_input_msg("Invalid input","Instance ID required.")
         
-    def update(self, request):
-        if not "pk" in self.kwargs:
+    def update(self, request, pk=None):
+        if not pk:
             return MsgUtil.create_invalid_input_msg()
         
-        play = LogPlay.objects.get(pk=self.kwargs["pk"])
-        logs = request.data.get("logs", None)
-        is_preview = request.query_params("is_preview", None)
-            
-        # play_id = request.data.get("playId", None)
+        # play = LogPlay.objects.get(pk=self.kwargs["pk"])
         # logs = request.data.get("logs", None)
-        # preview_inst_id = request.data.get("previewInstanceId", None)
-        # preview_play_id = request.data.get("previewPlayId", None)
+        is_preview = bool(request.query_params.get("is_preview", False))
+        update_serializer = PlayLogUpdateSerializer(data=request.data, context={"request": request, "play_id": pk}, many=True)
 
-        # if not play_id or (not preview_inst_id and not ValidatorUtil.is_valid_long_hash(play_id)):
-        #     return HttpResponseBadRequest()
-        
-        # if not logs or not isinstance(logs, list):
-        #     return HttpResponseBadRequest()
-        
-        # if preview_inst_id:
-        #     if ValidatorUtil.is_valid_hash(preview_inst_id):
-        #         # TODO: Score_Manager::save_preview_logs($preview_inst_id, $logs);
-        #         pass
-        
-        # else:
-        #     # PLAY FOR KEEPS
-        #     session_play = SessionPlay.get_or_none(play_id)
-        #     if not session_play:
-        #         return HttpResponseNotFound()
-            
-        ## TODO finish this (based on api/views/sessions play_save method)
+        if update_serializer.is_valid():
+
+            try:
+                session = SessionPlay(pk)
+                logs = update_serializer.validated_data
+
+                logger.error(f"raw logs from serializer:\n{pformat(logs)}")
+
+                # using many=True in serializer returns a double-nested list. Manually flatten if required.
+                if isinstance(logs, list) and logs[0] and isinstance(logs[0], list):
+                     logs = logs[0]
+
+                for log in logs:
+                    logModel = Log(
+                        play_id=pk,
+                        log_type=log["type"],
+                        item_id=log["item_id"],
+                        text=log["text"],
+                        value=log["value"],
+                        game_time=log["game_time"],
+                    )
+
+                    if not is_preview:
+                        logModel.save()
+                    # TODO put preview logs in session
+
+                session.update_elapsed()
+                return Response({"status": status.HTTP_200_OK, "success": True})
+
+            except Exception as e:
+                return MsgUtil.create_failure_msg("Failed to Save", "Your play logs could not be saved.")
+
+        else:
+            return Response(update_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, *args, **kwargs):
         return Response({
