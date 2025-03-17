@@ -1,5 +1,6 @@
 from rest_framework import permissions
 from core.models import WidgetInstance
+from util.perm_manager import PermManager
 
 
 class IsSuperuser(permissions.BasePermission):
@@ -45,3 +46,11 @@ class HasWidgetInstanceEditAccessOrReadOnly(HasWidgetInstanceEditAccess):
             return True
 
         return super().has_object_permission(request, view, obj)
+
+
+class CanCreateWidgetInstances(permissions.BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+        if user is None or PermManager.does_user_have_roles(user, "no_author"):
+            return False
+        return True

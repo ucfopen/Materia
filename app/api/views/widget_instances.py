@@ -5,7 +5,7 @@ from django.template.context_processors import request
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from core.models import PermObjectToUser, WidgetQset, Widget, WidgetInstance
-from core.permissions import IsSuperuser, HasWidgetInstanceEditAccessOrReadOnly
+from core.permissions import IsSuperuser, HasWidgetInstanceEditAccessOrReadOnly, CanCreateWidgetInstances
 from core.serializers import WidgetInstanceSerializer, QuestionSetSerializer, WidgetInstanceSerializerNoIdentifyingInfo
 from django.http import HttpResponseServerError
 from django.utils.timezone import make_aware
@@ -43,7 +43,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         user_query = self.request.query_params.get('user')
 
         # Require special perms for list
-        if self.action == 'list':
+        if self.action == "list":
             # Allow all if user is superuser
             if user_query is None:
                 permission_classes = [IsSuperuser]
@@ -51,6 +51,9 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             # only contain this user's instances if they have requested their own.
             else:
                 permission_classes = [IsAuthenticated]
+        # Special perms for creation
+        if self.action == "create":
+            permission_classes = [CanCreateWidgetInstances]
         # All other actions have default perms
         else:
             permission_classes = [IsAuthenticatedOrReadOnly & HasWidgetInstanceEditAccessOrReadOnly]
@@ -76,14 +79,44 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         return super().get_serializer(*args, **kwargs)
 
     def perform_create(self, serializer):
-        # Add requesting user as creator of this instance
-        serializer.save(user=self.request.user)
+        widget = serializer.validated_data["widget"]
+        is_draft = serializer.validated_data["is_draft"]
+        is_student = PermManager.user_is_student(self.request.user)
+
+        # Check to see if this widget is editable
+        if is_draft and not widget.is_editable:
+            raise ValidationError("Non-editable widgets cannot be saved as drafts")
+
+        # Make sure user can publish this widget
+        if not is_draft and not widget.publishable_by(self.request.user):
+            raise ValidationError("You cannot publish this widget")
+
+        # Add and override some additional info, including user and student status stuffs
+        serializer.save(
+            user=self.request.user, is_student_made=is_student, guest_access=is_student,
+            attempts=-1,
+        )
 
     def perform_update(self, serializer):
-        # Make sure student's can't publish widgets
-        published = serializer.validated_data.get("published", False)
-        if published and PermManager.user_is_student(self.request.user):
+        instance = self.get_object()
+        is_draft = serializer.validated_data.get("is_draft", instance.is_draft)
+        guest_access = serializer.validated_data.get("guest_access", instance.guest_access)
 
+        # Check to see if this widget is editable
+        if is_draft and not instance.widget.is_editable:
+            raise ValidationError("Non-editable widgets cannot be saved as drafts")
+
+        # Make sure user can publish this widget
+        if not is_draft and not instance.widget.publishable_by(self.request.user):
+            raise ValidationError("You cannot publish this widget")
+
+        # Make sure student made widgets cannot leave guest access mode
+        if instance.is_student_made:
+            if guest_access is not True:
+                raise ValidationError("Student-made widgets must stay in guest access mode")
+            serializer.validated_data["attempts"] = -1
+
+        # TODO create session_activities for each updated field? see original PHP code
 
         serializer.save()
 
