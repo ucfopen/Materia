@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 
 from core.models import PermObjectToUser, WidgetQset, Widget, WidgetInstance
 from core.permissions import IsSuperuser, HasWidgetInstanceEditAccessOrReadOnly, CanCreateWidgetInstances
-from core.serializers import WidgetInstanceSerializer, QuestionSetSerializer, WidgetInstanceSerializerNoIdentifyingInfo
+from core.serializers import WidgetInstanceSerializer, QuestionSetSerializer, WidgetInstanceSerializerNoIdentifyingInfo, PlayIdSerializer
 from django.http import HttpResponseServerError
 from django.utils.timezone import make_aware
 
@@ -41,6 +41,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         user_query = self.request.query_params.get('user')
+        play_id = self.request.query_params.get("play_id")
 
         # Require special perms for list
         if self.action == "list":
@@ -51,9 +52,15 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             # only contain this user's instances if they have requested their own.
             else:
                 permission_classes = [IsAuthenticated]
+
         # Special perms for creation
-        if self.action == "create":
+        elif self.action == "create":
             permission_classes = [CanCreateWidgetInstances]
+
+        # A valid play ID grants access
+        elif self.action == "get" and play_id != None:
+            permission_classes = [IsAuthenticated]
+
         # All other actions have default perms
         else:
             permission_classes = [IsAuthenticatedOrReadOnly & HasWidgetInstanceEditAccessOrReadOnly]
@@ -122,15 +129,25 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     # /api/instances/<inst id>/question_sets/
     # ?latest=true GET param for only the latest qset
+    # ?play_id=<play id> GET param to grant access
     @action(detail=True, methods=["get"])
     def question_sets(self, request, pk=None):
         instance = self.get_object()
 
         get_latest = request.query_params.get("latest", "false")
+        play_id = request.query_params.get("play_id", None)
+
         if get_latest == "true":
             qset = instance.qset
             serializer = QuestionSetSerializer(qset)
             return Response(serializer.data)
+
+        elif play_id != None:
+            play_id_serializer = PlayIdSerializer(data=play_id)
+            if play_id_serializer.is_valid():
+                serializer = QuestionSetSerializer(qset)
+                return Response(serializer.data)
+
         else:
             qsets = instance.qsets.all()
             serializer = QuestionSetSerializer(qsets, many=True)

@@ -29,7 +29,6 @@ urlpatterns = [
     # path("json/widgets_get_by_type/", WidgetsApi.widgets_get_by_type),
     # path("json/widgets_get/", WidgetsApi.widgets_get),
     path("json/widget_instances_get/", WidgetsApi.widget_instances_get),
-    path("json/question_set_get/", WidgetsApi.question_set_get),
 
     # Creator
     path("widget_instance/", include("api.urls.widget_instance_urls")),
@@ -39,7 +38,7 @@ urlpatterns = [
     path("json/auth/login/", UsersApi.service_user_login, name="service_user_login"),
     # path("user/settings", UsersApi.update_settings),
 
-    path("json/user/activity", UsersApi.activity),
+    # path("json/user/activity", UsersApi.activity),
     # path("json/notifications_get/", NotificationsApi.get),
 
     # Sessions
