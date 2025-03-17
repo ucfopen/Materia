@@ -79,6 +79,14 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # Add requesting user as creator of this instance
         serializer.save(user=self.request.user)
 
+    def perform_update(self, serializer):
+        # Make sure student's can't publish widgets
+        published = serializer.validated_data.get("published", False)
+        if published and PermManager.user_is_student(self.request.user):
+
+
+        serializer.save()
+
     # /api/instances/<inst id>/question_sets/
     # ?latest=true GET param for only the latest qset
     @action(detail=True, methods=["get"])
