@@ -17,7 +17,7 @@ from core.permissions import IsSuperuserOrReadOnly
 from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from core.serializers import UserSerializer, UserMetadataSerializer, QuestionSetSerializer, WidgetInstanceSerializer
+from core.serializers import UserSerializer, UserMetadataSerializer
 
 
 logger = logging.getLogger("django")
@@ -72,29 +72,6 @@ def get_gravatar(email):
 ## API stuff below this line is not yet converted to DRF ##
 
 class UsersApi:
-
-    # TODO should this be under playsessions?
-    @staticmethod
-    def activity(request):
-        #TODO: get actual activity data instead of dummy data
-        activity_data = {
-            "activity": [
-                {
-                    "play_id": 12345,
-                    "created_at": int(datetime.datetime.now().timestamp()),
-                    "score": "100.0",
-                    "percent": 100,
-                    "is_complete": "1",
-                    "inst_id": 6789,
-                    "widget_name": "Associations",
-                    "inst_name": "Associations is the best widget",
-                },
-            ],
-            "more": False,
-        }
-        return JsonResponse(activity_data)
-
-
     def service_user_login(request):
         if request.method == "POST":
             try:

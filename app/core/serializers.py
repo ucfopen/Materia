@@ -187,6 +187,16 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             "version": {"required": True},
         }
 
+class PlayIdSerializer(serializers.Serializer):
+    play_id = serializers.UUIDField()
+
+    def validate(self, data):
+        playLog = LogPlay.objects.get(pk=data["play_id"])
+
+        if not playLog:
+            raise serializers.ValidationError(f"Play ID invalid.")
+        
+        return playLog
 
 # class PlayLogsSerializer(serializers.ModelSerializer):
     #     user_id = serializers.IntegerField(max_value=None, min_value=0)

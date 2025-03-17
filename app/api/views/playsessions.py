@@ -39,7 +39,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     # inst and widget names are only included via ?include_activity=true
     def get_queryset(self):
         if "pk" in self.kwargs:
-            return LogPlay.objects.filter(pk=self.kwargs["pk"])
+            return LogPlay.objects.get(pk=self.kwargs["pk"])
         else:
             if self.request.query_params.get("include_activity"):
                 return LogPlay.objects.select_related("instance","instance__widget").filter(user=self.request.user)
@@ -66,26 +66,34 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             return MsgUtil.create_invalid_input_msg("Invalid input","Instance ID required.")
         
     def update(self, request):
-        play_id = request.data.get("playId", None)
+        if not "pk" in self.kwargs:
+            return MsgUtil.create_invalid_input_msg()
+        
+        play = LogPlay.objects.get(pk=self.kwargs["pk"])
         logs = request.data.get("logs", None)
-        preview_id = request.data.get("previewInstanceId", None)
+        is_preview = request.query_params("is_preview", None)
+            
+        # play_id = request.data.get("playId", None)
+        # logs = request.data.get("logs", None)
+        # preview_inst_id = request.data.get("previewInstanceId", None)
+        # preview_play_id = request.data.get("previewPlayId", None)
 
-        if not play_id or (not preview_id and not ValidatorUtil.is_valid_long_hash(play_id)):
-            return HttpResponseBadRequest()
+        # if not play_id or (not preview_inst_id and not ValidatorUtil.is_valid_long_hash(play_id)):
+        #     return HttpResponseBadRequest()
         
-        if not logs or not isinstance(logs, list):
-            return HttpResponseBadRequest()
+        # if not logs or not isinstance(logs, list):
+        #     return HttpResponseBadRequest()
         
-        if preview_id:
-            if ValidatorUtil.is_valid_hash(preview_id):
-                # TODO: Score_Manager::save_preview_logs($preview_inst_id, $logs);
-                pass
+        # if preview_inst_id:
+        #     if ValidatorUtil.is_valid_hash(preview_inst_id):
+        #         # TODO: Score_Manager::save_preview_logs($preview_inst_id, $logs);
+        #         pass
         
-        else:
-            # PLAY FOR KEEPS
-            session_play = SessionPlay.get_or_none(play_id)
-            if not session_play:
-                return HttpResponseNotFound()
+        # else:
+        #     # PLAY FOR KEEPS
+        #     session_play = SessionPlay.get_or_none(play_id)
+        #     if not session_play:
+        #         return HttpResponseNotFound()
             
         ## TODO finish this (based on api/views/sessions play_save method)
 
