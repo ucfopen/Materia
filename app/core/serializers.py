@@ -1,8 +1,17 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from core.models import Widget, LogPlay, Notification, UserSettings, WidgetInstance, WidgetQset
+from rest_framework.fields import DictField
+
+from core.models import Widget, Log, LogPlay, Notification, UserSettings, WidgetInstance, WidgetQset
 import hashlib
 import os
+
+from util.logging.session_logger import SessionLogger
+
+# debug logging
+import logging
+from pprint import pformat
+logger = logging.getLogger("django")
 
 # User model serializer (outbound)
 class UserSerializer(serializers.ModelSerializer):
@@ -101,7 +110,27 @@ class WidgetSerializer(serializers.ModelSerializer):
 
 # instance model serializer (outbound)
 class WidgetInstanceSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        include_qet = kwargs.pop("include_qset", False)
+        super().__init__(*args, **kwargs)
+        if include_qet:
+            self.fields["qset"] = QuestionSetSerializer()
+
+    def create(self, validated_data):
+        if "qset" not in self.fields:
+            return super().create(validated_data)
+
+        # Handle creation with a qset to make sure qset's instance field is set correctly
+        raw_qset = validated_data.pop("qset")
+        widget_instance = WidgetInstance.objects.create(**validated_data)
+        widget_instance.qset = raw_qset
+        widget_instance.save()
+
+        return widget_instance
+
     widget = WidgetSerializer(read_only=True)
+    widget_id = serializers.PrimaryKeyRelatedField(queryset=Widget.objects.all(), source='widget', write_only=True)
+    id = serializers.CharField(required=False)  # Model's save function will auto-generate an ID if it is empty
 
     class Meta:
         model = WidgetInstance
@@ -118,7 +147,8 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "attempts",
             "is_deleted",
             "embedded_only",
-            "widget"
+            "widget",
+            "widget_id",
         ]
 
 
@@ -145,6 +175,8 @@ class WidgetInstanceSerializerNoIdentifyingInfo(serializers.ModelSerializer):
 
 # qset model serializer (outbound)
 class QuestionSetSerializer(serializers.ModelSerializer):
+    data = serializers.DictField()  # Need to specify what type this field is, since it's only a property on the model
+
     class Meta:
         model = WidgetQset
         fields = [
@@ -154,12 +186,57 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             "data",
             "version"
         ]
+        extra_kwargs = {
+            "id": {"required": False, "read_only": True},
+            "instance": {"required": False, "read_only": True},
+            "created_at": {"required": False, "read_only": True},
+            "data": {"required": True},
+            "version": {"required": True},
+        }
 
+class PlayIdSerializer(serializers.Serializer):
+    play_id = serializers.UUIDField()
 
-# class PlayLogsSerializer(serializers.ModelSerializer):
-    #     user_id = serializers.IntegerField(max_value=None, min_value=0)
-    # profile_fields = serializers.DictField(child=serializers.BooleanField())
-    # play_id = serializers.UUIDField()
+    def validate(self, data):
+        playLog = LogPlay.objects.get(pk=data["play_id"])
+
+        if not playLog:
+            raise serializers.ValidationError(f"Play ID invalid.")
+        
+        return playLog
+
+# serializes and validates individual logs for a play (inbound)
+class PlayLogUpdateSerializer(serializers.Serializer):
+    game_time = serializers.FloatField()
+    item_id = serializers.UUIDField(required=False)
+    type = serializers.IntegerField()
+    text = serializers.CharField(required=False)
+    value = serializers.CharField(required=False)
+
+    def validate(self, data):
+        user = self.context["request"].user
+        try:
+            play = LogPlay.objects.get(pk=self.context["play_id"])
+
+            # if not play.is_valid or play.user.id != user.id:
+            # TODO user validation, must accommodate guest mode
+            if not play.is_valid:
+                raise serializers.ValidationError(f"Play ID {self.context["play_id"]} invalid.")
+
+            if not isinstance(data, list):
+                data = [data]
+
+            logs = []
+            for log in data:
+                log["type"] = SessionLogger.get_log_type(log["type"]) # TODO what if the log type is actually invalid? Right now it'll return LogType.EMPTY
+                log["text"] = log.get("text") or ""
+                log["value"] = log.get("value") or ""
+
+                logs.append(log)
+            return logs
+
+        except LogPlay.DoesNotExist:
+            raise serializers.ValidationError(f"Play ID {self.context["play_id"]} invalid.")
 
 # play session model (kinda) serializer (outbound)
 class PlaySessionSerializer(serializers.ModelSerializer):

@@ -1,6 +1,9 @@
 import json
 import logging
 
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
 from core.models import Widget, WidgetInstance
 from django.http import JsonResponse, HttpResponseNotFound
 
@@ -20,11 +23,19 @@ class WidgetViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         widgets = Widget.objects.all().order_by("name")
-        if self.request.query_params.get("ids",""):
-            return widgets.filter(id__in=self.request.query_params.get("ids", ).split(","))
+        if self.request.query_params.get("ids", ""):
+            return widgets.filter(id__in=self.request.query_params.get("ids", "").split(","))
         else:
             return widgets
-        
+
+    @action(detail=True, methods=["get"])
+    def publish_perms_verify(self, request, pk):
+        widget = self.get_object()
+        return Response({
+            "publishPermsValid": widget.publishable_by(request.user)
+        })
+
+
 ## API stuff below this line is not yet fully converted to DRF ##
 
 class WidgetsApi:

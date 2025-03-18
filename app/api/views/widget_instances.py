@@ -5,14 +5,14 @@ from django.template.context_processors import request
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from core.models import PermObjectToUser, WidgetQset, Widget, WidgetInstance
-from core.permissions import IsSuperuser, HasWidgetInstanceEditAccess
-from core.serializers import WidgetInstanceSerializer, QuestionSetSerializer, WidgetInstanceSerializerNoIdentifyingInfo
+from core.permissions import IsSuperuser, HasWidgetInstanceEditAccessOrReadOnly, CanCreateWidgetInstances
+from core.serializers import WidgetInstanceSerializer, QuestionSetSerializer, WidgetInstanceSerializerNoIdentifyingInfo, PlayIdSerializer
 from django.http import HttpResponseServerError
 from django.utils.timezone import make_aware
 
 from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.decorators import action
 
 from util.message_util import MsgBuilder
@@ -41,9 +41,10 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         user_query = self.request.query_params.get('user')
+        play_id = self.request.query_params.get("play_id")
 
         # Require special perms for list
-        if self.action == 'list':
+        if self.action == "list":
             # Allow all if user is superuser
             if user_query is None:
                 permission_classes = [IsSuperuser]
@@ -51,9 +52,18 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             # only contain this user's instances if they have requested their own.
             else:
                 permission_classes = [IsAuthenticated]
+
+        # Special perms for creation
+        elif self.action == "create":
+            permission_classes = [CanCreateWidgetInstances]
+
+        # A valid play ID grants access
+        elif self.action == "get" and play_id != None:
+            permission_classes = [IsAuthenticated]
+
         # All other actions have default perms
         else:
-            permission_classes = [IsAuthenticatedOrReadOnly]
+            permission_classes = [IsAuthenticatedOrReadOnly & HasWidgetInstanceEditAccessOrReadOnly]
 
         return [permission() for permission in permission_classes]
 
@@ -62,7 +72,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # By that logic, they already can edit the widget.
         if self.action != "retrieve":
             return WidgetInstanceSerializer
-
         # Check if user can play the instance. If they can't, don't include identifying info about the instance
         else:
             if self.get_object().playable_by_current_user(self.request.user):
@@ -70,17 +79,75 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             else:
                 return WidgetInstanceSerializerNoIdentifyingInfo
 
+    def get_serializer(self, *args, **kwargs):
+        if self.action == "create" or self.action == "update" or self.action == "partial_update":
+            # Include qset on instance creation/update
+            kwargs.setdefault("include_qset", True)
+        return super().get_serializer(*args, **kwargs)
+
+    def perform_create(self, serializer):
+        widget = serializer.validated_data["widget"]
+        is_draft = serializer.validated_data["is_draft"]
+        is_student = PermManager.user_is_student(self.request.user)
+
+        # Check to see if this widget is editable
+        if is_draft and not widget.is_editable:
+            raise ValidationError("Non-editable widgets cannot be saved as drafts")
+
+        # Make sure user can publish this widget
+        if not is_draft and not widget.publishable_by(self.request.user):
+            raise ValidationError("You cannot publish this widget")
+
+        # Add and override some additional info, including user and student status stuffs
+        serializer.save(
+            user=self.request.user, is_student_made=is_student, guest_access=is_student,
+            attempts=-1,
+        )
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        is_draft = serializer.validated_data.get("is_draft", instance.is_draft)
+        guest_access = serializer.validated_data.get("guest_access", instance.guest_access)
+
+        # Check to see if this widget is editable
+        if is_draft and not instance.widget.is_editable:
+            raise ValidationError("Non-editable widgets cannot be saved as drafts")
+
+        # Make sure user can publish this widget
+        if not is_draft and not instance.widget.publishable_by(self.request.user):
+            raise ValidationError("You cannot publish this widget")
+
+        # Make sure student made widgets cannot leave guest access mode
+        if instance.is_student_made:
+            if guest_access is not True:
+                raise ValidationError("Student-made widgets must stay in guest access mode")
+            serializer.validated_data["attempts"] = -1
+
+        # TODO create session_activities for each updated field? see original PHP code
+
+        serializer.save()
+
     # /api/instances/<inst id>/question_sets/
     # ?latest=true GET param for only the latest qset
+    # ?play_id=<play id> GET param to grant access
     @action(detail=True, methods=["get"])
     def question_sets(self, request, pk=None):
         instance = self.get_object()
 
         get_latest = request.query_params.get("latest", "false")
+        play_id = request.query_params.get("play_id", None)
+
         if get_latest == "true":
             qset = instance.qset
             serializer = QuestionSetSerializer(qset)
             return Response(serializer.data)
+
+        elif play_id != None:
+            play_id_serializer = PlayIdSerializer(data=play_id)
+            if play_id_serializer.is_valid():
+                serializer = QuestionSetSerializer(qset)
+                return Response(serializer.data)
+
         else:
             qsets = instance.qsets.all()
             serializer = QuestionSetSerializer(qsets, many=True)
@@ -90,12 +157,8 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"], url_path='question_sets/(?P<qset_id>[^/.]+)')
     def question_set(self, request, pk=None, qset_id=None):
         instance = self.get_object()
-        try:
-            qset = instance.qsets.get(id=qset_id)
-            serializer = QuestionSetSerializer(qset)
-            return Response(serializer.data)
-        except WidgetQset.DoesNotExist:
-            raise NotFound(detail="Qset not found.")
+        serializer = QuestionSetSerializer(instance.qset)
+        return Response(serializer.data)
 
 
 ## API stuff below this line is not yet converted to DRF ##

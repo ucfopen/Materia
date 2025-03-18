@@ -62,6 +62,7 @@ urlpatterns = [
 
     # API (TODO: improve API routing, retire api/json)
     path("api/", include("api.urls.api_urls")),
+    # path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
     path("settings/", profile_views.settings, name="settings"),
 	path("users/login", login_views.login, name="login"),

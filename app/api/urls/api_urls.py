@@ -33,15 +33,24 @@ urlpatterns = [
     # path("json/widgets_get_by_type/", WidgetsApi.widgets_get_by_type),
     # path("json/widgets_get/", WidgetsApi.widgets_get),
     path("json/widget_instances_get/", WidgetsApi.widget_instances_get),
-    path("json/question_set_get/", WidgetsApi.question_set_get),
 
     # Creator
     # path("widget_instance/", include("api.urls.widget_instance_urls")),
 
     # Users
+    # path("json/user_get", UsersApi.get),
     path("user/login/", UsersApi.service_user_login, name="service_user_login"),
-    path("user/activity/", UsersApi.activity),
+    # path("user/settings", UsersApi.update_settings),
+
+    # path("json/user/activity", UsersApi.activity),
+    # path("json/notifications_get/", NotificationsApi.get),
     path("user/get_questions/", UsersApi.get_questions),
+
+    # Sessions
+    # path("json/session_play_create/", SessionsApi.session_play_create),
+    path("json/play_logs_save/", SessionsApi.play_logs_save),
+    # path("json/session_author_verify/", SessionsApi.author_verify),
+    # path("json/session_role_verify/", SessionsApi.role_verify),
 
     # Scores
     path("scores/get_for_widget_instance/", ScoresApi.get_for_widget_instance),
