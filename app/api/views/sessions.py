@@ -74,13 +74,13 @@ class SessionsApi:
             # TODO: the double verification of user session then session play seems like it might be redundant, take a look at later again
             # Confirm user session for real play
             instance = session_play.data.instance
-            if not instance.playable_by_current_user():
+            if not instance.playable_by_current_user(request.user):
                 return MsgUtil.create_no_login_msg()
             # if not instance.guest_access and TODO: self::session_play_verify($play_id) !== true
             #     return MsgUtil.create_no_login_msg()
 
             # Validate session play
-            is_valid = session_play.validate()
+            is_valid = session_play.validate(request)
             if not is_valid:
                 return MsgUtil.create_invalid_input_msg(msg="Invalid play session")
 

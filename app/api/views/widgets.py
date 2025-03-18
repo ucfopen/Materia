@@ -81,11 +81,11 @@ class WidgetsApi:
         instance = WidgetInstance.objects.get(pk=instance_id)
         if not instance:
             return HttpResponseNotFound()
-        if not instance.playable_by_current_user():
+        if not instance.playable_by_current_user(request.user):
             return MsgUtil.create_no_login_msg()
 
         # Validate play ID
-        if play_id and not timestamp and not SessionPlay.validate_by_play_id(play_id):
+        if play_id and not timestamp and not SessionPlay.validate_by_play_id(play_id, request):
             return MsgUtil.create_no_login_msg()
 
         # TODO check preview mode, see php

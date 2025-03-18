@@ -210,8 +210,8 @@ class PlayLogUpdateSerializer(serializers.Serializer):
     game_time = serializers.FloatField()
     item_id = serializers.UUIDField(required=False)
     type = serializers.IntegerField()
-    text = serializers.CharField(required=False)
-    value = serializers.CharField(required=False)
+    text = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    value = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
     def validate(self, data):
         user = self.context["request"].user
@@ -229,8 +229,8 @@ class PlayLogUpdateSerializer(serializers.Serializer):
             logs = []
             for log in data:
                 log["type"] = SessionLogger.get_log_type(log["type"]) # TODO what if the log type is actually invalid? Right now it'll return LogType.EMPTY
-                log["text"] = log.get("text") or ""
-                log["value"] = log.get("value") or ""
+                log["text"] = log.get("text", "")
+                log["value"] = log.get("value", "")
 
                 logs.append(log)
             return logs

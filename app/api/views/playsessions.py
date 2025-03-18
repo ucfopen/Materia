@@ -57,10 +57,10 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             instance = WidgetInstance.objects.get(pk=inst_id)
             if instance is None:
                 return MsgUtil.create_not_found()
-            if not instance.playable_by_current_user:
-                return MsgUtil.create_failure_msg("Not Allowed","Instance not playable by current user.")
+            if not instance.playable_by_current_user(request.user):
+                return MsgUtil.create_failure_msg("Not Allowed", "Instance not playable by current user.")
             if instance.is_draft:
-                return MsgUtil.create_failure_msg("Drafts not Playable","Must use Preview mode to play a draft")
+                return MsgUtil.create_failure_msg("Drafts not Playable", "Must use Preview mode to play a draft")
             
             session_play = SessionPlay()
             # TODO context id?
@@ -68,7 +68,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             return JsonResponse({ "playId": play_id })
 
         else:
-            return MsgUtil.create_invalid_input_msg("Invalid input","Instance ID required.")
+            return MsgUtil.create_invalid_input_msg("Invalid input", "Instance ID required.")
         
     def update(self, request, pk=None):
         if not pk:
