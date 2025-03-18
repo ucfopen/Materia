@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 
-from django.template.context_processors import request
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from core.models import PermObjectToUser, WidgetQset, Widget, WidgetInstance

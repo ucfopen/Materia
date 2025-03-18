@@ -75,7 +75,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         
     def update(self, request, pk=None):
         if not pk:
-            return MsgUtil.create_invalid_input_msg()
+            return MsgBuilder.invalid_input().as_json_response()
 
         # play = LogPlay.objects.get(pk=self.kwargs["pk"])
         # logs = request.data.get("logs", None)

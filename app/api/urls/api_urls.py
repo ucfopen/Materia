@@ -22,7 +22,7 @@ router.register(r'notifications', NotificationsViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
-    path('session/verify/', SessionView.as_view(), name='session-verify'),
+    path("session/verify/", SessionView.as_view(), name='session-verify'),
 
     # Widget Instances
     path("publish_perms_verify/", WidgetInstanceAPI.publish_perms_verify),
@@ -48,7 +48,7 @@ urlpatterns = [
 
     # Sessions
     # path("json/session_play_create/", SessionsApi.session_play_create),
-    path("json/play_logs_save/", SessionsApi.play_logs_save),
+    path("json/play_logs_save/", SessionsApi.play_save),
     # path("json/session_author_verify/", SessionsApi.author_verify),
     # path("json/session_role_verify/", SessionsApi.role_verify),
 
