@@ -59,7 +59,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             instance = WidgetInstance.objects.get(pk=inst_id)
             if instance is None:
                 return MsgBuilder.not_found().as_json_response()
-            if not instance.playable_by_current_user:
+            if not instance.playable_by_current_user(request.user):
                 return MsgBuilder.failure("Not Allowed", "Instance not playable by current user.").as_json_response()
             if instance.is_draft:
                 return (MsgBuilder.failure("Drafts not Playable", "Must use Preview mode to play a draft")

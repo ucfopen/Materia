@@ -44,7 +44,7 @@ class ScoresApi:
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
-        if not instance.playable_by_current_user():
+        if not instance.playable_by_current_user(request.user):
             return MsgBuilder.no_login().as_json_response()
 
         # Get scores and return
@@ -74,7 +74,7 @@ class ScoresApi:
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
-        if not instance.playable_by_current_user():
+        if not instance.playable_by_current_user(request.user):
             return MsgBuilder.no_login().as_json_response()
 
         scores = ScoringUtil.get_guest_instance_score_history(instance, play_id)
@@ -123,7 +123,7 @@ class ScoresApi:
             session_play = SessionPlay.get_or_none(play_id)
             if not session_play:
                 return HttpResponseNotFound()
-            if not session_play.data.instance.playable_by_current_user():
+            if not session_play.data.instance.playable_by_current_user(request.user):
                 return MsgBuilder.no_login().as_json_response()
 
             return JsonResponse(ScoringUtil.get_play_details(session_play))
@@ -142,7 +142,7 @@ class ScoresApi:
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
-        if not instance.playable_by_current_user():
+        if not instance.playable_by_current_user(request.user):
             return MsgBuilder.no_login().as_json_response()
 
         # Get the score distributions and summaries per semester

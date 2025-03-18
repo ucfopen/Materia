@@ -83,7 +83,7 @@ class WidgetsApi:
             return MsgBuilder.no_login().as_json_response()
 
         # Validate play ID
-        if play_id and not timestamp and not SessionPlay.validate_by_play_id(play_id):
+        if play_id and not timestamp and not SessionPlay.validate_by_play_id(play_id, request):
             return MsgBuilder.no_login().as_json_response()
 
         # TODO check preview mode, see php

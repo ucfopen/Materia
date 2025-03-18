@@ -1,3 +1,4 @@
+from django.http import HttpResponseNotFound, HttpResponseServerError, HttpRequest
 from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseServerError, HttpRequest
 from django.views.generic import TemplateView
@@ -32,8 +33,7 @@ class WidgetDemoView(TemplateView):
         if not demo_instance:
             return HttpResponseNotFound()  # TODO: change this into a more valid code or an error message
 
-        return _create_player_page(
-            demo_instance, is_demo=False, autoplay=autoplay, is_preview=False, request=self.request)
+        return _create_player_page(demo_instance, self.request, is_demo=False, autoplay=autoplay, is_preview=False)
 
 
 class WidgetPlayView(TemplateView):
@@ -47,7 +47,7 @@ class WidgetPlayView(TemplateView):
         if not instance:
             return HttpResponseNotFound()  # TODO: change this into a more valid code or an error message
 
-        return _create_player_page(instance, is_demo=False, autoplay=autoplay, is_preview=False, request=self.request)
+        return _create_player_page(instance, self.request, is_demo=False, autoplay=autoplay, is_preview=False)
 
 
 class WidgetCreatorView(TemplateView):
@@ -184,14 +184,14 @@ class WidgetQsetGenerateView(TemplateView):
 
 # Creates a player page for a real, logged play session
 def _create_player_page(
-        instance: WidgetInstance, request: HttpRequest, is_demo: bool = False,
-        is_preview: bool = False, is_embedded: bool = False, autoplay: bool | None = None
+        instance: WidgetInstance, request: HttpRequest, is_demo: bool = False, is_preview: bool = False,
+        is_embedded: bool = False, autoplay: bool | None = None
 ):
     # Create context id (?)
     # TODO call the LtiEvents/on_before_play_start_event() function. Seems to relate to LTI stuffs
 
     # Check to see if login is required
-    if not instance.playable_by_current_user():
+    if not instance.playable_by_current_user(request.user):
         return _create_widget_login_page(instance, request, is_embedded, is_preview)
 
     # Check to see if this widget is playable
