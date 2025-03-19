@@ -35,64 +35,64 @@ class SessionView(APIView):
     
 ## API stuff below this line is not yet converted to DRF ##
 
-class SessionsApi:
-    # TODO this is moving to playsessions
-    @staticmethod
-    # Gets called when a game ends with the play data. Scores the game, saves results, and submits score to LTI
-    def play_logs_save(request):
-        # Get all request params
-        request_body = json.loads(request.body)
-        play_id = request_body.get("playId")
-        logs = request_body.get("logs")
-        preview_instance_id = request_body.get("previewInstanceId")
-        preview_play_id = request_body.get("previewPlayId")
+# class SessionsApi:
+    # # TODO this is moving to playsessions
+    # @staticmethod
+    # # Gets called when a game ends with the play data. Scores the game, saves results, and submits score to LTI
+    # def play_logs_save(request):
+    #     # Get all request params
+    #     request_body = json.loads(request.body)
+    #     play_id = request_body.get("playId")
+    #     logs = request_body.get("logs")
+    #     preview_instance_id = request_body.get("previewInstanceId")
+    #     preview_play_id = request_body.get("previewPlayId")
 
-        # Validate request params
-        if not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id):
-            return MsgUtil.create_invalid_input_msg(msg="Invalid play ID")
+    #     # Validate request params
+    #     if not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id):
+    #         return MsgUtil.create_invalid_input_msg(msg="Invalid play ID")
 
-        if not logs or not isinstance(logs, list):
-            return MsgUtil.create_invalid_input_msg(msg="Missing log array")
+    #     if not logs or not isinstance(logs, list):
+    #         return MsgUtil.create_invalid_input_msg(msg="Missing log array")
 
-        # Save logs
-        if ValidatorUtil.is_valid_hash(preview_instance_id):
-            ##### PREVIEW MODE #####
-            # Confirm preview_play_id is present
-            if preview_play_id is None:
-                return MsgUtil.create_invalid_input_msg(msg="Missing preview play ID")
-            # Confirm user session for preview
-            # TODO: if (\Service_User::verify_session() !== true) return Msg::no_login();
-            SessionLogger.save_preview_logs(request.session, preview_instance_id, preview_play_id, logs)
-            return JsonResponse({"success": True})
-        else:
-            ##### PLAYING FOR KEEPS #####
-            # Grab session play
-            session_play = SessionPlay.get_or_none(play_id)
-            if not session_play:
-                return HttpResponseNotFound()
+    #     # Save logs
+    #     if ValidatorUtil.is_valid_hash(preview_instance_id):
+    #         ##### PREVIEW MODE #####
+    #         # Confirm preview_play_id is present
+    #         if preview_play_id is None:
+    #             return MsgUtil.create_invalid_input_msg(msg="Missing preview play ID")
+    #         # Confirm user session for preview
+    #         # TODO: if (\Service_User::verify_session() !== true) return Msg::no_login();
+    #         SessionLogger.save_preview_logs(request.session, preview_instance_id, preview_play_id, logs)
+    #         return JsonResponse({"success": True})
+    #     else:
+    #         ##### PLAYING FOR KEEPS #####
+    #         # Grab session play
+    #         session_play = SessionPlay.get_or_none(play_id)
+    #         if not session_play:
+    #             return HttpResponseNotFound()
 
-            # TODO: the double verification of user session then session play seems like it might be redundant, take a look at later again
-            # Confirm user session for real play
-            instance = session_play.data.instance
-            if not instance.playable_by_current_user(request.user):
-                return MsgUtil.create_no_login_msg()
-            # if not instance.guest_access and TODO: self::session_play_verify($play_id) !== true
+            # # TODO: the double verification of user session then session play seems like it might be redundant, take a look at later again
+            # # Confirm user session for real play
+            # instance = session_play.data.instance
+            # if not instance.playable_by_current_user(request.user):
             #     return MsgUtil.create_no_login_msg()
+            # # if not instance.guest_access and TODO: self::session_play_verify($play_id) !== true
+            # #     return MsgUtil.create_no_login_msg()
 
-            # Validate session play
-            is_valid = session_play.validate(request)
-            if not is_valid:
-                return MsgUtil.create_invalid_input_msg(msg="Invalid play session")
+            # # Validate session play
+            # is_valid = session_play.validate(request)
+            # if not is_valid:
+            #     return MsgUtil.create_invalid_input_msg(msg="Invalid play session")
 
-            # Store
-            SessionLogger.store_log_array(session_play, logs)
+    #         # Store
+    #         SessionLogger.store_log_array(session_play, logs)
 
-            # Handle scoring
-            # TODO: complicated scoring logic that we'll get to another time lol
+    #         # Handle scoring
+    #         # TODO: complicated scoring logic that we'll get to another time lol
 
-            session_play.set_complete(150, 200, 75.0)
+    #         session_play.set_complete(150, 200, 75.0)
 
-            return JsonResponse({  # TODO
-                "success": True,
-                "score": 150,
-            })
+    #         return JsonResponse({  # TODO
+    #             "success": True,
+    #             "score": 150,
+    #         })

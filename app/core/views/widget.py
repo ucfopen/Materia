@@ -5,6 +5,10 @@ from django.views.generic import TemplateView
 from core.models import WidgetInstance, Widget
 from util.logging.session_play import SessionPlay
 
+import logging
+from pprint import pformat
+logger = logging.getLogger("django")
+
 
 class WidgetDetailView(TemplateView):
     template_name = "react.html"
@@ -14,7 +18,6 @@ class WidgetDetailView(TemplateView):
             "title": "Materia Widget Catalog",
             "js_resources": settings.JS_GROUPS["detail"],
             "css_resources": settings.CSS_GROUPS["detail"],
-            "fonts": settings.FONTS_DEFAULT,
             "js_global_variables": {
                 # TODO: make these config variables, and export these to somewhere where it can be reused easily
                 "BASE_URL": settings.URLS["BASE_URL"],
@@ -46,7 +49,7 @@ class WidgetPlayView(TemplateView):
 
     def get_context_data(self, widget_instance_id, instance_name=None):
         autoplay = self.kwargs.get('autoplay', None)
-
+        
         # Get widget instance
         instance = WidgetInstance.objects.get(pk=widget_instance_id)
         if not instance:
@@ -172,7 +175,7 @@ def _create_player_page(
         pass
 
     # Create play log
-    play_id = SessionPlay().start(instance)
+    play_id = SessionPlay().start(instance, request.user.id)
     if not play_id:
         print("Failed to create play session!")
         return HttpResponseServerError()
@@ -186,7 +189,6 @@ def _display_widget(instance: WidgetInstance, play_id: str | None = None, is_emb
         "title": f"{instance.name} - {instance.widget.name}",
         "js_resources": settings.JS_GROUPS["player"],
         "css_resources": settings.CSS_GROUPS["player"],
-        "fonts": settings.FONTS_DEFAULT,
         "html_class": "embedded" if is_embedded else "",
         "page_type": "widget",
         "js_global_variables": {
@@ -229,7 +231,6 @@ def _create_widget_login_page(instance: WidgetInstance, is_embedded: bool = Fals
     context = {
         "js_resources": [],
         "css_resources": [],
-        "fonts": settings.FONTS_DEFAULT,
         "js_global_variables": {
             "NAME": instance.name,
             "WIDGET_NAME": instance.widget.name,
@@ -240,8 +241,8 @@ def _create_widget_login_page(instance: WidgetInstance, is_embedded: bool = Fals
     if login_messages["is_open"]:
         context["title"] = "Login"
         # TODO look at the theme override stuff? see php code
-        context["js_resources"].append(settings.JS_GROUPS["login"])
-        context["css_resources"].append(settings.CSS_GROUPS["login"])
+        context["js_resources"].extend(settings.JS_GROUPS["login"])
+        context["css_resources"].extend(settings.CSS_GROUPS["login"])
 
         context["js_global_variables"]["EMBEDDED"] = str(
             is_embedded)  # TODO is this supposed to be IS_EMBEDDED? also, find a way to embed as a pure boolean
@@ -257,8 +258,8 @@ def _create_widget_login_page(instance: WidgetInstance, is_embedded: bool = Fals
         context["js_global_variables"]["LOGIN_LINKS"] = ""
     else:
         context["title"] = "Widget Unavailable"
-        context["js_resources"].append(settings.JS_GROUPS["closed"])
-        context["css_resources"].append(settings.CSS_GROUPS["login"])
+        context["js_resources"].extend(settings.JS_GROUPS["closed"])
+        context["css_resources"].extend(settings.CSS_GROUPS["login"])
 
         context["js_global_variables"]["IS_EMBEDDED"] = str(is_embedded)
         context["js_global_variables"]["SUMMARY"] = login_messages["summary"]
@@ -272,7 +273,6 @@ def _create_draft_not_playable_page():
         "title": "Draft Not Playable",
         "js_resources": settings.JS_GROUPS["draft-not-playable"],
         "css_resources": settings.CSS_GROUPS["login"],
-        "fonts": settings.FONTS_DEFAULT
     }
 
 
@@ -281,7 +281,6 @@ def _create_widget_retired_page(is_embedded: bool = False):
         "title": "Retired Widget",
         "js_resources": settings.JS_GROUPS["retired"],
         "css_resources": settings.CSS_GROUPS["login"],
-        "fonts": settings.FONTS_DEFAULT,
         "js_global_variables": {
             "IS_EMBEDDED": is_embedded,
         }

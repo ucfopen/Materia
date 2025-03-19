@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework.fields import DictField
+from django.conf import settings
+from django.utils.text import slugify
 
 from core.models import Widget, Log, LogPlay, Notification, UserSettings, WidgetInstance, WidgetQset
 import hashlib
@@ -110,6 +112,10 @@ class WidgetSerializer(serializers.ModelSerializer):
 
 # instance model serializer (outbound)
 class WidgetInstanceSerializer(serializers.ModelSerializer):
+
+    preview_url = serializers.SerializerMethodField()
+    play_url = serializers.SerializerMethodField()
+
     def __init__(self, *args, **kwargs):
         include_qet = kwargs.pop("include_qset", False)
         super().__init__(*args, **kwargs)
@@ -132,6 +138,12 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
     widget_id = serializers.PrimaryKeyRelatedField(queryset=Widget.objects.all(), source='widget', write_only=True)
     id = serializers.CharField(required=False)  # Model's save function will auto-generate an ID if it is empty
 
+    def get_preview_url(self, instance):
+        return f"{settings.URLS["BASE_URL"]}preview/{instance.id}/{slugify(instance.name)}/"
+    
+    def get_play_url(self, instance):
+        return f"{settings.URLS["BASE_URL"]}play/{instance.id}/{slugify(instance.name)}/"
+
     class Meta:
         model = WidgetInstance
         fields = [
@@ -149,11 +161,22 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "embedded_only",
             "widget",
             "widget_id",
+            "preview_url",
+            "play_url"
         ]
 
 
 class WidgetInstanceSerializerNoIdentifyingInfo(serializers.ModelSerializer):
+    preview_url = serializers.SerializerMethodField()
+    play_url = serializers.SerializerMethodField()
+
     widget = WidgetSerializer(read_only=True)
+
+    def get_preview_url(self, instance):
+        return f"{settings.URLS["BASE_URL"]}preview/{instance.id}/{slugify(instance.name)}/"
+    
+    def get_play_url(self, instance):
+        return f"{settings.URLS["BASE_URL"]}play/{instance.id}/{slugify(instance.name)}/"
 
     class Meta:
         model = WidgetInstance
@@ -169,7 +192,9 @@ class WidgetInstanceSerializerNoIdentifyingInfo(serializers.ModelSerializer):
             "attempts",
             "is_deleted",
             "embedded_only",
-            "widget"
+            "widget",
+            "preview_url",
+            "play_url"
         ]
 
 
@@ -295,3 +320,57 @@ class NotificationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = "__all__"
+
+class ScoreSummarySerializer(serializers.Serializer):
+    term = serializers.CharField()
+    year = serializers.IntegerField()
+    students = serializers.IntegerField()
+    average = serializers.FloatField()
+    distribution = serializers.ListField()
+
+    @classmethod
+    def create_from_plays(cls, logs):
+
+        if not logs:
+            return []
+        
+        summary = {}
+
+        for log in logs:
+
+            semester_key = f"{log.created_at.year}-{log.semester.semester}"
+
+            if semester_key not in summary:
+
+                distribution = [0,0,0,0,0,0,0,0,0,0]
+                for i in range(0,10):
+                    if i == (int(log.score / 10) if int(log.score / 10) < 10 else 9):
+                        distribution[i] = 1
+                    else:
+                        distribution[i] = 0
+
+                summary[semester_key] = {
+                    "term": log.semester.semester,
+                    "year": log.created_at.year,
+                    "students": 1,
+                    "total": log.score,
+                    "distribution": distribution
+                }
+
+            else:
+                summary[semester_key]["students"] += 1
+                summary[semester_key]["total"] += log.score
+
+                summary[semester_key][distribution][int(log.score / 10) if int(log.score / 10) < 10 else 9] += 1
+
+            results = []
+            for data in summary.values():
+                results.append({
+                    "term": data["term"],
+                    "year": data["year"],
+                    "students": data["students"],
+                    "average": round(data["total"] / data["students"], 2),
+                    "distribution": data["distribution"]
+                })
+
+            return sorted(results, key=lambda x: (x["year"],x["term"]))

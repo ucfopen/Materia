@@ -30,7 +30,6 @@ def index(request, *args, **kwargs):
         "title": "Welcome to Materia",
         "js_resources": settings.JS_GROUPS["main"],
         "css_resources": settings.CSS_GROUPS["main"],
-        "fonts": settings.FONTS_DEFAULT,
     }
 
     return render(request, "react.html", context)
@@ -51,7 +50,6 @@ def help(request):
         "page_type": "docs help",
         "js_resources": settings.JS_GROUPS["help"],
         "css_resources": settings.CSS_GROUPS["help"],
-        "fonts": settings.FONTS_DEFAULT,
     }
 
     return render(request, "react.html", context)

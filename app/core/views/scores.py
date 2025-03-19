@@ -44,6 +44,5 @@ class ScoresView(TemplateView):
             "title": "Score Results",
             "js_resources": settings.JS_GROUPS["scores"],
             "css_resources": settings.CSS_GROUPS["scores"],
-            "fonts": settings.FONTS_DEFAULT,
             "js_global_variables": js_globals
         }

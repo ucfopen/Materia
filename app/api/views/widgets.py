@@ -40,34 +40,6 @@ class WidgetViewSet(viewsets.ModelViewSet):
 
 ## API stuff below this line is not yet fully converted to DRF ##
 
-class WidgetsApi:
-
-    @staticmethod
-    def widget_instances_get(request):
-        json_data = json.loads(request.body)
-        instance_ids = json_data.get("instanceIds", [])
-        get_deleted = json_data.get("getDeleted", False)
-
-        # Treat empty id list as 'all my widgets' - must be logged in
-        if not instance_ids:
-            # TODO
-            pass
-
-        # Get specific set of widget instances
-        instances = (WidgetInstance.objects
-                     .filter(pk__in=instance_ids)
-                     .filter(is_deleted=get_deleted)
-                     .order_by("-created_at", "-id"))
-        # TODO: ^ make this functionality into its own 'manager' class like the php code?
-
-        instances = instances[:80]  # TODO: add way to control limit?
-
-        json_instances = []
-        for raw_instance in instances:
-            json_instances.append(raw_instance.as_dict(serialize_fks=["widget"]))
-
-        return JsonResponse({"instances": json_instances})
-
     @staticmethod
     def question_set_get(request):
         json_data = json.loads(request.body)

@@ -6,7 +6,6 @@ def profile(request):
         "title": "Profile",
         "js_resources": djangoSettings.JS_GROUPS["profile"],
         "css_resources": djangoSettings.CSS_GROUPS["profile"],
-        "fonts": djangoSettings.FONTS_DEFAULT,
     }
     return render(request, "react.html", context)
 
@@ -16,7 +15,6 @@ def settings(request):
         "title": "Settings",
         "js_resources": djangoSettings.JS_GROUPS["settings"],
         "css_resources": djangoSettings.CSS_GROUPS["settings"],
-        "fonts": djangoSettings.FONTS_DEFAULT,
     }
     return render(request, "react.html", context)
 

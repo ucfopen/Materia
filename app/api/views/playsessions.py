@@ -85,8 +85,6 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 session = SessionPlay(pk)
                 logs = update_serializer.validated_data
 
-                logger.error(f"raw logs from serializer:\n{pformat(logs)}")
-
                 # using many=True in serializer returns a double-nested list. Manually flatten if required.
                 if isinstance(logs, list) and logs[0] and isinstance(logs[0], list):
                      logs = logs[0]

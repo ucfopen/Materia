@@ -5,6 +5,9 @@ from django.conf import settings
 
 logger = logging.getLogger("django")
 
+def fonts(request):
+    return {"fonts": settings.FONTS_DEFAULT}
+
 def dark_mode(request):
     if not request.user.is_authenticated:
         return {"darkMode": False}

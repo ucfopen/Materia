@@ -4,13 +4,14 @@ from datetime import datetime
 from django.template.context_processors import request
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
-from core.models import PermObjectToUser, WidgetQset, Widget, WidgetInstance
+from core.models import LogPlay, PermObjectToUser, WidgetQset, Widget, WidgetInstance
 from core.permissions import IsSuperuser, HasWidgetInstanceEditAccessOrReadOnly, CanCreateWidgetInstances
-from core.serializers import WidgetInstanceSerializer, QuestionSetSerializer, WidgetInstanceSerializerNoIdentifyingInfo, PlayIdSerializer
+from core.serializers import WidgetInstanceSerializer, QuestionSetSerializer, WidgetInstanceSerializerNoIdentifyingInfo, PlayIdSerializer, ScoreSummarySerializer
 from django.http import HttpResponseServerError
 from django.utils.timezone import make_aware
 
 from rest_framework import permissions, viewsets, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.decorators import action
@@ -21,18 +22,27 @@ from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
 
+class WidgetInstancePagination(PageNumberPagination):
+    page_size = 80
+    page_size_query_param = 'page_size'
+    max_page_size = 80
 
 # Viewset for widget instances.
 # All users can access any instance, but if they are unable to play that instance (e.g. guest mode is disabled),
 # any identifying info is stripped from the response.
 # Only the superuser is able to get a list of all instances. Users however can get a list of their own instances.
 class WidgetInstanceViewSet(viewsets.ModelViewSet):
+
+    pagination_class = WidgetInstancePagination
+
     def get_queryset(self):
         # If user param is specified, return that user's instances. Otherwise, return all.
         # Make sure the user cannot access other user's lists of instances (unless superuser)
         user = self.request.user
         user_query = self.request.query_params.get('user')
-        if user_query is not None and (user.is_superuser or str(user.id) == user_query):
+        if user_query is not None and user_query == "me":
+            return WidgetInstance.objects.filter(user=user)
+        elif user_query is not None and (user.is_superuser or str(user.id) == user_query):
             return WidgetInstance.objects.filter(user=user_query)
         elif user_query is not None:
             return WidgetInstance.objects.none()
@@ -156,9 +166,22 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
     # /api/instances/<inst id>/question_sets/<qset id>
     @action(detail=True, methods=["get"], url_path='question_sets/(?P<qset_id>[^/.]+)')
     def question_set(self, request, pk=None, qset_id=None):
+        # TODO do we actually need qset_id?
+        # it is not currently utilized
         instance = self.get_object()
         serializer = QuestionSetSerializer(instance.qset)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=["get"])
+    def scores(self, request, pk=None):
+        instance = self.get_object()
+
+        logs_for_user = LogPlay.objects.filter(instance=instance).order_by("-created_at","semester").select_related("semester")
+        summary = ScoreSummarySerializer.create_from_plays(logs_for_user)
+
+        serialized = ScoreSummarySerializer(data=summary,many=True)
+        serialized.is_valid(raise_exception=True)
+        return Response(serialized.data)
 
 
 ## API stuff below this line is not yet converted to DRF ##

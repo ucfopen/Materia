@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useInfiniteQuery } from 'react-query'
-import { apiGetUserWidgetInstances } from '../../util/api'
+import { apiGetWidgetInstances } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
 export default function useInstanceList() {
@@ -19,7 +19,7 @@ export default function useInstanceList() {
 			let dataMap = []
 			return [
 				...dataMap.concat(
-					...list.pages.map(page => page.pagination.map(instance => {
+					...list.pages.map(page => page.results.map(instance => {
 						// adding an 'img' property to widget instance objects for continued
 						//  compatibility with any downstream LTIs using the widget picker
 						return {
@@ -30,10 +30,6 @@ export default function useInstanceList() {
 				)
 			]
 		} else return []
-	}
-
-	const getWidgetInstances = ({ pageParam = 0 }) => {
-		return apiGetUserWidgetInstances(pageParam)
 	}
 
 	const {
@@ -47,8 +43,8 @@ export default function useInstanceList() {
 		refetch
 	} = useInfiniteQuery({
 		queryKey: ['widgets'],
-		queryFn: getWidgetInstances,
-		getNextPageParam: (lastPage, pages) => lastPage.next_page,
+		queryFn: apiGetWidgetInstances,
+		getNextPageParam: (lastPage, pages) => lastPage.next,
 		refetchOnWindowFocus: false
 	})
 

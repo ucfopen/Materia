@@ -789,7 +789,7 @@ class WidgetInstance(SerializableModel):
             logger.error(f"Invalid qset type passed into setter: {type(new_qset)}")
 
     def playable_by_current_user(self, user: User):
-        return self.guest_access  # TODO: || ServiceUser::verify_session();
+        return self.widget.is_playable and (user.is_authenticated or self.guest_access)
 
     def save(self, *args, **kwargs):
         # check for requirements
