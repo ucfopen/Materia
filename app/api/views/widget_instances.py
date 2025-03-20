@@ -20,6 +20,7 @@ from util.message_util import MsgUtil
 from util.perm_manager import PermManager
 from util.widget.validator import ValidatorUtil
 
+from pprint import pformat
 logger = logging.getLogger("django")
 
 class WidgetInstancePagination(PageNumberPagination):
@@ -41,9 +42,9 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         user = self.request.user
         user_query = self.request.query_params.get('user')
         if user_query is not None and user_query == "me":
-            return WidgetInstance.objects.filter(user=user)
+            return WidgetInstance.objects.filter(user=user).order_by("-created_at")
         elif user_query is not None and (user.is_superuser or str(user.id) == user_query):
-            return WidgetInstance.objects.filter(user=user_query)
+            return WidgetInstance.objects.filter(user=user_query).order_by("-created_at")
         elif user_query is not None:
             return WidgetInstance.objects.none()
         else:
@@ -89,11 +90,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             else:
                 return WidgetInstanceSerializerNoIdentifyingInfo
 
-    def get_serializer(self, *args, **kwargs):
-        if self.action == "create" or self.action == "update" or self.action == "partial_update":
-            # Include qset on instance creation/update
-            kwargs.setdefault("include_qset", True)
-        return super().get_serializer(*args, **kwargs)
 
     def perform_create(self, serializer):
         widget = serializer.validated_data["widget"]
@@ -148,13 +144,14 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         play_id = request.query_params.get("play_id", None)
 
         if get_latest == "true":
-            qset = instance.qset
+            qset = instance.get_latest_qset()
             serializer = QuestionSetSerializer(qset)
             return Response(serializer.data)
 
         elif play_id != None:
             play_id_serializer = PlayIdSerializer(data=play_id)
             if play_id_serializer.is_valid():
+                qset = instance.get_qset_for_play(play_id)
                 serializer = QuestionSetSerializer(qset)
                 return Response(serializer.data)
 
@@ -164,12 +161,11 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
     
     # /api/instances/<inst id>/question_sets/<qset id>
+    # TODO this endpoint may not be required at all
     @action(detail=True, methods=["get"], url_path='question_sets/(?P<qset_id>[^/.]+)')
     def question_set(self, request, pk=None, qset_id=None):
-        # TODO do we actually need qset_id?
-        # it is not currently utilized
-        instance = self.get_object()
-        serializer = QuestionSetSerializer(instance.qset)
+        qset = WidgetQset.objects.filter(instance=pk, id=qset_id).first()
+        serializer = QuestionSetSerializer(qset)
         return Response(serializer.data)
     
     @action(detail=True, methods=["get"])

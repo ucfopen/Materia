@@ -1,12 +1,14 @@
 from rest_framework import serializers
+from rest_framework.response import Response
 from django.contrib.auth.models import User
-from rest_framework.fields import DictField
 from django.conf import settings
 from django.utils.text import slugify
 
 from core.models import Widget, Log, LogPlay, Notification, UserSettings, WidgetInstance, WidgetQset
 import hashlib
 import os
+import base64
+import json
 
 from util.logging.session_logger import SessionLogger
 
@@ -108,30 +110,108 @@ class WidgetSerializer(serializers.ModelSerializer):
 
     def get_dir(self, widget):
         return f"{widget.id}-{widget.clean_name}{os.sep}"
+    
+class Base64JSONField(serializers.Field):
+    def to_representation(self, value):
+        # Decode base64, then decode JSON
+        try:
+            decoded_bytes = base64.b64decode(value)
+            return json.loads(decoded_bytes.decode('utf-8'))
+        except Exception as e:
+            raise serializers.ValidationError(f"Error decoding JSON: {str(e)}")
+            
+    def to_internal_value(self, data):
+        json_str = json.dumps(data)
+        return base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
 
+# qset model serializer (inbound | outbound)
+class QuestionSetSerializer(serializers.ModelSerializer):
+    data = Base64JSONField()
 
-# instance model serializer (outbound)
-class WidgetInstanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WidgetQset
+        fields = [
+            "id",
+            "instance",
+            "created_at",
+            "data",
+            "version"
+        ]
+        extra_kwargs = {
+            "id": {"required": False, "read_only": True},
+            "instance": {"required": False},
+            "created_at": {"required": False, "read_only": True},
+            "data": {"required": True},
+            "version": {"required": True},
+        }
 
-    preview_url = serializers.SerializerMethodField()
-    play_url = serializers.SerializerMethodField()
+    # helper function to recursively apply uuids to blank ids
+    def apply_ids_to_questions(self, qset):
+        import uuid
 
-    def __init__(self, *args, **kwargs):
-        include_qet = kwargs.pop("include_qset", False)
-        super().__init__(*args, **kwargs)
-        if include_qet:
-            self.fields["qset"] = QuestionSetSerializer()
+        def _process_item(item):
+
+            if isinstance(item, dict):
+                if "id" in item and (item["id"] is None or item["id"] == 0 or item["id"] == ""):
+                    item["id"] = str(uuid.uuid4())
+
+                for key, value in item.items():
+                    item[key] = _process_item(value)
+
+            elif isinstance(item, list):
+                return [_process_item(i) for i in item]
+
+            return item
+        
+        return _process_item(qset)
 
     def create(self, validated_data):
-        if "qset" not in self.fields:
-            return super().create(validated_data)
+        if "instance" not in validated_data:
+            raise serializers.ValidationError("instance required.")
+        if "version" not in validated_data:
+            validated_data["version"] = 1
+        if "data" in validated_data:
+            # despite passing data in as a dict, it's present here as a base64 blob again
+            # decode it, apply ids to the dict, then re-encode it
+            decoded_data = WidgetQset.decode_data(validated_data["data"])
+            decoded_data = self.apply_ids_to_questions(decoded_data)
+            validated_data["data"] = WidgetQset.encode_data(decoded_data)
 
-        # Handle creation with a qset to make sure qset's instance field is set correctly
-        raw_qset = validated_data.pop("qset")
-        widget_instance = WidgetInstance.objects.create(**validated_data)
-        widget_instance.qset = raw_qset
+        return super().create(validated_data)
+
+# instance model serializer (inbound | outbound)
+class WidgetInstanceSerializer(serializers.ModelSerializer):
+    preview_url = serializers.SerializerMethodField()
+    play_url = serializers.SerializerMethodField()
+    qset = QuestionSetSerializer(required=False)
+
+    def _handle_qset(self, qset, widget_instance):
+        # handling the qset requires a couple steps:
+        # the qset present in validated_data is the base64 blob. Decode it first
+        # pass the dict to the serializer so ids can be populated as part of data transformation process
+        # once validated, save the qset
+
+        if qset:
+            decoded_qset = WidgetQset.decode_data(qset["data"])
+            qset_serializer = QuestionSetSerializer(data={
+                **qset,
+                "data": decoded_qset,
+                "instance":widget_instance.id
+            })
+            qset_serializer.is_valid(raise_exception=True)
+            qset_serializer.save()
+
+    def create(self, validated_data):
+        # remove qset from data or WidgetInstance will complain the key is not present in the model (it isn't)
+        qset = validated_data.pop("qset", None)
+        widget_instance = super().create(validated_data)
+        self._handle_qset(qset, widget_instance)
+        return widget_instance
+    
+    def update(self, widget_instance, validated_data):
+        qset = validated_data.pop("qset", None)
         widget_instance.save()
-
+        self._handle_qset(qset, widget_instance)
         return widget_instance
 
     widget = WidgetSerializer(read_only=True)
@@ -162,7 +242,8 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "widget",
             "widget_id",
             "preview_url",
-            "play_url"
+            "play_url",
+            "qset"
         ]
 
 
@@ -196,28 +277,6 @@ class WidgetInstanceSerializerNoIdentifyingInfo(serializers.ModelSerializer):
             "preview_url",
             "play_url"
         ]
-
-
-# qset model serializer (outbound)
-class QuestionSetSerializer(serializers.ModelSerializer):
-    data = serializers.DictField()  # Need to specify what type this field is, since it's only a property on the model
-
-    class Meta:
-        model = WidgetQset
-        fields = [
-            "id",
-            "instance",
-            "created_at",
-            "data",
-            "version"
-        ]
-        extra_kwargs = {
-            "id": {"required": False, "read_only": True},
-            "instance": {"required": False, "read_only": True},
-            "created_at": {"required": False, "read_only": True},
-            "data": {"required": True},
-            "version": {"required": True},
-        }
 
 class PlayIdSerializer(serializers.Serializer):
     play_id = serializers.UUIDField()

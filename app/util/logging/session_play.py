@@ -68,7 +68,7 @@ class SessionPlay:
         self.data.instance = instance
         self.data.context_id = context_id
         self.data.is_preview = is_preview
-        self.data.qset = instance.qset
+        self.data.qset = instance.get_latest_qset()
         self.data.environment_data = ''
 
         self.data.auth = ''  # TODO
