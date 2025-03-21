@@ -44,7 +44,7 @@ export default function useInstanceList() {
 	} = useInfiniteQuery({
 		queryKey: ['widgets'],
 		queryFn: apiGetWidgetInstances,
-		getNextPageParam: (lastPage, pages) => lastPage.next,
+		getNextPageParam: (lastPage, pages) => lastPage.next != null ? lastPage.next.match(/page=([0-9]+)/)[1] : undefined,
 		refetchOnWindowFocus: false
 	})
 
