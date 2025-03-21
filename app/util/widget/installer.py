@@ -440,7 +440,7 @@ class WidgetInstaller:
 
             qset = WidgetQset()
             qset.version = demo_data["qset"]["version"]
-            qset.data = demo_data["qset"]["data"]
+            qset.set_data(demo_data["qset"]["data"])
 
             if existing_inst_id:
                 # update the existing instance by adding a new qset

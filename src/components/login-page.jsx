@@ -59,6 +59,7 @@ const LoginPage = () => {
 
 	const handleLogin = async (e) => {
 		e.preventDefault()
+		// TODO: move to api util?
 		const username = document.getElementById('username').value
 		const password = document.getElementById('password').value
 		const csrfToken = getCSRFToken()

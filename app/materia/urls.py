@@ -17,6 +17,7 @@ Including another URLconf
 
 from core.views import main as core_views
 from core.views.catalog import CatalogView
+from core.views.my_widgets import MyWidgetsView
 
 from core.views import profile as profile_views
 from core.views import login as login_views
@@ -29,6 +30,9 @@ from api.views.users import UsersApi
 from django.contrib import admin
 
 urlpatterns = [
+    # api router and endpoint registration in api_urls
+    path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+
     path("", core_views.index, name="home page"),
     path("help/", core_views.help, name="help"),
 
@@ -40,6 +44,9 @@ urlpatterns = [
             name="widget guide view"),
     path("play/<slug:widget_instance_id>/", WidgetPlayView.as_view(), name="widget play"),
     path("play/<slug:widget_instance_id>/<str:instance_name>/", WidgetPlayView.as_view(), name="widget play"),
+
+    # My Widgets
+    path("my-widgets/", MyWidgetsView.index, name="my widgets"),
 
     # Creator
     path("widgets/<slug:widget_slug>/create/", WidgetCreatorView.as_view(), name="widget creator"),
@@ -53,7 +60,7 @@ urlpatterns = [
 
     # API (TODO: improve API routing, retire api/json)
     path("api/", include("api.urls.api_urls")),
-    path("api/user/activity", UsersApi.activity),
+    # path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
     path("settings/", profile_views.settings, name="settings"),
 	path("users/login", login_views.login, name="login"),

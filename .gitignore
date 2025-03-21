@@ -16,6 +16,7 @@ nbproject/
 # custom config
 .env.local
 .env.local.mysql
+**/.env
 
 # hidden files created by Windows
 Thumbs.db
@@ -89,7 +90,7 @@ public/dist/*
 !public/dist/path.js
 !public/dist/README.md
 
-**/__pycache__/**
+__pycache__
 **/*.log
 app/materia/settings.py
 **/venv

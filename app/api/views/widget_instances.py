@@ -1,18 +1,224 @@
 import logging
 from datetime import datetime
 
-from core.models import PermObjectToUser, Widget, WidgetInstance
+from core.models import LogPlay, PermObjectToUser, Widget, WidgetInstance, WidgetQset
+from core.permissions import (
+    CanCreateWidgetInstances,
+    HasWidgetInstanceEditAccessOrReadOnly,
+    IsSuperuser,
+)
+from core.serializers import (
+    PlayIdSerializer,
+    QuestionSetSerializer,
+    ScoreSummarySerializer,
+    WidgetInstanceSerializer,
+    WidgetInstanceSerializerNoIdentifyingInfo,
+)
 from django.http import HttpResponseServerError
 from django.utils.timezone import make_aware
-
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 from util.message_util import MsgUtil
 from util.perm_manager import PermManager
 from util.widget.validator import ValidatorUtil
 
+# from pprint import pformat
 logger = logging.getLogger("django")
 
+
+class WidgetInstancePagination(PageNumberPagination):
+    page_size = 80
+    page_size_query_param = "page_size"
+    max_page_size = 80
+
+
+# Viewset for widget instances.
+# All users can access any instance, but if they are unable to play that instance (e.g. guest mode is disabled),
+# any identifying info is stripped from the response.
+# Only the superuser is able to get a list of all instances. Users however can get a list of their own instances.
+class WidgetInstanceViewSet(viewsets.ModelViewSet):
+
+    pagination_class = WidgetInstancePagination
+
+    def get_queryset(self):
+        # If user param is specified, return that user's instances. Otherwise, return all.
+        # Make sure the user cannot access other user's lists of instances (unless superuser)
+        user = self.request.user
+        user_query = self.request.query_params.get("user")
+        if user_query is not None and user_query == "me":
+            return WidgetInstance.objects.filter(user=user).order_by("-created_at")
+        elif user_query is not None and (
+            user.is_superuser or str(user.id) == user_query
+        ):
+            return WidgetInstance.objects.filter(user=user_query).order_by(
+                "-created_at"
+            )
+        elif user_query is not None:
+            return WidgetInstance.objects.none()
+        else:
+            return WidgetInstance.objects.all()
+
+    def get_permissions(self):
+        user_query = self.request.query_params.get("user")
+        play_id = self.request.query_params.get("play_id")
+
+        # Require special perms for list
+        if self.action == "list":
+            # Allow all if user is superuser
+            if user_query is None:
+                permission_classes = [IsSuperuser]
+            # Otherwise, just make sure the user is authenticated. Do not allow reading if not. The queryset already
+            # only contain this user's instances if they have requested their own.
+            else:
+                permission_classes = [IsAuthenticated]
+
+        # Special perms for creation
+        elif self.action == "create":
+            permission_classes = [CanCreateWidgetInstances]
+
+        # A valid play ID grants access
+        elif self.action == "get" and play_id is not None:
+            permission_classes = [IsAuthenticated]
+
+        # All other actions have default perms
+        else:
+            permission_classes = [
+                IsAuthenticatedOrReadOnly & HasWidgetInstanceEditAccessOrReadOnly
+            ]
+
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        # User isn't getting a widget detail, instead they are listing or updating.
+        # By that logic, they already can edit the widget.
+        if self.action != "retrieve":
+            return WidgetInstanceSerializer
+        # Check if user can play the instance. If they can't, don't include identifying info about the instance
+        else:
+            if self.get_object().playable_by_current_user(self.request.user):
+                return WidgetInstanceSerializer
+            else:
+                return WidgetInstanceSerializerNoIdentifyingInfo
+
+    def perform_create(self, serializer):
+        widget = serializer.validated_data["widget"]
+        is_draft = serializer.validated_data["is_draft"]
+        is_student = PermManager.user_is_student(self.request.user)
+
+        # Check to see if this widget is editable
+        if is_draft and not widget.is_editable:
+            raise ValidationError("Non-editable widgets cannot be saved as drafts")
+
+        # Make sure user can publish this widget
+        if not is_draft and not widget.publishable_by(self.request.user):
+            raise ValidationError("You cannot publish this widget")
+
+        # Add and override some additional info, including user and student status stuffs
+        serializer.save(
+            user=self.request.user,
+            is_student_made=is_student,
+            guest_access=is_student,
+            attempts=-1,
+        )
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        is_draft = serializer.validated_data.get("is_draft", instance.is_draft)
+        guest_access = serializer.validated_data.get(
+            "guest_access", instance.guest_access
+        )
+
+        # Check to see if this widget is editable
+        if is_draft and not instance.widget.is_editable:
+            raise ValidationError("Non-editable widgets cannot be saved as drafts")
+
+        # Make sure user can publish this widget
+        if not is_draft and not instance.widget.publishable_by(self.request.user):
+            raise ValidationError("You cannot publish this widget")
+
+        # Make sure student made widgets cannot leave guest access mode
+        if instance.is_student_made:
+            if guest_access is not True:
+                raise ValidationError(
+                    "Student-made widgets must stay in guest access mode"
+                )
+            serializer.validated_data["attempts"] = -1
+
+        # TODO create session_activities for each updated field? see original PHP code
+
+        serializer.save()
+
+    # /api/instances/<inst id>/question_sets/
+    # ?latest=true GET param for only the latest qset
+    # ?play_id=<play id> GET param to grant access
+    @action(detail=True, methods=["get"])
+    def question_sets(self, request, pk=None):
+        instance = self.get_object()
+
+        get_latest = request.query_params.get("latest", "false")
+        play_id = request.query_params.get("play_id", None)
+
+        if get_latest == "true":
+            qset = instance.get_latest_qset()
+            serializer = QuestionSetSerializer(qset)
+            return Response(serializer.data)
+
+        elif play_id is not None:
+            play_id_serializer = PlayIdSerializer(data=play_id)
+            if play_id_serializer.is_valid():
+                qset = instance.get_qset_for_play(play_id)
+                serializer = QuestionSetSerializer(qset)
+                return Response(serializer.data)
+
+        else:
+            qsets = instance.qsets.all()
+            serializer = QuestionSetSerializer(qsets, many=True)
+            return Response(serializer.data)
+
+    # /api/instances/<inst id>/question_sets/<qset id>
+    # TODO this endpoint may not be required at all
+    @action(detail=True, methods=["get"], url_path="question_sets/(?P<qset_id>[^/.]+)")
+    def question_set(self, request, pk=None, qset_id=None):
+        qset = WidgetQset.objects.filter(instance=pk, id=qset_id).first()
+        serializer = QuestionSetSerializer(qset)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["get"])
+    def scores(self, request, pk=None):
+        instance = self.get_object()
+
+        logs_for_user = (
+            LogPlay.objects.filter(instance=instance)
+            .order_by("-created_at", "semester")
+            .select_related("semester")
+        )
+        summary = ScoreSummarySerializer.create_from_plays(logs_for_user)
+
+        serialized = ScoreSummarySerializer(data=summary, many=True)
+        serialized.is_valid(raise_exception=True)
+        return Response(serialized.data)
+
+    # TODO this is a temp response until instance permissions comes fully online
+    @action(detail=True, methods=["get", "put"])
+    def perms(self, request, pk=None):
+        return Response(
+            {
+                "user_perms": {request.user.id: [PermObjectToUser.Perm.FULL, None]},
+                "widget_user_perms": {
+                    request.user.id: [PermObjectToUser.Perm.FULL, None]
+                },
+            }
+        )
+
+
+# API stuff below this line is not yet converted to DRF #
 # TODO this file is temporary just to make the installer work. django-creator-2 has a solution in it
 #      that unifies both this and widget_instance_api.py. this filed will be removed with django-creator-2.
+
 
 class WidgetInstancesApi:
     @staticmethod
@@ -28,7 +234,9 @@ class WidgetInstancesApi:
 
         # TODO: move the part of this code that actually does stuff somewhere else and call that new function from here
         if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
-            return MsgUtil.create_invalid_input_msg(msg="Invalid widget engine ID provided")
+            return MsgUtil.create_invalid_input_msg(
+                msg="Invalid widget engine ID provided"
+            )
         if type(is_draft) is not bool:
             is_draft = True
 
@@ -36,7 +244,9 @@ class WidgetInstancesApi:
         try:
             widget = Widget.objects.get(id=widget_id)
         except Widget.DoesNotExist:
-            return MsgUtil.create_invalid_input_msg(msg="Invalid widget engine ID provided")
+            return MsgUtil.create_invalid_input_msg(
+                msg="Invalid widget engine ID provided"
+            )
 
         # TODO: implement this when we can get user data in here somehow
         # if not is_draft and not widget.publishable_by(user):
@@ -44,7 +254,9 @@ class WidgetInstancesApi:
         #     return HttpResponseServerError('Widget type can not be published by the current user')
 
         if is_draft and not widget.is_editable:
-            return MsgUtil.create_failure_msg(msg="Non-editable widgets can not be saved as drafts!")
+            return MsgUtil.create_failure_msg(
+                msg="Non-editable widgets can not be saved as drafts!"
+            )
         # TODO: implement when users are a thing etc.
         # is_student = PermManager.user_is_student(user)
         is_student = False
@@ -102,7 +314,9 @@ class WidgetInstancesApi:
 
         if is_draft and not widget.is_editable:
             # originally this was calling Msg::failure
-            return MsgUtil.create_failure_msg(msg="Non-editable widgets can not be saved as drafts!")
+            return MsgUtil.create_failure_msg(
+                msg="Non-editable widgets can not be saved as drafts!"
+            )
         # TODO: rewrite this when we have a way of implementing users, see above
         # if not is_draft and not widget.publishable_by(current_user):
         #     # originally this was calling Msg::no_perm

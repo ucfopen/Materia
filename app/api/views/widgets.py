@@ -2,69 +2,38 @@ import json
 import logging
 
 from core.models import Widget, WidgetInstance
-from django.core import serializers
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden
-
+from core.serializers import WidgetSerializer
+from django.http import HttpResponseNotFound, JsonResponse
+from rest_framework import permissions, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgUtil
-from util.widget.widget_util import WidgetUtil
 
 logger = logging.getLogger("django")
 
 
-class WidgetsApi:
-    @staticmethod
-    def widgets_get(request):
-        widget_ids = json.loads(request.body).get("widgetIds") or []
-        all_widgets = Widget.objects.all().order_by("name")
+class WidgetViewSet(viewsets.ModelViewSet):
+    serializer_class = WidgetSerializer
+    permission_classes = [permissions.AllowAny]
 
-        # Filter out widgets based on ID. Treat empty lists as 'all widgets'.
-        if widget_ids:
-            all_widgets = all_widgets.filter(id__in=widget_ids)
+    queryset = Widget.objects.all()
 
-        return JsonResponse(WidgetUtil.hack_return(all_widgets), safe=False)
+    def get_queryset(self):
+        widgets = Widget.objects.all().order_by("name")
+        if self.request.query_params.get("ids", ""):
+            return widgets.filter(
+                id__in=self.request.query_params.get("ids", "").split(",")
+            )
+        else:
+            return widgets
 
-    @staticmethod
-    def widgets_get_by_type(request):
-        widget_type = json.loads(request.body).get("widgetType") or "default"
-        all_widgets = Widget.objects.all().order_by("name")
+    @action(detail=True, methods=["get"])
+    def publish_perms_verify(self, request, pk):
+        widget = self.get_object()
+        return Response({"publishPermsValid": widget.publishable_by(request.user)})
 
-        # Filter out all widgets based on type
-        # TODO look more into this
-        if widget_type == "admin":
-            pass
-        elif widget_type in ["all", "playable"]:
-            all_widgets = all_widgets.filter(is_playable=True)
-        elif widget_type in ["featured", "catalog", "default"]:
-            all_widgets = all_widgets.filter(in_catalog=True, is_playable=True)
-
-        return JsonResponse(WidgetUtil.hack_return(all_widgets), safe=False)
-
-    @staticmethod
-    def widget_instances_get(request):
-        json_data = json.loads(request.body)
-        instance_ids = json_data.get("instanceIds", [])
-        get_deleted = json_data.get("getDeleted", False)
-
-        # Treat empty id list as 'all my widgets' - must be logged in
-        if not instance_ids:
-            # TODO
-            pass
-
-        # Get specific set of widget instances
-        instances = (WidgetInstance.objects
-                     .filter(pk__in=instance_ids)
-                     .filter(is_deleted=get_deleted)
-                     .order_by("-created_at", "-id"))
-        # TODO: ^ make this functionality into its own 'manager' class like the php code?
-
-        instances = instances[:80]  # TODO: add way to control limit?
-
-        json_instances = []
-        for raw_instance in instances:
-            json_instances.append(raw_instance.as_dict(serialize_fks=["widget"]))
-
-        return JsonResponse({"instances": json_instances})
+    # API stuff below this line is not yet fully converted to DRF #
 
     @staticmethod
     def question_set_get(request):
@@ -79,11 +48,15 @@ class WidgetsApi:
         instance = WidgetInstance.objects.get(pk=instance_id)
         if not instance:
             return HttpResponseNotFound()
-        if not instance.playable_by_current_user():
+        if not instance.playable_by_current_user(request.user):
             return MsgUtil.create_no_login_msg()
 
         # Validate play ID
-        if play_id and not timestamp and not SessionPlay.validate_by_play_id(play_id):
+        if (
+            play_id
+            and not timestamp
+            and not SessionPlay.validate_by_play_id(play_id, request)
+        ):
             return MsgUtil.create_no_login_msg()
 
         # TODO check preview mode, see php

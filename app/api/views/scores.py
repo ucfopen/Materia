@@ -1,9 +1,8 @@
 import json
 
-from django.core import serializers
-from django.http import HttpResponseNotFound, HttpResponseForbidden, JsonResponse, HttpResponseBadRequest
-
 from core.models import DateRange, WidgetInstance
+from django.core import serializers
+from django.http import HttpResponseNotFound, JsonResponse
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgUtil
 from util.scoring.scoring_util import ScoringUtil
@@ -43,20 +42,28 @@ class ScoresApi:
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
-        if not instance.playable_by_current_user():
+        if not instance.playable_by_current_user(request.user):
             return MsgUtil.create_no_login_msg()
 
         # Get scores and return
         scores = ScoringUtil.get_instance_score_history(instance, context_id)
-        attempts_used = len(ScoringUtil.get_instance_score_history(instance, context_id, semester))
-        extra = ScoringUtil.get_instance_extra_attempts(instance, context_id, semester) if context_id else 0
+        attempts_used = len(
+            ScoringUtil.get_instance_score_history(instance, context_id, semester)
+        )
+        extra = (
+            ScoringUtil.get_instance_extra_attempts(instance, context_id, semester)
+            if context_id
+            else 0
+        )
 
         attempts_left = instance.attempts - attempts_used + extra
 
-        return JsonResponse({
-            'scores': scores,
-            'attemptsLeft': attempts_left,
-        })
+        return JsonResponse(
+            {
+                "scores": scores,
+                "attemptsLeft": attempts_left,
+            }
+        )
 
     @staticmethod
     def guest_widget_instance_scores_get(request):
@@ -72,7 +79,7 @@ class ScoresApi:
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
-        if not instance.playable_by_current_user():
+        if not instance.playable_by_current_user(request.user):
             return MsgUtil.create_no_login_msg()
 
         scores = ScoringUtil.get_guest_instance_score_history(instance, play_id)
@@ -82,9 +89,7 @@ class ScoresApi:
         for json_score in json_scores:
             fixed_json_scores.append(json_score["fields"])
 
-        return JsonResponse({
-            "scores": fixed_json_scores
-        })
+        return JsonResponse({"scores": fixed_json_scores})
 
     @staticmethod
     def widget_instance_play_scores_get(request):
@@ -107,7 +112,9 @@ class ScoresApi:
             if not widget_instance:
                 return HttpResponseNotFound()
 
-            play_details = ScoringUtil.get_preview_play_details(request.session, widget_instance, preview_play_id)
+            play_details = ScoringUtil.get_preview_play_details(
+                request.session, widget_instance, preview_play_id
+            )
             if not play_details:
                 return MsgUtil.create_expired_msg()
 
@@ -117,7 +124,7 @@ class ScoresApi:
             session_play = SessionPlay.get_or_none(play_id)
             if not session_play:
                 return HttpResponseNotFound()
-            if not session_play.data.instance.playable_by_current_user():
+            if not session_play.data.instance.playable_by_current_user(request.user):
                 return MsgUtil.create_no_login_msg()
 
             return JsonResponse(ScoringUtil.get_play_details(session_play))
@@ -128,7 +135,7 @@ class ScoresApi:
         # Get and validate body params
         json_body = json.loads(request.body)
         instance_id = json_body.get("instanceId")
-        include_storage_data = json_body.get("includeStorageData", False)
+        # include_storage_data = json_body.get("includeStorageData", False)
         if not ValidatorUtil.is_valid_hash(instance_id):
             return MsgUtil.create_invalid_input_msg(msg=str(instance_id))
 
@@ -136,7 +143,7 @@ class ScoresApi:
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
-        if not instance.playable_by_current_user():
+        if not instance.playable_by_current_user(request.user):
             return MsgUtil.create_no_login_msg()
 
         # Get the score distributions and summaries per semester
@@ -159,6 +166,4 @@ class ScoresApi:
         summaries = summaries.values()
         summaries = sorted(summaries, key=lambda k: k["id"])
 
-        return JsonResponse({
-            "summaries": summaries
-        })
+        return JsonResponse({"summaries": summaries})

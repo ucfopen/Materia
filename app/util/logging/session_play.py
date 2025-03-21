@@ -2,8 +2,9 @@ import uuid
 from datetime import datetime
 from typing import Self
 
+from django.http import HttpRequest
 from django.utils.timezone import make_aware
-
+from django.contrib.auth.models import User
 from core.models import WidgetInstance, LogPlay, DateRange
 from util.scoring.scoring_util import ScoringUtil
 from util.widget.validator import ValidatorUtil
@@ -62,11 +63,12 @@ class SessionPlay:
         # TODO: if inst_id is not valid hash, return None (do we need this?)
 
         self.data.created_at = make_aware(datetime.now())
-        self.data.user = None if instance.guest_access else None  # TODO
+        # TODO this feels flimsy, can we be assured the user reference will be valid?
+        self.data.user = None if instance.guest_access else User.objects.get(pk=user_id)
         self.data.instance = instance
         self.data.context_id = context_id
         self.data.is_preview = is_preview
-        self.data.qset = instance.qset
+        self.data.qset = instance.get_latest_qset()
         self.data.environment_data = ''
 
         self.data.auth = ''  # TODO
@@ -137,8 +139,8 @@ class SessionPlay:
         # TODO Event::trigger('score_updated', ... see php
 
     # Ensures that this session play is playable by the current user and updated time elapsed
-    def validate(self) -> bool:
-        if self.data.instance.playable_by_current_user():
+    def validate(self, request: HttpRequest) -> bool:
+        if self.data.instance.playable_by_current_user(request.user):
             if self.data.is_valid:
                 self.update_elapsed()
                 return True
@@ -179,12 +181,12 @@ class SessionPlay:
 
     # Util function for getting the SessionPlay for that play_Id and running its validate function.
     @staticmethod
-    def validate_by_play_id(play_id: str) -> bool:
+    def validate_by_play_id(play_id: str, request: HttpRequest) -> bool:
         session_play = SessionPlay.get_or_none(play_id)
         if not session_play:
             return False
 
-        return session_play.validate()
+        return session_play.validate(request)
 
     # def create_log_play(self, id: str):
     # log_play = LogPlay(

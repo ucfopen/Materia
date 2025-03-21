@@ -13,6 +13,9 @@ CSS_GROUPS = {
     "main": [
         CSS_BASEURL + "homepage.css"
     ],
+    "my-widgets": [
+        CSS_BASEURL + "my-widgets.css"
+    ],
     "help": [
         CSS_BASEURL + "help.css"
     ],

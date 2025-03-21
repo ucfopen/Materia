@@ -5,7 +5,6 @@ from enum import Enum
 
 from django.http import JsonResponse
 
-
 class MsgType(Enum):
     ERROR = "error"
     NOTICE = "notice"
