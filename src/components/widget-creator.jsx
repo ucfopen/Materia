@@ -78,7 +78,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		onSuccess: (info) => {
 			if (info) {
 				setInstance({ ...instance, widget: info[0] })
-				setCreatorState({...creatorState, canGenerateQset: info.is_generable == "1"})
+				setCreatorState({...creatorState, canGenerateQset: info.is_generable })
 			}
 		},
 		onError: (error) => {

@@ -203,7 +203,8 @@ export const apiSearchUsers = (input = '', page_number = 0) => {
 }
 
 export const apiGetUserPermsForInstance = instId => {
-	return fetchPost('/api/json/permissions_get', { body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId])}` })
+	return fetch(`/api/instances/${instId}/perms/`)
+	.then(resp => resp.json())
 }
 
 export const apiSetUserInstancePerms = ({ instId, permsObj }) => {

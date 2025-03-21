@@ -202,6 +202,18 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         serialized.is_valid(raise_exception=True)
         return Response(serialized.data)
 
+    # TODO this is a temp response until instance permissions comes fully online
+    @action(detail=True, methods=["get", "put"])
+    def perms(self, request, pk=None):
+        return Response(
+            {
+                "user_perms": {request.user.id: [PermObjectToUser.Perm.FULL, None]},
+                "widget_user_perms": {
+                    request.user.id: [PermObjectToUser.Perm.FULL, None]
+                },
+            }
+        )
+
 
 # API stuff below this line is not yet converted to DRF #
 # TODO this file is temporary just to make the installer work. django-creator-2 has a solution in it
