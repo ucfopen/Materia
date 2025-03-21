@@ -78,7 +78,8 @@ const MyWidgetsPage = () => {
 	const { data: permUsers } = useQuery({
 		queryKey: ['user-perms', state.selectedInst?.id, state.widgetHash],
 		queryFn: () => apiGetUserPermsForInstance(state.selectedInst?.id),
-		enabled: !!state.selectedInst && !!state.selectedInst.id && state.selectedInst?.id !== undefined,
+		// enabled: !!state.selectedInst && !!state.selectedInst.id && state.selectedInst?.id !== undefined,
+		enabled: false,
 		placeholderData: null,
 		staleTime: Infinity,
 		retry: false,

@@ -12,20 +12,18 @@ import os
 from datetime import datetime
 
 from django.contrib.auth.models import User
-from django.core import serializers
 from django.db import models, transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
-
 from util.perm_manager import PermManager
 from util.serialization import SerializableModel
 from util.widget.validator import ValidatorUtil
 
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
 logger = logging.getLogger("django")
-from pprint import pformat
+# from pprint import pformat
+
 
 class Asset(models.Model):
     MIME_TYPE_TO_EXTENSION = {
@@ -64,8 +62,8 @@ class Asset(models.Model):
         from util.widget.validator import ValidatorUtil
 
         return (
-                ValidatorUtil.is_valid_hash(self.id)
-                and self.file_type in Asset.MIME_TYPE_FROM_EXTENSION.keys()
+            ValidatorUtil.is_valid_hash(self.id)
+            and self.file_type in Asset.MIME_TYPE_FROM_EXTENSION.keys()
         )
 
     # Get the materia asset type based on the mime type
@@ -141,7 +139,7 @@ class Asset(models.Model):
                 except AssetData.DoesNotExist:
                     pass
                 for perm in PermObjectToUser.objects.filter(
-                        object_id=self.id, object_type=PermObjectToUser.ObjectType.ASSET
+                    object_id=self.id, object_type=PermObjectToUser.ObjectType.ASSET
                 ):
                     perm.delete()
             self = Asset()
@@ -682,7 +680,6 @@ class Widget(SerializableModel):
             return True
         return not PermManager.user_is_student(user)
 
-
     @staticmethod
     def make_clean_name(name):
         return name.replace(" ", "-").lower()
@@ -778,7 +775,11 @@ class WidgetInstance(SerializableModel):
     def get_qset_for_play(self, play_id=None):
         if play_id:
             play = LogPlay.objects.get(id=play_id)
-            return self.qsets.filter(created_at__lte=play.created_at).order_by("-created_at").first()
+            return (
+                self.qsets.filter(created_at__lte=play.created_at)
+                .order_by("-created_at")
+                .first()
+            )
         return self.get_latest_qset()
 
     def playable_by_current_user(self, user: User):
@@ -897,16 +898,16 @@ class WidgetQset(SerializableModel):
     def decode_data(cls, encoded_data):
         try:
             decoded_bytes = base64.b64decode(encoded_data)
-            return json.loads(decoded_bytes.decode('utf-8'))
+            return json.loads(decoded_bytes.decode("utf-8"))
         except Exception as e:
             logger.error(f"Error decoding JSON: {str(e)}")
             return {}
-    
+
     @classmethod
     def encode_data(cls, decoded_data):
         json_str = json.dumps(decoded_data)
-        return base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
-   
+        return base64.b64encode(json_str.encode("utf-8")).decode("utf-8")
+
     def get_data(self):
         return self.decode_data(self.data)
 
@@ -914,7 +915,8 @@ class WidgetQset(SerializableModel):
         self.data = self.encode_data(data_dict)
 
     # TODO: removed save() method because it became redundant with the updated handling of the data field
-    # save() also included logic to save individual questions, but we are currently mulling the idea of removing the question model completely
+    # save() also included logic to save individual questions,
+    # but we are currently mulling the idea of removing the question model completely
 
     # TODO: implement this, old code below
     def find_questions(self):
@@ -982,17 +984,18 @@ class WidgetQset(SerializableModel):
 
 
 class UserSettings(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile_settings")
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="profile_settings"
+    )
     profile_fields = models.JSONField(default=dict)
-
 
     def set_profile_fields(self, key, value):
         self.profile_fields[key] = value
         self.save()
 
-
     def get_profile_fields(self):
         return self.profile_fields
+
 
 @receiver(post_save, sender=User)
 def create_user_settings(sender, instance, created, **kwargs):
