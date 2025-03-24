@@ -2,6 +2,12 @@
 # debug logging
 import logging
 
+from django.http import JsonResponse
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+
 from core.models import Log, LogPlay, WidgetInstance
 from core.permissions import HasWidgetInstanceEditAccess
 from core.serializers import (
@@ -9,11 +15,6 @@ from core.serializers import (
     PlaySessionSerializer,
     PlaySessionWithExtrasSerializer,
 )
-from django.http import JsonResponse
-from rest_framework import permissions, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
 
@@ -22,14 +23,12 @@ logger = logging.getLogger("django")
 
 
 class PlaySessionPagination(PageNumberPagination):
-
     page_size = 100
     page_size_query_param = "page_size"
     max_page_size = 100
 
 
 class PlaySessionViewSet(viewsets.ModelViewSet):
-
     # TODO permissions checks:
     #   must have instance edit perms to access all logs associated with an instance
     #   must have instance play perms to CREATE, PUT play log
@@ -69,7 +68,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             if instance.is_draft:
                 return (MsgBuilder.failure("Drafts not Playable", "Must use Preview mode to play a draft")
                         .as_drf_response())
-            
+
             session_play = SessionPlay()
             # TODO context id?
             play_id = session_play.start(instance, self.request.user.id)
@@ -77,7 +76,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
         else:
             return MsgBuilder.invalid_input("Invalid input", "Instance ID required.").as_drf_response()
-        
+
     def update(self, request, pk=None):
         if not pk:
             return MsgBuilder.invalid_input().as_drf_response()
@@ -100,7 +99,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     logs = logs[0]
 
                 for log in logs:
-                    logModel = Log(
+                    log_model = Log(
                         play_id=pk,
                         log_type=log["type"],
                         item_id=log["item_id"],
@@ -110,7 +109,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     )
 
                     if not is_preview:
-                        logModel.save()
+                        log_model.save()
                     # TODO put preview logs in session
 
                 session.update_elapsed()

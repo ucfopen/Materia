@@ -1,12 +1,12 @@
-import json
 
-import logging
+import json
 from datetime import datetime
 
 from django.conf import settings
 from openai import OpenAI, AzureOpenAI, NOT_GIVEN, OpenAIError
 from openai.types.chat import ChatCompletion
 
+import logging
 from core.models import WidgetInstance, Widget
 from util.message_util import Msg, MsgBuilder
 
@@ -67,27 +67,29 @@ class GenerationUtil:
 
             qset_encoded = json.dumps(instance.qset.data)
 
-            prompt_text = f"""{widget.name} is a 'widget', an interactive piece of educational web 
-            content described as: '{about}'. Using the exact same json format of the following question set, without 
-            changing any field keys or data types and without changing any of the existing questions, generate 
-            {num_questions} more questions and add them to the existing question set. The name of this particular 
-            instance of {widget.name} is {instance.name} and the new questions must be based on this topic: '{topic} '.
-            Return only the JSON for the resulting question set."""
+            prompt_text = (f"{widget.name} is a 'widget', an interactive piece of educational web content described "
+                           f"as:'{about}'. Using the exact same json format of the following question set, without "
+                           f"changing any field keys or data types and without changing any of the existing questions, "
+                           f"generate {num_questions} more questions and add them to the existing question set. The "
+                           f"name of this particular instance of {widget.name} is {instance.name} and the new "
+                           f"questions must be based on this topic: '{topic}'. Return only the JSON for the resulting "
+                           f"question set.")
 
             # Generate image descriptions, if requested
             if include_images:
-                prompt_text += f""" In every asset or assets object in each new question, add a field titled 
-                'description' that best describes the image within the answer or question's context, unless otherwise 
-                specified later on in this prompt. Do not generate descriptions that would violate OpenAI's image 
-                generation safety system and do not use real names. IDs must be null."""
+                prompt_text += (" In every asset or assets object in each new question, add a field titled "
+                                "'description' that best describes the image within the answer or question's context, "
+                                "unless otherwise specified later on in this prompt. Do not generate descriptions "
+                                "that would violate OpenAI's image generation safety system and do not use real "
+                                "names. IDs must be null.")
             else:
-                prompt_text += """ Leave the asset field empty or otherwise equivalent to asset fields in questions with 
-                no associated asset. IDs must be null."""
+                prompt_text += (" Leave the asset field empty or otherwise equivalent to asset fields in questions "
+                                "with no associated asset. IDs must be null.")
 
             # Insert custom engine prompt, if it exists
             if custom_engine_prompt:
-                prompt_text += f""" Lastly, the following instructions apply to the {widget.name} widget specifically,
-                and supersede earlier instructions where applicable: {custom_engine_prompt}"""
+                prompt_text += (f"Lastly, the following instructions apply to the {widget.name} widget specifically, "
+                                f"and supersede earlier instructions where applicable: {custom_engine_prompt}")
 
             # Insert existing qset
             prompt_text += f"\n{qset_encoded}"
@@ -102,28 +104,30 @@ class GenerationUtil:
 
             qset_encoded = json.dumps(widget_demo.qset.data)
 
-            prompt_text = f"""{widget.name} is a 'widget', an interactive piece of educational web content described 
-            as: '{about}'. The following is a 'demo' question set for the widget titled '{widget_demo.name}'. Using the 
-            same json format as the demo question set, and without changing any field keys or data types, return only 
-            the JSON for a question set based on this topic: '{topic}'. Ignore the topic of the demo contents entirely. 
-            Replace the relevant field values with generated values. Generate a total {num_questions} of questions. IDs 
-            must be NULL."""
+            prompt_text = (f"{widget.name} is a 'widget', an interactive piece of educational web content described "
+                           f"as: '{about}'. The following is a 'demo' question set for the widget titled "
+                           f"'{widget_demo.name}'. Using the same json format as the demo question set, and without "
+                           f"changing any field keys or data types, return only the JSON for a question set based on "
+                           f"this topic: '{topic}'. Ignore the topic of the demo contents entirely. Replace the "
+                           f"relevant field values with generated values. Generate a total {num_questions} of "
+                           f"questions. IDs must be NULL.")
 
             # Generate image descriptions, if requested
             if include_images:
-                prompt_text += f""" In every asset or assets object in each new question, add a field titled 
-                'description' that best describes the image within the answer or question's context, unless otherwise 
-                specified later on in this prompt. Do not generate descriptions that would violate OpenAI's image 
-                generation safety system and do not use real names. IDs must be null."""
+                prompt_text += (" In every asset or assets object in each new question, add a field titled "
+                                "'description' that best describes the image within the answer or question's context, "
+                                "unless otherwise specified later on in this prompt. Do not generate descriptions "
+                                "that would violate OpenAI's image generation safety system and do not use real "
+                                "names. IDs must be null.")
             else:
-                prompt_text += """Asset fields associated with media (image, audio, or video) should be left blank. For 
-                text assets, or if the 'materiaType' of an asset is 'text', create a field titled 'value' with the text
-                inside the asset object."""
+                prompt_text += ("Asset fields associated with media (image, audio, or video) should be left blank. For "
+                                "text assets, or if the 'materiaType' of an asset is 'text', create a field titled "
+                                "'value' with the text inside the asset object.")
 
             # Insert custom engine prompt, if it exists
             if custom_engine_prompt:
-                prompt_text += f""" Lastly, the following instructions apply to the {widget.name} widget specifically,
-                and supersede earlier instructions where applicable: {custom_engine_prompt}"""
+                prompt_text += (f" Lastly, the following instructions apply to the {widget.name} widget specifically, "
+                                f"and supersede earlier instructions where applicable: {custom_engine_prompt}")
 
             # Insert qset
             prompt_text += f"\n{qset_encoded}"
@@ -134,11 +138,11 @@ class GenerationUtil:
 
         if type(result) is Msg:
             logger.error(
-                f"Error generating question set:" +
-                f"- Widget: {widget.name}\n" +
-                f"- Date: {datetime.now()}\n" +
-                f"- Time to complete (seconds): {time_elapsed_seconds}\n" +
-                f"- Number of questions asked to generate: {num_questions}\n" +
+                f"Error generating question set:"
+                f"- Widget: {widget.name}\n"
+                f"- Date: {datetime.now()}\n"
+                f"- Time to complete (seconds): {time_elapsed_seconds}\n"
+                f"- Number of questions asked to generate: {num_questions}\n"
                 f"- Error: {result}"
             )
             return result
@@ -151,14 +155,14 @@ class GenerationUtil:
         # Log
         if settings.AI_GENERATION["LOG_STATS"]:
             logger.debug(
-                f"Successfully generated question set:" +
-                f"- Widget: {widget.name}\n" +
-                f"- Date: {datetime.now()}\n" +
-                f"- Time to complete (seconds): {time_elapsed_seconds}\n" +
-                f"- Number of questions asked to generate: {num_questions}\n" +
-                f"- Included images: {include_images}\n" +
-                f"- Prompt tokens: {result.usage.prompt_tokens}\n" +
-                f"- Completion tokens: {result.usage.completion_tokens}\n" +
+                f"Successfully generated question set:"
+                f"- Widget: {widget.name}\n"
+                f"- Date: {datetime.now()}\n"
+                f"- Time to complete (seconds): {time_elapsed_seconds}\n"
+                f"- Number of questions asked to generate: {num_questions}\n"
+                f"- Included images: {include_images}\n"
+                f"- Prompt tokens: {result.usage.prompt_tokens}\n"
+                f"- Completion tokens: {result.usage.completion_tokens}\n"
                 f"- Total tokens: {result.usage.total_tokens}\n"
             )
 
@@ -187,14 +191,12 @@ class GenerationUtil:
         result = GenerationUtil._query(prompt, "text")
 
         if type(result) is Msg:
-            logger.error(f"GENERATION UTIL: Error while generation prompt:\n" +
-                         f"- Prompt: {prompt}\n" +
+            logger.error(f"GENERATION UTIL: Error while generation prompt:\n"
+                         f"- Prompt: {prompt}\n"
                          f"- Exception: {result}")
             return result
 
         return result.choices[0].message.content
-
-
 
     @staticmethod
     def is_enabled() -> bool:
@@ -281,7 +283,8 @@ class GenerationUtil:
                 api_version=api_version,
                 azure_endpoint=endpoint,
             )
-            # TODO: original code wraps in a try/catch. thats not really applicable here since we're initing a class, but we might want to do some kind of check to see if our client is working/valid
+            # TODO: original code wraps in a try/catch. thats not really applicable here since we're initing a class,
+            #       but we might want to do some kind of check to see if our client is working/valid
 
         # OPENAI
         elif settings.AI_GENERATION["PROVIDER"] == "openai":
@@ -300,5 +303,3 @@ class GenerationUtil:
             return None
 
         return client
-
-

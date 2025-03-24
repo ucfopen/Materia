@@ -4,6 +4,7 @@ from django.conf import settings
 from django.shortcuts import render
 from util.context_util import ContextUtil
 
+
 def index(request, *args, **kwargs):
     context = ContextUtil.create(
         title="Welcome to Materia",

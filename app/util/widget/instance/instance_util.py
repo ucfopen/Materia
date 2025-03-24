@@ -4,14 +4,11 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.http import HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, HttpResponseServerError, \
-    JsonResponse
 from django.utils.timezone import make_aware
 
 from core.models import WidgetInstance, Widget, PermObjectToUser
-from util.message_util import MsgBuilder, MsgSeverity, Msg
+from util.message_util import MsgBuilder, Msg
 from util.perm_manager import PermManager
-from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
 
@@ -61,7 +58,8 @@ class WidgetInstanceUtil:
         # Verify user is logged in
         # TODO
         # if (\Service_User::verify_session() !== true) return Msg::no_login();
-        # if (\Service_User::verify_session('no_author')) return Msg::invalid_input('You are not able to create or edit widgets.');
+        # if (\Service_User::verify_session('no_author'))
+        #   return Msg::invalid_input('You are not able to create or edit widgets.');
 
         # Update instance
         if qset is not None and "data" in qset and "version" in qset:
@@ -225,4 +223,3 @@ class WidgetInstanceUtil:
 
         # Return True if requesting user owns the lock. False otherwise.
         return locked_by == user.pk
-

@@ -23,10 +23,14 @@ from core.views import profile as profile_views
 from core.views import login as login_views
 
 from core.views.scores import ScoresView
-from core.views.widget import *
 
 from django.urls import include, path, re_path
 from django.contrib import admin
+
+from core.views.widget import (
+    WidgetDetailView, WidgetDemoView, WidgetGuideView, WidgetPlayView, WidgetCreatorView, WidgetPreviewView,
+    WidgetQsetImportView, WidgetQsetHistoryView, WidgetQsetGenerateView
+)
 
 urlpatterns = [
     # api router and endpoint registration in api_urls
@@ -65,7 +69,7 @@ urlpatterns = [
     # path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
     path("settings/", profile_views.settings, name="settings"),
-	path("users/login", login_views.login, name="login"),
+    path("users/login", login_views.login, name="login"),
     path("login/", login_views.login, name="login"),
     path("admin/", admin.site.urls),
     path("users/logout/", UsersApi.logout, name="logout"),

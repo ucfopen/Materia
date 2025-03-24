@@ -295,12 +295,12 @@ class PlayIdSerializer(serializers.Serializer):
     play_id = serializers.UUIDField()
 
     def validate(self, data):
-        playLog = LogPlay.objects.get(pk=data["play_id"])
+        play_log = LogPlay.objects.get(pk=data["play_id"])
 
-        if not playLog:
+        if not play_log:
             raise serializers.ValidationError("Play ID invalid.")
 
-        return playLog
+        return play_log
 
 
 # serializes and validates individual logs for a play (inbound)
@@ -397,7 +397,6 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
         ]
 
 
-
 class NotificationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
@@ -466,7 +465,9 @@ class ScoreSummarySerializer(serializers.Serializer):
 # Used for incoming requests for qset generation. Does NOT map to a model.
 class QsetGenerationRequestSerializer(serializers.Serializer):
     instance = WidgetInstanceSerializer(read_only=True)
-    instance_id = serializers.PrimaryKeyRelatedField(queryset=WidgetInstance.objects.all(), source="instance", required=False, write_only=True, allow_null=True)
+    instance_id = serializers.PrimaryKeyRelatedField(
+        queryset=WidgetInstance.objects.all(), source="instance", required=False, write_only=True, allow_null=True
+    )
     widget = WidgetSerializer(read_only=True)
     widget_id = serializers.PrimaryKeyRelatedField(queryset=Widget.objects.all(), source="widget", write_only=True)
     topic = serializers.CharField()

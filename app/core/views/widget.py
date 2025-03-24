@@ -1,4 +1,3 @@
-from django.http import HttpResponseNotFound, HttpResponseServerError, HttpRequest
 from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseServerError, HttpRequest
 from django.views.generic import TemplateView
@@ -7,7 +6,7 @@ from util.context_util import ContextUtil
 from util.logging.session_play import SessionPlay
 
 import logging
-from pprint import pformat
+
 logger = logging.getLogger("django")
 
 
@@ -60,11 +59,11 @@ class WidgetCreatorView(TemplateView):
     def get_context_data(self, widget_slug, instance_id=None):
         # Check if player user session is valid
         # TODO if (\Service_User::verify_session() !== true)
-		# {
-		# 	Session::set('redirect_url', URI::current());
-		# 	Session::set_flash('notice', 'Please log in to create this widget.');
-		# 	Response::redirect(Router::get('login').'?redirect='.URI::current());
-		# }
+        # {
+        # 	Session::set('redirect_url', URI::current());
+        # 	Session::set_flash('notice', 'Please log in to create this widget.');
+        # 	Response::redirect(Router::get('login').'?redirect='.URI::current());
+        # }
 
         # Check for author permissions
         # TODO if (\Materia\Perm_Manager::does_user_have_role(['no_author'])) throw new HttpNotFoundException;
@@ -94,7 +93,8 @@ class WidgetPreviewView(TemplateView):
             return HttpResponseNotFound()
 
         # Check ownership of widget
-        # TODO if ( ! Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $instId, Materia\Perm::INSTANCE, [Materia\Perm::FULL, Materia\Perm::VISIBLE]))
+        # TODO if ( ! Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $instId,
+        #  Materia\Perm::INSTANCE, [Materia\Perm::FULL, Materia\Perm::VISIBLE]))
         if False:
             return _create_no_permission_page(self.request)
 
@@ -184,6 +184,7 @@ class WidgetQsetGenerateView(TemplateView):
             request=self.request,
         )
 
+
 # View page creation methods
 
 # Creates a player page for a real, logged play session
@@ -247,7 +248,7 @@ def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
         js_resources="dist/js/creator-page.js",
         css_resources="dist/css/creator-page.css",
         js_globals={
-            "WIDGET_HEIGHT": widget.height, # TODO these are prolly supposed to be numbers, not strings
+            "WIDGET_HEIGHT": widget.height,  # TODO these are prolly supposed to be numbers, not strings
             "WIDGET_WIDTH": widget.width,
         },
         request=request,
@@ -356,6 +357,8 @@ def _get_id_from_slug(widget_slug: str) -> int | None:
         except Exception:
             pass
 
+    # TODO: proper logging (or maybe this one is just unnecessary)
     print(
-        f"Failed to get id from widget slug, likely an invalid slug: '{widget_slug}'")  # TODO: proper logging (or maybe this one is just unnecessary)
+        f"Failed to get id from widget slug, likely an invalid slug: '{widget_slug}'"
+    )
     return None
