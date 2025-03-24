@@ -4,6 +4,7 @@
 from enum import Enum
 
 from django.http import JsonResponse
+from rest_framework.response import Response
 
 
 class MsgSeverity(Enum):
@@ -37,6 +38,14 @@ class Msg:
 
     def as_json_response(self) -> JsonResponse:
         return JsonResponse({
+            "title": self.title,
+            "msg": self.msg,
+            "type": self.severity.value,
+            "halt": self.halt,
+        }, status=self.status)
+
+    def as_drf_response(self) -> Response:
+        return Response({
             "title": self.title,
             "msg": self.msg,
             "type": self.severity.value,

@@ -1,46 +1,42 @@
-import json
 import re
 
-from django.http import JsonResponse
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from core.models import WidgetInstance, Widget
+from core.permissions import CanCreateWidgetInstances
+from core.serializers import QsetGenerationRequestSerializer
 from util.generator_util import GenerationUtil
 from util.message_util import MsgBuilder, Msg
-from util.widget.validator import ValidatorUtil
 
 
-class GenerationApi:
-    @staticmethod
-    def generate_qset(request):
-        json_body = json.loads(request.body)
-        instance_id = json_body.get("instId")
-        widget_id = json_body.get("widgetId")
-        topic = json_body.get("topic")
-        num_questions = int(json_body.get("numQuestions"))
-        build_off_existing = json_body.get("buildOffExisting")
+class GenerateQsetView(APIView):
+    http_method_names = ["post"]
+    permission_classes = [IsAuthenticated & CanCreateWidgetInstances]
+
+    def post(self, request):
+        request_serializer = QsetGenerationRequestSerializer(data=request.data)
+        if not request_serializer.is_valid():
+            return Response(request_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        widget_instance = request_serializer.validated_data.get("instance", None)
+        widget = request_serializer.validated_data["widget"]
+        num_questions = request_serializer.validated_data["num_questions"]
+        build_off_existing = request_serializer.validated_data["build_off_existing"]
+        topic = request_serializer.validated_data["topic"]
 
         # Check if generation is available
         if not GenerationUtil.is_enabled():
-            return MsgBuilder.failure(msg="AI generation is not enabled on this instance of Materia").as_json_response()
+            return MsgBuilder.failure(msg="AI generation is not enabled on this instance of Materia").as_drf_response()
 
-        # Verify eligibility
-        # TODO if (! \Service_User::verify_session(['basic_author', 'super_user'])) return Msg::no_perm();
+        # Verify widget instance is playable (only if a valid instance id is provided)
+        if widget_instance and not widget_instance.playable_by_current_user(request.user):
+            return MsgBuilder.no_login().as_drf_response()
 
-        # Load and verify widget instance (only if a valid instance id is provided)
-        widget_instance = None
-        if ValidatorUtil.is_valid_hash(instance_id):
-            widget_instance = WidgetInstance.objects.filter(id=instance_id).first()
-            if widget_instance is None:
-                return MsgBuilder.not_found(msg="Widget instance not found").as_json_response()
-            if not widget_instance.playable_by_current_user():
-                return MsgBuilder.no_login().as_json_response()
-
-        # Load and verify widget
-        widget = Widget.objects.filter(id=widget_id).first()
-        if widget is None:
-            return MsgBuilder.not_found(msg="Widget not found").as_json_response()
+        # Verify widget has generation enabled
         if not widget.is_generable:
-            return MsgBuilder.invalid_input(msg="Widget engine does not support generation").as_json_response()
+            return MsgBuilder.invalid_input(msg="Widget engine does not support generation").as_drf_response()
 
         # Clean the topic of any special characters
         topic = re.sub(r"[^a-zA-Z0-9\s]", "", topic)
@@ -62,35 +58,37 @@ class GenerationApi:
 
         # Catch error
         if type(result) is Msg:
-            return result.as_json_response()
+            return result.as_drf_response()
 
         # Return generated qset
-        return JsonResponse({
+        return Response({
             **result,
             "title": topic,
         })
 
+
+class GenerateFromPromptView(APIView):
+    http_method_names = ["post"]
+    permission_classes = [IsAuthenticated & CanCreateWidgetInstances]
+
     @staticmethod
-    def generate_from_prompt(request):
-        json_body = json.loads(request.body)
-        prompt = json_body.get("prompt")
+    def post(self, request):
+        prompt = request.data["prompt"]
 
         # Validate prompt
         if not prompt:
-            return MsgBuilder.invalid_input(msg="Missing prompt").as_json_response()
+            return MsgBuilder.invalid_input(msg="Missing prompt").as_drf_response()
 
         # Check if generation is available
         if not GenerationUtil.is_enabled():
-            return MsgBuilder.failure(msg="AI generation is not enabled on this instance of Materia").as_json_response()
+            return MsgBuilder.failure(msg="AI generation is not enabled on this instance of Materia").as_drf_response()
 
-        # Verify eligibility
-        # TODO if (\Service_User::verify_session() !== true) return Msg::no_login();
-
+        # Perform generation
         result = GenerationUtil.generate_from_prompt(prompt)
         if type(result) is Msg:
-            return result.as_json_response()
+            return result.as_drf_response()
         else:
-            return JsonResponse({
+            return Response({
                 "success": True,
                 "response": result,
             })

@@ -1,13 +1,16 @@
 import logging
 from datetime import datetime
 
+from django.conf import settings
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from core.models import PermObjectToUser, WidgetQset, Widget, WidgetInstance
-from core.permissions import IsSuperuser, HasWidgetInstanceEditAccessOrReadOnly, CanCreateWidgetInstances
+from core.permissions import IsSuperuser, HasWidgetInstanceEditAccessOrReadOnly, CanCreateWidgetInstances, \
+    HasWidgetInstanceEditAccess
 from core.serializers import WidgetInstanceSerializer, QuestionSetSerializer, WidgetInstanceSerializerNoIdentifyingInfo, PlayIdSerializer
 from django.http import HttpResponseServerError
 from django.utils.timezone import make_aware
+from django.core.cache import cache
 
 from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
@@ -16,6 +19,7 @@ from rest_framework.decorators import action
 
 from util.message_util import MsgBuilder
 from util.perm_manager import PermManager
+from util.widget.instance.instance_util import WidgetInstanceUtil
 from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
@@ -158,6 +162,11 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = QuestionSetSerializer(instance.qset)
         return Response(serializer.data)
+
+    # /api/instances/<inst id>/lock/
+    @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated & HasWidgetInstanceEditAccess])
+    def lock(self, request, pk=None):
+        return Response({"lock_obtained": WidgetInstanceUtil.get_lock(pk, request.user)})
 
 
 ## API stuff below this line is not yet converted to DRF ##

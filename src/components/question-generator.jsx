@@ -97,7 +97,7 @@ const QsetGenerator = () => {
 	}
 
 	const onNumberChange = (e) => {
-		setNumQuestions(e.target.value)
+		setNumQuestions(parseInt(e.target.value))
 	}
 
 	return (

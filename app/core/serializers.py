@@ -291,7 +291,19 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
             "widget_name"
         ]
 
+
 class NotificationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = "__all__"
+
+
+# Used for incoming requests for qset generation. Does NOT map to a model.
+class QsetGenerationRequestSerializer(serializers.Serializer):
+    instance = WidgetInstanceSerializer(read_only=True)
+    instance_id = serializers.PrimaryKeyRelatedField(queryset=WidgetInstance.objects.all(), source="instance", required=False, write_only=True, allow_null=True)
+    widget = WidgetSerializer(read_only=True)
+    widget_id = serializers.PrimaryKeyRelatedField(queryset=Widget.objects.all(), source="widget", write_only=True)
+    topic = serializers.CharField()
+    num_questions = serializers.IntegerField()
+    build_off_existing = serializers.BooleanField()

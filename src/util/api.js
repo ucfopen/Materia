@@ -231,7 +231,8 @@ export const apiUpdateWidget = ({ args }) => {
 }
 
 export const apiGetWidgetLock = (id = null) => {
-	return fetchPost('/api/widget_instance/lock/', { body: { id } })
+	return fetchGet(`/api/instances/${id}/lock/`)
+		.then(data => data["lock_obtained"])
 }
 
 /**
@@ -364,11 +365,18 @@ export const apiCreatePlaySession = ({ widgetId }) => {
 
 export const apiGetQuestionSet = (instanceId, playId = null) => {
 	return fetch(`/api/instances/${instanceId}/question_sets/?latest=true`)
-	.then(resp => resp.json())
+		.then(resp => resp.json())
 }
 
 export const apiGenerateQset = ({instId, widgetId, topic, includeImages, numQuestions, buildOffExisting}) => {
-	return fetchPost('/api/generate/qset/', ({ body: { instId, widgetId, topic, includeImages, numQuestions, buildOffExisting } }))
+	return fetchPost('/api/generate/qset/', ({ body: {
+		instance_id: instId,
+		widget_id: widgetId,
+		topic,
+		include_images: includeImages,
+		num_questions: numQuestions,
+		build_off_existing: buildOffExisting
+	} }))
 }
 
 export const apiSessionVerify = (play_id) => {
@@ -483,9 +491,10 @@ export const apiUpdateUserRoles = (roles) => {
 /** Controller_Api_Instance */
 
 export const apiGetQuestionSetHistory = (instId) => {
-	return fetch(`/api/widget_instances/history/?inst_id=${instId}`)
-		.then(handleErrors)
-		.then(data => data['history'])
+	return fetchGet(`/api/instances/${instId}/question_sets/`)
+	// return fetch(`/api/widget_instances/history/?inst_id=${instId}`)
+	// 	.then(handleErrors)
+	// 	.then(data => data['history'])
 }
 
 // Request access to widget
@@ -621,7 +630,7 @@ export const apiUnDeleteWidget = ({ instId }) => {
 }
 
 export const apiWidgetPromptGenerate = (prompt) => {
-	return fetchPost(`/api/json/widget_prompt_generate/`, { body: `data=${formatFetchBody([prompt])}` })
+	return fetchPost(`/api/json/widget_prompt_generate/`, { body: { prompt } })
 }
 
 /** STORAGE UTILS */
