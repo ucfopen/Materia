@@ -772,7 +772,7 @@ class WidgetInstance(models.Model):
         )
         qset.save()
 
-    def get_latest_qset(self):
+    def get_latest_qset(self) -> "WidgetQset | None":
         return self.qsets.order_by("-created_at").first()
 
     def get_qset_for_play(self, play_id=None):
