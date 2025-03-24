@@ -6,6 +6,10 @@ from core.models import WidgetInstance, Widget
 from util.context_util import ContextUtil
 from util.logging.session_play import SessionPlay
 
+import logging
+from pprint import pformat
+logger = logging.getLogger("django")
+
 
 class WidgetDetailView(TemplateView):
     template_name = "react.html"
@@ -205,7 +209,7 @@ def _create_player_page(
         pass
 
     # Create play log
-    play_id = SessionPlay().start(instance)
+    play_id = SessionPlay().start(instance, request.user.id)
     if not play_id:
         print("Failed to create play session!")
         return HttpResponseServerError()

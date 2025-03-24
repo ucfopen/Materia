@@ -68,7 +68,7 @@ class SessionPlay:
         self.data.instance = instance
         self.data.context_id = context_id
         self.data.is_preview = is_preview
-        self.data.qset = instance.qset
+        self.data.qset = instance.get_latest_qset()
         self.data.environment_data = ''
 
         self.data.auth = ''  # TODO
@@ -187,32 +187,3 @@ class SessionPlay:
             return False
 
         return session_play.validate(request)
-
-    # def create_log_play(self, id: str):
-    # log_play = LogPlay(
-    #     id=id,
-    #     instance=self.instance,
-    #     created_at=self.created_at,
-    #     elapsed=0,
-    #     user=self.user,
-    #     is_valid='1',  # TODO use booleans?
-    #     is_complete=False,
-    #     ip='',  # TODO
-    #     qset=self.qset,
-    #     environment_data='',  # TODO
-    #     auth=self.auth,
-    #     referrer_url=self.referrer_url,
-    #     context_id=self.context_id,
-    #     semester=self.semester,
-    #     score=0.0, # TODO: look into these 3
-    #     score_possible=0,
-    #     percent=0,
-    # )
-
-    # try:
-    #     log_play.save()
-    #     return True
-    # except Exception as e:
-    #     # TODO logging
-    #     print(e)
-    #     return False

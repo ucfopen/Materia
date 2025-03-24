@@ -1,27 +1,30 @@
 # import json
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, HttpResponse
-
-from rest_framework import permissions, viewsets, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
-from core.serializers import PlaySessionSerializer, PlayLogUpdateSerializer, PlaySessionWithExtrasSerializer, PlayLogUpdateSerializer
-from core.permissions import HasWidgetInstanceEditAccess
-from core.models import WidgetInstance, Log, LogPlay
-from util.message_util import MsgBuilder
-
-from util.logging.session_play import SessionPlay
-from util.widget.validator import ValidatorUtil
-
 # debug logging
 import logging
-from pprint import pformat
+
+from core.models import Log, LogPlay, WidgetInstance
+from core.permissions import HasWidgetInstanceEditAccess
+from core.serializers import (
+    PlayLogUpdateSerializer,
+    PlaySessionSerializer,
+    PlaySessionWithExtrasSerializer,
+)
+from django.http import JsonResponse
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from util.logging.session_play import SessionPlay
+from util.message_util import MsgBuilder
+
+# from pprint import pformat
 logger = logging.getLogger("django")
 
 
 class PlaySessionPagination(PageNumberPagination):
+
     page_size = 100
-    page_size_query_param = 'page_size'
+    page_size_query_param = "page_size"
     max_page_size = 100
 
 
@@ -49,7 +52,9 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             return LogPlay.objects.get(pk=self.kwargs["pk"])
         else:
             if self.request.query_params.get("include_activity"):
-                return LogPlay.objects.select_related("instance", "instance__widget").filter(user=self.request.user)
+                return LogPlay.objects.select_related(
+                    "instance", "instance__widget"
+                ).filter(user=self.request.user)
             else:
                 return LogPlay.objects.filter(user=self.request.user)
 
@@ -58,12 +63,12 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         if inst_id:
             instance = WidgetInstance.objects.get(pk=inst_id)
             if instance is None:
-                return MsgBuilder.not_found().as_json_response()
+                return MsgBuilder.not_found().as_drf_response()
             if not instance.playable_by_current_user(request.user):
-                return MsgBuilder.failure("Not Allowed", "Instance not playable by current user.").as_json_response()
+                return MsgBuilder.failure("Not Allowed", "Instance not playable by current user.").as_drf_response()
             if instance.is_draft:
                 return (MsgBuilder.failure("Drafts not Playable", "Must use Preview mode to play a draft")
-                        .as_json_response())
+                        .as_drf_response())
             
             session_play = SessionPlay()
             # TODO context id?
@@ -71,28 +76,28 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             return JsonResponse({"playId": play_id})
 
         else:
-            return MsgBuilder.invalid_input("Invalid input", "Instance ID required.").as_json_response()
+            return MsgBuilder.invalid_input("Invalid input", "Instance ID required.").as_drf_response()
         
     def update(self, request, pk=None):
         if not pk:
-            return MsgBuilder.invalid_input().as_json_response()
+            return MsgBuilder.invalid_input().as_drf_response()
 
         # play = LogPlay.objects.get(pk=self.kwargs["pk"])
         # logs = request.data.get("logs", None)
         is_preview = bool(request.query_params.get("is_preview", False))
-        update_serializer = PlayLogUpdateSerializer(data=request.data, context={"request": request, "play_id": pk}, many=True)
+        update_serializer = PlayLogUpdateSerializer(
+            data=request.data, context={"request": request, "play_id": pk}, many=True
+        )
 
         if update_serializer.is_valid():
 
             try:
                 session = SessionPlay(pk)
+
                 logs = update_serializer.validated_data
-
-                logger.error(f"raw logs from serializer:\n{pformat(logs)}")
-
                 # using many=True in serializer returns a double-nested list. Manually flatten if required.
                 if isinstance(logs, list) and logs[0] and isinstance(logs[0], list):
-                     logs = logs[0]
+                    logs = logs[0]
 
                 for log in logs:
                     logModel = Log(
@@ -111,18 +116,24 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 session.update_elapsed()
                 return Response({"status": status.HTTP_200_OK, "success": True})
 
-            except Exception as e:
-                return MsgUtil.create_failure_msg("Failed to Save", "Your play logs could not be saved.")
+            except Exception:
+                return MsgBuilder.failure(
+                    "Failed to Save", "Your play logs could not be saved."
+                ).as_drf_response()
 
         else:
-            return Response(update_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                update_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
 
     def destroy(self, request, *args, **kwargs):
-        return Response({
-            "detail":"This operation is not allowed.",
-            "status": status.HTTP_403_FORBIDDEN
-        })
-    
+        return Response(
+            {
+                "detail": "This operation is not allowed.",
+                "status": status.HTTP_403_FORBIDDEN,
+            }
+        )
+
     @action(detail=True, methods=["get"])
     def verify(self, request, pk=None):
         session = LogPlay.objects.get(id=pk)

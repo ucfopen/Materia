@@ -1,9 +1,7 @@
-from django.http import JsonResponse
-
 from core.models import Notification
 from core.serializers import NotificationsSerializer
+from rest_framework import permissions, viewsets
 
-from rest_framework import permissions, viewsets, status
 
 class NotificationsViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationsSerializer
@@ -15,5 +13,5 @@ class NotificationsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Notification.objects.filter(to_id=self.request.user)
-    
+
     # TODO notification deletion

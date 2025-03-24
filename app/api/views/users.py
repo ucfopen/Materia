@@ -1,33 +1,23 @@
-from django.core.cache import cache
-from django.http import JsonResponse
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
-from core.models import UserSettings, Question, WidgetQset, WidgetInstance
-from util.message_util import MsgBuilder
-from util.perm_manager import PermManager
-from django.contrib.auth import logout
-from django.shortcuts import redirect
-
 import hashlib
 import json
-import datetime
 import logging
 
+from core.models import UserSettings
 from core.permissions import IsSuperuserOrReadOnly
-
-from rest_framework import permissions, viewsets, status
-from rest_framework.response import Response
+from core.serializers import UserMetadataSerializer, UserSerializer
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.shortcuts import redirect
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
-from core.serializers import UserSerializer, UserMetadataSerializer
-
-from util.qset.QuestionUtil import QuestionUtil
-from util.serialization import SerializationUtil
-
+from rest_framework.response import Response
 
 logger = logging.getLogger("django")
 
 
 class UserViewSet(viewsets.ModelViewSet):
+
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, IsSuperuserOrReadOnly]
     # NEVER allow user creation or deletion from the API
@@ -43,7 +33,7 @@ class UserViewSet(viewsets.ModelViewSet):
         #     return User.objects.all()
         return User.objects.filter(pk=user.pk)
 
-    @action(detail=True, methods=['put'])
+    @action(detail=True, methods=["put"])
     def profile_fields(self, request, pk=None):
         serializer = UserMetadataSerializer(data=request.data)
 
@@ -64,17 +54,21 @@ class UserViewSet(viewsets.ModelViewSet):
             user_profile.save()
 
             # TODO try/catch required? at this point we've already validated input
-            return Response({"success": True, "profile_fields": user_profile.profile_fields})
+            return Response(
+                {"success": True, "profile_fields": user_profile.profile_fields}
+            )
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def get_gravatar(email):
-    clean_email = email.strip().lower().encode('utf-8')
+    clean_email = email.strip().lower().encode("utf-8")
     hash_email = hashlib.md5(clean_email).hexdigest()
     return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
 
-## API stuff below this line is not yet converted to DRF ##
+
+# API stuff below this line is not yet converted to DRF #
+
 
 class UsersApi:
     def service_user_login(request):
@@ -98,34 +92,5 @@ class UsersApi:
 
     def logout(request):
         logout(request)
-        return redirect('/')
-
-    @staticmethod
-    def get_questions(request):
-        data = json.loads(request.body)
-        ids = data.get("ids", [])
-        q_types = data.get("types", "")
-
-        # Data validation
-        if ids is None:
-            ids = []
-        if type(ids) is not list:
-            return MsgBuilder.invalid_input(msg="Expected 'ids' to be list").as_json_response()
-
-        # TODO if (\Service_User::verify_session() !== true) return Msg::no_login();
-
-        # If IDs are specified, get those IDs
-        if len(ids) > 0:
-            questions = Question.objects.filter(pk__in=ids)
-            questions_as_dicts = SerializationUtil.serialize_set(questions)
-            questions_data_only = [question["data"] for question in questions_as_dicts]
-            return JsonResponse({"questions": questions_data_only})
-
-        # Else, just get all of this user's questions
-        else:
-            # TODO use real user's id. i'm using this one rn bc they have a lot of questions to their name in QA lol
-            questions = QuestionUtil.get_users_question(50757, q_types)
-            return JsonResponse({"questions": questions})
-
-
+        return redirect("/")
 

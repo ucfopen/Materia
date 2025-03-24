@@ -1,9 +1,8 @@
 import json
 
-from django.core import serializers
-from django.http import HttpResponseNotFound, HttpResponseForbidden, JsonResponse, HttpResponseBadRequest
-
 from core.models import DateRange, WidgetInstance
+from django.core import serializers
+from django.http import HttpResponseNotFound, JsonResponse
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
 from util.scoring.scoring_util import ScoringUtil
@@ -49,15 +48,23 @@ class ScoresApi:
 
         # Get scores and return
         scores = ScoringUtil.get_instance_score_history(instance, context_id)
-        attempts_used = len(ScoringUtil.get_instance_score_history(instance, context_id, semester))
-        extra = ScoringUtil.get_instance_extra_attempts(instance, context_id, semester) if context_id else 0
+        attempts_used = len(
+            ScoringUtil.get_instance_score_history(instance, context_id, semester)
+        )
+        extra = (
+            ScoringUtil.get_instance_extra_attempts(instance, context_id, semester)
+            if context_id
+            else 0
+        )
 
         attempts_left = instance.attempts - attempts_used + extra
 
-        return JsonResponse({
-            'scores': scores,
-            'attemptsLeft': attempts_left,
-        })
+        return JsonResponse(
+            {
+                "scores": scores,
+                "attemptsLeft": attempts_left,
+            }
+        )
 
     # WAS guest_widget_instance_scores_get
     @staticmethod
@@ -84,9 +91,7 @@ class ScoresApi:
         for json_score in json_scores:
             fixed_json_scores.append(json_score["fields"])
 
-        return JsonResponse({
-            "scores": fixed_json_scores
-        })
+        return JsonResponse({"scores": fixed_json_scores})
 
     # WAS widget_instance_play_scores_get
     # Gets play details (from Log table, containing player's answers and actions) for a play_id
@@ -112,7 +117,9 @@ class ScoresApi:
             if not widget_instance:
                 return HttpResponseNotFound()
 
-            play_details = ScoringUtil.get_preview_play_details(request.session, widget_instance, preview_play_id)
+            play_details = ScoringUtil.get_preview_play_details(
+                request.session, widget_instance, preview_play_id
+            )
             if not play_details:
                 return MsgBuilder.expired().as_json_response()
 
@@ -134,7 +141,7 @@ class ScoresApi:
         # Get and validate body params
         json_body = json.loads(request.body)
         instance_id = json_body.get("instanceId")
-        include_storage_data = json_body.get("includeStorageData", False)
+        # include_storage_data = json_body.get("includeStorageData", False)
         if not ValidatorUtil.is_valid_hash(instance_id):
             return MsgBuilder.invalid_input(msg=str(instance_id)).as_json_response()
 
@@ -165,6 +172,4 @@ class ScoresApi:
         summaries = summaries.values()
         summaries = sorted(summaries, key=lambda k: k["id"])
 
-        return JsonResponse({
-            "summaries": summaries
-        })
+        return JsonResponse({"summaries": summaries})

@@ -4,7 +4,7 @@ import logging
 from django.http import HttpRequest, JsonResponse
 from django.conf import settings
 
-from api.views.users_api import UsersApi
+from api.views.users import UsersApi
 
 
 class ContextUtil:
@@ -49,6 +49,7 @@ class ContextUtil:
         user_settings = {"darkMode": False}  # Default settings
 
         try:
+            # TODO fix for DRF
             user_data = UsersApi.get(request)  # Call API to fetch user settings
             if isinstance(user_data, JsonResponse):
                 user_json = user_data.content.decode("utf-8")

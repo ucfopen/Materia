@@ -2,7 +2,7 @@ import logging
 import os
 import tempfile
 
-from core.models import PermObjectToUser, Widget, WidgetMetadata, WidgetInstance
+from core.models import PermObjectToUser, Widget, WidgetMetadata, WidgetInstance, WidgetQset
 from django.conf import settings
 
 from util.message_util import Msg
@@ -440,10 +440,9 @@ class WidgetInstaller:
 
             demo_data = json.loads(demo_text)
 
-            qset = {
-                "version": demo_data["qset"]["version"],
-                "data": demo_data["qset"]["data"],
-            }
+            qset = WidgetQset()
+            qset.version = demo_data["qset"]["version"]
+            qset.set_data(demo_data["qset"]["data"])
 
             if existing_inst_id:
                 # update the existing instance by adding a new qset
