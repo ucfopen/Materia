@@ -473,3 +473,8 @@ class QsetGenerationRequestSerializer(serializers.Serializer):
     topic = serializers.CharField()
     num_questions = serializers.IntegerField()
     build_off_existing = serializers.BooleanField()
+
+
+# Used for incoming requests for prompt generation. Does NOT map to a model.
+class PromptGenerationRequestSerializer(serializers.Serializer):
+    prompt = serializers.CharField(min_length=1, max_length=10000)

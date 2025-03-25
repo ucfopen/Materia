@@ -80,7 +80,7 @@ class WidgetCreatorView(TemplateView):
 class WidgetPreviewView(TemplateView):
     template_name = "react.html"
 
-    def get_context_data(self, widget_instance_id):
+    def get_context_data(self, widget_instance_id, title=None):
         # Verify user session
         # TODO  if (\Service_User::verify_session() !== true)
         # 		{
@@ -139,20 +139,6 @@ class WidgetGuideView(TemplateView):
                 "HAS_CREATOR_GUIDE": True if widget.creator_guide else False,
                 "DOC_PATH": settings.URLS["WIDGET_URL"] + str(widget.id) + "-" + widget.clean_name + "/" + guide
             },
-            request=self.request,
-        )
-
-
-class WidgetQsetImportView(TemplateView):
-    template_name = "react.html"
-
-    def get_context_data(self):
-        # TODO if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
-        return ContextUtil.create(
-            title="Qset Catalog",
-            page_type="import",
-            js_resources="dist/js/question-importer.js",
-            css_resources="dist/css/question-importer.css",
             request=self.request,
         )
 

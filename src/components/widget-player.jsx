@@ -239,9 +239,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 
 	// Starts the widget player once the instance and qset have loaded
 	useEffect(() => {
-		console.log("1")
-		console.log(inst)
-		console.log(qset)
 		if (!!inst && !inst.hasOwnProperty('id')) {
 			_onLoadFail('Unable to get widget info.')
 		}

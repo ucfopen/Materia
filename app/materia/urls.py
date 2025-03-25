@@ -29,7 +29,7 @@ from django.contrib import admin
 
 from core.views.widget import (
     WidgetDetailView, WidgetDemoView, WidgetGuideView, WidgetPlayView, WidgetCreatorView, WidgetPreviewView,
-    WidgetQsetImportView, WidgetQsetHistoryView, WidgetQsetGenerateView
+    WidgetQsetHistoryView, WidgetQsetGenerateView
 )
 
 urlpatterns = [
@@ -56,7 +56,7 @@ urlpatterns = [
     path("widgets/<slug:widget_slug>/create/<str:instance_id>", WidgetCreatorView.as_view(),
          name="widget creator existing instance"),
     path("preview/<slug:widget_instance_id>/", WidgetPreviewView.as_view(), name="widget preview"),
-    path("questions/import/", WidgetQsetImportView.as_view(), name="widget qset import"),
+    path("preview/<slug:widget_instance_id>/<title>/", WidgetPreviewView.as_view(), name="widget preview"),
     path("qsets/history/", WidgetQsetHistoryView.as_view(), name="widget qset history"),
     path("qsets/generate/", WidgetQsetGenerateView.as_view(), name="widget qset generate"),
 

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.permissions import CanCreateWidgetInstances
-from core.serializers import QsetGenerationRequestSerializer
+from core.serializers import QsetGenerationRequestSerializer, PromptGenerationRequestSerializer
 from util.generator_util import GenerationUtil
 from util.message_util import MsgBuilder, Msg
 
@@ -16,6 +16,11 @@ class GenerateQsetView(APIView):
     permission_classes = [IsAuthenticated & CanCreateWidgetInstances]
 
     def post(self, request):
+        # Check if generation is available
+        if not GenerationUtil.is_enabled():
+            return MsgBuilder.failure(msg="AI generation is not enabled on this instance of Materia").as_drf_response()
+
+        # Get request data
         request_serializer = QsetGenerationRequestSerializer(data=request.data)
         if not request_serializer.is_valid():
             return Response(request_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -25,10 +30,6 @@ class GenerateQsetView(APIView):
         num_questions = request_serializer.validated_data["num_questions"]
         build_off_existing = request_serializer.validated_data["build_off_existing"]
         topic = request_serializer.validated_data["topic"]
-
-        # Check if generation is available
-        if not GenerationUtil.is_enabled():
-            return MsgBuilder.failure(msg="AI generation is not enabled on this instance of Materia").as_drf_response()
 
         # Verify widget instance is playable (only if a valid instance id is provided)
         if widget_instance and not widget_instance.playable_by_current_user(request.user):
@@ -73,15 +74,16 @@ class GenerateFromPromptView(APIView):
 
     @staticmethod
     def post(self, request):
-        prompt = request.data["prompt"]
-
-        # Validate prompt
-        if not prompt:
-            return MsgBuilder.invalid_input(msg="Missing prompt").as_drf_response()
-
         # Check if generation is available
         if not GenerationUtil.is_enabled():
             return MsgBuilder.failure(msg="AI generation is not enabled on this instance of Materia").as_drf_response()
+
+        # Get request data
+        request_serializer = PromptGenerationRequestSerializer(data=request.data)
+        if not request_serializer.is_valid():
+            return Response(request_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        prompt = request_serializer.validated_data["prompt"]
 
         # Perform generation
         result = GenerationUtil.generate_from_prompt(prompt)
@@ -92,7 +94,3 @@ class GenerateFromPromptView(APIView):
                 "success": True,
                 "response": result,
             })
-
-
-
-

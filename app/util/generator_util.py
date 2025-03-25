@@ -140,7 +140,7 @@ class GenerationUtil:
 
         if type(result) is Msg:
             logger.error(
-                f"Error generating question set:"
+                f"Error generating question set:\n"
                 f"- Widget: {widget.name}\n"
                 f"- Date: {datetime.now()}\n"
                 f"- Time to complete (seconds): {time_elapsed_seconds}\n"
@@ -157,7 +157,7 @@ class GenerationUtil:
         # Log
         if settings.AI_GENERATION["LOG_STATS"]:
             logger.debug(
-                f"Successfully generated question set:"
+                f"Successfully generated question set:\n"
                 f"- Widget: {widget.name}\n"
                 f"- Date: {datetime.now()}\n"
                 f"- Time to complete (seconds): {time_elapsed_seconds}\n"
@@ -185,10 +185,6 @@ class GenerationUtil:
         if not GenerationUtil.is_enabled():
             return MsgBuilder.failure(msg="Generation is not enabled")
 
-        # Check if prompt length is valid
-        if len(prompt) == 0 or len(prompt) > 10000:
-            return MsgBuilder.invalid_input(msg="Prompt text length invalid")
-
         # Do query
         result = GenerationUtil._query(prompt, "text")
 
@@ -212,7 +208,7 @@ class GenerationUtil:
             return MsgBuilder.failure(msg="Failed to initialize generation client")
 
         # Process response format
-        # TODO support for json_schema i think would be cool
+        # TODO in the future, maybe look into supporting json_schema? it looks neat
         match response_format:
             case 'json':
                 response_format = {"type": "json_object"}
@@ -223,7 +219,7 @@ class GenerationUtil:
 
         try:
             completion = client.chat.completions.create(
-                model=settings.AI_GENERATION["MODEL"],  # TODO specify a default model if not set?
+                model=settings.AI_GENERATION["MODEL"],
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=16000,
                 frequency_penalty=0,
@@ -242,9 +238,8 @@ class GenerationUtil:
             return MsgBuilder.failure(msg="Unknown error occurred while attempting completion")
 
         # Check for refusal
-        # TODO the openai docs are pretty unclear abt this... but refusals might be thrown as an exception?
         message = completion.choices[0].message
-        if message.refusal:
+        if message.refusal is not None:
             logger.error(
                 f"GENERATION ERROR: Provider actively refused to run completion. Reason given: '{message.refusal}'"
             )
@@ -271,33 +266,39 @@ class GenerationUtil:
         # Set up based on type of provider
         # AZURE OPENAI
         if settings.AI_GENERATION["PROVIDER"] == "azure_openai":
-            print(settings.AI_GENERATION)
             api_key = settings.AI_GENERATION["API_KEY"]
             endpoint = settings.AI_GENERATION["ENDPOINT"]
             api_version = settings.AI_GENERATION["API_VERSION"]
+            model = settings.AI_GENERATION["MODEL"]
 
-            if not api_key or not endpoint or not api_version:
+            if not api_key or not endpoint or not api_version or not model:
                 logger.error("GENERATION ERROR: Azure OpenAI question generation configs missing.")
                 return None
 
-            client = AzureOpenAI(
-                api_key=api_key,
-                api_version=api_version,
-                azure_endpoint=endpoint,
-            )
-            # TODO: original code wraps in a try/catch. thats not really applicable here since we're initing a class,
-            #       but we might want to do some kind of check to see if our client is working/valid
+            try:
+                client = AzureOpenAI(
+                    api_key=api_key,
+                    api_version=api_version,
+                    azure_endpoint=endpoint,
+                )
+            except Exception as e:
+                logger.error("GENERATION ERROR: Failed to initialize Azure OpenAI client:")
+                logger.error(e)
 
         # OPENAI
         elif settings.AI_GENERATION["PROVIDER"] == "openai":
             api_key = settings.AI_GENERATION["API_KEY"]
+            model = settings.AI_GENERATION["MODEL"]
 
-            if not api_key:
+            if not api_key or not model:
                 logger.error("GENERATION ERROR: OpenAI Platform question generation configs missing.")
                 return None
 
-            client = OpenAI(api_key=api_key)
-            # TODO: same as azure todo
+            try:
+                client = OpenAI(api_key=api_key)
+            except Exception as e:
+                logger.error("GENERATION ERROR: Failed to initialize OpenAI client:")
+                logger.error(e)
 
         # NOT A SUPPORTED PROVIDER
         else:

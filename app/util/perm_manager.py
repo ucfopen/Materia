@@ -8,7 +8,7 @@ logger = logging.getLogger("django")
 class PermManager:
     @staticmethod
     def user_is_student(user: User):
-        return PermManager.does_user_have_roles(user, ["basic_author", "super_user"])
+        return not PermManager.does_user_have_roles(user, ["basic_author", "super_user"])
         # return user.groups.filter(name="Student").exists()
 
     # Returns True if user has at least one of the roles specified
