@@ -902,7 +902,7 @@ class WidgetQset(models.Model):
     version = models.CharField(max_length=10, blank=True, null=True)
 
     @classmethod
-    def decode_data(cls, encoded_data):
+    def decode_data(cls, encoded_data) -> dict:
         try:
             decoded_bytes = base64.b64decode(encoded_data)
             return json.loads(decoded_bytes.decode("utf-8"))
@@ -911,11 +911,11 @@ class WidgetQset(models.Model):
             return {}
 
     @classmethod
-    def encode_data(cls, decoded_data):
+    def encode_data(cls, decoded_data) -> str:
         json_str = json.dumps(decoded_data)
         return base64.b64encode(json_str.encode("utf-8")).decode("utf-8")
 
-    def get_data(self):
+    def get_data(self) -> dict:
         return self.decode_data(self.data)
 
     def set_data(self, data_dict):

@@ -470,12 +470,14 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						setSaveWidgetComplete(saveModeRef.current)
 						if (!instIdRef.current) instIdRef.current = inst.id
 						setInstance(currentInstance => ({ ...currentInstance, ...inst }))
-						sendToCreator('onSaveComplete', [
-							inst.name,
-							inst.widget,
-							inst.qset.data,
-							inst.qset.version
-						])
+						apiGetQuestionSet(inst.id).then((qset) => {
+							sendToCreator('onSaveComplete', [
+								inst.name,
+								inst.widget,
+								qset.data,
+								qset.version
+							])
+						}).catch((err) => onInitFail(err))
 						break
 				}
 			}

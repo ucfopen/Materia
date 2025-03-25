@@ -58,14 +58,15 @@ class GenerationUtil:
         # build_off_existing is set. Append questions to an existing qset. The instance must have been previously saved.
         if build_off_existing:
             # Validate instance
+            qset = instance.get_latest_qset()
             if instance is None:
                 return MsgBuilder.invalid_input(msg="Requires a previously saved instance to build from")
-            if not instance.qset.data:
+            if not qset.data:
                 return MsgBuilder.failure(msg="No existing question set found")
-            if instance.qset.version:
-                qset_version = instance.qset.version
+            if qset.version:
+                qset_version = qset.version
 
-            qset_encoded = json.dumps(instance.qset.data)
+            qset_encoded = json.dumps(qset.get_data())
 
             prompt_text = (f"{widget.name} is a 'widget', an interactive piece of educational web content described "
                            f"as:'{about}'. Using the exact same json format of the following question set, without "
@@ -97,12 +98,13 @@ class GenerationUtil:
         # Building a brand new qset
         else:
             # Validate/process demo
-            if not widget_demo.qset:
+            qset = widget_demo.get_latest_qset()
+            if not qset:
                 return MsgBuilder.not_found(msg="Unable to locate demo question set for widget engine")
-            if widget_demo.qset.version:
-                qset_version = widget_demo.qset.version
+            if qset.version:
+                qset_version = qset.version
 
-            qset_encoded = json.dumps(widget_demo.qset.data)
+            qset_encoded = json.dumps(qset.get_data())
 
             prompt_text = (f"{widget.name} is a 'widget', an interactive piece of educational web content described "
                            f"as: '{about}'. The following is a 'demo' question set for the widget titled "
