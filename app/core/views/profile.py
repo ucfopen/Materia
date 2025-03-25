@@ -9,7 +9,6 @@ def profile(request):
         title="Profile",
         js_resources=django_settings.JS_GROUPS["profile"],
         css_resources=django_settings.CSS_GROUPS["profile"],
-        fonts=django_settings.FONTS_DEFAULT,
         request=request,
     )
 
@@ -21,7 +20,6 @@ def settings(request):
         title="Settings",
         js_resources=django_settings.JS_GROUPS["settings"],
         css_resources=django_settings.CSS_GROUPS["settings"],
-        fonts=django_settings.FONTS_DEFAULT,
         request=request,
     )
 

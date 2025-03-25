@@ -1,10 +1,7 @@
-import json
-import logging
-
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest
 from django.conf import settings
 
-from api.views.users import UsersApi
+from core.models import UserSettings
 
 
 class ContextUtil:
@@ -39,25 +36,18 @@ class ContextUtil:
             "js_global_variables": processed_js_globals,
             "css_global_variables": processed_css_resources,
             "fonts": fonts,
-            **ContextUtil.get_dark_mode(request)
+            "dark_mode": ContextUtil.get_dark_mode(request)
         }
 
     @staticmethod
-    def get_dark_mode(request):
+    def get_dark_mode(request) -> bool:
         """
         Function to get if a user has dark mode enabled
         """
-        user_settings = {"darkMode": False}  # Default settings
+        dark_mode = False  # Default setting
 
-        try:
-            # TODO fix for DRF
-            user_data = UsersApi.get(request)  # Call API to fetch user settings
-            if isinstance(user_data, JsonResponse):
-                user_json = user_data.content.decode("utf-8")
-                user_profile = json.loads(user_json)
-                user_settings["darkMode"] = user_profile.get("profile_fields", {}).get("darkMode", False)
+        user_data = UserSettings.objects.filter(user=request.user).first()
+        if user_data is not None:
+            dark_mode = user_data.profile_fields.get("darkMode", False)
 
-        except Exception as e:
-            logging.error(f"Error fetching user settings: {e}")
-
-        return user_settings
+        return dark_mode

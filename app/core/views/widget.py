@@ -18,7 +18,6 @@ class WidgetDetailView(TemplateView):
             title="Materia Widget Catalog",
             js_resources=settings.JS_GROUPS["detail"],
             css_resources=settings.CSS_GROUPS["detail"],
-            fonts=settings.FONTS_DEFAULT,
             request=self.request,
         )
 
@@ -213,7 +212,6 @@ def _display_widget(
         title=f"{instance.name} - {instance.widget.name}",
         js_resources=settings.JS_GROUPS["player"],
         css_resources=settings.CSS_GROUPS["player"],
-        fonts=settings.FONTS_DEFAULT,
         html_class="embedded" if is_embedded else "",
         page_type="widget",
         js_globals={
@@ -234,7 +232,7 @@ def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
         js_resources="dist/js/creator-page.js",
         css_resources="dist/css/creator-page.css",
         js_globals={
-            "WIDGET_HEIGHT": widget.height,  # TODO these are prolly supposed to be numbers, not strings
+            "WIDGET_HEIGHT": widget.height,
             "WIDGET_WIDTH": widget.width,
         },
         request=request,
@@ -262,7 +260,7 @@ def _create_widget_login_page(
         js_resources.append(settings.JS_GROUPS["login"])
         css_resources.append(settings.CSS_GROUPS["login"])
 
-        js_globals["EMBEDDED"] = is_embedded  # TODO is this supposed to be IS_EMBEDDED?
+        js_globals["IS_EMBEDDED"] = is_embedded
         js_globals["ACTION_LOGIN"] = ""  # TODO fix these empty strings
         js_globals["ACTION_REDIRECT"] = ""
         js_globals["LOGIN_USER"] = ""
@@ -287,7 +285,6 @@ def _create_widget_login_page(
         js_resources=js_resources,
         css_resources=css_resources,
         js_globals=js_globals,
-        fonts=settings.FONTS_DEFAULT,
         request=request,
     )
 
@@ -297,7 +294,6 @@ def _create_draft_not_playable_page(request: HttpRequest):
         title="Draft Not Playable",
         js_resources=settings.JS_GROUPS["draft-not-playable"],
         css_resources=settings.CSS_GROUPS["login"],
-        fonts=settings.FONTS_DEFAULT,
         request=request,
     )
 
@@ -343,8 +339,7 @@ def _get_id_from_slug(widget_slug: str) -> int | None:
         except Exception:
             pass
 
-    # TODO: proper logging (or maybe this one is just unnecessary)
-    print(
+    logger.error(
         f"Failed to get id from widget slug, likely an invalid slug: '{widget_slug}'"
     )
     return None

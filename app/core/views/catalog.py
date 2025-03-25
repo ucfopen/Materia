@@ -12,7 +12,6 @@ class CatalogView(TemplateView):
             title="Materia Widget Catalog",
             js_resources=settings.JS_GROUPS["catalog"],
             css_resources=settings.CSS_GROUPS["catalog"],
-            fonts=settings.FONTS_DEFAULT,
             request=request,
         )
 
