@@ -1,5 +1,3 @@
-from functools import wraps
-
 from django.contrib.auth.models import User
 
 from util.message_util import MsgBuilder, Msg
@@ -27,20 +25,8 @@ class UserUtil:
             return True, None
 
         # Check if the user has the roles required
-        roles_result = PermManager.does_user_have_rolls(user, roles)
+        roles_result = PermManager.does_user_have_roles(user, roles)
         if roles_result:
             return True, None
         else:
             return False, MsgBuilder.no_perm(msg=no_perm_msg)
-
-
-# Decorator for API endpoints to require a valid user session, and one of the roles if specified
-def require_login(fn, roles: list[str] = None, no_perm_msg: str = "User does not have required roles"):
-    @wraps(fn)
-    def wrapper(request, *args, **kwargs):
-        verified, msg = UserUtil.verify_session(request.user, roles, no_perm_msg)
-        if not verified:
-            return msg.as_json_response()
-        return fn(*args, **kwargs)
-
-    return wrapper
