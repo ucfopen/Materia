@@ -11,15 +11,16 @@ from core.serializers import (
     QuestionSetSerializer,
     ScoreSummarySerializer,
     WidgetInstanceSerializer,
-    WidgetInstanceSerializerNoIdentifyingInfo,
+    WidgetInstanceSerializerNoIdentifyingInfo, WidgetInstanceCopyRequestSerializer,
 )
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
+from util.message_util import MsgBuilder
 from util.perm_manager import PermManager
 from util.widget.instance.instance_util import WidgetInstanceUtil
 
@@ -239,3 +240,22 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 },
             }
         )
+
+    @action(detail=True, methods=["put"], permission_classes=[IsAuthenticated & HasWidgetInstanceEditAccess])
+    def copy(self, request, pk=None):
+        request_serializer = WidgetInstanceCopyRequestSerializer(data=request.data)
+        if not request_serializer.is_valid():
+            return Response(request_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        name = request_serializer.validated_data.get("name")
+        copy_existing_perms = request_serializer.validated_data.get("copy_existing_perms")
+
+        instance = self.get_object()
+        try:
+            duplicate = instance.duplicate(request.user, name, copy_existing_perms)
+        except Exception as e:
+            logger.error("Failed to copy widget instance:")
+            logger.error(e)
+            return MsgBuilder.failure(msg="Widget instance could not be copied.").as_drf_response()
+
+        return Response(WidgetInstanceSerializer(duplicate).data)

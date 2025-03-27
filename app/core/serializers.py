@@ -478,3 +478,9 @@ class QsetGenerationRequestSerializer(serializers.Serializer):
 # Used for incoming requests for prompt generation. Does NOT map to a model.
 class PromptGenerationRequestSerializer(serializers.Serializer):
     prompt = serializers.CharField(min_length=1, max_length=10000)
+
+
+# Used for incoming requests to copy a widget instance. Does NOT map to a model.
+class WidgetInstanceCopyRequestSerializer(serializers.Serializer):
+    new_name = serializers.ModelField(model_field=WidgetInstance.name)
+    copy_existing_perms = serializers.BooleanField(required=False, default=False)

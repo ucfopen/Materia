@@ -10,6 +10,7 @@ import json
 import logging
 import os
 from datetime import datetime
+from typing import Self
 
 from django.contrib.auth.models import User
 from django.db import models, transaction
@@ -864,6 +865,43 @@ class WidgetInstance(models.Model):
     def get_qset_history(self) -> QuerySet["WidgetQset"]:
         qsets = WidgetQset.objects.filter(instance=self).order_by("-created_at")
         return qsets
+
+    def duplicate(self, owner: User, new_name: str, copy_exiting_perms: bool = False) -> Self:
+        dupe = WidgetInstance.objects.get(pk=self.pk)
+
+        # Set this instance as a duplicate
+        dupe.pk = None
+        dupe._state.adding = True
+
+        # Update name, if not empty
+        if new_name:
+            dupe.name = new_name
+
+        # Set new owner to user requesting the copy
+        dupe.user = owner
+
+        # These fields should default to False for new instances (since the new instance won't have any play history)
+        dupe.is_embedded = False
+        dupe.embedded_only = False
+
+        # Manually update created_at
+        dupe.created_at = make_aware(datetime.now())
+
+        # If original widget is student made, verify that the new user is a student or not.
+        if dupe.is_student_made:
+            can_new_owner_author = PermManager.does_user_have_roles(owner, ["author", "superuser"])
+            if can_new_owner_author:
+                dupe.is_student_made = False
+
+        # Store instance
+        dupe.save()
+
+        # Copy perms, if requested
+        if copy_exiting_perms:
+            # TODO implement once we figure out object-level perms
+            pass
+
+        return dupe
 
     class Meta:
         db_table = "widget_instance"
