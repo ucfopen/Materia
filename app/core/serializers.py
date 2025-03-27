@@ -1,17 +1,31 @@
-from rest_framework import serializers
-from django.contrib.auth.models import User
-from rest_framework.fields import DictField
-
-from core.models import Widget, Log, LogPlay, Notification, UserSettings, WidgetInstance, WidgetQset
 import hashlib
-import os
-
-from util.logging.session_logger import SessionLogger
 
 # debug logging
 import logging
-from pprint import pformat
+import os
+
+from core.models import (
+    Asset,
+    LogPlay,
+    Notification,
+    UserSettings,
+    Widget,
+    WidgetInstance,
+    WidgetQset,
+)
+from django.contrib.auth.models import User
+from rest_framework import serializers
+from util.logging.session_logger import SessionLogger
+
 logger = logging.getLogger("django")
+
+
+# Asset model serializer
+class AssetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Asset
+        fields = "__all__"
+
 
 # User model serializer (outbound)
 class UserSerializer(serializers.ModelSerializer):
@@ -19,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
     profile_fields = serializers.SerializerMethodField()
 
     def get_avatar(self, user):
-        clean_email = user.email.strip().lower().encode('utf-8')
+        clean_email = user.email.strip().lower().encode("utf-8")
         hash_email = hashlib.md5(clean_email).hexdigest()
         return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
 
@@ -29,14 +43,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = [
-            "id",
-            "first_name",
-            "last_name",
-            "email",
-            "avatar",
-            "profile_fields"
-        ]
+        fields = ["id", "first_name", "last_name", "email", "avatar", "profile_fields"]
+
 
 # User metadata (profile fields) serializer (inbound)
 class UserMetadataSerializer(serializers.Serializer):
@@ -49,11 +57,13 @@ class UserMetadataSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError("User ID invalid.")
 
-        valid_keys = ["useGravatar","notify","darkMode","beardMode"]
+        valid_keys = ["useGravatar", "notify", "darkMode", "beardMode"]
 
         for key, value in data["profile_fields"].items():
             if key not in valid_keys:
-                raise serializers.ValidationError(f"Invalid profile field provided: {key}")
+                raise serializers.ValidationError(
+                    f"Invalid profile field provided: {key}"
+                )
 
             # TODO is this necessary? We're already enforcing booleans via BooleanField
             if not isinstance(value, bool):
@@ -62,14 +72,18 @@ class UserMetadataSerializer(serializers.Serializer):
                 elif value.lower() in ["false", "0"]:
                     value = False
                 else:
-                    raise serializers.ValidationError(f"Profile field {key} must provide boolean value.")
+                    raise serializers.ValidationError(
+                        f"Profile field {key} must provide boolean value."
+                    )
 
         return data["profile_fields"]
+
 
 # Widget engine model serializer (outbound)
 class WidgetSerializer(serializers.ModelSerializer):
     meta_data = serializers.SerializerMethodField()
     dir = serializers.SerializerMethodField()
+
     class Meta:
         model = Widget
         fields = [
@@ -98,7 +112,7 @@ class WidgetSerializer(serializers.ModelSerializer):
             "creator_guide",
             "player_guide",
             "meta_data",
-            "dir"
+            "dir",
         ]
 
     def get_meta_data(self, widget):
@@ -129,8 +143,12 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
         return widget_instance
 
     widget = WidgetSerializer(read_only=True)
-    widget_id = serializers.PrimaryKeyRelatedField(queryset=Widget.objects.all(), source='widget', write_only=True)
-    id = serializers.CharField(required=False)  # Model's save function will auto-generate an ID if it is empty
+    widget_id = serializers.PrimaryKeyRelatedField(
+        queryset=Widget.objects.all(), source="widget", write_only=True
+    )
+    id = serializers.CharField(
+        required=False
+    )  # Model's save function will auto-generate an ID if it is empty
 
     class Meta:
         model = WidgetInstance
@@ -169,23 +187,19 @@ class WidgetInstanceSerializerNoIdentifyingInfo(serializers.ModelSerializer):
             "attempts",
             "is_deleted",
             "embedded_only",
-            "widget"
+            "widget",
         ]
 
 
 # qset model serializer (outbound)
 class QuestionSetSerializer(serializers.ModelSerializer):
-    data = serializers.DictField()  # Need to specify what type this field is, since it's only a property on the model
+    data = (
+        serializers.DictField()
+    )  # Need to specify what type this field is, since it's only a property on the model
 
     class Meta:
         model = WidgetQset
-        fields = [
-            "id",
-            "instance",
-            "created_at",
-            "data",
-            "version"
-        ]
+        fields = ["id", "instance", "created_at", "data", "version"]
         extra_kwargs = {
             "id": {"required": False, "read_only": True},
             "instance": {"required": False, "read_only": True},
@@ -194,6 +208,7 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             "version": {"required": True},
         }
 
+
 class PlayIdSerializer(serializers.Serializer):
     play_id = serializers.UUIDField()
 
@@ -201,9 +216,10 @@ class PlayIdSerializer(serializers.Serializer):
         playLog = LogPlay.objects.get(pk=data["play_id"])
 
         if not playLog:
-            raise serializers.ValidationError(f"Play ID invalid.")
-        
+            raise serializers.ValidationError("Play ID invalid.")
+
         return playLog
+
 
 # serializes and validates individual logs for a play (inbound)
 class PlayLogUpdateSerializer(serializers.Serializer):
@@ -214,21 +230,24 @@ class PlayLogUpdateSerializer(serializers.Serializer):
     value = serializers.CharField(required=False)
 
     def validate(self, data):
-        user = self.context["request"].user
         try:
             play = LogPlay.objects.get(pk=self.context["play_id"])
 
             # if not play.is_valid or play.user.id != user.id:
             # TODO user validation, must accommodate guest mode
             if not play.is_valid:
-                raise serializers.ValidationError(f"Play ID {self.context["play_id"]} invalid.")
+                raise serializers.ValidationError(
+                    f"Play ID {self.context["play_id"]} invalid."
+                )
 
             if not isinstance(data, list):
                 data = [data]
 
             logs = []
             for log in data:
-                log["type"] = SessionLogger.get_log_type(log["type"]) # TODO what if the log type is actually invalid? Right now it'll return LogType.EMPTY
+                log["type"] = SessionLogger.get_log_type(
+                    log["type"]
+                )  # TODO what if the log type is actually invalid? Right now it'll return LogType.EMPTY
                 log["text"] = log.get("text") or ""
                 log["value"] = log.get("value") or ""
 
@@ -236,7 +255,10 @@ class PlayLogUpdateSerializer(serializers.Serializer):
             return logs
 
         except LogPlay.DoesNotExist:
-            raise serializers.ValidationError(f"Play ID {self.context["play_id"]} invalid.")
+            raise serializers.ValidationError(
+                f"Play ID {self.context["play_id"]} invalid."
+            )
+
 
 # play session model (kinda) serializer (outbound)
 class PlaySessionSerializer(serializers.ModelSerializer):
@@ -258,8 +280,9 @@ class PlaySessionSerializer(serializers.ModelSerializer):
             "referrer_url",
             "context_id",
             "semester_id",
-            "created_at"
+            "created_at",
         ]
+
 
 # play session model (kinda) with inst and widget names included (outbound)
 # these include hits to other tables, so only include them if specifically needed
@@ -288,8 +311,9 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
             "semester_id",
             "created_at",
             "inst_name",
-            "widget_name"
+            "widget_name",
         ]
+
 
 class NotificationsSerializer(serializers.ModelSerializer):
     class Meta:

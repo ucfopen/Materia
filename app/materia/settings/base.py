@@ -3,15 +3,18 @@
 import os
 from pathlib import Path
 
+from .css import *  # noqa: F401, F403
+from .js import *  # noqa: F401, F403
+from .urls import *  # noqa: F401, F403
+
 # import additional config files
-from .widgets import *
-from .urls import *
-from .css import *
-from .js import *
+from .widgets import *  # noqa: F401, F403
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-APP_PATH = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))).resolve().parent
+APP_PATH = (
+    Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))).resolve().parent
+)
 
 DIRS = {
     "media": os.path.realpath(os.path.join(APP_PATH, "media")),  # + os.sep,
@@ -53,7 +56,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
     ],
-    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler'
+    "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
 }
 
 MIDDLEWARE = [
@@ -81,7 +84,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "core.context_processors.dark_mode"
+                "core.context_processors.dark_mode",
             ],
         },
     },
@@ -164,19 +167,13 @@ LOGGING = {
 
 SEMESTERS = [
     {
-        "spring": {
-            "month": 1,
-            "day": 1
-        },
-        "summer": {
-            "month": 5,
-            "day": 3
-        },
-        "fall": {
-            "month": 8,
-            "day": 7
-        }
+        "spring": {"month": 1, "day": 1},
+        "summer": {"month": 5, "day": 3},
+        "fall": {"month": 8, "day": 7},
     }
 ]
 
 USER_SETTINGS_CACHE_TIMEOUT = 3600
+
+# amount of kilobytes alloted to any individual user for media storage
+MEDIA_QUOTA = 5000

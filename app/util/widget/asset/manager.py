@@ -1,24 +1,26 @@
+import logging
+import os
+
+import magic
+from core.models import Asset, PermObjectToUser
+from django.conf import settings
+from util.perm_manager import PermManager
+from util.widget.validator import ValidatorUtil
+
+logger = logging.getLogger("django")
+
+
 class AssetManager:
     def update_asset(asset_id, properties=[]):
         pass
-
-    # TODO: re-implement this later
-    def user_has_space_for(bytes):
-        return True
 
     # old method for server upload storage
     # differences from PHP - including file path separate from file info
     #  as those data points are not part of the same source, also allowing
     #  for a user to be provided if this is called from a media upload action
     def new_asset_from_file(name, file_info, file_path, user=None):
-        import os
-
-        import magic
-        from core.models import Asset
-        from util.widget.validator import ValidatorUtil
-
         # does this user still have storage space left?
-        if not AssetManager.user_has_space_for(file_info.st_size):
+        if not AssetManager.user_has_space_for(user, file_info.st_size):
             return False
 
         mime_type = magic.from_file(file_path, mime=True)
@@ -52,3 +54,44 @@ class AssetManager:
             asset.db_remove()
 
         return asset
+
+    def get_assets_by_user(user_id, perm_type):
+        perms = PermManager.get_all_objects_of_type_for_user(
+            user_id, PermObjectToUser.ObjectType.ASSET.value, [perm_type]
+        )
+        # TODO: probably a cleaner ORM-only way of doing this?
+        ids = list(map(lambda p: p.object_id, perms))
+        assets = []
+        if len(ids) == 0:
+            return []
+        for asset in Asset.objects.filter(id__in=ids):
+            if perm_type is PermObjectToUser.Perm.VISIBLE:
+                asset.is_shared = True
+            assets.append(asset)
+        return assets
+
+    def user_has_space_for(user, number_bytes):
+        # NOTE: this technically allows an infinite number of unowned assets
+        # it isn't necessarily safe, and we may want to revisit this later
+        if user is None:
+            return True
+        stats = AssetManager.get_user_asset_stats(user.id)
+        return stats["kb_used"] + (number_bytes / 1024) < stats["kb_available"]
+
+    def get_user_asset_stats(user_id):
+        from math import floor
+
+        # NOTE: kb_available is the total amount any user may use, not what is left of their storage
+        return {
+            "kb_used": floor(AssetManager.get_user_disk_usage(user_id) / 1024),
+            "kb_available": settings.MEDIA_QUOTA * 1024,
+        }
+
+    def get_user_disk_usage(user_id):
+        assets = AssetManager.get_assets_by_user(
+            user_id, PermObjectToUser.Perm.FULL.value
+        )
+        total_used = 0
+        for asset in assets:
+            total_used = total_used + asset.file_size
+        return total_used

@@ -1,6 +1,6 @@
-from django.contrib.auth.models import User
-
 import logging
+
+from django.contrib.auth.models import User
 
 logger = logging.getLogger("django")
 
@@ -23,3 +23,15 @@ class PermManager:
 
         # Check to see if any of the roles are present
         return user.groups.filter(name__in=rolls).exists()
+
+    @staticmethod
+    def get_all_objects_of_type_for_user(user_id, object_type, perms):
+        # dodging circular import errors, else this would be at the top of the file
+        from core.models import PermObjectToUser
+
+        if len(perms) > 0 and isinstance(perms, list):
+            query_perms = list(map(str, perms))
+
+            return PermObjectToUser.objects.filter(
+                object_type=object_type, user_id=user_id, perm__in=query_perms
+            )

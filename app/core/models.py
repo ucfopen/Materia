@@ -11,18 +11,16 @@ import logging
 import os
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth.models import User
-from django.core import serializers
 from django.db import models, transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
-
 from util.perm_manager import PermManager
 from util.serialization import SerializableModel
 from util.widget.validator import ValidatorUtil
-
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 logger = logging.getLogger("django")
 
@@ -64,8 +62,8 @@ class Asset(models.Model):
         from util.widget.validator import ValidatorUtil
 
         return (
-                ValidatorUtil.is_valid_hash(self.id)
-                and self.file_type in Asset.MIME_TYPE_FROM_EXTENSION.keys()
+            ValidatorUtil.is_valid_hash(self.id)
+            and self.file_type in Asset.MIME_TYPE_FROM_EXTENSION.keys()
         )
 
     # Get the materia asset type based on the mime type
@@ -141,7 +139,7 @@ class Asset(models.Model):
                 except AssetData.DoesNotExist:
                     pass
                 for perm in PermObjectToUser.objects.filter(
-                        object_id=self.id, object_type=PermObjectToUser.ObjectType.ASSET
+                    object_id=self.id, object_type=PermObjectToUser.ObjectType.ASSET
                 ):
                     perm.delete()
             self = Asset()
@@ -159,6 +157,144 @@ class Asset(models.Model):
         from storage.file import FileStorageDriver
 
         FileStorageDriver.store(self, source_asset_path, "original")
+
+    # TODO: when media drivers exist, move all of this logic into the drivers
+    # implement a driver-specific 'render' function that will do whatever is
+    #  necessary depending on the driver, be it reading an existing file from
+    #  disk or writing an asset's bytes from the database into memory before
+    #  it, etc.
+    def render(self, size="original"):
+        from django.http import HttpResponse, HttpResponseNotFound
+
+        # placeholder to store eventual path to the temp file storing the asset's binary data
+        asset_path = None
+
+        try:
+            # TODO: when storage driver classes exist, define this separately in each of those instead
+            # currently assuming 'file' driver just so we can get anything done
+            path_to_file = os.path.join(settings.DIRS["media"], self.id)
+            if not os.path.isfile(f"{path_to_file}_{size}"):
+                # if the original file doesn't exist, raise exceptions to trigger a 404
+                if size == "original":
+                    raise Exception(f"Missing asset data for asset: {self.id} {size}")
+
+                # if a thumbnail etc. is requested, try to build it
+                asset_path = self.build_size(size)
+            else:
+                asset_path = Asset.copy_asset_to_temp_file(self.id, size)
+        except Exception as e:
+            logger.error(e)
+            return HttpResponseNotFound()
+
+        if not os.path.isfile(asset_path):
+            return HttpResponseNotFound()
+
+        filesize_bytes = os.path.getsize(asset_path)
+        with open(asset_path, "rb") as asset_file:
+            asset_response = HttpResponse(asset_file.read())
+            asset_response["Content-Type"] = self.get_mime_type()
+            asset_response["Content-Disposition"] = "inline"
+            asset_response["filename"] = self.title
+            asset_response["Content-Length"] = filesize_bytes
+            asset_response["Content-Transfer-Encoding"] = "binary"
+            asset_response["Cache-Control"] = {"max-age": 31536000}
+
+            return asset_response
+
+    # Build a specified size of an asset; either 'original', 'large', or 'thumbnail'
+    # TODO: move this into the driver as well re: above
+    def build_size(self, size):
+        from PIL import Image
+
+        crop = size == "thumbnail"
+        target_size = None
+        if size == "thumbnail":
+            target_size = 75
+        elif size == "large":
+            target_size = 1024
+        else:
+            raise Exception(f"Asset size not supported: '{size}'")
+        # TODO: lock the original asset for processing if necessary
+        original_asset_path = Asset.copy_asset_to_temp_file(self.id, "original")
+
+        # originally an extension was necessary for the PHP 'Image' library to
+        #  load an asset - Python's 'Pillow' may not need that
+        # this was done by renaming the temp file
+
+        # original code retained here until we know we don't need it
+        # // get the original file
+        # $original_asset_path = $this->copy_asset_to_temp_file($this->id, 'original');
+        # // add extension to tmp file so Image knows how to read it
+        # rename($original_asset_path, $original_asset_path .= $ext);
+
+        # TODO: open the original asset to resize it
+        img = Image.open(original_asset_path)
+        # FuelPHP's Image class did a lot of this complicated stuff for us
+        # Pillow is less forgiving
+        new_size = (0, 0)
+        # if the image is wider than it is tall, constrain height
+        original_width, original_height = img.size
+        if original_width > original_height:
+            new_size = (
+                int(target_size * original_width / original_height),
+                target_size,
+            )
+        # otherwise constrain width
+        else:
+            new_size = (
+                target_size,
+                int(target_size * original_height / original_width),
+            )
+
+        img = img.resize(new_size, Image.LANCZOS)
+        # likewise, FuelPHP's Image class would crop from the center and do the math for us
+        # with Pillow, we're not so lucky
+        if crop:
+            new_width, new_height = img.size
+            crop_dimensions = (
+                (new_width - target_size) / 2,
+                (new_height - target_size) / 2,
+                (new_width + target_size) / 2,
+                (new_height + target_size) / 2,
+            )
+            img = img.crop(crop_dimensions)
+
+        # historically this resized image would be saved to a temporary file
+        #  and then that temporary file would be picked up by the media driver
+        #  to be handled however that driver handles things
+        # this is needless, especially if our long-term intention is to define
+        #  all of these functions per-driver rather than having a bunch of
+        #  clas methods that call driver methods
+        # so - going to assume we're handling this like the file driver for now,
+        #  and then move all of this into a separate file driver then eventually
+        #  re-implement for the s3 (and possibly db) driver(s) separately
+        # this would start by getting a temporary file path to store the file at
+        #  $resized_file_path = tempnam(sys_get_temp_dir(), "{$this->id}_{$size}_");
+        # ... however we're currently shortcutting this with the copy_asset_to_temp_file
+        #  function, so use that for now and when this is all redone inside the
+        #  appropriate driver, the appropriate approach can be used
+        resized_asset_path = Asset.copy_asset_to_temp_file(self.id, "thumbnail")
+        logger.info(f"saving to path {resized_asset_path}")
+        new_file_format = self.file_type.upper()
+        # Pillow does not recognize 'JPG' as a valid file format
+        if new_file_format == "JPG":
+            new_file_format = "JPEG"
+        img.save(resized_asset_path, format=new_file_format)
+
+        return resized_asset_path
+
+    # TODO: in the old code this would, based on the media driver,
+    #  copy the asset's byte data into a temporary file on disk
+    # move this into a driver re: above - it probably isn't necessary
+    #  for the 'file' driver since the original file should be on disk
+    #  already - may not even be necessary for s3/db depending on use case
+    #  and what we can do with byte streams
+    @staticmethod
+    def copy_asset_to_temp_file(asset_id, size):
+        return os.path.join(settings.DIRS["media"], asset_id) + f"_{size}"
+
+    def get_mime_type(self):
+        return Asset.MIME_TYPE_FROM_EXTENSION[self.file_type]
 
     class Meta:
         db_table = "asset"
@@ -682,7 +818,6 @@ class Widget(SerializableModel):
             return True
         return not PermManager.user_is_student(user)
 
-
     @staticmethod
     def make_clean_name(name):
         return name.replace(" ", "-").lower()
@@ -774,7 +909,9 @@ class WidgetInstance(SerializableModel):
     def qset(self):
         if self._qset is None:
             try:
-                self._qset = WidgetQset.objects.filter(instance=self).latest("created_at")
+                self._qset = WidgetQset.objects.filter(instance=self).latest(
+                    "created_at"
+                )
             except WidgetQset.DoesNotExist:
                 self._qset = WidgetQset(version=None, data=None, instance=self)
         return self._qset
@@ -784,7 +921,9 @@ class WidgetInstance(SerializableModel):
         if type(new_qset) is WidgetQset:
             self._qset = new_qset
         elif type(new_qset) is dict:
-            self._qset = WidgetQset(version=new_qset["version"], data=new_qset["data"], instance=self)
+            self._qset = WidgetQset(
+                version=new_qset["version"], data=new_qset["data"], instance=self
+            )
         else:
             logger.error(f"Invalid qset type passed into setter: {type(new_qset)}")
 
@@ -1014,17 +1153,18 @@ class WidgetQset(SerializableModel):
 
 
 class UserSettings(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile_settings")
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="profile_settings"
+    )
     profile_fields = models.JSONField(default=dict)
-
 
     def set_profile_fields(self, key, value):
         self.profile_fields[key] = value
         self.save()
 
-
     def get_profile_fields(self):
         return self.profile_fields
+
 
 @receiver(post_save, sender=User)
 def create_user_settings(sender, instance, created, **kwargs):
