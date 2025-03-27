@@ -1,8 +1,12 @@
+import logging
+
 from core.models import Widget, WidgetInstance
 from django.conf import settings
-from django.http import HttpResponseNotFound, HttpResponseServerError
+from django.http import HttpRequest, HttpResponseNotFound, HttpResponseServerError
 from django.views.generic import TemplateView
 from util.logging.session_play import SessionPlay
+
+logger = logging.getLogger("django")
 
 
 class WidgetDetailView(TemplateView):
@@ -13,7 +17,6 @@ class WidgetDetailView(TemplateView):
             "title": "Materia Widget Catalog",
             "js_resources": settings.JS_GROUPS["detail"],
             "css_resources": settings.CSS_GROUPS["detail"],
-            "fonts": settings.FONTS_DEFAULT,
             "js_global_variables": {
                 # TODO: make these config variables, and export these to somewhere where it can be reused easily
                 "BASE_URL": settings.URLS["BASE_URL"],
@@ -40,7 +43,11 @@ class WidgetDemoView(TemplateView):
             )  # TODO: change this into a more valid code or an error message
 
         return _create_player_page(
-            demo_instance, is_demo=False, autoplay=autoplay, is_preview=False
+            demo_instance,
+            self.request,
+            is_demo=False,
+            autoplay=autoplay,
+            is_preview=False,
         )
 
 
@@ -58,7 +65,7 @@ class WidgetPlayView(TemplateView):
             )  # TODO: change this into a more valid code or an error message
 
         return _create_player_page(
-            instance, is_demo=False, autoplay=autoplay, is_preview=False
+            instance, self.request, is_demo=False, autoplay=autoplay, is_preview=False
         )
 
 
@@ -172,6 +179,7 @@ class WidgetGuideView(TemplateView):
 # Creates a player page for a real, logged play session
 def _create_player_page(
     instance: WidgetInstance,
+    request: HttpRequest,
     is_demo: bool = False,
     is_preview: bool = False,
     is_embedded: bool = False,
@@ -181,7 +189,7 @@ def _create_player_page(
     # TODO call the LtiEvents/on_before_play_start_event() function. Seems to relate to LTI stuffs
 
     # Check to see if login is required
-    if not instance.playable_by_current_user():
+    if not instance.playable_by_current_user(request.user):
         return _create_widget_login_page(instance, is_embedded, is_preview)
 
     # Check to see if this widget is playable
@@ -195,7 +203,7 @@ def _create_player_page(
         pass
 
     # Create play log
-    play_id = SessionPlay().start(instance)
+    play_id = SessionPlay().start(instance, request.user.id)
     if not play_id:
         print("Failed to create play session!")
         return HttpResponseServerError()
@@ -211,7 +219,6 @@ def _display_widget(
         "title": f"{instance.name} - {instance.widget.name}",
         "js_resources": settings.JS_GROUPS["player"],
         "css_resources": settings.CSS_GROUPS["player"],
-        "fonts": settings.FONTS_DEFAULT,
         "html_class": "embedded" if is_embedded else "",
         "page_type": "widget",
         "js_global_variables": {
@@ -255,7 +262,6 @@ def _create_widget_login_page(
     context = {
         "js_resources": [],
         "css_resources": [],
-        "fonts": settings.FONTS_DEFAULT,
         "js_global_variables": {
             "NAME": instance.name,
             "WIDGET_NAME": instance.widget.name,
@@ -266,8 +272,8 @@ def _create_widget_login_page(
     if login_messages["is_open"]:
         context["title"] = "Login"
         # TODO look at the theme override stuff? see php code
-        context["js_resources"].append(settings.JS_GROUPS["login"])
-        context["css_resources"].append(settings.CSS_GROUPS["login"])
+        context["js_resources"].extend(settings.JS_GROUPS["login"])
+        context["css_resources"].extend(settings.CSS_GROUPS["login"])
 
         context["js_global_variables"]["EMBEDDED"] = str(
             is_embedded
@@ -286,8 +292,8 @@ def _create_widget_login_page(
         context["js_global_variables"]["LOGIN_LINKS"] = ""
     else:
         context["title"] = "Widget Unavailable"
-        context["js_resources"].append(settings.JS_GROUPS["closed"])
-        context["css_resources"].append(settings.CSS_GROUPS["login"])
+        context["js_resources"].extend(settings.JS_GROUPS["closed"])
+        context["css_resources"].extend(settings.CSS_GROUPS["login"])
 
         context["js_global_variables"]["IS_EMBEDDED"] = str(is_embedded)
         context["js_global_variables"]["SUMMARY"] = login_messages["summary"]
@@ -301,7 +307,6 @@ def _create_draft_not_playable_page():
         "title": "Draft Not Playable",
         "js_resources": settings.JS_GROUPS["draft-not-playable"],
         "css_resources": settings.CSS_GROUPS["login"],
-        "fonts": settings.FONTS_DEFAULT,
     }
 
 
@@ -310,7 +315,6 @@ def _create_widget_retired_page(is_embedded: bool = False):
         "title": "Retired Widget",
         "js_resources": settings.JS_GROUPS["retired"],
         "css_resources": settings.CSS_GROUPS["login"],
-        "fonts": settings.FONTS_DEFAULT,
         "js_global_variables": {
             "IS_EMBEDDED": is_embedded,
         },

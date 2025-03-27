@@ -56,17 +56,19 @@ const fetchGet = (url) => fetch(url).then(handleErrors)
 // Helper function to simplify encoding fetch body values
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
-/** API v1 */
+
+
+export const apiGetWidgetInstances = ({ pageParam = 1 }) => {
+	return fetch(`/api/instances/?user=me&page=${pageParam}`)
+	.then(resp => resp.json())
+}
 
 export const apiGetWidgetInstance = (instId, getDeleted=false) => {
 	return fetch(`/api/instances/${instId}/`)
 	.then(resp => resp.json())
-	.then(data => data)
-	// return fetchGet(`/api/json/widget_instances_get/`, { body: { instanceIds: [instId], getDeleted } })
-	//   .then(widget => {
-	// 		return widget['instances']?.[0] ?? {}
-	// 	})
 }
+
+/** API v1 */
 
 /**
  * It fetches the widget instances from the server, and if successful, writes the response to local
@@ -201,7 +203,8 @@ export const apiSearchUsers = (input = '', page_number = 0) => {
 }
 
 export const apiGetUserPermsForInstance = instId => {
-	return fetchPost('/api/json/permissions_get', { body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId])}` })
+	return fetch(`/api/instances/${instId}/perms/`)
+	.then(resp => resp.json())
 }
 
 export const apiSetUserInstancePerms = ({ instId, permsObj }) => {
@@ -209,7 +212,9 @@ export const apiSetUserInstancePerms = ({ instId, permsObj }) => {
 }
 
 export const apiCanEditWidgets = arrayOfWidgetIds => {
-	return fetchPost('/api/json/widget_instance_edit_perms_verify', { body: `data=${formatFetchBody([arrayOfWidgetIds])}` })
+	// TODO HEY UPDATE THIS YOU DUMMY
+	return {"is_locked":false,"can_publish":true,"can_edit":true}
+	// return fetchPost('/api/json/widget_instance_edit_perms_verify', { body: `data=${formatFetchBody([arrayOfWidgetIds])}` })
 }
 
 /**
@@ -272,31 +277,54 @@ export const apiGetScoreDistribution = instId => {
 }
 
 export const apiGetScoreSummary = instId => {
-	return fetchPost('/api/json/score_summary_get/', { body: { instanceId: instId, includeStorageData: true } })
-		.then(resp => {
-      const scores = resp['summaries']
-			if (!scores) return []
-
-			const ranges = [
-				'0-9',
-				'10-19',
-				'20-29',
-				'30-39',
-				'40-49',
-				'50-59',
-				'60-69',
-				'70-79',
-				'80-89',
-				'90-100',
-			]
-
-			scores.forEach(semester => {
-				semester.graphData = semester.distribution?.map((d, i) => ({ label: ranges[i], value: d }))
-				semester.totalScores = semester.distribution?.reduce((total, count) => total + count)
-			})
-
-			return scores
+	return fetch(`/api/instances/${instId}/scores/`)
+	.then(resp => resp.json())
+	.then(data => {
+		const scores = data
+		const ranges = [
+			'0-9',
+			'10-19',
+			'20-29',
+			'30-39',
+			'40-49',
+			'50-59',
+			'60-69',
+			'70-79',
+			'80-89',
+			'90-100',
+		]
+		scores.forEach(semester => {
+			semester.graphData = semester.distribution?.map((d, i) => ({ label: ranges[i], value: d }))
+			semester.totalScores = semester.distribution?.reduce((total, count) => total + count)
 		})
+
+		return scores
+	})
+	// return fetchPost('/api/json/score_summary_get/', { body: { instanceId: instId, includeStorageData: true } })
+	// 	.then(resp => {
+    //   const scores = resp['summaries']
+	// 		if (!scores) return []
+
+	// 		const ranges = [
+	// 			'0-9',
+	// 			'10-19',
+	// 			'20-29',
+	// 			'30-39',
+	// 			'40-49',
+	// 			'50-59',
+	// 			'60-69',
+	// 			'70-79',
+	// 			'80-89',
+	// 			'90-100',
+	// 		]
+
+	// 		scores.forEach(semester => {
+	// 			semester.graphData = semester.distribution?.map((d, i) => ({ label: ranges[i], value: d }))
+	// 			semester.totalScores = semester.distribution?.reduce((total, count) => total + count)
+	// 		})
+
+	// 		return scores
+	// 	})
 }
 
 export const apiGetPlayLogs = (instId, term, year, page_number) => {
@@ -444,7 +472,6 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 /** Controller_Api_User */
 
 export const apiGetUserPlaySessions = ({pageParam = 1}) => {
-	console.log(pageParam)
 	return fetch(`/api/play-sessions/?include_activity=true&page=${pageParam}`)
 		.then(resp => resp.json())
 		.then(data => data)

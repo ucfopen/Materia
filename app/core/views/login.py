@@ -6,7 +6,6 @@ def login(request):
         "title": "Login",
         "js_resources": settings.JS_GROUPS["login"],
         "css_resources": settings.CSS_GROUPS["login"],
-        "fonts": settings.FONTS_DEFAULT,
     }
     return render(request, "react.html", context)
 
