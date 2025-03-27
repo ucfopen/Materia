@@ -1,6 +1,6 @@
 import logging
 
-from core.models import LogPlay, PermObjectToUser, Widget, WidgetInstance, WidgetQset
+from core.models import LogPlay, PermObjectToUser, WidgetInstance, WidgetQset, LogActivity
 from core.permissions import (
     CanCreateWidgetInstances,
     HasWidgetInstanceEditAccessOrReadOnly,
@@ -46,14 +46,12 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # Make sure the user cannot access other user's lists of instances (unless superuser)
         user = self.request.user
         user_query = self.request.query_params.get("user")
+        include_deleted = self.request.query_params.get("include_deleted", False)
+
         if user_query is not None and user_query == "me":
-            return WidgetInstance.objects.filter(user=user).order_by("-created_at")
-        elif user_query is not None and (
-            user.is_superuser or str(user.id) == user_query
-        ):
-            return WidgetInstance.objects.filter(user=user_query).order_by(
-                "-created_at"
-            )
+            return WidgetInstance.objects.filter(user=user, is_deleted=include_deleted).order_by("-created_at")
+        elif user_query is not None and (user.is_superuser or str(user.id) == user_query):
+            return WidgetInstance.objects.filter(user=user_query, is_deleted=include_deleted).order_by("-created_at")
         elif user_query is not None:
             return WidgetInstance.objects.none()
         else:
@@ -73,13 +71,18 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             else:
                 permission_classes = [IsAuthenticated]
 
-        # Special perms for creation
-        elif self.action == "create":
-            permission_classes = [CanCreateWidgetInstances]
-
         # A valid play ID grants access
         elif self.action == "get" and play_id is not None:
             permission_classes = [IsAuthenticated]
+
+        # Special perms for creation
+        elif self.action == "create":
+            permission_classes = [(IsAuthenticated & CanCreateWidgetInstances) | IsSuperuser]
+
+        # User needs full perms to delete widget
+        elif self.action == "destroy":
+            # TODO add check to make sure user has full perms
+            permission_classes = [(IsAuthenticated & HasWidgetInstanceEditAccess) | IsSuperuser]
 
         # All other actions have default perms
         else:
@@ -148,6 +151,27 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # TODO create session_activities for each updated field? see original PHP code
 
         serializer.save()
+
+    def perform_destroy(self, instance):
+        instance = self.get_object()
+
+        # Clear all permissions on the object
+        PermManager.clear_all_perms_for_object(instance.id, PermObjectToUser.ObjectType.INSTANCE)
+
+        # TODO send event trigger
+
+        # Set deleted flag
+        instance.is_deleted = True
+        instance.save()
+
+        # Create activity log
+        LogActivity.objects.create(
+            user=self.request.user,
+            type=LogActivity.TYPE_DELETE_WIDGET,
+            item_id=instance.id,
+            value_1=instance.name,
+            value_2=instance.widget.id,
+        )
 
     # /api/instances/<inst id>/question_sets/
     # ?latest=true GET param for only the latest qset

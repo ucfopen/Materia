@@ -8,6 +8,7 @@ from django.utils.timezone import make_aware
 from core.models import PermObjectToUser, Widget, WidgetMetadata, WidgetInstance, WidgetQset
 from django.conf import settings
 
+from util.perm_manager import PermManager
 from util.unique_id import unique_id
 
 logger = logging.getLogger("django")
@@ -488,12 +489,7 @@ class WidgetInstaller:
                     logger.error(e)
 
                 # make sure nobody owns the demo widget
-                access = PermObjectToUser.objects.filter(
-                    object_id=widget_instance.id,
-                    object_type=PermObjectToUser.ObjectType.INSTANCE,
-                )
-                for a in access:
-                    a.delete()
+                PermManager.clear_all_perms_for_object(widget_instance.id, PermObjectToUser.ObjectType.INSTANCE)
 
             # TODO: this was originally a static output - may have to change this, maybe not?
             logger.info(f"Demo installed: {widget_instance.id}")

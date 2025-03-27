@@ -1,6 +1,6 @@
 import {getCSRFToken} from "./api";
 
-const fetchWriteOptions = (method, {body}) => ({
+const fetchWriteOptions = (method, {body = null} = {}) => ({
 	'headers': {
 		'cache-control': 'no-cache',
 		'pragma': 'no-cache',
@@ -10,7 +10,7 @@ const fetchWriteOptions = (method, {body}) => ({
 	'method': method,
 	'mode': 'cors',
 	'credentials': 'include',
-	body: JSON.stringify(body),
+	body: JSON.stringify(body ?? {}),
 })
 
 export default fetchWriteOptions

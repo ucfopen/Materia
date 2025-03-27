@@ -52,6 +52,7 @@ const fetchPost = (url, options = null) => fetch(url, fetchWriteOptions("POST", 
 const fetchPut = (url, options = null) => fetch(url, fetchWriteOptions("PUT", options)).then(handleErrors)
 const fetchPatch = (url, options = null) => fetch(url, fetchWriteOptions("PATCH", options)).then(handleErrors)
 const fetchGet = (url) => fetch(url).then(handleErrors)
+const fetchDelete = (url) => fetch(url, fetchWriteOptions("DELETE")).then(handleErrors)
 
 // Helper function to simplify encoding fetch body values
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
@@ -123,7 +124,7 @@ export const apiCopyWidget = values => {
  * @returns The response from the server.
  */
 export const apiDeleteWidget = ({ instId }) => {
-	return fetchPost('/api/json/widget_instance_delete/', { body: `data=${formatFetchBody([instId])}` })
+	return fetchDelete(`/api/instances/${instId}/`)
 }
 
 export const apiSaveWidget = (_params) => {
