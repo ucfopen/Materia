@@ -222,7 +222,7 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
 
     def update(self, widget_instance, validated_data):
         qset = validated_data.pop("qset", None)
-        widget_instance.save()
+        widget_instance = super().update(widget_instance, validated_data)
         self._handle_qset(qset, widget_instance)
         return widget_instance
 
