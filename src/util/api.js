@@ -137,11 +137,11 @@ export const apiSaveWidget = (_params) => {
 			name: _params?.name ?? undefined,
 			qset: _params?.qset ?? undefined,
 			is_draft: _params?.isDraft ?? undefined,
-			open_at: _params?.open_at ?? undefined,
-			close_at: _params?.close_at ?? undefined,
+			open_at: _params?.openAt,
+			close_at: _params?.closeAt,
 			attempts: _params?.attempts ?? undefined,
-			guest_access: _params?.guest_access ?? undefined,
-			embedded_only: _params?.embedded_only ?? undefined,
+			guest_access: _params?.guestAccess ?? undefined,
+			embedded_only: _params?.embeddedOnly ?? undefined,
 		}
 		return fetchPatch(`/api/instances/${_params.instId}/`, { body })
 	} else {
@@ -169,7 +169,7 @@ export const apiGetUser = (user) => {
 }
 
 export const apiGetUsers = arrayOfUserIds => {
-	return fetchPost('/api/user/user_get', { body: `data=${formatFetchBody([arrayOfUserIds])}` })
+	return fetchGet('/api/users/')
 		.then(users => {
 			const keyedUsers = {}
 			if (Array.isArray(users)) {
@@ -182,12 +182,7 @@ export const apiGetUsers = arrayOfUserIds => {
 
 // this endpoint now returns both authentication status and perm level
 export const apiUserVerify = () => {
-	return fetch('/api/session/verify/')
-	.then(response => response.json())
-	.then(data => {
-		return data
-	})
-	.catch(error => false)
+	return fetchGet('/api/session/verify/')
 }
 
 export const apiGetNotifications = () => {
@@ -236,7 +231,7 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
  * @returns {object} updated instance
  */
 export const apiUpdateWidget = ({ args }) => {
-	return fetchPost('/api/widget_instance/update/', { body: args })
+	return fetchPatch(`/api/instances/${args['inst_id']}/`, { body: args })
 }
 
 export const apiGetWidgetLock = (id = null) => {
