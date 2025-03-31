@@ -896,6 +896,13 @@ class WidgetInstance(models.Model):
         # Store instance
         dupe.save()
 
+        # Create a duplicate qset that points to this instance
+        dupe_qset = self.get_latest_qset()
+        dupe_qset.pk = None
+        dupe_qset._state.adding = True
+        dupe_qset.instance = dupe
+        dupe_qset.save()
+
         # Copy perms, if requested
         if copy_exiting_perms:
             # TODO implement once we figure out object-level perms

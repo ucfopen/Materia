@@ -191,6 +191,12 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
     play_url = serializers.SerializerMethodField()
     qset = QuestionSetSerializer(required=False)
 
+    def __init__(self, *args, **kwargs):
+        # If the instance is published, include embed_url
+        super().__init__(*args, **kwargs)
+        if 
+        self.fields["embed_url"] = serializers.SerializerMethodField()
+
     def _handle_qset(self, qset, widget_instance):
         # handling the qset requires a couple steps:
         # the qset present in validated_data is the base64 blob. Decode it first
@@ -482,5 +488,5 @@ class PromptGenerationRequestSerializer(serializers.Serializer):
 
 # Used for incoming requests to copy a widget instance. Does NOT map to a model.
 class WidgetInstanceCopyRequestSerializer(serializers.Serializer):
-    new_name = serializers.ModelField(model_field=WidgetInstance.name)
+    new_name = serializers.ModelField(model_field=WidgetInstance()._meta.get_field("name"))
     copy_existing_perms = serializers.BooleanField(required=False, default=False)

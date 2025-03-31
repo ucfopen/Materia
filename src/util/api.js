@@ -115,7 +115,10 @@ export const apiGetWidget = (ids=[], type='default') => {
  * @returns The widget instance id
  */
 export const apiCopyWidget = values => {
-	return fetchPost(`/api/json/widget_instance_copy`, { body: `data=${formatFetchBody([values.instId, values.title, values.copyPermissions])}` })
+	return fetchPut(
+		`/api/instances/${values.instId}/copy/`,
+		{ body: { new_name: values.title, copy_existing_perms: values.copyPermissions} },
+	)
 }
 
 /**

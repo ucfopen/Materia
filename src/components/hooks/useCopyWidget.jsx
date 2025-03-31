@@ -19,7 +19,7 @@ export default function useCopyWidget() {
 					queryClient.setQueryData('widgets', (previous) => ({
 						...previous,
 						pages: previous.pages.map((page, index) => {
-							if (index == 0) return { ...page, pagination: [ data, ...page.pagination] }
+							if (index == 0) return { ...page, results: [ data, ...page.results] }
 							else return page
 						}),
 						modified: Math.floor(Date.now() / 1000)

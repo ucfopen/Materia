@@ -247,7 +247,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         if not request_serializer.is_valid():
             return Response(request_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        name = request_serializer.validated_data.get("name")
+        name = request_serializer.validated_data.get("new_name")
         copy_existing_perms = request_serializer.validated_data.get("copy_existing_perms")
 
         instance = self.get_object()
