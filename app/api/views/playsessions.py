@@ -2,6 +2,12 @@
 # debug logging
 import logging
 
+from django.http import JsonResponse
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+
 from core.models import Log, LogPlay, WidgetInstance
 from core.permissions import HasWidgetInstanceEditAccess
 from core.serializers import (
@@ -9,27 +15,20 @@ from core.serializers import (
     PlaySessionSerializer,
     PlaySessionWithExtrasSerializer,
 )
-from django.http import JsonResponse
-from rest_framework import permissions, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
 from util.logging.session_play import SessionPlay
-from util.message_util import MsgUtil
+from util.message_util import MsgBuilder
 
 # from pprint import pformat
 logger = logging.getLogger("django")
 
 
 class PlaySessionPagination(PageNumberPagination):
-
     page_size = 100
     page_size_query_param = "page_size"
     max_page_size = 100
 
 
 class PlaySessionViewSet(viewsets.ModelViewSet):
-
     # TODO permissions checks:
     #   must have instance edit perms to access all logs associated with an instance
     #   must have instance play perms to CREATE, PUT play log
@@ -63,15 +62,12 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         if inst_id:
             instance = WidgetInstance.objects.get(pk=inst_id)
             if instance is None:
-                return MsgUtil.create_not_found()
+                return MsgBuilder.not_found().as_drf_response()
             if not instance.playable_by_current_user(request.user):
-                return MsgUtil.create_failure_msg(
-                    "Not Allowed", "Instance not playable by current user."
-                )
+                return MsgBuilder.failure("Not Allowed", "Instance not playable by current user.").as_drf_response()
             if instance.is_draft:
-                return MsgUtil.create_failure_msg(
-                    "Drafts not Playable", "Must use Preview mode to play a draft"
-                )
+                return (MsgBuilder.failure("Drafts not Playable", "Must use Preview mode to play a draft")
+                        .as_drf_response())
 
             session_play = SessionPlay()
             # TODO context id?
@@ -79,13 +75,11 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             return JsonResponse({"playId": play_id})
 
         else:
-            return MsgUtil.create_invalid_input_msg(
-                "Invalid input", "Instance ID required."
-            )
+            return MsgBuilder.invalid_input("Invalid input", "Instance ID required.").as_drf_response()
 
     def update(self, request, pk=None):
         if not pk:
-            return MsgUtil.create_invalid_input_msg()
+            return MsgBuilder.invalid_input().as_drf_response()
 
         # play = LogPlay.objects.get(pk=self.kwargs["pk"])
         # logs = request.data.get("logs", None)
@@ -98,14 +92,14 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
             try:
                 session = SessionPlay(pk)
-                logs = update_serializer.validated_data
 
+                logs = update_serializer.validated_data
                 # using many=True in serializer returns a double-nested list. Manually flatten if required.
                 if isinstance(logs, list) and logs[0] and isinstance(logs[0], list):
                     logs = logs[0]
 
                 for log in logs:
-                    logModel = Log(
+                    log_model = Log(
                         play_id=pk,
                         log_type=log["type"],
                         item_id=log["item_id"],
@@ -115,16 +109,16 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     )
 
                     if not is_preview:
-                        logModel.save()
+                        log_model.save()
                     # TODO put preview logs in session
 
                 session.update_elapsed()
                 return Response({"status": status.HTTP_200_OK, "success": True})
 
             except Exception:
-                return MsgUtil.create_failure_msg(
+                return MsgBuilder.failure(
                     "Failed to Save", "Your play logs could not be saved."
-                )
+                ).as_drf_response()
 
         else:
             return Response(

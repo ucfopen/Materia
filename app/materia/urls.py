@@ -14,7 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
+from api.views.users import UsersApi
 from core.views import main as core_views
 from core.views.catalog import CatalogView
 from core.views.my_widgets import MyWidgetsView
@@ -23,11 +23,14 @@ from core.views import profile as profile_views
 from core.views import login as login_views
 
 from core.views.scores import ScoresView
-from core.views.widget import *
 
 from django.urls import include, path, re_path
-from api.views.users import UsersApi
 from django.contrib import admin
+
+from core.views.widget import (
+    WidgetDetailView, WidgetDemoView, WidgetGuideView, WidgetPlayView, WidgetCreatorView, WidgetPreviewView,
+    WidgetQsetHistoryView, WidgetQsetGenerateView
+)
 
 urlpatterns = [
     # api router and endpoint registration in api_urls
@@ -53,6 +56,9 @@ urlpatterns = [
     path("widgets/<slug:widget_slug>/create/<str:instance_id>", WidgetCreatorView.as_view(),
          name="widget creator existing instance"),
     path("preview/<slug:widget_instance_id>/", WidgetPreviewView.as_view(), name="widget preview"),
+    path("preview/<slug:widget_instance_id>/<title>/", WidgetPreviewView.as_view(), name="widget preview"),
+    path("qsets/history/", WidgetQsetHistoryView.as_view(), name="widget qset history"),
+    path("qsets/generate/", WidgetQsetGenerateView.as_view(), name="widget qset generate"),
 
     # Scores
     path("scores/preview/<slug:widget_instance_id>/", ScoresView.as_view(is_preview=True), name="preview scores"),
@@ -63,7 +69,7 @@ urlpatterns = [
     # path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
     path("settings/", profile_views.settings, name="settings"),
-	path("users/login", login_views.login, name="login"),
+    path("users/login", login_views.login, name="login"),
     path("login/", login_views.login, name="login"),
     path("admin/", admin.site.urls),
     path("users/logout/", UsersApi.logout, name="logout"),

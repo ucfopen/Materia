@@ -1,36 +1,17 @@
 import logging
-import json
-from django.http import HttpResponseNotFound, JsonResponse
+from django.http import HttpResponseNotFound
 from django.conf import settings
 from django.shortcuts import render
-from api.views.users import UsersApi
-
-
-# def get_dark_mode(request):
-#     """
-#     Function to get if a user has dark mode enabled
-#     """
-#     user_settings = {"darkMode": False}  # Default settings
-
-#     try:
-#         user_data = UsersApi.get(request)  # Call API to fetch user settings
-#         if isinstance(user_data, JsonResponse):
-#             user_json = user_data.content.decode("utf-8")
-#             user_profile = json.loads(user_json)
-#             user_settings["darkMode"] = user_profile.get("profile_fields", {}).get("darkMode", False)
-
-#     except Exception as e:
-#         logging.error(f"Error fetching user settings: {e}")
-
-#     return user_settings
+from util.context_util import ContextUtil
 
 
 def index(request, *args, **kwargs):
-    context = {
-        "title": "Welcome to Materia",
-        "js_resources": settings.JS_GROUPS["main"],
-        "css_resources": settings.CSS_GROUPS["main"],
-    }
+    context = ContextUtil.create(
+        title="Welcome to Materia",
+        js_resources=settings.JS_GROUPS["main"],
+        css_resources=settings.CSS_GROUPS["main"],
+        request=request,
+    )
 
     return render(request, "react.html", context)
 
@@ -45,12 +26,13 @@ def get_theme_overrides():
 
 
 def help(request):
-    context = {
-        "title": "Help",
-        "page_type": "docs help",
-        "js_resources": settings.JS_GROUPS["help"],
-        "css_resources": settings.CSS_GROUPS["help"],
-    }
+    context = ContextUtil.create(
+        title="Help",
+        page_type="docs help",
+        js_resources=settings.JS_GROUPS["help"],
+        css_resources=settings.CSS_GROUPS["help"],
+        request=request,
+    )
 
     return render(request, "react.html", context)
 
@@ -60,7 +42,12 @@ def handler404(request, exception):
     logger = logging.getLogger(__name__)
     logger.warning("404 URL: %s", request.path)
 
-    context = {"title": "404 Page Not Found", "bundle_name": "404"}
+    context = ContextUtil.create(
+        title="404 Page Not Found",
+        js_resources="dist/js/404.js",
+        css_resources="dist/css/404.css",
+        request=request,
+    )
 
     # Render the template with context
     content = render(request, "react.html", context)

@@ -85,7 +85,7 @@ const _translateForApiVersion = (instance, qset) => {
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/') || window.location.href.includes('/lti/assignment')
 
-const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=true}) => {
+const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=true}) => {
 
 	const [alert, setAlert] = useState({
 		msg: '',
@@ -377,9 +377,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		} else {
 			const convertedInstance = _translateForApiVersion(inst, qset)
 			setStartTime(new Date().getTime())
-			console.log("QSET")
-			console.log(qset)
-			console.log(inst)
 			_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
 			setPlayState('playing')
 		}

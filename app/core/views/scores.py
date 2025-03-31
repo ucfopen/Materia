@@ -3,6 +3,7 @@ from django.conf import settings
 from django.views.generic import TemplateView
 
 from core.models import WidgetInstance
+from util.context_util import ContextUtil
 
 
 class ScoresView(TemplateView):
@@ -28,9 +29,6 @@ class ScoresView(TemplateView):
 
         # Set up context and return
         js_globals = {
-            "BASE_URL": settings.URLS["BASE_URL"],
-            "WIDGET_URL": settings.URLS["WIDGET_URL"],
-            "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"],
             "IS_EMBEDDED": is_embedded,
             "IS_PREVIEW": self.is_preview,
         }
@@ -40,9 +38,10 @@ class ScoresView(TemplateView):
 
         # TODO: insert support inline info - see php
 
-        return {
-            "title": "Score Results",
-            "js_resources": settings.JS_GROUPS["scores"],
-            "css_resources": settings.CSS_GROUPS["scores"],
-            "js_global_variables": js_globals
-        }
+        return ContextUtil.create(
+            title="Score Results",
+            js_resources=settings.JS_GROUPS["scores"],
+            css_resources=settings.CSS_GROUPS["scores"],
+            js_globals=js_globals,
+            request=self.request,
+        )

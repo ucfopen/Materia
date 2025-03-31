@@ -3,7 +3,7 @@ from datetime import datetime
 from django.contrib.sessions.backends.base import SessionBase
 from django.utils.timezone import make_aware
 
-from core.models import Log, WidgetInstance
+from core.models import Log
 from util.logging.session_play import SessionPlay
 from util.widget.validator import ValidatorUtil
 

@@ -113,7 +113,7 @@ const QuestionImporter = () => {
 		}
 
 		return state.displayQuestions.map(question => {
-			const d = new Date(question.created_at * 1000)
+			const d = new Date(question.created_at)
 			const dateString = d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
 			return (
 				<tr key={`question-${question.id}`}
