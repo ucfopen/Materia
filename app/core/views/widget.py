@@ -1,11 +1,13 @@
-from django.conf import settings
-from django.http import HttpResponseNotFound, HttpResponseServerError, HttpRequest
-from django.views.generic import TemplateView
-from core.models import WidgetInstance, Widget
-from util.context_util import ContextUtil
-from util.logging.session_play import SessionPlay
-
 import logging
+
+from core.models import Widget, WidgetInstance
+from django.conf import settings
+from django.http import HttpRequest, HttpResponseNotFound
+from django.views.generic import TemplateView
+from util.context_util import ContextUtil
+
+# from util.logging.session_play import SessionPlay
+
 
 logger = logging.getLogger("django")
 
@@ -26,30 +28,67 @@ class WidgetDemoView(TemplateView):
     template_name = "react.html"
 
     def get_context_data(self, widget_slug):
-        autoplay = self.kwargs.get('autoplay', None)
+        autoplay = self.kwargs.get("autoplay", None)
 
         # Get demo widget instance
         widget = Widget.objects.get(pk=_get_id_from_slug(widget_slug))
-        demo_id = widget.metadata_clean()['demo']
+        demo_id = widget.metadata_clean()["demo"]
         demo_instance = WidgetInstance.objects.get(pk=demo_id)
         if not demo_instance:
-            return HttpResponseNotFound()  # TODO: change this into a more valid code or an error message
+            return (
+                HttpResponseNotFound()
+            )  # TODO: change this into a more valid code or an error message
 
-        return _create_player_page(demo_instance, self.request, is_demo=False, autoplay=autoplay, is_preview=False)
+        return _create_player_page(
+            demo_instance,
+            self.request,
+            is_demo=False,
+            autoplay=autoplay,
+            is_preview=False,
+        )
 
 
 class WidgetPlayView(TemplateView):
     template_name = "react.html"
 
     def get_context_data(self, widget_instance_id, instance_name=None):
-        autoplay = self.kwargs.get('autoplay', None)
+        autoplay = self.kwargs.get("autoplay", None)
 
         # Get widget instance
         instance = WidgetInstance.objects.get(pk=widget_instance_id)
         if not instance:
-            return HttpResponseNotFound()  # TODO: change this into a more valid code or an error message
+            return (
+                HttpResponseNotFound()
+            )  # TODO: change this into a more valid code or an error message
 
-        return _create_player_page(instance, self.request, is_demo=False, autoplay=autoplay, is_preview=False)
+        return _create_player_page(
+            instance, self.request, is_demo=False, autoplay=autoplay, is_preview=False
+        )
+
+
+class WidgetPreviewView(TemplateView):
+    template_name = "react.html"
+
+    def get_context_data(self, widget_instance_id, instance_name=None):
+        # Verify user session
+        # TODO  if (\Service_User::verify_session() !== true)
+        # 		{
+        # 			$this->build_widget_login('Login to preview this widget', $instId);
+        # 		}
+
+        # Get widget instance
+        widget_instance = WidgetInstance.objects.get(pk=widget_instance_id)
+        if not widget_instance:
+            return HttpResponseNotFound()
+
+        # Check if widget is playable
+        if not widget_instance.playable_by_current_user(self.request.user):
+            return _create_draft_not_playable_page()
+
+        # return _display_widget(instance=widget_instance, is_embedded=False)
+        return _create_player_page(
+            widget_instance, self.request, is_demo=False, autoplay=True, is_preview=True
+        )
 
 
 class WidgetCreatorView(TemplateView):
@@ -74,34 +113,6 @@ class WidgetCreatorView(TemplateView):
 
         # TODO View::set_global('me', Model_User::find_current());
         return _create_editor_page("Create Widget", widget, self.request)
-
-
-class WidgetPreviewView(TemplateView):
-    template_name = "react.html"
-
-    def get_context_data(self, widget_instance_id, title=None):
-        # Verify user session
-        # TODO  if (\Service_User::verify_session() !== true)
-        # 		{
-        # 			$this->build_widget_login('Login to preview this widget', $instId);
-        # 		}
-
-        # Get widget instance
-        widget_instance = WidgetInstance.objects.filter(id=widget_instance_id).first()
-        if not widget_instance:
-            return HttpResponseNotFound()
-
-        # Check ownership of widget
-        # TODO if ( ! Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $instId,
-        #  Materia\Perm::INSTANCE, [Materia\Perm::FULL, Materia\Perm::VISIBLE]))
-        if False:
-            return _create_no_permission_page(self.request)
-
-        # Check if widget is playable
-        if not widget_instance.widget.is_playable:
-            return _create_draft_not_playable_page(self.request)
-
-        return _display_widget(instance=widget_instance, play_id=None, is_embedded=True, request=self.request)
 
 
 class WidgetGuideView(TemplateView):
@@ -136,7 +147,12 @@ class WidgetGuideView(TemplateView):
                 "TYPE": guide_type,
                 "HAS_PLAYER_GUIDE": True if widget.player_guide else False,
                 "HAS_CREATOR_GUIDE": True if widget.creator_guide else False,
-                "DOC_PATH": settings.URLS["WIDGET_URL"] + str(widget.id) + "-" + widget.clean_name + "/" + guide
+                "DOC_PATH": settings.URLS["WIDGET_URL"]
+                + str(widget.id)
+                + "-"
+                + widget.clean_name
+                + "/"
+                + guide,
             },
             request=self.request,
         )
@@ -172,10 +188,15 @@ class WidgetQsetGenerateView(TemplateView):
 
 # View page creation methods
 
+
 # Creates a player page for a real, logged play session
 def _create_player_page(
-        instance: WidgetInstance, request: HttpRequest, is_demo: bool = False, is_preview: bool = False,
-        is_embedded: bool = False, autoplay: bool | None = None
+    instance: WidgetInstance,
+    request: HttpRequest,
+    is_demo: bool = False,
+    is_preview: bool = False,
+    is_embedded: bool = False,
+    autoplay: bool | None = None,
 ):
     # Create context id (?)
     # TODO call the LtiEvents/on_before_play_start_event() function. Seems to relate to LTI stuffs
@@ -194,19 +215,14 @@ def _create_player_page(
         # TODO
         pass
 
-    # Create play log
-    play_id = SessionPlay().start(instance, request.user.id)
-    if not play_id:
-        print("Failed to create play session!")
-        return HttpResponseServerError()
-
+    # NOTE: play session creation originally occured here, in the view
+    # sessions are now always instantiated from the API
     # Create and return player page context
-    return _display_widget(instance, request, play_id, is_embedded)
+    return _display_widget(instance, request, is_embedded)
 
 
 def _display_widget(
-        instance: WidgetInstance, request: HttpRequest,
-        play_id: str | None = None, is_embedded: bool = False
+    instance: WidgetInstance, request: HttpRequest, is_embedded: bool = False
 ):
     return ContextUtil.create(
         title=f"{instance.name} - {instance.widget.name}",
@@ -215,7 +231,6 @@ def _display_widget(
         html_class="embedded" if is_embedded else "",
         page_type="widget",
         js_globals={
-            "PLAY_ID": play_id,
             "DEMO_ID": instance.id,
             "WIDGET_WIDTH": instance.widget.width,
             "WIDGET_HEIGHT": instance.widget.height,
@@ -240,8 +255,10 @@ def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
 
 
 def _create_widget_login_page(
-        instance: WidgetInstance, request: HttpRequest,
-        is_embedded: bool = False, is_preview: bool = False
+    instance: WidgetInstance,
+    request: HttpRequest,
+    is_embedded: bool = False,
+    is_preview: bool = False,
 ):
     # TODO Do some session redirect stuffs
 
@@ -252,7 +269,7 @@ def _create_widget_login_page(
     js_globals = {
         "NAME": instance.name,
         "WIDGET_NAME": instance.widget.name,
-        "ICON_DIR": ""  # TODO
+        "ICON_DIR": "",  # TODO
     }
 
     if login_messages["is_open"]:

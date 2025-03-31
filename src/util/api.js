@@ -422,7 +422,7 @@ export const apiSavePlayStorage = ({ play_id, logs }) => {
 export const apiSavePlayLogs = ({ request }) => {
 	return fetch(`/api/play-sessions/${request.playId}/`, {
 		method: 'PUT',
-		body: JSON.stringify(request.logs),
+		body: JSON.stringify(request),
 		headers: {
 			'X-CSRFToken': getCSRFToken(),
 			'content-type': 'application/json'

@@ -17,10 +17,13 @@ from core.models import (
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.text import slugify
-from rest_framework import serializers
+from rest_framework import serializers, status
+from rest_framework.response import Response
 from util.logging.session_logger import SessionLogger
 
 # from pprint import pformat
+
+
 logger = logging.getLogger("django")
 
 
@@ -303,28 +306,26 @@ class PlayIdSerializer(serializers.Serializer):
         return play_log
 
 
-# serializes and validates individual logs for a play (inbound)
-class PlayLogUpdateSerializer(serializers.Serializer):
+class LogSubmissionSerializer(serializers.Serializer):
     game_time = serializers.FloatField()
     item_id = serializers.UUIDField(required=False)
     type = serializers.IntegerField()
     text = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     value = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
+    # we're validating item_id as a uuid but the validated data should be a string,
+    # so it behaves with downstream serialization
+    def to_internal_value(self, data):
+        validated_data = super().to_internal_value(data)
+
+        if "item_id" in validated_data and validated_data["item_id"]:
+            validated_data["item_id"] = str(validated_data["item_id"])
+
+        return validated_data
+
     def validate(self, data):
-        # user = self.context["request"].user
-        try:
-            play = LogPlay.objects.get(pk=self.context["play_id"])
-
-            # if not play.is_valid or play.user.id != user.id:
-            # TODO user validation, must accommodate guest mode
-            if not play.is_valid:
-                raise serializers.ValidationError(
-                    f"Play ID {self.context["play_id"]} invalid."
-                )
-
-            if not isinstance(data, list):
-                data = [data]
+        if not isinstance(data, list):
+            data = [data]
 
             logs = []
             for log in data:
@@ -336,10 +337,69 @@ class PlayLogUpdateSerializer(serializers.Serializer):
                 logs.append(log)
             return logs
 
+
+# serializes and validates individual logs for a play (inbound)
+class PlayLogUpdateSerializer(serializers.Serializer):
+    logs = serializers.ListField()
+    previewInstanceId = serializers.CharField(required=False)
+    previewPlayId = serializers.UUIDField(required=False)
+
+    def validate(self, data):
+        try:
+            preview_instance_id = data.get("previewInstanceId", None)
+            preview_play_id = data.get("previewPlayId", None)
+
+            # only validate session validity if it's a real play, not a preview
+            if not preview_instance_id and not preview_play_id:
+                play = LogPlay.objects.get(pk=self.context["session_id"])
+
+                # if not play.is_valid or play.user.id != user.id:
+                # TODO user validation, must accommodate guest mode
+                if not play.is_valid:
+                    raise serializers.ValidationError(
+                        f"Play ID {self.context["play_id"]} invalid."
+                    )
+
+            logs = LogSubmissionSerializer(data=data["logs"], many=True)
+            if logs.is_valid():
+                return {
+                    "logs": logs.validated_data,
+                    "is_preview": preview_instance_id is not None
+                    and preview_play_id is not None,
+                    "preview_inst_id": preview_instance_id,
+                    "preview_play_id": (
+                        str(preview_play_id) if preview_play_id else None
+                    ),
+                }
+            else:
+                return Response(logs.errors, status=status.HTTP_400_BAD_REQUEST)
+
         except LogPlay.DoesNotExist:
             raise serializers.ValidationError(
                 f"Play ID {self.context["play_id"]} invalid."
             )
+
+
+class PlaySessionCreateSerializer(serializers.Serializer):
+    instanceId = serializers.CharField()
+    is_preview = serializers.BooleanField(required=False)
+
+    def validate(self, data):
+        if data.get("is_preview", False) is True:
+            raise serializers.ValidationError(
+                "Invalid session creation for preview play."
+            )
+
+        instance = WidgetInstance.objects.get(pk=data["instanceId"])
+        if not instance:
+            raise serializers.ValidationError(
+                f"Instance ID {data["InstanceId"]} invalid."
+            )
+
+        if not instance.playable_by_current_user(self.context["request"].user):
+            raise serializers.ValidationError("Instance not playable by current user.")
+
+        return {"instance": instance}
 
 
 # play session model (kinda) serializer (outbound)
@@ -466,10 +526,16 @@ class ScoreSummarySerializer(serializers.Serializer):
 class QsetGenerationRequestSerializer(serializers.Serializer):
     instance = WidgetInstanceSerializer(read_only=True)
     instance_id = serializers.PrimaryKeyRelatedField(
-        queryset=WidgetInstance.objects.all(), source="instance", required=False, write_only=True, allow_null=True
+        queryset=WidgetInstance.objects.all(),
+        source="instance",
+        required=False,
+        write_only=True,
+        allow_null=True,
     )
     widget = WidgetSerializer(read_only=True)
-    widget_id = serializers.PrimaryKeyRelatedField(queryset=Widget.objects.all(), source="widget", write_only=True)
+    widget_id = serializers.PrimaryKeyRelatedField(
+        queryset=Widget.objects.all(), source="widget", write_only=True
+    )
     topic = serializers.CharField()
     num_questions = serializers.IntegerField()
     build_off_existing = serializers.BooleanField()

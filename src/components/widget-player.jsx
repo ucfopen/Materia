@@ -113,7 +113,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 
 	const previewPlayId = useMemo(() => {
 		if (!isPreview) return null
-		return crypto.randomUUID().substring(0, 5) // Generate a random preview play ID
+		return crypto.randomUUID() // Generate a random preview play ID
 	}, [])
 
 	// refs are used instead of state when value updates do not require a component rerender
@@ -295,8 +295,10 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 			if (pendingLogs.play && pendingLogs.play.length > 0) {
 				const args = { playId, logs: pendingLogs.play }
 				if (isPreview) {
+					// TODO clean these up?
 					args['previewInstanceId'] = (inst.id)
 					args['previewPlayId'] = previewPlayId
+					if (isPreview) args['playId'] = previewPlayId
 				}
 				_pushPendingLogs([{ request: args }])
 			}

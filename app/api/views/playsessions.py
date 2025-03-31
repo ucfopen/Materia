@@ -1,24 +1,24 @@
 # import json
 # debug logging
 import logging
+from pprint import pformat
 
+from core.models import Log, LogPlay
+from core.permissions import HasWidgetInstanceEditAccess
+from core.serializers import (
+    PlayLogUpdateSerializer,
+    PlaySessionCreateSerializer,
+    PlaySessionSerializer,
+    PlaySessionWithExtrasSerializer,
+)
 from django.http import JsonResponse
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-
-from core.models import Log, LogPlay, WidgetInstance
-from core.permissions import HasWidgetInstanceEditAccess
-from core.serializers import (
-    PlayLogUpdateSerializer,
-    PlaySessionSerializer,
-    PlaySessionWithExtrasSerializer,
-)
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
 
-# from pprint import pformat
 logger = logging.getLogger("django")
 
 
@@ -58,42 +58,31 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 return LogPlay.objects.filter(user=self.request.user)
 
     def create(self, request):
-        inst_id = request.data.get("instanceId")
-        if inst_id:
-            instance = WidgetInstance.objects.get(pk=inst_id)
-            if instance is None:
-                return MsgBuilder.not_found().as_drf_response()
-            if not instance.playable_by_current_user(request.user):
-                return MsgBuilder.failure("Not Allowed", "Instance not playable by current user.").as_drf_response()
-            if instance.is_draft:
-                return (MsgBuilder.failure("Drafts not Playable", "Must use Preview mode to play a draft")
-                        .as_drf_response())
-
+        serializer = PlaySessionCreateSerializer(
+            data=request.data, context={"request": request}
+        )
+        if serializer.is_valid():
+            validated = serializer.validated_data
             session_play = SessionPlay()
-            # TODO context id?
-            play_id = session_play.start(instance, self.request.user.id)
+            play_id = session_play.start(validated["instance"], request.user.id)
             return JsonResponse({"playId": play_id})
-
         else:
-            return MsgBuilder.invalid_input("Invalid input", "Instance ID required.").as_drf_response()
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, pk=None):
         if not pk:
             return MsgBuilder.invalid_input().as_drf_response()
 
-        # play = LogPlay.objects.get(pk=self.kwargs["pk"])
-        # logs = request.data.get("logs", None)
-        is_preview = bool(request.query_params.get("is_preview", False))
         update_serializer = PlayLogUpdateSerializer(
-            data=request.data, context={"request": request, "play_id": pk}, many=True
+            data=request.data, context={"request": request, "session_id": pk}
         )
 
         if update_serializer.is_valid():
 
             try:
-                session = SessionPlay(pk)
+                is_preview = update_serializer.validated_data["is_preview"]
+                logs = update_serializer.validated_data["logs"]
 
-                logs = update_serializer.validated_data
                 # using many=True in serializer returns a double-nested list. Manually flatten if required.
                 if isinstance(logs, list) and logs[0] and isinstance(logs[0], list):
                     logs = logs[0]
@@ -108,14 +97,28 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                         game_time=log["game_time"],
                     )
 
+                    # only plays are saved to the db - previews are stored in request session (see below)
                     if not is_preview:
                         log_model.save()
                     # TODO put preview logs in session
 
-                session.update_elapsed()
+                if not is_preview:
+                    session = SessionPlay(pk)
+                    session.update_elapsed()
+                else:
+                    preview_session_key = (
+                        f"preview_play_logs_{update_serializer.validated_data["preview_inst_id"]}_"
+                        f"{update_serializer.validated_data["preview_play_id"]}"
+                    )
+                    if preview_session_key not in request.session:
+                        request.session[preview_session_key] = []
+                    request.session[preview_session_key].extend(logs)
+
                 return Response({"status": status.HTTP_200_OK, "success": True})
 
-            except Exception:
+            except Exception as e:
+                logger.error("play session log save failure:")
+                logger.error(pformat(e))
                 return MsgBuilder.failure(
                     "Failed to Save", "Your play logs could not be saved."
                 ).as_drf_response()
