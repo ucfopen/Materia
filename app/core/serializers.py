@@ -189,13 +189,8 @@ class QuestionSetSerializer(serializers.ModelSerializer):
 class WidgetInstanceSerializer(serializers.ModelSerializer):
     preview_url = serializers.SerializerMethodField()
     play_url = serializers.SerializerMethodField()
+    embed_url = serializers.SerializerMethodField()
     qset = QuestionSetSerializer(required=False)
-
-    def __init__(self, *args, **kwargs):
-        # If the instance is published, include embed_url
-        super().__init__(*args, **kwargs)
-        if 
-        self.fields["embed_url"] = serializers.SerializerMethodField()
 
     def _handle_qset(self, qset, widget_instance):
         # handling the qset requires a couple steps:
@@ -240,6 +235,11 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             f"{settings.URLS["BASE_URL"]}play/{instance.id}/{slugify(instance.name)}/"
         )
 
+    def get_embed_url(self, instance):
+        if instance.is_draft:
+            return None
+        return f"{settings.URLS["BASE_URL"]}embed/{instance.id}/{slugify(instance.name)}/"
+
     class Meta:
         model = WidgetInstance
         fields = [
@@ -259,6 +259,7 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "widget_id",
             "preview_url",
             "play_url",
+            "embed_url",
             "qset",
         ]
 
