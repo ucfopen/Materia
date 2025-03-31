@@ -4,18 +4,19 @@ from core.models import DateRange, WidgetInstance
 from django.core import serializers
 from django.http import HttpResponseNotFound, JsonResponse
 from util.logging.session_play import SessionPlay
-from util.message_util import MsgUtil
+from util.message_util import MsgBuilder
 from util.scoring.scoring_util import ScoringUtil
 from util.widget.validator import ValidatorUtil
 
 
 class ScoresApi:
 
-    # Returns all scores for the given widget instance recorded by the current user, and attempts
+    # WAS widget_instance_scores_get
+    # Returns all scores (SessionPlays) for the given widget instance recorded by the current user, and attempts
     # remaining in the current context. If no launch token is supplied, the current semester will
     # be used as the current context.
     @staticmethod
-    def widget_instance_scores_get(request):
+    def get_for_widget_instance(request):
         # Get body params
         json_body = json.loads(request.body)
         instance_id = json_body.get("instanceId")
@@ -23,7 +24,7 @@ class ScoresApi:
 
         # Verify body params
         if not instance_id or not ValidatorUtil.is_valid_hash(instance_id):
-            return MsgUtil.create_invalid_input_msg(msg=str(instance_id))
+            return MsgBuilder.invalid_input(msg=str(instance_id)).as_json_response()
 
         # Grab context ID
         context_id = None
@@ -43,7 +44,7 @@ class ScoresApi:
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user(request.user):
-            return MsgUtil.create_no_login_msg()
+            return MsgBuilder.no_login().as_json_response()
 
         # Get scores and return
         scores = ScoringUtil.get_instance_score_history(instance, context_id)
@@ -65,22 +66,23 @@ class ScoresApi:
             }
         )
 
+    # WAS guest_widget_instance_scores_get
     @staticmethod
-    def guest_widget_instance_scores_get(request):
+    def get_for_widget_instance_guest(request):
         # Get and validate body
         json_body = json.loads(request.body)
         instance_id = json_body.get("instanceId")
         play_id = json_body.get("playId")
 
         if not instance_id or not ValidatorUtil.is_valid_hash(instance_id):
-            return MsgUtil.create_invalid_input_msg(msg=str(instance_id))
+            return MsgBuilder.invalid_input(msg=str(instance_id)).as_json_response()
 
         # Get widget instance and validate user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user(request.user):
-            return MsgUtil.create_no_login_msg()
+            return MsgBuilder.no_login().as_json_response()
 
         scores = ScoringUtil.get_guest_instance_score_history(instance, play_id)
         # TODO: better serializing
@@ -91,8 +93,10 @@ class ScoresApi:
 
         return JsonResponse({"scores": fixed_json_scores})
 
+    # WAS widget_instance_play_scores_get
+    # Gets play details (from Log table, containing player's answers and actions) for a play_id
     @staticmethod
-    def widget_instance_play_scores_get(request):
+    def get_play_details(request):
         # Get body params
         json_body = json.loads(request.body)
         play_id = json_body.get("playId")
@@ -101,11 +105,12 @@ class ScoresApi:
 
         # Grab play details
         if ValidatorUtil.is_valid_hash(preview_inst_id):
+            # Get preview play details
             if preview_play_id is None:
-                return MsgUtil.create_invalid_input_msg(msg="Missing preview play ID")
+                return MsgBuilder.invalid_input(msg="Missing preview play ID").as_json_response()
             # Check if preview is valid and user has access
             if False:  # TODO: \Service_User::verify_session() !== true
-                return MsgUtil.create_no_login_msg()
+                return MsgBuilder.no_login().as_json_response()
 
             # Get widget instance and play details
             widget_instance = WidgetInstance.objects.filter(pk=preview_inst_id).first()
@@ -116,16 +121,17 @@ class ScoresApi:
                 request.session, widget_instance, preview_play_id
             )
             if not play_details:
-                return MsgUtil.create_expired_msg()
+                return MsgBuilder.expired().as_json_response()
 
             return JsonResponse(play_details)
         else:
+            # Get real play details
             # Check if session play is valid and user has access
             session_play = SessionPlay.get_or_none(play_id)
             if not session_play:
                 return HttpResponseNotFound()
             if not session_play.data.instance.playable_by_current_user(request.user):
-                return MsgUtil.create_no_login_msg()
+                return MsgBuilder.no_login().as_json_response()
 
             return JsonResponse(ScoringUtil.get_play_details(session_play))
 
@@ -137,14 +143,14 @@ class ScoresApi:
         instance_id = json_body.get("instanceId")
         # include_storage_data = json_body.get("includeStorageData", False)
         if not ValidatorUtil.is_valid_hash(instance_id):
-            return MsgUtil.create_invalid_input_msg(msg=str(instance_id))
+            return MsgBuilder.invalid_input(msg=str(instance_id)).as_json_response()
 
         # Get widget instance and verify playable by user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user(request.user):
-            return MsgUtil.create_no_login_msg()
+            return MsgBuilder.no_login().as_json_response()
 
         # Get the score distributions and summaries per semester
         # TODO: these 2 queries seem to be slow (up to 3sec in php!) - maybe they'll perform faster in

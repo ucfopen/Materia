@@ -217,7 +217,7 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
 
     def update(self, widget_instance, validated_data):
         qset = validated_data.pop("qset", None)
-        widget_instance.save()
+        widget_instance = super().update(widget_instance, validated_data)
         self._handle_qset(qset, widget_instance)
         return widget_instance
 
@@ -298,12 +298,12 @@ class PlayIdSerializer(serializers.Serializer):
     play_id = serializers.UUIDField()
 
     def validate(self, data):
-        playLog = LogPlay.objects.get(pk=data["play_id"])
+        play_log = LogPlay.objects.get(pk=data["play_id"])
 
-        if not playLog:
+        if not play_log:
             raise serializers.ValidationError("Play ID invalid.")
 
-        return playLog
+        return play_log
 
 
 class LogSubmissionSerializer(serializers.Serializer):
@@ -520,3 +520,27 @@ class ScoreSummarySerializer(serializers.Serializer):
                 )
 
             return sorted(results, key=lambda x: (x["year"], x["term"]))
+
+
+# Used for incoming requests for qset generation. Does NOT map to a model.
+class QsetGenerationRequestSerializer(serializers.Serializer):
+    instance = WidgetInstanceSerializer(read_only=True)
+    instance_id = serializers.PrimaryKeyRelatedField(
+        queryset=WidgetInstance.objects.all(),
+        source="instance",
+        required=False,
+        write_only=True,
+        allow_null=True,
+    )
+    widget = WidgetSerializer(read_only=True)
+    widget_id = serializers.PrimaryKeyRelatedField(
+        queryset=Widget.objects.all(), source="widget", write_only=True
+    )
+    topic = serializers.CharField()
+    num_questions = serializers.IntegerField()
+    build_off_existing = serializers.BooleanField()
+
+
+# Used for incoming requests for prompt generation. Does NOT map to a model.
+class PromptGenerationRequestSerializer(serializers.Serializer):
+    prompt = serializers.CharField(min_length=1, max_length=10000)

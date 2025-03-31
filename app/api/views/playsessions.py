@@ -17,20 +17,18 @@ from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from util.logging.session_play import SessionPlay
-from util.message_util import MsgUtil
+from util.message_util import MsgBuilder
 
 logger = logging.getLogger("django")
 
 
 class PlaySessionPagination(PageNumberPagination):
-
     page_size = 100
     page_size_query_param = "page_size"
     max_page_size = 100
 
 
 class PlaySessionViewSet(viewsets.ModelViewSet):
-
     # TODO permissions checks:
     #   must have instance edit perms to access all logs associated with an instance
     #   must have instance play perms to CREATE, PUT play log
@@ -73,7 +71,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
     def update(self, request, pk=None):
         if not pk:
-            return MsgUtil.create_invalid_input_msg()
+            return MsgBuilder.invalid_input().as_drf_response()
 
         update_serializer = PlayLogUpdateSerializer(
             data=request.data, context={"request": request, "session_id": pk}
@@ -90,7 +88,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     logs = logs[0]
 
                 for log in logs:
-                    logModel = Log(
+                    log_model = Log(
                         play_id=pk,
                         log_type=log["type"],
                         item_id=log["item_id"],
@@ -101,7 +99,8 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
                     # only plays are saved to the db - previews are stored in request session (see below)
                     if not is_preview:
-                        logModel.save()
+                        log_model.save()
+                    # TODO put preview logs in session
 
                 if not is_preview:
                     session = SessionPlay(pk)
@@ -120,9 +119,9 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 logger.error("play session log save failure:")
                 logger.error(pformat(e))
-                return MsgUtil.create_failure_msg(
+                return MsgBuilder.failure(
                     "Failed to Save", "Your play logs could not be saved."
-                )
+                ).as_drf_response()
 
         else:
             return Response(

@@ -4,8 +4,9 @@ from core.models import Widget, WidgetInstance
 from django.conf import settings
 from django.http import HttpRequest, HttpResponseNotFound
 from django.views.generic import TemplateView
+from util.context_util import ContextUtil
 
-# from pprint import pformat
+# from util.logging.session_play import SessionPlay
 
 
 logger = logging.getLogger("django")
@@ -15,18 +16,12 @@ class WidgetDetailView(TemplateView):
     template_name = "react.html"
 
     def get_context_data(self, widget_slug):
-        context = {
-            "title": "Materia Widget Catalog",
-            "js_resources": settings.JS_GROUPS["detail"],
-            "css_resources": settings.CSS_GROUPS["detail"],
-            "js_global_variables": {
-                # TODO: make these config variables, and export these to somewhere where it can be reused easily
-                "BASE_URL": settings.URLS["BASE_URL"],
-                "WIDGET_URL": settings.URLS["WIDGET_URL"],
-                "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"],
-            },
-        }
-        return context
+        return ContextUtil.create(
+            title="Materia Widget Catalog",
+            js_resources=settings.JS_GROUPS["detail"],
+            css_resources=settings.CSS_GROUPS["detail"],
+            request=self.request,
+        )
 
 
 class WidgetDemoView(TemplateView):
@@ -117,7 +112,7 @@ class WidgetCreatorView(TemplateView):
             return HttpResponseNotFound()
 
         # TODO View::set_global('me', Model_User::find_current());
-        return _create_editor_page("Create Widget", widget)
+        return _create_editor_page("Create Widget", widget, self.request)
 
 
 class WidgetGuideView(TemplateView):
@@ -142,16 +137,12 @@ class WidgetGuideView(TemplateView):
             case _:
                 return HttpResponseNotFound()
 
-        return {
-            "title": title,
-            "js_resources": ["dist/js/guides.js"],
-            "css_resources": ["dist/css/guides.css"],
-            "page_type": "guide",
-            "js_global_variables": {
-                # TODO: make these config variables, and export these to somewhere where it can be reused easily
-                "BASE_URL": settings.URLS["BASE_URL"],
-                "WIDGET_URL": settings.URLS["WIDGET_URL"],
-                "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"],
+        return ContextUtil.create(
+            title=title,
+            js_resources="dist/js/guides.js",
+            css_resources="dist/css/guides.css",
+            page_type="guide",
+            js_globals={
                 "NAME": widget.name,
                 "TYPE": guide_type,
                 "HAS_PLAYER_GUIDE": True if widget.player_guide else False,
@@ -161,9 +152,38 @@ class WidgetGuideView(TemplateView):
                 + "-"
                 + widget.clean_name
                 + "/"
-                + guide,  # TODO Config::get('materia.urls.engines').$widget->dir.$guide
+                + guide,
             },
-        }
+            request=self.request,
+        )
+
+
+class WidgetQsetHistoryView(TemplateView):
+    template_name = "react.html"
+
+    def get_context_data(self):
+        # TODO if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
+        return ContextUtil.create(
+            title="Qset Catalog",
+            page_type="import",
+            js_resources="dist/js/qset-history.js",
+            css_resources="dist/css/qset-history.css",
+            request=self.request,
+        )
+
+
+class WidgetQsetGenerateView(TemplateView):
+    template_name = "react.html"
+
+    def get_context_data(self):
+        # TODO if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
+        return ContextUtil.create(
+            title="Qset Generation",
+            page_type="generate",
+            js_resources="dist/js/qset-generator.js",
+            css_resources="dist/css/qset-generator.css",
+            request=self.request,
+        )
 
 
 # View page creation methods
@@ -183,14 +203,14 @@ def _create_player_page(
 
     # Check to see if login is required
     if not instance.playable_by_current_user(request.user):
-        return _create_widget_login_page(instance, is_embedded, is_preview)
+        return _create_widget_login_page(instance, request, is_embedded, is_preview)
 
     # Check to see if this widget is playable
     # TODO check status - see php
     if not is_demo and instance.is_draft:
-        return _create_draft_not_playable_page()
+        return _create_draft_not_playable_page(request)
     if not is_demo and not instance.widget.is_playable:
-        return _create_widget_retired_page(is_embedded)
+        return _create_widget_retired_page(request, is_embedded)
     if autoplay is False:
         # TODO
         pass
@@ -198,122 +218,123 @@ def _create_player_page(
     # NOTE: play session creation originally occured here, in the view
     # sessions are now always instantiated from the API
     # Create and return player page context
-    return _display_widget(instance, is_embedded)
+    return _display_widget(instance, request, is_embedded)
 
 
-def _display_widget(instance: WidgetInstance, is_embedded: bool = False):
-    return {
-        "title": f"{instance.name} - {instance.widget.name}",
-        "js_resources": settings.JS_GROUPS["player"],
-        "css_resources": settings.CSS_GROUPS["player"],
-        "html_class": "embedded" if is_embedded else "",
-        "page_type": "widget",
-        "js_global_variables": {
-            # TODO: make these config variables, and export these to somewhere where it can be reused easily
-            "BASE_URL": settings.URLS["BASE_URL"],
-            "WIDGET_URL": settings.URLS["WIDGET_URL"],
-            "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"],
+def _display_widget(
+    instance: WidgetInstance, request: HttpRequest, is_embedded: bool = False
+):
+    return ContextUtil.create(
+        title=f"{instance.name} - {instance.widget.name}",
+        js_resources=settings.JS_GROUPS["player"],
+        css_resources=settings.CSS_GROUPS["player"],
+        html_class="embedded" if is_embedded else "",
+        page_type="widget",
+        js_globals={
             "DEMO_ID": instance.id,
             "WIDGET_WIDTH": instance.widget.width,
             "WIDGET_HEIGHT": instance.widget.height,
         },
-    }
+        request=request,
+    )
 
 
-def _create_editor_page(title: str, widget: Widget):
+def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
     # TODO $this->_disable_browser_cache = true;
 
-    return {
-        "title": f"{title}",
-        "js_resources": ["dist/js/creator-page.js"],
-        "css_resources": ["dist/css/creator-page.css"],
-        "js_global_variables": {
-            # TODO: make these config variables, and export these to somewhere where it can be reused easily
-            "BASE_URL": settings.URLS["BASE_URL"],
-            "WIDGET_URL": settings.URLS["WIDGET_URL"],
-            "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"],
-            "WIDGET_HEIGHT": widget.height,  # TODO these are prolly supposed to be numbers, not strings
+    return ContextUtil.create(
+        title=f"{title}",
+        js_resources="dist/js/creator-page.js",
+        css_resources="dist/css/creator-page.css",
+        js_globals={
+            "WIDGET_HEIGHT": widget.height,
             "WIDGET_WIDTH": widget.width,
         },
-    }
+        request=request,
+    )
 
 
 def _create_widget_login_page(
-    instance: WidgetInstance, is_embedded: bool = False, is_preview: bool = False
+    instance: WidgetInstance,
+    request: HttpRequest,
+    is_embedded: bool = False,
+    is_preview: bool = False,
 ):
     # TODO Do some session redirect stuffs
 
     login_messages = _generate_widget_login_messages(instance)
 
-    context = {
-        "js_resources": [],
-        "css_resources": [],
-        "js_global_variables": {
-            "NAME": instance.name,
-            "WIDGET_NAME": instance.widget.name,
-            "ICON_DIR": "",  # TODO
-        },
+    js_resources = []
+    css_resources = []
+    js_globals = {
+        "NAME": instance.name,
+        "WIDGET_NAME": instance.widget.name,
+        "ICON_DIR": "",  # TODO
     }
 
     if login_messages["is_open"]:
-        context["title"] = "Login"
-        # TODO look at the theme override stuff? see php code
-        context["js_resources"].extend(settings.JS_GROUPS["login"])
-        context["css_resources"].extend(settings.CSS_GROUPS["login"])
+        title = "Login"
+        js_resources.append(settings.JS_GROUPS["login"])
+        css_resources.append(settings.CSS_GROUPS["login"])
 
-        context["js_global_variables"]["EMBEDDED"] = str(
-            is_embedded
-        )  # TODO is this supposed to be IS_EMBEDDED? also, find a way to embed as a pure boolean
-        context["js_global_variables"][
-            "ACTION_LOGIN"
-        ] = ""  # TODO fix these empty strings
-        context["js_global_variables"]["ACTION_REDIRECT"] = ""
-        context["js_global_variables"]["LOGIN_USER"] = ""
-        context["js_global_variables"]["LOGIN_PW"] = ""
-        context["js_global_variables"]["CONTEXT"] = "widget"
-        context["js_global_variables"]["IS_PREVIEW"] = is_preview
+        js_globals["IS_EMBEDDED"] = is_embedded
+        js_globals["ACTION_LOGIN"] = ""  # TODO fix these empty strings
+        js_globals["ACTION_REDIRECT"] = ""
+        js_globals["LOGIN_USER"] = ""
+        js_globals["LOGIN_PW"] = ""
+        js_globals["CONTEXT"] = "widget"
+        js_globals["IS_PREVIEW"] = is_preview
 
         # Condense login links into a string with delimiters
         # TODO
-        context["js_global_variables"]["LOGIN_LINKS"] = ""
+        js_globals["LOGIN_LINKS"] = ""
     else:
-        context["title"] = "Widget Unavailable"
-        context["js_resources"].extend(settings.JS_GROUPS["closed"])
-        context["css_resources"].extend(settings.CSS_GROUPS["login"])
+        title = "Widget Unavailable"
+        js_resources.append(settings.JS_GROUPS["closed"])
+        css_resources.append(settings.JS_GROUPS["closed"])
 
-        context["js_global_variables"]["IS_EMBEDDED"] = str(is_embedded)
-        context["js_global_variables"]["SUMMARY"] = login_messages["summary"]
-        context["js_global_variables"]["DESC"] = login_messages["desc"]
+        js_globals["IS_EMBEDDED"] = str(is_embedded)
+        js_globals["SUMMARY"] = login_messages["summary"]
+        js_globals["DESC"] = login_messages["desc"]
 
-    return context
-
-
-def _create_draft_not_playable_page():
-    return {
-        "title": "Draft Not Playable",
-        "js_resources": settings.JS_GROUPS["draft-not-playable"],
-        "css_resources": settings.CSS_GROUPS["login"],
-    }
+    return ContextUtil.create(
+        title=title,
+        js_resources=js_resources,
+        css_resources=css_resources,
+        js_globals=js_globals,
+        request=request,
+    )
 
 
-def _create_widget_retired_page(is_embedded: bool = False):
-    return {
-        "title": "Retired Widget",
-        "js_resources": settings.JS_GROUPS["retired"],
-        "css_resources": settings.CSS_GROUPS["login"],
-        "js_global_variables": {
+def _create_draft_not_playable_page(request: HttpRequest):
+    return ContextUtil.create(
+        title="Draft Not Playable",
+        js_resources=settings.JS_GROUPS["draft-not-playable"],
+        css_resources=settings.CSS_GROUPS["login"],
+        request=request,
+    )
+
+
+def _create_widget_retired_page(request: HttpRequest, is_embedded: bool = False):
+    return ContextUtil.create(
+        title="Retired Widget",
+        js_resources=settings.JS_GROUPS["retired"],
+        css_resources=settings.CSS_GROUPS["login"],
+        js_globals={
             "IS_EMBEDDED": is_embedded,
         },
-    }
+        request=request,
+    )
 
 
-def _create_no_permission_page():
+def _create_no_permission_page(request: HttpRequest):
     # TODO $this->_disable_browser_cache = true;
-    return {
-        "title": "Permission Denied",
-        "js_resources": ["dist/js/no-permission.js"],
-        "css_resources": ["dist/css/no-permission.js"],
-    }
+    return ContextUtil.create(
+        title="Permission Denied",
+        js_resources="dist/js/no-permission.js",
+        css_resources="dist/css/no-permission.js",
+        request=request,
+    )
 
 
 # Utils functions
@@ -335,7 +356,7 @@ def _get_id_from_slug(widget_slug: str) -> int | None:
         except Exception:
             pass
 
-    print(
+    logger.error(
         f"Failed to get id from widget slug, likely an invalid slug: '{widget_slug}'"
-    )  # TODO: proper logging (or maybe this one is just unnecessary)
+    )
     return None

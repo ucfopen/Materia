@@ -15,10 +15,10 @@ from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.db.models import QuerySet
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 from util.perm_manager import PermManager
-from util.serialization import SerializableModel
 from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
@@ -205,7 +205,7 @@ class DateRange(models.Model):
         ]
 
 
-class Log(SerializableModel):
+class Log(models.Model):
     class LogType(models.TextChoices):
         EMPTY = "", gettext_lazy("Empty")
         BUTTON_PRESS = "BUTTON_PRESS", gettext_lazy("Button Press")
@@ -579,11 +579,20 @@ class Question(models.Model):
     type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
     text = models.TextField()
     created_at = models.DateTimeField(default=datetime.now)
-    data = models.TextField(blank=True, null=True)
+    _data = models.TextField(blank=True, null=True, db_column="data")
     hash = models.CharField(unique=True, max_length=32)
     qset = models.ManyToManyField(
         "WidgetQset", through=MapQuestionToQset, related_name="questions"
     )
+
+    @property
+    def data(self) -> dict:
+        decoded_data = base64.b64decode(self._data).decode("utf-8")
+        return json.loads(decoded_data)
+
+    @data.setter
+    def data(self, new_data: dict):
+        self._data = base64.b64encode(json.dumps(new_data).encode("utf-8")).decode("utf-8")
 
     class Meta:
         db_table = "question"
@@ -612,7 +621,7 @@ class UserExtraAttempts(models.Model):
         ]
 
 
-class Widget(SerializableModel):
+class Widget(models.Model):
     # update these to the relevant paths when those Python files exist
     PATHS_PLAYDATA = os.path.join("_exports", "playdata_exporters.php")
     PATHS_SCOREMOD = os.path.join("_score-modules", "score_module.php")
@@ -652,12 +661,6 @@ class Widget(SerializableModel):
     restrict_publish = models.BooleanField(default=False)
     creator_guide = models.CharField(max_length=255, default="")
     player_guide = models.CharField(max_length=255, default="")
-
-    def as_dict(self, select_fields: list[str] = None, serialize_fks: list[str] = None):
-        result = super().as_dict(select_fields, serialize_fks)
-        result["dir"] = f"{self.id}-{self.clean_name}{os.sep}"
-        result["meta_data"] = self.metadata_clean()
-        return result
 
     def metadata_clean(self):
         meta_raw = self.metadata.all()
@@ -723,7 +726,7 @@ class Widget(SerializableModel):
         ]
 
 
-class WidgetInstance(SerializableModel):
+class WidgetInstance(models.Model):
     id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
     widget = models.ForeignKey(
         "Widget",
@@ -769,7 +772,7 @@ class WidgetInstance(SerializableModel):
         )
         qset.save()
 
-    def get_latest_qset(self):
+    def get_latest_qset(self) -> "WidgetQset | None":
         return self.qsets.order_by("-created_at").first()
 
     def get_qset_for_play(self, play_id=None):
@@ -856,7 +859,11 @@ class WidgetInstance(SerializableModel):
         # value_2 = self.widget.id
         # activity.save()
 
-        return success
+        return
+
+    def get_qset_history(self) -> QuerySet["WidgetQset"]:
+        qsets = WidgetQset.objects.filter(instance=self).order_by("-created_at")
+        return qsets
 
     class Meta:
         db_table = "widget_instance"
@@ -882,7 +889,7 @@ class WidgetMetadata(models.Model):
         db_table = "widget_metadata"
 
 
-class WidgetQset(SerializableModel):
+class WidgetQset(models.Model):
     id = models.BigAutoField(primary_key=True)
     instance = models.ForeignKey(
         "WidgetInstance",
@@ -895,7 +902,7 @@ class WidgetQset(SerializableModel):
     version = models.CharField(max_length=10, blank=True, null=True)
 
     @classmethod
-    def decode_data(cls, encoded_data):
+    def decode_data(cls, encoded_data) -> dict:
         try:
             decoded_bytes = base64.b64decode(encoded_data)
             return json.loads(decoded_bytes.decode("utf-8"))
@@ -904,11 +911,11 @@ class WidgetQset(SerializableModel):
             return {}
 
     @classmethod
-    def encode_data(cls, decoded_data):
+    def encode_data(cls, decoded_data) -> str:
         json_str = json.dumps(decoded_data)
         return base64.b64encode(json_str.encode("utf-8")).decode("utf-8")
 
-    def get_data(self):
+    def get_data(self) -> dict:
         return self.decode_data(self.data)
 
     def set_data(self, data_dict):
