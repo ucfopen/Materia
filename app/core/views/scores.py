@@ -1,4 +1,7 @@
 from core.models import WidgetInstance
+from django.conf import settings
+from django.http import HttpResponseForbidden, HttpResponseNotFound
+from django.views.generic import TemplateView
 from util.context_util import ContextUtil
 
 
@@ -6,46 +9,37 @@ class ScoresView(TemplateView):
     template_name = "react.html"
     is_preview = False
 
-    def get(self, request, *args, **kwargs):
-        self.widget_instance_id = kwargs.get("widget_instance_id")
-        self.play_id = kwargs.get("play_id")
-        self.token = kwargs.get("token")
-        self.is_embedded = kwargs.get("is_embedded", False)
+    # Note: play_id isn't used on the backend, though the frontend will look for it in the URL
+    def get_context_data(self, widget_instance_id, play_id=None):
+        print("WE ARE GETTING CONTREXT DATA")
+        print("WE ARE GETTING CONTREXT DATA")
+        print("WE ARE GETTING CONTREXT DATA")
+        print("WE ARE GETTING CONTREXT DATA")
+        is_embedded = self.kwargs.get("is_embedded", False)
+        token = self.kwargs.get("token")
 
         # Get widget instance
-        instance = WidgetInstance.objects.filter(pk=self.widget_instance_id).first()
+        instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
         if not instance:
-            return HttpResponseNotFound("Widget instance not found")
+            return HttpResponseNotFound()  # TODO must return context
 
-        # Check if user is allowed
-        if not instance.playable_by_current_user(request.user):
-            return HttpResponseForbidden("Not authorized to view scores")
+        # Verify user is able to play this widget
+        if not instance.playable_by_current_user(self.request.user):
+            # TODO:
+            # Session::set_flash('notice', 'Please log in to view your scores.');
+            # Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
+            return HttpResponseForbidden()  # TODO must return context
 
-        return super().get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        print("WE ARE GETTING CONTEXT DATA")
-        print("WE ARE GETTING CONTEXT DATA")
-        print("WE ARE GETTING CONTEXT DATA")
-        print("WE ARE GETTING CONTEXT DATA")
-        context = super().get_context_data(**kwargs)
-
+        # Set up context and return
         js_globals = {
             "IS_EMBEDDED": is_embedded,
             "IS_PREVIEW": self.is_preview,
         }
 
-        if self.token:
-            js_globals["LAUNCH_TOKEN"] = self.token
+        if token:
+            js_globals["LAUNCH_TOKEN"] = token
 
-        context.update(
-            {
-                "title": "Score Results",
-                "js_resources": settings.JS_GROUPS["scores"],
-                "css_resources": settings.CSS_GROUPS["scores"],
-                "js_global_variables": js_globals,
-            }
-        )
+        # TODO: insert support inline info - see php
 
         return ContextUtil.create(
             title="Score Results",
