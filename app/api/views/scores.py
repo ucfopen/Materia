@@ -3,9 +3,11 @@ import json
 from core.models import DateRange, WidgetInstance
 from django.core import serializers
 from django.http import HttpResponseNotFound, JsonResponse
+
+# from util.scoring.scoring_util import ScoringUtil
+from scoring.manager import ScoringUtil
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgUtil
-from util.scoring.scoring_util import ScoringUtil
 from util.widget.validator import ValidatorUtil
 
 
@@ -71,6 +73,12 @@ class ScoresApi:
         json_body = json.loads(request.body)
         instance_id = json_body.get("instanceId")
         play_id = json_body.get("playId")
+        print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
+        print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
+        print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
+        print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
+        print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
+        print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
 
         if not instance_id or not ValidatorUtil.is_valid_hash(instance_id):
             return MsgUtil.create_invalid_input_msg(msg=str(instance_id))

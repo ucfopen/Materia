@@ -6,7 +6,8 @@ from django.http import HttpRequest
 from django.utils.timezone import make_aware
 from django.contrib.auth.models import User
 from core.models import WidgetInstance, LogPlay, DateRange
-from util.scoring.scoring_util import ScoringUtil
+# from util.scoring.scoring_util import ScoringUtil
+from scoring.manager import ScoringUtil
 from util.widget.validator import ValidatorUtil
 
 
