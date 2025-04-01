@@ -136,6 +136,50 @@ class ScoringUtil:
 
         return details
 
+    @staticmethod
+    def get_preview_play_details(session, widget_instance, preview_play_id):
+        """Same as get_play_details but for previews where they are not stored in database and only are available in session."""
+
+        import os
+        import types
+
+        from util.logging.session_play import SessionPlay
+
+        # Get widget folder path
+        widget_folder = f"staticfiles/widget/{widget_instance.widget.id}-{widget_instance.widget.clean_name}/_score-modules"
+        script_path = os.path.join(widget_folder, "score_module.py")
+
+        # Load Python script from file
+        code = Path(script_path).read_text()
+        mod = types.ModuleType("temp_score_module")
+        exec(code, mod.__dict__)
+
+        ScoreClass = getattr(mod, widget_instance.widget.score_module, None)
+        if not ScoreClass:
+            raise Exception("No score module found")
+
+        # Manually reconstruct SessionPlay-like object from session data
+        session_play = SessionPlay.get_preview_play(session, preview_play_id)
+        if not session_play:
+            raise Exception("Invalid preview play session")
+
+        score_module = ScoreClass(
+            play_id=preview_play_id, instance=widget_instance, play=session_play.data
+        )
+        score_module.logs = session_play.get_logs()
+        score_module.validate_scores(session_play.data.created_at)
+
+        details = score_module.get_score_report()
+
+        widget_instance.get_qset(widget_instance.id, session_play.data.created_at)
+        details["qset"] = (
+            widget_instance.qset.as_json()
+            if hasattr(widget_instance.qset, "as_json")
+            else {"version": None, "data": None}
+        )
+
+        return details
+
     # Selects the number of scores in each bracket (where bracket 0 is 0% - 9%, bracket 1 is, 10% - 19%, etc.)
     # for each semester, ordered by semester for the given widget instance. Note that 100% is lumped into bracket 9.
     # This query uses all scores, not just the highest score of a player.

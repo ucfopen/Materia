@@ -20,7 +20,9 @@ class ScoresView(TemplateView):
 
         # Get widget instance
         instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
+        print(f"INSTANCE: {instance}")
         if not instance:
+            print("WTF NOT FOUND!")
             return HttpResponseNotFound()  # TODO must return context
 
         # Verify user is able to play this widget
@@ -28,7 +30,13 @@ class ScoresView(TemplateView):
             # TODO:
             # Session::set_flash('notice', 'Please log in to view your scores.');
             # Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
-            return HttpResponseForbidden()  # TODO must return context
+            return ContextUtil.create(
+                title="Invalid",
+                js_resources=[],
+                css_resources=[],
+                js_globals={},
+                request=self.request,
+            )
 
         # Set up context and return
         js_globals = {

@@ -2,18 +2,19 @@ import uuid
 from datetime import datetime
 from typing import Self
 
+from core.models import DateRange, LogPlay, WidgetInstance
+from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.utils.timezone import make_aware
-from django.contrib.auth.models import User
-from core.models import WidgetInstance, LogPlay, DateRange
+
 # from util.scoring.scoring_util import ScoringUtil
 from scoring.manager import ScoringUtil
 from util.widget.validator import ValidatorUtil
 
-
 # This class should be how the app interacts with play sessions. It's capable of both real play sessions and preview
 # play sessions, and contains to a few util functions to help. All play session data is stored under self.data.
 # Analogous to MateriaPHP's Session_Play class
+
 
 class SessionPlay:
     @classmethod
@@ -38,13 +39,15 @@ class SessionPlay:
                 self.data.is_valid = True
                 self.data.created_at = make_aware(datetime.min)
                 self.data.user = None  # TODO
-                self.data.ip = ''  # TODO
+                self.data.ip = ""  # TODO
                 self.data.is_complete = False
                 self.data.score = 0
                 self.data.percent = 0
                 self.data.elapsed = 0
-                self.data.context_id = ''
-                self.data.semester = DateRange.objects.first()  # TODO make it grab the current semester
+                self.data.context_id = ""
+                self.data.semester = (
+                    DateRange.objects.first()
+                )  # TODO make it grab the current semester
                 self.is_preview = True
 
         # self.id: str | None = None
@@ -59,8 +62,13 @@ class SessionPlay:
         # self.referrer_url: str | None = None
         # self.semester: DateRange | None = None
 
-    def start(self, instance: WidgetInstance, user_id: int = 0, context_id: str = '',
-              is_preview: bool = False) -> str | None:
+    def start(
+        self,
+        instance: WidgetInstance,
+        user_id: int = 0,
+        context_id: str = "",
+        is_preview: bool = False,
+    ) -> str | None:
         # TODO: if inst_id is not valid hash, return None (do we need this?)
 
         self.data.created_at = make_aware(datetime.now())
@@ -70,14 +78,14 @@ class SessionPlay:
         self.data.context_id = context_id
         self.data.is_preview = is_preview
         self.data.qset = instance.get_latest_qset()
-        self.data.environment_data = ''
+        self.data.environment_data = ""
 
-        self.data.auth = ''  # TODO
-        self.data.referrer_url = ''
+        self.data.auth = ""  # TODO
+        self.data.referrer_url = ""
 
-        self.data.ip = ''  # TODO
+        self.data.ip = ""  # TODO
         self.data.elapsed = 0
-        self.data.is_valid = '1'  # TODO
+        self.data.is_valid = "1"  # TODO
         self.data.is_complete = False
         self.data.score = 0.0  # TODO
         self.data.score_possible = 0  # TODO
@@ -108,7 +116,9 @@ class SessionPlay:
 
         # TODO: Caching stuff; look at php
 
-        self.data.elapsed = (make_aware(datetime.now()) - self.data.created_at).total_seconds()
+        self.data.elapsed = (
+            make_aware(datetime.now()) - self.data.created_at
+        ).total_seconds()
         self.data.save()
 
     def set_complete(self, score, possible, percent):
@@ -131,7 +141,9 @@ class SessionPlay:
             self.data.save()
 
             # Determine the highest score of this user's history
-            score_history = ScoringUtil.get_instance_score_history(self.data.instance, self.data.context_id)
+            score_history = ScoringUtil.get_instance_score_history(
+                self.data.instance, self.data.context_id
+            )
 
             for score_history_item in score_history:
                 max_percent = max(max_percent, score_history_item.percent)
@@ -161,7 +173,7 @@ class SessionPlay:
 
     def _save_new_play(self) -> bool:
         # Generate a valid id
-        log_id = ''
+        log_id = ""
         for i in range(0, 25):  # TODO: make max attempts a config variable
             log_id = str(uuid.uuid4())
 
@@ -188,3 +200,53 @@ class SessionPlay:
             return False
 
         return session_play.validate(request)
+
+    @staticmethod
+    def get_preview_play(session, preview_play_id):
+        """Reconstruct a preview SessionPlay from session logs."""
+        from util.logging.session_logger import SessionLogger
+
+        print("===============DEBUG===================")
+        print("===============DEBUG===================")
+        print("===============DEBUG===================")
+        print("===============DEBUGDEMO===================")
+        print("===============DEBUGDEMO===================")
+        print("===============DEBUGDEMO===================")
+        preview_logs = session.get(f"previewPlayLogs.{preview_play_id}")
+        print(f"preview_logs: {preview_logs}")
+        if not preview_logs:
+            print("no preview logs")
+            return None
+
+        # Clear the logs from the session after fetching
+        del session[f"previewPlayLogs.{preview_play_id}"]
+
+        # Construct a fake LogPlay
+        log_play = LogPlay()
+        print(f"log_play: {log_play}")
+        log_play.id = preview_play_id
+        log_play.created_at = make_aware(datetime.now())
+        log_play.is_complete = False
+        log_play.is_valid = True
+        log_play.score = 0
+        log_play.percent = 0
+        log_play.elapsed = 0
+        log_play.context_id = ""
+        log_play.semester = DateRange.objects.first()
+        print(f"log_play: {log_play}")
+
+        session_play = SessionPlay()
+        print(f"session_play: {session_play}")
+        session_play.data = log_play
+        session_play.is_preview = True
+        session_play._preview_logs = preview_logs
+        print(f"session_play: {session_play}")
+
+        return session_play
+
+    def get_logs(self):
+        if self.is_preview and hasattr(self, "_preview_logs"):
+            return self._preview_logs
+        from core.models import Log
+
+        return Log.objects.filter(play_id=self.data.id).order_by("game_time")

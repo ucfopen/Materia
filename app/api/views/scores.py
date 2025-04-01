@@ -115,7 +115,9 @@ class ScoresApi:
         if ValidatorUtil.is_valid_hash(preview_inst_id):
             # Get preview play details
             if preview_play_id is None:
-                return MsgBuilder.invalid_input(msg="Missing preview play ID").as_json_response()
+                return MsgBuilder.invalid_input(
+                    msg="Missing preview play ID"
+                ).as_json_response()
             # Check if preview is valid and user has access
             if False:  # TODO: \Service_User::verify_session() !== true
                 return MsgBuilder.no_login().as_json_response()
