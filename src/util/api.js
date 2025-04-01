@@ -378,6 +378,7 @@ export const apiGetStorageData = instId => {
 
 // Widget player api calls
 export const apiCreatePlaySession = ({ widgetId }) => {
+	console.log('apiCreatePlaySession', widgetId)
 	return fetch('/api/play-sessions/', {
 		method: 'POST',
 		body: JSON.stringify({ instanceId: widgetId }),
@@ -400,6 +401,7 @@ export const apiGenerateQset = ({inst_id, widget_id, topic, include_images, num_
 }
 
 export const apiSessionVerify = (play_id) => {
+	console.log('apiSessionVerify', play_id)
 	return fetch(`/api/play-sessions/${play_id}/verify/`)
 	.then(resp => resp.json())
 	.then(data => {
@@ -412,7 +414,9 @@ export const apiSavePlayStorage = ({ play_id, logs }) => {
 }
 
 export const apiSavePlayLogs = ({ request }) => {
-	return fetch(`/api/play-sessions/${request.playId}/`, {
+	const playId = request.playId ?? request.previewPlayId;
+	console.log('apiSavePlayLogs', request.playId, request.previewPlayId)
+	return fetch(`/api/play-sessions/${playId}/`, {
 		method: 'PUT',
 		body: JSON.stringify(request.logs),
 		headers: {
@@ -470,6 +474,7 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 /** Controller_Api_User */
 
 export const apiGetUserPlaySessions = ({pageParam = 1}) => {
+	console.log('apiGetUserPlaySessions', pageParam)
 	return fetch(`/api/play-sessions/?include_activity=true&page=${pageParam}`)
 		.then(resp => resp.json())
 		.then(data => data)

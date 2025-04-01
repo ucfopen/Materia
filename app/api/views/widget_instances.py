@@ -189,6 +189,11 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"])
     def scores(self, request, pk=None):
+        print("DO WE DO THINGS HERE")
+        print("DO WE DO THINGS HERE")
+        print("DO WE DO THINGS HERE")
+        print("DO WE DO THINGS HERE")
+        print("DO WE DO THINGS HERE")
         instance = self.get_object()
 
         logs_for_user = (
