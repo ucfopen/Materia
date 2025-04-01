@@ -52,6 +52,12 @@ class Command(base.BaseCommand):
         if valid:
             self.install(local_package)
 
+    def install_from_url_no_verify(self, package_url, desired_id):
+        local_package = self.download_package(package_url)
+
+        self.replace_id = desired_id
+        self.install(local_package)
+
     def download_package(self, file_url):
         file_name = os.path.basename(file_url)
         output_dir = WidgetInstaller.get_temp_dir()

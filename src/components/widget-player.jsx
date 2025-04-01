@@ -85,7 +85,7 @@ const _translateForApiVersion = (instance, qset) => {
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/') || window.location.href.includes('/lti/assignment')
 
-const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=true}) => {
+const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=true}) => {
 
 	const [alert, setAlert] = useState({
 		msg: '',
@@ -113,7 +113,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	const previewPlayId = useMemo(() => {
 		if (!isPreview) return null
-		return crypto.randomUUID().substring(0, 5) // Generate a random preview play ID
+		return crypto.randomUUID() // Generate a random preview play ID
 	}, [])
 
 	// refs are used instead of state when value updates do not require a component rerender
@@ -295,8 +295,10 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 			if (pendingLogs.play && pendingLogs.play.length > 0) {
 				const args = { playId, logs: pendingLogs.play }
 				if (isPreview) {
+					// TODO clean these up?
 					args['previewInstanceId'] = (inst.id)
 					args['previewPlayId'] = previewPlayId
+					if (isPreview) args['playId'] = previewPlayId
 				}
 				_pushPendingLogs([{ request: args }])
 			}
@@ -377,9 +379,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		} else {
 			const convertedInstance = _translateForApiVersion(inst, qset)
 			setStartTime(new Date().getTime())
-			console.log("QSET")
-			console.log(qset)
-			console.log(inst)
 			_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
 			setPlayState('playing')
 		}

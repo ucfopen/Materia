@@ -1,13 +1,13 @@
-from django.conf import settings
-from django.core.management import base, call_command
-from django.contrib.auth.models import Group, Permission
-from django.db import connection
-
 import logging
-from dateutil import parser, tz
 import re
 
+from dateutil import parser, tz
+from django.conf import settings
+from django.contrib.auth.models import Group
+from django.core.management import base
+
 logger = logging.getLogger("django")
+
 
 class Command(base.BaseCommand):
     help = "Initial installation and setup tasks"
@@ -50,9 +50,9 @@ class Command(base.BaseCommand):
 
         start_year = int(start_year)
         end_year = int(end_year)
-        
+
         semesters = settings.SEMESTERS[0]
-       
+
         year_counter = start_year
 
         while end_year >= year_counter:
@@ -61,7 +61,7 @@ class Command(base.BaseCommand):
             for i, season in enumerate(seasons):
 
                 semester = semesters[season]
-                
+
                 if i + 1 < len(seasons):
 
                     next_season = seasons[i + 1]
@@ -90,4 +90,3 @@ class Command(base.BaseCommand):
                     print(e)
 
             year_counter = year_counter + 1
-

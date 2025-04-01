@@ -1,10 +1,13 @@
 import logging
 import os
 import tempfile
+from datetime import datetime
 
-from api.views.widget_instances import WidgetInstancesApi
-from core.models import PermObjectToUser, Widget, WidgetMetadata, WidgetQset
+from django.utils.timezone import make_aware
+
+from core.models import PermObjectToUser, Widget, WidgetMetadata, WidgetInstance, WidgetQset
 from django.conf import settings
+
 from util.unique_id import unique_id
 
 logger = logging.getLogger("django")
@@ -444,43 +447,57 @@ class WidgetInstaller:
 
             if existing_inst_id:
                 # update the existing instance by adding a new qset
-                saved_demo = WidgetInstancesApi.update(
-                    existing_inst_id,
-                    demo_data["name"],
-                    qset,
-                    False,
-                    None,
-                    None,
-                    None,
-                    True,
-                )
+                widget_instance = WidgetInstance.objects.filter(pk=existing_inst_id).first()
+                if widget_instance is None:
+                    raise Exception("Could not load existing widget instance")
 
-                if not saved_demo.id:
-                    raise Exception("Error saving demo instance")
+                widget_instance.name = demo_data["name"]
+                widget_instance.is_draft = False
+                widget_instance.guest_access = True
+                qset.instance = widget_instance
+
+                try:
+                    widget_instance.save()
+                    qset.save()
+                except Exception as e:
+                    logger.error("Error updating demo instance:")
+                    logger.error(e)
             else:
                 # new instance, nothing to upgrade
-                saved_demo = WidgetInstancesApi.new(
-                    widget_id, demo_data["name"], qset, False
-                )
+                widget = Widget.objects.filter(pk=widget_id).first()
+                if widget is None:
+                    raise Exception("Could not load widget engine")
 
-                if not saved_demo.id:
-                    raise Exception("Error saving demo instance")
-
-                # update it to make sure it allows guest access
-                WidgetInstancesApi.update(
-                    saved_demo.id, None, None, None, None, None, None, True
+                widget_instance = WidgetInstance(
+                    user=None,
+                    name=demo_data["name"],
+                    is_draft=False,
+                    created_at=make_aware(datetime.now()),
+                    widget=widget,
+                    is_student_made=False,
+                    guest_access=True,
+                    attempts=-1,
                 )
+                qset.instance = widget_instance
+
+                try:
+                    widget_instance.save()
+                    qset.save()
+                except Exception as e:
+                    logger.error("Error saving new demo instance:")
+                    logger.error(e)
+
                 # make sure nobody owns the demo widget
                 access = PermObjectToUser.objects.filter(
-                    object_id=saved_demo.id,
+                    object_id=widget_instance.id,
                     object_type=PermObjectToUser.ObjectType.INSTANCE,
                 )
                 for a in access:
                     a.delete()
 
             # TODO: this was originally a static output - may have to change this, maybe not?
-            logger.info(f"Demo installed: {saved_demo.id}")
-            return saved_demo.id
+            logger.info(f"Demo installed: {widget_instance.id}")
+            return widget_instance.id
 
     def validate_demo(demo_data):
         if "name" not in demo_data:

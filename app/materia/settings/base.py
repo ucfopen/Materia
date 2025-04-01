@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 # import additional config files
+from .generation import *
 from .widgets import *
 from .urls import *
 from .css import *
@@ -181,3 +182,5 @@ SEMESTERS = [
 ]
 
 USER_SETTINGS_CACHE_TIMEOUT = 3600
+
+LOCK_TIMEOUT = 120

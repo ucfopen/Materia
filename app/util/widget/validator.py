@@ -124,3 +124,16 @@ class ValidatorUtil:
 
     # intentionally not recreating cast_to_bool_enum function, since
     #  the Django ORM and our model definitions should handle that
+
+    # Mimics PHP's FILTER_VALIDATE_BOOL
+    @staticmethod
+    def validate_bool(raw_bool: str, default: bool = False) -> bool:
+        if type(raw_bool) is str:
+            lowered_bool = raw_bool.lower()
+            if lowered_bool == "true" or lowered_bool == "yes" or lowered_bool == "on" or lowered_bool == "1":
+                return True
+            if lowered_bool == "false" or lowered_bool == "no" or lowered_bool == "off" or lowered_bool == "0" \
+                    or lowered_bool == "":
+                return False
+
+        return default

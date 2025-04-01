@@ -49,12 +49,12 @@ const QsetGenerator = () => {
 		loading.current = true
 
 		generateQuestion.mutate({
-			inst_id: instId,
-			widget_id: widgetId,
-			topic: topic,
-			include_images: includeImages,
-			num_questions: numQuestions,
-			build_off_existing: buildOffExisting,
+			instId,
+			widgetId,
+			topic,
+			includeImages,
+			numQuestions,
+			buildOffExisting,
 			successFunc: (result) => {
 				window.parent.Materia.Creator.onQsetReselectionComplete(
 					JSON.stringify(result.qset),
@@ -97,7 +97,7 @@ const QsetGenerator = () => {
 	}
 
 	const onNumberChange = (e) => {
-		setNumQuestions(e.target.value)
+		setNumQuestions(parseInt(e.target.value))
 	}
 
 	return (

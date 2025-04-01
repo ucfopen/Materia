@@ -3,7 +3,6 @@ from rest_framework.views import APIView
 
 
 class SessionView(APIView):
-
     def get(self, request):
         perm = ""
         if request.user.is_superuser:

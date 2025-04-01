@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User, Group
 import getpass
 
+
 class Command(BaseCommand):
     help = "Creates a new student user"
 
@@ -32,4 +33,3 @@ class Command(BaseCommand):
         user.save()
 
         self.stdout.write(self.style.SUCCESS(f"Student user '{username}' created successfully!"))
-
