@@ -1,5 +1,7 @@
 import logging
 
+from django.http import HttpResponse
+
 from core.models import LogPlay, PermObjectToUser, WidgetInstance, WidgetQset, LogActivity
 from core.permissions import (
     CanCreateWidgetInstances,
@@ -20,7 +22,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
-from util.message_util import MsgBuilder
+from util.logging.play_data_exporter import PlayDataExporter
+from util.message_util import MsgBuilder, Msg
 from util.perm_manager import PermManager
 from util.widget.instance.instance_util import WidgetInstanceUtil
 
@@ -259,3 +262,36 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             return MsgBuilder.failure(msg="Widget instance could not be copied.").as_drf_response()
 
         return Response(WidgetInstanceSerializer(duplicate).data)
+
+    # WAS /data/export/
+    # This endpoint can be visited directly and the file will download, or can be called like a normal API endpoint
+    @action(detail=True, methods=["get"],
+            permission_classes=[IsAuthenticated & (HasWidgetInstanceEditAccess | IsSuperuser)])
+    def export_playdata(self, request, pk=None):
+        # Get and validate query params
+        export_type = request.query_params.get("type", None)
+        semester_ids = request.query_params.get("semesters", "")
+
+        if export_type is None:
+            return MsgBuilder.invalid_input(msg="Missing export_type query parameter").as_drf_response()
+
+        # TODO original code required user to have FULL perms, not just edit perms. come back around to this
+        #      once we have object level perms done
+
+        instance = self.get_object()
+
+        result, file_ext = PlayDataExporter.export(instance, export_type, semester_ids)
+        if type(result) is Msg:
+            return result.as_drf_response()
+
+        # technically supposed to use DRF's Response here, but it adds additional processing that makes switching
+        # between different file formats (strings like CSVs, blobs like ZIP files, etc.) more difficult
+        resp = HttpResponse(result)
+        resp["Pragma"] = "public"
+        resp["Expires"] = "0"
+        resp["Cache-Control"] = "must-revalidate, post-check=0, pre-check=0"
+        resp["Content-Type"] = "application/force-download"
+        resp["Content-Type"] = "application/octet-stream"
+        resp["Content-Type"] = "application/download"
+        resp["Content-Disposition"] = f"attachment; filename=\"export_{instance.name}.{file_ext}\""
+        return resp

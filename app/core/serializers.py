@@ -188,7 +188,7 @@ class QuestionSetSerializer(serializers.ModelSerializer):
 # instance model serializer (inbound | outbound)
 class WidgetInstanceSerializer(serializers.ModelSerializer):
     preview_url = serializers.SerializerMethodField()
-    play_url = serializers.SerializerMethodField()
+    play_url = serializers.CharField(read_only=True)
     embed_url = serializers.SerializerMethodField()
     qset = QuestionSetSerializer(required=False)
 
@@ -227,13 +227,9 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
         required=False
     )  # Model's save function will auto-generate an ID if it is empty
 
+    # TODO for consistency, move preview and embed url to model too
     def get_preview_url(self, instance):
         return f"{settings.URLS["BASE_URL"]}preview/{instance.id}/{slugify(instance.name)}/"
-
-    def get_play_url(self, instance):
-        return (
-            f"{settings.URLS["BASE_URL"]}play/{instance.id}/{slugify(instance.name)}/"
-        )
 
     def get_embed_url(self, instance):
         if instance.is_draft:

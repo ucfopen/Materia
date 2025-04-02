@@ -15,7 +15,7 @@ export const getCSRFToken = () => {
 }
 
 // checks response for errors and decodes json
-const handleErrors = async resp => {
+export const handleErrors = async resp => {
 	if (!resp.ok) {
 		if (resp.status == 404) {
 			window.location = '/site/404'

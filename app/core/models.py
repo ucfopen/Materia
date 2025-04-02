@@ -12,11 +12,13 @@ import os
 from datetime import datetime
 from typing import Self
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db.models import QuerySet
+from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 from util.perm_manager import PermManager
@@ -909,6 +911,10 @@ class WidgetInstance(models.Model):
             pass
 
         return dupe
+
+    @property
+    def play_url(self):
+        return f"{settings.URLS["BASE_URL"]}play/{self.id}/{slugify(self.name)}/"
 
     class Meta:
         db_table = "widget_instance"
