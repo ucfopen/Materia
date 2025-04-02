@@ -1,12 +1,14 @@
 import logging
 
-from core.models import LogPlay, PermObjectToUser, Widget, WidgetInstance, WidgetQset
+from core.models import LogPlay, WidgetInstance, WidgetQset
 from core.permissions import (
     CanCreateWidgetInstances,
+    HasWidgetInstanceEditAccess,
     HasWidgetInstanceEditAccessOrReadOnly,
-    IsSuperuser, HasWidgetInstanceEditAccess,
+    IsSuperuser,
 )
 from core.serializers import (
+    ObjectPermissionSerializer,
     PlayIdSerializer,
     QuestionSetSerializer,
     ScoreSummarySerializer,
@@ -19,7 +21,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-
 from util.perm_manager import PermManager
 from util.widget.instance.instance_util import WidgetInstanceUtil
 
@@ -115,12 +116,15 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             raise ValidationError("You cannot publish this widget")
 
         # Add and override some additional info, including user and student status stuffs
-        serializer.save(
+        new_instance = serializer.save(
             user=self.request.user,
             is_student_made=is_student,
             guest_access=is_student,
             attempts=-1,
         )
+
+        # add the permission record for the instance owner
+        new_instance.permissions.create(user=self.request.user, permission="full")
 
     def perform_update(self, serializer):
         instance = self.get_object()
@@ -185,9 +189,15 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     # /api/instances/<inst id>/lock/
-    @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated & HasWidgetInstanceEditAccess])
+    @action(
+        detail=True,
+        methods=["get"],
+        permission_classes=[IsAuthenticated & HasWidgetInstanceEditAccess],
+    )
     def lock(self, request, pk=None):
-        return Response({"lock_obtained": WidgetInstanceUtil.get_lock(pk, request.user)})
+        return Response(
+            {"lock_obtained": WidgetInstanceUtil.get_lock(pk, request.user)}
+        )
 
     @action(detail=True, methods=["get"])
     def scores(self, request, pk=None):
@@ -204,14 +214,11 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         serialized.is_valid(raise_exception=True)
         return Response(serialized.data)
 
-    # TODO this is a temp response until instance permissions comes fully online
     @action(detail=True, methods=["get", "put"])
     def perms(self, request, pk=None):
-        return Response(
-            {
-                "user_perms": {request.user.id: [PermObjectToUser.Perm.FULL, None]},
-                "widget_user_perms": {
-                    request.user.id: [PermObjectToUser.Perm.FULL, None]
-                },
-            }
-        )
+
+        instance = WidgetInstance.objects.get(id=pk)
+
+        permissions = instance.permissions.all()
+        serialized = ObjectPermissionSerializer(permissions, many=True)
+        return Response(serialized.data)

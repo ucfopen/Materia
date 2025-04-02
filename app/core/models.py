@@ -12,10 +12,12 @@ import os
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
+from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.db.models import QuerySet
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 from util.perm_manager import PermManager
@@ -23,6 +25,28 @@ from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
 # from pprint import pformat
+
+
+class ObjectPermission(models.Model):
+    PERMISSION_CHOICES = [("visible", "Read-Only"), ("full", "Full Access")]
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="object_permissions"
+    )
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.CharField(max_length=10, db_collation="utf8_bin")
+    content_object = GenericForeignKey("content_type", "object_id")
+    permission = models.CharField(max_length=20, choices=PERMISSION_CHOICES)
+    expires_at = models.DateTimeField(default=None, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "content_type", "object_id", "permission")
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+            models.Index(fields=["user", "permission"]),
+        ]
 
 
 class Asset(models.Model):
@@ -57,6 +81,8 @@ class Asset(models.Model):
     file_size = models.IntegerField(default=0)
     deleted_at = models.DateTimeField(default=None, null=True)
     is_deleted = models.BooleanField(default=False)
+
+    permissions = GenericRelation(ObjectPermission)
 
     def is_valid(self):
         from util.widget.validator import ValidatorUtil
@@ -95,7 +121,6 @@ class Asset(models.Model):
 
     # TODO: make this more Django-y
     def db_store(self, user=None):
-        from core.models import PermObjectToUser
         from django.utils.timezone import make_aware
         from util.widget.validator import ValidatorUtil
 
@@ -110,12 +135,12 @@ class Asset(models.Model):
                 self.created_at = make_aware(datetime.now())
                 self.save()
 
-                p = PermObjectToUser()
-                p.object_id = asset_id
-                p.user = user
-                p.perm = PermObjectToUser.Perm.FULL
-                p.object_type = PermObjectToUser.ObjectType.ASSET
-                p.save()
+                # p = PermObjectToUser()
+                # p.object_id = asset_id
+                # p.user = user
+                # p.perm = PermObjectToUser.Perm.FULL
+                # p.object_type = PermObjectToUser.ObjectType.ASSET
+                # p.save()
 
             return True
 
@@ -138,10 +163,12 @@ class Asset(models.Model):
                     ad_obj.delete()
                 except AssetData.DoesNotExist:
                     pass
-                for perm in PermObjectToUser.objects.filter(
-                    object_id=self.id, object_type=PermObjectToUser.ObjectType.ASSET
-                ):
-                    perm.delete()
+                # TODO remove ObjectPermission records associated with asset
+
+                # for perm in PermObjectToUser.objects.filter(
+                #     object_id=self.id, object_type=PermObjectToUser.ObjectType.ASSET
+                # ):
+                #     perm.delete()
             self = Asset()
             return True
 
@@ -544,7 +571,7 @@ class PermObjectToUser(models.Model):
     object_id = models.CharField(max_length=10, db_collation="utf8_bin")
     user = models.ForeignKey(
         User,
-        related_name="object_permissions",
+        related_name="object_permissions_deprecated",
         on_delete=models.SET_NULL,
         db_column="user_id",
         blank=True,
@@ -585,6 +612,8 @@ class Question(models.Model):
         "WidgetQset", through=MapQuestionToQset, related_name="questions"
     )
 
+    permissions = GenericRelation(ObjectPermission)
+
     @property
     def data(self) -> dict:
         decoded_data = base64.b64decode(self._data).decode("utf-8")
@@ -592,7 +621,9 @@ class Question(models.Model):
 
     @data.setter
     def data(self, new_data: dict):
-        self._data = base64.b64encode(json.dumps(new_data).encode("utf-8")).decode("utf-8")
+        self._data = base64.b64encode(json.dumps(new_data).encode("utf-8")).decode(
+            "utf-8"
+        )
 
     class Meta:
         db_table = "question"
@@ -763,6 +794,7 @@ class WidgetInstance(models.Model):
         null=True,
         db_column="published_by",
     )
+    permissions = GenericRelation(ObjectPermission)
 
     def create_qset(self, data, version=None):
         qset = WidgetQset(
