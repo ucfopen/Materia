@@ -724,7 +724,7 @@
 			.share-widget-options-third {
 				padding-left: 10px;
 				border-left: 8px solid rgba(93, 163, 203, 0.5);
-				
+
 			}
 
 			.view-more {
@@ -1237,7 +1237,9 @@
 	}
 }
 
-@media (max-width: 500px) {
+
+
+@media (min-width: 780px) and (max-width: 950px) {
 .my_widgets {
 	display: flex;
 	justify-content: center;
@@ -1249,9 +1251,13 @@
 		overflow: hidden;
 
 		section.directions {
+
+				position: relative;
+				right: 200px;
+
 			&.unchosen {
 				&:not(.bearded) {
-					background: #ffffff url('/img/kogneato_mywidgets.svg') 60% 30%/250px auto no-repeat;
+					background: #ffffff url('/img/kogneato_mywidgets.svg')55% 30%/250px auto no-repeat;
 				}
 
 			}
@@ -1266,8 +1272,8 @@
 
 		section.page {
 			display: grid;
-			margin: 0;
-			width: 120%;
+			margin-left: 40%;
+			// width: 120%;
 
 		}
 
@@ -1297,7 +1303,10 @@
 
 			h1 {
 				display: grid;
-				padding-left: 36%;
+				position: relative;
+				width: 47vh;
+				place-items:center;
+
 			}
 
 		}
@@ -1308,17 +1317,336 @@
 				}
 		}
 
+		.share-widget-container {
+			width: 80%;
+			right: 90px;
+		}
+
 	}
 }
 
 .scores {
-
+	position: relative;
+	right: 160px;
 	.student-activity-header {
 		flex-direction: column;
-		display: none;
+		border: none;
+		bottom: 26px;
+
+		h2 {
+			text-decoration: underline;
+		}
 		.action_button {
     		margin-bottom: 20px;
 		}
+	}
+
+	.scoreWrapper {
+		transform: scale(1)
+	}
+}
+
+
+.modal {
+	.collaborate-modal {
+		.user-add {
+			font-size: 13px;
+		}
+	}
+}
+
+.warning-modal {
+	display: grid;
+	width: 100%;
+	.title {
+		margin-left: 26%;
+		margin-bottom: -10px;
+		font-size: 20px;
+	}
+
+	.buttons {
+		margin-left: 25%;
+	}
+    .content {
+		margin: 0;
+    	width: 350px;
+    	display: grid;
+		p
+		{
+			position: relative;
+			left:40%
+		}
+		h3
+		{
+			position:relative;
+			left:47%;
+			margin-bottom: -10px;
+		}
+		ul {
+			width:100%;
+			margin-left:38%;
+		}
+	}
+	.close-button {
+		top: 16px;
+	}
+}
+}
+
+@media (min-width: 580px) and (max-width: 780px) {
+.my_widgets {
+	display: flex;
+	justify-content: center;
+	overflow: hidden;
+	.container {
+		display: flex;
+		flex-wrap: wrap;
+
+		overflow: hidden;
+
+		section.directions {
+
+				position: relative;
+				right: 150px;
+
+			&.unchosen {
+				&:not(.bearded) {
+					background: #ffffff url('/img/kogneato_mywidgets.svg') 50% 30%/250px auto no-repeat;
+				}
+
+			}
+
+
+		}
+
+		.container_main-content {
+			box-shadow: none;
+			padding-left: 0%;
+		}
+
+		section.page {
+			display: grid;
+			margin-left: 20%;
+
+		}
+
+		aside {
+			overflow: hidden;
+			width: 100%;
+			height: 100%;
+			position: relative;
+			margin: 0;
+
+		}
+
+		.page {
+			.overview {
+				display: grid;
+				margin: 0px;
+				width: 100px;
+
+
+			}
+		}
+	}
+
+	.page
+	{
+		.header {
+
+			h1 {
+				display: grid;
+				width: 47vh;
+				place-items:center;
+			}
+
+		}
+		width: 100%;
+		.overview {
+				.icon_container {
+					padding-left: 50px;
+				}
+		}
+
+		.share-widget-container {
+			width: 80%;
+			right: 50px;
+		}
+
+	}
+}
+
+.scores {
+	position: relative;
+	right: 160px;
+	.student-activity-header {
+		flex-direction: column;
+		bottom: 15px;
+		border: none;
+		margin-left: 10%;
+
+		h2 {
+			text-decoration: underline;
+		}
+
+		.action_button {
+    		margin-bottom: 20px;
+		}
+	}
+	.scoreWrapper {
+		position: relative;
+		left: 10%;
+		transform: scale(.8);
+	}
+}
+
+.modal {
+	.collaborate-modal {
+		.user-add {
+			font-size: 13px;
+		}
+	}
+}
+
+.warning-modal {
+	display: grid;
+	width: 100%;
+	.title {
+		margin-bottom: -10px;
+		margin-left: 20%;
+		font-size: 20px;
+	}
+
+	.buttons {
+		margin-left: 22%;
+	}
+
+    .content {
+		margin: 0;
+    	width: 85%;
+    	display: grid;
+		h3
+		{
+			margin-left: 28%;
+		}
+
+		p {
+			margin-left: 20%;
+		}
+
+		ul {
+			margin-left: 20%;
+			margin-top: 0%;
+		}
+	}
+	.close-button {
+		top: 16px;
+	}
+}
+}
+
+@media (min-width: 370px) and (max-width: 580px) {
+.my_widgets {
+	display: flex;
+	justify-content: center;
+	overflow: hidden;
+	.container {
+		display: flex;
+		flex-wrap: wrap;
+
+		overflow: hidden;
+
+		section.directions {
+			position: relative;
+			right: 150px;
+
+
+
+			&.unchosen {
+				&:not(.bearded) {
+					background: #ffffff url('/img/kogneato_mywidgets.svg') 55% 30%/250px auto no-repeat;
+				}
+
+			}
+
+
+		}
+
+		.container_main-content {
+			box-shadow: none;
+			padding-left: 0%;
+		}
+
+		section.page {
+			display: grid;
+			margin: 25px;
+			// width: 120%;
+
+		}
+
+		aside {
+			overflow: hidden;
+			width: 100%;
+			height: 100%;
+			position: relative;
+			margin: 0;
+
+		}
+
+		.page {
+			.overview {
+				display: grid;
+				margin: 0px;
+				width: 100px;
+
+
+			}
+		}
+	}
+
+	.page
+	{
+		.header {
+
+			h1 {
+				display: grid;
+				position: relative;
+				width: 40vh;
+				place-items: center;
+			}
+
+		}
+		width: 100%;
+		.overview {
+				.icon_container {
+					padding-left: 50px;
+				}
+		}
+
+		.share-widget-container {
+			width: 55%
+		}
+
+	}
+}
+
+.scores {
+	position: relative;
+	right: 160px;
+	.student-activity-header {
+		flex-direction: column;
+        border-bottom: none;
+
+		h2 {
+			text-decoration: underline;
+		}
+		.action_button {
+    		margin-bottom: 20px;
+		}
+	}
+	.scoreWrapper
+	{
+		transform: scale(.5);
 	}
 }
 
@@ -1337,22 +1665,158 @@
 	.title {
 		margin-bottom: -10px;
 		font-size: 20px;
+		position: relative;
+		left:50px;
 	}
 
 	.buttons {
-		margin: 0;
+		margin-left: 55px;
 	}
     .content {
 		margin: 0;
     	width: 350px;
     	display: grid;
+		position: relative;
+		left: 50px;
+
 		h3
 		{
 			margin-bottom: -10px;
+			position: relative;
+			left: 20px;
+		}
+
+		ul
+		{
+			position: relative;
+			left: -30px;
 		}
 	}
 	.close-button {
 		top: 16px;
 	}
 }
+}
+
+@media (min-width: 180px) and (max-width: 380px) {
+	.my_widgets {
+	display: flex;
+	justify-content: center;
+	overflow: hidden;
+	.page {
+		.header {
+			display:grid;
+			color: black;
+			position: relative;
+ 			width: 40vh;
+			place-items: center;
+
+		}
+
+		.overview {
+			.controls
+			 {
+				.button-list{
+					position: relative;
+					right: 10%;
+				}
+
+
+				.options {
+					position: relative;
+					right: 8%
+				}
+
+		    }
+		}
+
+		.share-widget-container {
+			width: 48%;
+
+		}
+	}
+
+	.container {
+		display: flex;
+		flex-wrap: wrap;
+		overflow: hidden;
+
+		.container_main-content {
+			box-shadow: none;
+			padding-left: 0%;
+		}
+
+		section.page {
+			display: grid;
+			margin: 25px;
+			// width: 120%;
+
+		}
+
+		aside {
+			overflow: hidden;
+			width: 100%;
+			height: 100%;
+			position: relative;
+			margin: 0;
+
+		}
+
+		.page {
+			.overview {
+				display: grid;
+				margin: 0px;
+				width: 100px;
+
+
+			}
+		}
+	}
+
+	.scores {
+		.scoreWrapper {
+			position: relative;
+			right: 27%;
+			transform: scale(.45);
+		}
+	}
+	}
+	.warning-modal {
+
+			.title {
+				font-size: 18px;
+				position: relative;
+				right: 50px;
+			}
+
+			.buttons {
+				margin: 25px;
+			}
+			.content {
+				margin: 0;
+				width: 350px;
+				position: relative;
+
+
+				h3
+				{
+					margin-bottom: -10px;
+					position: relative;
+					left: 30px;
+					font-size: 17px;
+				}
+
+				ul
+				{
+					position: relative;
+					right: 10px;
+				}
+			}
+			.close-button {
+				top: 16px;
+			}
+}
+
+
+
 }

@@ -366,10 +366,11 @@ const MyWidgetSelectedInstance = ({
 		mainContentRender = <LoadingIcon/>
 	} else {
 		mainContentRender = <>
+		<div className='widget-info'>
 		<div className='header'>
 			<h1>{inst.name}</h1>
 		</div>
-		<div className='overview'>
+			<div className='overview'>
 			<div className={`icon_container med_${beardMode ? beard : ''} ${beardMode ? 'big_bearded' : ''}`} >
 				<img className='icon'
 					src={iconUrl(`${window.location.origin}/widget/`, inst.widget.dir, 275)}
@@ -465,6 +466,7 @@ const MyWidgetSelectedInstance = ({
 					</a>
 				</div>
 			</div>
+				</div>
 
 			<div className={`share-widget-container closed ${inst.is_draft ? 'draft' : ''}`}>
 				<h3>

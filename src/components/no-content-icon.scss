@@ -46,17 +46,57 @@ div#no-score-content, div#not-scorable {
 		color: #fff;
 	}
 }
-@media (max-width: 500px)
-{
+
+@media (min-width: 780px) and (max-width: 1000px){
 	div#no-score-content
 	{
 		width: 100%;
 		justify-content: flex-end;
 		padding-top: 20%;
-		padding-left: 0%;
+		padding-left: 20%;
 
 		&#no-score-content {
-		background: #fff url('/img/kogneato_no_scores.svg') 20% 30%/215px auto no-repeat;
+		background: #fff url('/img/kogneato_no_scores.svg') 35% 38%/215px auto no-repeat;
+	}
+	}
+}
+@media (min-width: 580px) and (max-width: 780px){
+	div#no-score-content
+	{
+		width: 100%;
+		justify-content: flex-end;
+		padding-top: 20%;
+		padding-left: 30%;
+
+		&#no-score-content {
+		background: #fff url('/img/kogneato_no_scores.svg') 40% 30%/215px auto no-repeat;
+	}
+	}
+}
+@media (min-width: 380px)and (max-width: 580px){
+	div#no-score-content
+	{
+
+		justify-content: flex-end;
+		padding: 20px;
+
+		&#no-score-content {
+		background: #fff url('/img/kogneato_no_scores.svg') 50% 10%/215px auto no-repeat;
+	}
+	}
+}
+@media (min-width: 180px) and (max-width: 380px){
+	div#no-score-content
+	{
+		width: 40%;
+		justify-content: flex-end;
+		padding-top: 15%;
+		padding-left: 0%;
+		position: relative;
+		right: 30%;
+
+		&#no-score-content {
+		background: #fff url('/img/kogneato_no_scores.svg') 80% 30%/215px auto no-repeat;
 	}
 	}
 }
