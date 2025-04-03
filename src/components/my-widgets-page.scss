@@ -1237,8 +1237,6 @@
 	}
 }
 
-
-
 @media (min-width: 780px) and (max-width: 950px) {
 .my_widgets {
 	display: flex;
@@ -1249,6 +1247,17 @@
 		flex-wrap: wrap;
 
 		overflow: hidden;
+
+		.widget_list
+			{
+				ul {
+					li {
+						&.title {
+							width: 300%;
+						}
+					}
+				}
+			}
 
 		section.directions {
 
@@ -1273,7 +1282,7 @@
 		section.page {
 			display: grid;
 			margin-left: 40%;
-			// width: 120%;
+
 
 		}
 
@@ -1284,6 +1293,16 @@
 			position: relative;
 			margin: 0;
 
+
+			.search
+			{
+
+				.textbox-background {
+					width: 95%;
+				}
+
+
+			}
 		}
 
 		.page {
@@ -1304,7 +1323,7 @@
 			h1 {
 				display: grid;
 				position: relative;
-				width: 47vh;
+				width: 35vh;
 				place-items:center;
 
 			}
@@ -1419,6 +1438,17 @@
 
 		}
 
+		.widget_list
+			{
+				ul {
+					li {
+						&.title {
+							width: 300%;
+						}
+					}
+				}
+			}
+
 		.container_main-content {
 			box-shadow: none;
 			padding-left: 0%;
@@ -1436,6 +1466,16 @@
 			height: 100%;
 			position: relative;
 			margin: 0;
+
+			.search
+			{
+
+				.textbox-background {
+					width: 95%;
+				}
+
+
+			}
 
 		}
 
@@ -1456,7 +1496,7 @@
 
 			h1 {
 				display: grid;
-				width: 47vh;
+				width: 35vh;
 				place-items:center;
 			}
 
@@ -1572,6 +1612,17 @@
 
 		}
 
+		.widget_list
+			{
+				ul {
+					li {
+						&.title {
+							width: 300%;
+						}
+					}
+				}
+			}
+
 		.container_main-content {
 			box-shadow: none;
 			padding-left: 0%;
@@ -1590,6 +1641,17 @@
 			height: 100%;
 			position: relative;
 			margin: 0;
+
+
+			.search
+			{
+
+				.textbox-background {
+					width: 95%;
+				}
+
+
+			}
 
 		}
 
@@ -1611,7 +1673,7 @@
 			h1 {
 				display: grid;
 				position: relative;
-				width: 40vh;
+				width: 35vh;
 				place-items: center;
 			}
 
@@ -1698,7 +1760,7 @@
 }
 }
 
-@media (min-width: 180px) and (max-width: 380px) {
+@media (min-width: 180px) and (max-width: 370px) {
 	.my_widgets {
 	display: flex;
 	justify-content: center;
@@ -1708,7 +1770,7 @@
 			display:grid;
 			color: black;
 			position: relative;
- 			width: 40vh;
+ 			width: 30vh;
 			place-items: center;
 
 		}
@@ -1741,15 +1803,39 @@
 		flex-wrap: wrap;
 		overflow: hidden;
 
+
+
 		.container_main-content {
 			box-shadow: none;
 			padding-left: 0%;
+		}
+		section.directions
+		{
+			h1
+			{
+				position: relative;
+				right: 28%
+			}
+			p {
+				position: relative;
+				right: 28%;
+			}
+
+			&.unchosen {
+				&:not(.bearded) {
+					background: #ffffff url('/img/kogneato_mywidgets.svg') 10% 30%/250px auto no-repeat;
+				}
+
+			}
+
+
+
 		}
 
 		section.page {
 			display: grid;
 			margin: 25px;
-			// width: 120%;
+
 
 		}
 
@@ -1759,6 +1845,29 @@
 			height: 100%;
 			position: relative;
 			margin: 0;
+
+			.widget_list
+			{
+				ul {
+					li {
+						&.title {
+							width: 300%;
+						}
+					}
+				}
+			}
+
+			.search
+			{
+
+				.textbox-background {
+					width: 90%;
+				}
+
+
+			}
+
+
 
 		}
 
