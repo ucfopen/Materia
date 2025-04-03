@@ -92,7 +92,11 @@ class ScoresApi:
         if not instance.playable_by_current_user(request.user):
             return MsgBuilder.no_login().as_json_response()
 
-        scores = ScoringUtil.get_guest_instance_score_history(instance, play_id)
+        print("getting instance score history")
+        scores = ScoringUtil.get_guest_play_details(play_id, instance)
+        print(f"Scores: {scores}")
+        # scores = ScoringUtil.get_preview_play_details(instance, play_id) # missing one arugment
+        # scores = ScoringUtil.get_preview_play_details(instance, play_id)
         # TODO: better serializing
         json_scores = json.loads(serializers.serialize("json", scores))
         fixed_json_scores = []
@@ -105,6 +109,7 @@ class ScoresApi:
     # Gets play details (from Log table, containing player's answers and actions) for a play_id
     @staticmethod
     def get_play_details(request):
+        print("IN GET PLAY DETAILS API/VIEWS/score.py beg")
         # Get body params
         json_body = json.loads(request.body)
         play_id = json_body.get("playId")
@@ -138,6 +143,7 @@ class ScoresApi:
             # Get real play details
             # Check if session play is valid and user has access
             session_play = SessionPlay.get_or_none(play_id)
+            print("ELSE IN get_play_details SCORES.py in views")
             if not session_play:
                 return HttpResponseNotFound()
             if not session_play.data.instance.playable_by_current_user(request.user):
@@ -149,6 +155,9 @@ class ScoresApi:
     @staticmethod
     def score_summary_get(request):
         # Get and validate body params
+        print("WE ARE IN SCORE_SUMMARY_GET")
+        print("WE ARE IN SCORE_SUMMARY_GET")
+        print("WE ARE IN SCORE_SUMMARY_GET")
         json_body = json.loads(request.body)
         instance_id = json_body.get("instanceId")
         # include_storage_data = json_body.get("includeStorageData", False)

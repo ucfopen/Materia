@@ -56,14 +56,10 @@ class ScoringUtil:
 
         return result.extra_attempts if result else 0
 
-    @staticmethod
-    def get_guest_instance_score_history(instance: WidgetInstance, play_id: str):
-        # TODO: I don't see the point of filtering by the other options? I think the PK should be just fine
-        return LogPlay.objects.filter(
-            pk=play_id,
-            instance=instance,
-            is_complete=True,
-        ).order_by("-created_at")
+    # @staticmethod
+    # def get_guest_instance_score_history(instance: WidgetInstance, play_id: str):
+    #     session = ?
+    #     details = get_preview_play_details(session, instance, play_id, )
 
     # Get score and play details for a SessionPlay
     @staticmethod
@@ -245,3 +241,52 @@ class ScoringUtil:
             del summaries[d["term_id"]]["term_id"]
 
         return summaries
+
+    @staticmethod
+    def get_guest_play_details(play_id: str, instance: WidgetInstance):
+        """Scores a guest LogPlay directly using the widget's score module."""
+        import os
+        import types
+
+        from util.logging.session_play import SessionPlay  # only for get_logs()
+
+        print(
+            f"WE ARE IN THE BEGINNGIN OF GET GUEST PLAY DETAILS, play_id={play_id}, instance={instance}"
+        )
+
+        log_play = LogPlay.objects.filter(
+            pk=play_id, instance=instance, is_complete=True
+        ).first()
+        if not log_play:
+            print("LOGPLAY NOT FOUND")
+            return None
+
+        # Load and execute the widget's score_module
+        widget_folder = f"staticfiles/widget/{instance.widget.id}-{instance.widget.clean_name}/_score-modules"
+        script_path = os.path.join(widget_folder, "score_module.py")
+        print(f"script_path={script_path}")
+        code = Path(script_path).read_text()
+
+        mod = types.ModuleType("temp_score_module")
+        exec(code, mod.__dict__)
+
+        ScoreClass = getattr(mod, instance.widget.score_module, None)
+        if not ScoreClass:
+            raise Exception("No score module found")
+
+        score_module = ScoreClass(play_id=play_id, instance=instance, play=log_play)
+        score_module.logs = log_play.get_logs()
+        score_module.validate_scores(log_play.created_at)
+
+        details = score_module.get_score_report()
+        print(f"details={details}")
+
+        # Add Qset
+        instance.get_qset(instance.id, log_play.created_at)
+        details["qset"] = (
+            instance.qset.as_json()
+            if hasattr(instance.qset, "as_json")
+            else {"version": None, "data": None}
+        )
+
+        return details
