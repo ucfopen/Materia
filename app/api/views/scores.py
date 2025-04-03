@@ -93,17 +93,13 @@ class ScoresApi:
             return MsgBuilder.no_login().as_json_response()
 
         print("getting instance score history")
-        scores = ScoringUtil.get_guest_play_details(play_id, instance)
+        # scores = ScoringUtil.get_guest_play_details(play_id, instance)
+        scores = ScoringUtil.get_guest_play_details(request.session, instance, play_id)
         print(f"Scores: {scores}")
-        # scores = ScoringUtil.get_preview_play_details(instance, play_id) # missing one arugment
-        # scores = ScoringUtil.get_preview_play_details(instance, play_id)
-        # TODO: better serializing
-        json_scores = json.loads(serializers.serialize("json", scores))
-        fixed_json_scores = []
-        for json_score in json_scores:
-            fixed_json_scores.append(json_score["fields"])
+        if not scores:
+            return MsgBuilder.expired().as_json_response()
 
-        return JsonResponse({"scores": fixed_json_scores})
+        return JsonResponse(scores)
 
     # WAS widget_instance_play_scores_get
     # Gets play details (from Log table, containing player's answers and actions) for a play_id
@@ -123,6 +119,7 @@ class ScoresApi:
                 return MsgBuilder.invalid_input(
                     msg="Missing preview play ID"
                 ).as_json_response()
+            is_preview: bool = True
             # Check if preview is valid and user has access
             if False:  # TODO: \Service_User::verify_session() !== true
                 return MsgBuilder.no_login().as_json_response()
@@ -132,8 +129,11 @@ class ScoresApi:
             if not widget_instance:
                 return HttpResponseNotFound()
 
-            play_details = ScoringUtil.get_preview_play_details(
-                request.session, widget_instance, preview_play_id
+            # play_details = ScoringUtil.get_preview_play_details(
+            #     request.session, widget_instance, preview_play_id
+            # )
+            play_details = ScoringUtil.get_guest_play_details(
+                request.session, widget_instance, preview_play_id, is_preview
             )
             if not play_details:
                 return MsgBuilder.expired().as_json_response()

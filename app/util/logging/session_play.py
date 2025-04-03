@@ -245,8 +245,16 @@ class SessionPlay:
         return session_play
 
     def get_logs(self):
-        if self.is_preview and hasattr(self, "_preview_logs"):
-            return self._preview_logs
-        from core.models import Log
+        print(
+            f"self: {self}, self.data: {self.data}, self.is_preview: {self.is_preview} vars: {vars(self)}"
+        )
+        # if self.is_preview and hasattr(self, "_preview_logs"):
+        if self.is_preview:
+            print("WE ARE A PREVIEW")
+            print(f"self.data: {self.data}")
+            return self.data._preview_logs
+        else:
+            print("WE ARE NOT A PREVIEW")
+            from core.models import Log
 
-        return Log.objects.filter(play_id=self.data.id).order_by("game_time")
+            return Log.objects.filter(play_id=self.data.id).order_by("game_time")

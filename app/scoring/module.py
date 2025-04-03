@@ -4,7 +4,7 @@ from core.models import LogPlay, WidgetInstance
 from django.utils.timezone import now
 from util.logging.session_logger import SessionLogger
 from util.logging.session_play import SessionPlay
-from util.semester import semester
+from util.semester import Semester
 
 
 class ScoreModule(ABC):

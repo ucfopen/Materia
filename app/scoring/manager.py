@@ -243,28 +243,42 @@ class ScoringUtil:
         return summaries
 
     @staticmethod
-    def get_guest_play_details(play_id: str, instance: WidgetInstance):
-        """Scores a guest LogPlay directly using the widget's score module."""
+    def get_guest_play_details(
+        session, instance: WidgetInstance, play_id: str, is_preview: bool
+    ):
+        """Attempts to reconstruct guest score from session. Falls back to LogPlay if session is missing."""
         import os
         import types
 
-        from util.logging.session_play import SessionPlay  # only for get_logs()
+        from util.logging.session_play import SessionPlay
 
-        print(
-            f"WE ARE IN THE BEGINNGIN OF GET GUEST PLAY DETAILS, play_id={play_id}, instance={instance}"
-        )
+        print(f"Getting guest play details for play_id={play_id}")
 
-        log_play = LogPlay.objects.filter(
-            pk=play_id, instance=instance, is_complete=True
-        ).first()
-        if not log_play:
-            print("LOGPLAY NOT FOUND")
+        session_play = SessionPlay.get_preview_play(session, play_id)
+        # is_preview = True
+
+        if not session_play:
+            print("Preview play not found in session. Trying DB LogPlay...")
+            session_play = LogPlay.objects.filter(pk=play_id, instance=instance).first()
+            # session_play = LogPlay.objects.filter(
+            #     pk=play_id, instance=instance, is_complete=True
+            # ).first()
+            # is_preview = False
+
+        if not session_play:
+            print("Still not found. Giving up.")
             return None
 
-        # Load and execute the widget's score_module
+        if session_play:
+            print("Doing the update")
+            sp = SessionPlay()
+            sp.data = session_play
+            sp.is_preview = is_preview
+            session_play = sp
+            is_preview = False
+
         widget_folder = f"staticfiles/widget/{instance.widget.id}-{instance.widget.clean_name}/_score-modules"
         script_path = os.path.join(widget_folder, "score_module.py")
-        print(f"script_path={script_path}")
         code = Path(script_path).read_text()
 
         mod = types.ModuleType("temp_score_module")
@@ -274,15 +288,21 @@ class ScoringUtil:
         if not ScoreClass:
             raise Exception("No score module found")
 
-        score_module = ScoreClass(play_id=play_id, instance=instance, play=log_play)
-        score_module.logs = log_play.get_logs()
-        score_module.validate_scores(log_play.created_at)
+        print(f"session_play: {session_play}")
+        score_module = ScoreClass(
+            play_id=play_id,
+            instance=instance,
+            # play=session_play if not is_preview else session_play.data,
+            play=session_play,
+        )
+        score_module.logs = (
+            session_play.get_logs() if is_preview else session_play.get_logs()
+        )
+        # score_module.validate_scores()
+        score_module.validate_scores(timestamp=score_module.play.data.created_at)
 
         details = score_module.get_score_report()
-        print(f"details={details}")
-
-        # Add Qset
-        instance.get_qset(instance.id, log_play.created_at)
+        instance.get_qset(instance.id, score_module.play.created_at)
         details["qset"] = (
             instance.qset.as_json()
             if hasattr(instance.qset, "as_json")

@@ -106,13 +106,16 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     session = SessionPlay(pk)
                     session.update_elapsed()
                 else:
-                    preview_session_key = (
-                        f"preview_play_logs_{update_serializer.validated_data["preview_inst_id"]}_"
-                        f"{update_serializer.validated_data["preview_play_id"]}"
-                    )
-                    if preview_session_key not in request.session:
-                        request.session[preview_session_key] = []
-                    request.session[preview_session_key].extend(logs)
+                    preview_play_id = update_serializer.validated_data["preview_play_id"]
+                    request.session[f"previewPlayLogs.{preview_play_id}"] = logs
+                    request.session.modified = True
+                    # preview_session_key = (
+                    #     f"preview_play_logs_{update_serializer.validated_data["preview_inst_id"]}_"
+                    #     f"{update_serializer.validated_data["preview_play_id"]}"
+                    # )
+                    # if preview_session_key not in request.session:
+                    #     request.session[preview_session_key] = []
+                    # request.session[preview_session_key].extend(logs)
 
                 return Response({"status": status.HTTP_200_OK, "success": True})
 

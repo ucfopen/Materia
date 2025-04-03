@@ -1,9 +1,8 @@
 from datetime import datetime
 
+from core.models import Log
 from django.contrib.sessions.backends.base import SessionBase
 from django.utils.timezone import make_aware
-
-from core.models import Log
 from util.logging.session_play import SessionPlay
 from util.widget.validator import ValidatorUtil
 
@@ -16,7 +15,9 @@ class SessionLogger:
     @staticmethod
     def store_log_array(play_session: SessionPlay, logs: list[dict]):
         # Validate play_session
-        if play_session.is_preview or not ValidatorUtil.is_valid_long_hash(play_session.data.id):
+        if play_session.is_preview or not ValidatorUtil.is_valid_long_hash(
+            play_session.data.id
+        ):
             print("Incorrect play_id")  # TODO: better logging
             return
 
@@ -32,8 +33,13 @@ class SessionLogger:
     # Shortcut for adding a single log
     @staticmethod
     def add_log(
-            log_type: str, item_id: str, text: str, value: str, game_time: int,
-            created_at: datetime, session_play: SessionPlay | None
+        log_type: str,
+        item_id: str,
+        text: str,
+        value: str,
+        game_time: int,
+        created_at: datetime,
+        session_play: SessionPlay | None,
     ) -> Log:
         play_id = -1 if session_play is None else session_play.data.id
         log = Log(
@@ -55,9 +61,16 @@ class SessionLogger:
     # Create an array of logs and store their references in the current session as preview logs
     # Because they are preview logs, they will not be saved to the DB
     @staticmethod
-    def save_preview_logs(session: SessionBase, widget_instance_id: str, preview_id: str, raw_logs: list[dict]):
+    def save_preview_logs(
+        session: SessionBase,
+        widget_instance_id: str,
+        preview_id: str,
+        raw_logs: list[dict],
+    ):
         # Append to any previously stored logs
-        session_key = f"preview_play_logs_{widget_instance_id}_{preview_id}"
+        # session_key = f"preview_play_logs_{widget_instance_id}_{preview_id}"
+        session_key = f"previewPlayLogs.{preview_id}"
+
         logs = session.get(session_key, [])
 
         for raw_log in raw_logs:
@@ -158,8 +171,13 @@ class SessionLogger:
         created_at = make_aware(datetime.now())
 
         return SessionLogger.add_log(
-            SessionLogger.get_log_type(log_type), item_id, text,
-            value, game_time, created_at, session_play
+            SessionLogger.get_log_type(log_type),
+            item_id,
+            text,
+            value,
+            game_time,
+            created_at,
+            session_play,
         )
 
 
