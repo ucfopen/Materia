@@ -35,7 +35,7 @@ SECRET_KEY = "materia-local-dev-secret-key"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -178,3 +178,50 @@ USER_SETTINGS_CACHE_TIMEOUT = 3600
 
 # amount of kilobytes alloted to any individual user for media storage
 MEDIA_QUOTA = 5000
+
+# defines the desired media driver
+MEDIA_DRIVER = (os.environ.get("ASSET_STORAGE_DRIVER", "file"),)
+
+# defines class names based on the desired media driver
+# is there a smarter/safer way of doing this?
+DRIVER_SETTINGS = {
+    "file": {"class": "FileAssetStorageDriver"},
+    "db": {"class": "DBAssetStorageDriver"},
+    "s3": (
+        None
+        if MEDIA_DRIVER != "s3"
+        else {
+            "class": "S3AssetStorageDriver",
+            # env or imds. Should be set to env for fakes3
+            "credential_provider": os.environ.get(
+                "ASSET_STORAGE_S3_CREDENTIAL_PROVIDER", "env"
+            ),
+            # set to url for testing endpoint
+            "endpoint": os.environ.get(
+                "ASSET_STORAGE_S3_ENDPOINT", "http://fakes3:10001"
+            ),
+            # aws region for bucket
+            "region": os.environ.get("ASSET_STORAGE_S3_REGION", "us-east-1"),
+            # bucket to store original user uploads
+            "bucket": os.environ.get("ASSET_STORAGE_S3_BUCKET", "fake_bucket"),
+            # OPTIONAL - directory to store original and resized assets
+            "subdir": os.environ.get("ASSET_STORAGE_S3_BASEPATH", "media"),
+            # aws api secret key
+            "secret_key": os.environ.get(
+                "AWS_SECRET_ACCESS_KEY",
+                os.environ.get("ASSET_STORAGE_S3_SECRET", "SECRET"),
+            ),
+            # aws api key
+            "key": os.environ.get(
+                "AWS_ACCESS_KEY_ID", os.environ.get("ASSET_STORAGE_S3_KEY", "KEY")
+            ),
+            "token": os.environ.get("AWS_SESSION_TOKEN", "TOKEN"),  # aws session token
+            # using fakes3 unless explicitly disabled
+            "fakes3_enabled": os.environ.get("DEV_ONLY_FAKES3_DISABLED", True),
+            # base S3 URL for viewing objects in-browser
+            "view_url": os.environ.get(
+                "ASSET_STORAGE_S3_BASEURL", "http://localhost:10001/fake_bucket/media/"
+            ),
+        }
+    ),
+}

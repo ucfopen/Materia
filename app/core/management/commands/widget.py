@@ -1,5 +1,6 @@
 import logging
 import os
+from shutil import rmtree
 from urllib import request
 
 from django.conf import settings
@@ -51,6 +52,10 @@ class Command(base.BaseCommand):
 
         if valid:
             self.install(local_package)
+
+        # clean up remaining temporary files
+        rmtree(os.path.dirname(local_package))
+        rmtree(os.path.dirname(local_checksum))
 
     def download_package(self, file_url):
         file_name = os.path.basename(file_url)

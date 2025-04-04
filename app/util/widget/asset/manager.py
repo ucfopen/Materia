@@ -1,8 +1,8 @@
+import importlib
 import logging
 import os
 
 import magic
-from core.models import Asset, PermObjectToUser
 from django.conf import settings
 from util.perm_manager import PermManager
 from util.widget.validator import ValidatorUtil
@@ -19,6 +19,9 @@ class AssetManager:
     #  as those data points are not part of the same source, also allowing
     #  for a user to be provided if this is called from a media upload action
     def new_asset_from_file(name, file_info, file_path, user=None):
+        # importing per-method to avoid circular imports
+        from core.models import Asset
+
         # does this user still have storage space left?
         if not AssetManager.user_has_space_for(user, file_info.st_size):
             return False
@@ -38,7 +41,9 @@ class AssetManager:
         if asset.db_store(user) and ValidatorUtil.is_valid_hash(asset.id):
             try:
                 # copy the file to its permanent home with an appropriate name
-                asset.upload_asset_data(file_path)
+                AssetManager.get_asset_storage_driver().store(
+                    asset, file_path, "original"
+                )
                 # remove the original
                 os.remove(file_path)
 
@@ -47,7 +52,9 @@ class AssetManager:
                 if user:
                     pass
                 return asset
-            except Exception:
+            except Exception as e:
+                logger.info("ASSET STORAGE ERROR")
+                logger.info(e)
                 pass
 
             # something failed in the above block, remove the asset
@@ -56,6 +63,9 @@ class AssetManager:
         return asset
 
     def get_assets_by_user(user_id, perm_type):
+        # importing per-method to avoid circular imports
+        from core.models import Asset, PermObjectToUser
+
         perms = PermManager.get_all_objects_of_type_for_user(
             user_id, PermObjectToUser.ObjectType.ASSET.value, [perm_type]
         )
@@ -88,6 +98,9 @@ class AssetManager:
         }
 
     def get_user_disk_usage(user_id):
+        # importing per-method to avoid circular imports
+        from core.models import PermObjectToUser
+
         assets = AssetManager.get_assets_by_user(
             user_id, PermObjectToUser.Perm.FULL.value
         )
@@ -95,3 +108,12 @@ class AssetManager:
         for asset in assets:
             total_used = total_used + asset.file_size
         return total_used
+
+    def get_asset_storage_driver():
+        driver_module_name = f"storage.{settings.MEDIA_DRIVER}"
+        driver_class_name = settings.DRIVER_SETTINGS[settings.MEDIA_DRIVER]["class"]
+
+        driver_module = importlib.import_module(driver_module_name)
+        driver_class = getattr(driver_module, driver_class_name)
+
+        return driver_class

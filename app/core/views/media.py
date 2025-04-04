@@ -103,25 +103,17 @@ class MediaUpload:
                 status=400,
             )
 
-        # TODO: move the Asset object and file creation code into the 'file' media driver
-        asset_obj = Asset()
-        asset_obj.file_type = Asset.MIME_TYPE_TO_EXTENSION[uploaded_file.content_type]
-        asset_obj.title = uploaded_file.name
-        asset_obj.file_size = uploaded_file.size
-        asset_obj.db_store(request.user)
+        try:
+            asset = Asset.handle_uploaded_file(request.user, uploaded_file)
 
-        write_path = Asset.copy_asset_to_temp_file(asset_obj.id, "original")
+            upload_response = JsonResponse({"success": "true", "id": asset.id})
+            # Make sure the file is not cached
+            upload_response["Expires"] = "Mon, 26 Jul 1997 05:00:00 GMT"
+            upload_response["Last-Modified"] = strftime("%z", gmtime())
+            upload_response["Cache-Control"] = "no-store, no-cache, must-revalidate"
+            upload_response["Pragma"] = "no-cache"
+            upload_response.status_code = 200
 
-        with open(write_path, "wb+") as file_out:
-            for chunk in uploaded_file.chunks():
-                file_out.write(chunk)
-
-        upload_response = JsonResponse({"success": "true", "id": asset_obj.id})
-        # Make sure the file is not cached
-        upload_response["Expires"] = "Mon, 26 Jul 1997 05:00:00 GMT"
-        upload_response["Last-Modified"] = strftime("%z", gmtime())
-        upload_response["Cache-Control"] = "no-store, no-cache, must-revalidate"
-        upload_response["Pragma"] = "no-cache"
-        upload_response.status_code = 200
-
-        return upload_response
+            return upload_response
+        except Exception:
+            return JsonResponse({"error": "Error processing upload"}, status=500)

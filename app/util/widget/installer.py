@@ -101,8 +101,6 @@ class WidgetInstaller:
             try:
                 existing_widget = Widget.objects.get(id=replace_id)
                 existing_widget_metadata = existing_widget.metadata_clean()
-                logger.info("okay what the fuck")
-                logger.info(existing_widget_metadata)
                 if "demo" in existing_widget_metadata:
                     existing_demo_inst_id = existing_widget_metadata["demo"]
                     logger.info(f"Existing demo found: {existing_demo_inst_id}")
@@ -521,6 +519,10 @@ class WidgetInstaller:
         return json_text
 
     # "uploads" an asset from a widget package
+    # this can probably be more efficient - currently it's copying a file from a temporary location
+    #  to a second temporary location and then copying that second temporaray file to a permanent
+    #  location... ideally, we could just copy the file from the original temporary location and
+    #  be done with it, but this works for now
     def sideload_asset(file):
         import shutil
 
