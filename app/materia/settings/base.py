@@ -3,16 +3,19 @@
 import os
 from pathlib import Path
 
+from .css import *  # noqa:F403, F401
+
 # import additional config files
-from .generation import *
-from .widgets import *
-from .urls import *
-from .css import *
-from .js import *
+from .generation import *  # noqa:F403, F401
+from .js import *  # noqa:F403, F401
+from .urls import *  # noqa:F403, F401
+from .widgets import *  # noqa:F403, F401
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-APP_PATH = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))).resolve().parent
+APP_PATH = (
+    Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))).resolve().parent
+)
 
 DIRS = {
     "media": os.path.realpath(os.path.join(APP_PATH, "media")),  # + os.sep,
@@ -45,6 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_filters",
     "rest_framework",
     # apps
     "core",
@@ -54,7 +58,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
     ],
-    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler'
+    "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
 }
 
 MIDDLEWARE = [
@@ -83,7 +87,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.dark_mode",
-                "core.context_processors.fonts"
+                "core.context_processors.fonts",
             ],
         },
     },
@@ -166,18 +170,9 @@ LOGGING = {
 
 SEMESTERS = [
     {
-        "spring": {
-            "month": 1,
-            "day": 1
-        },
-        "summer": {
-            "month": 5,
-            "day": 3
-        },
-        "fall": {
-            "month": 8,
-            "day": 7
-        }
+        "spring": {"month": 1, "day": 1},
+        "summer": {"month": 5, "day": 3},
+        "fall": {"month": 8, "day": 7},
     }
 ]
 

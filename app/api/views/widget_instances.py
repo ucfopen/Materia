@@ -1,11 +1,13 @@
 import logging
 
+from api.filters import UserInstanceFilterBackend
 from core.models import LogPlay, WidgetInstance, WidgetQset
 from core.permissions import (
     CanCreateWidgetInstances,
+    HasPermsOrElevatedAccess,
     HasWidgetInstanceEditAccess,
     HasWidgetInstanceEditAccessOrReadOnly,
-    IsSuperuser,
+    IsSuperOrSupportUser,
 )
 from core.serializers import (
     ObjectPermissionSerializer,
@@ -15,6 +17,7 @@ from core.serializers import (
     WidgetInstanceSerializer,
     WidgetInstanceSerializerNoIdentifyingInfo,
 )
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -41,24 +44,11 @@ class WidgetInstancePagination(PageNumberPagination):
 class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     pagination_class = WidgetInstancePagination
+    filter_backends = [UserInstanceFilterBackend, DjangoFilterBackend]
 
+    # queryset filtering managed via UserInstanceFilterBackend
     def get_queryset(self):
-        # If user param is specified, return that user's instances. Otherwise, return all.
-        # Make sure the user cannot access other user's lists of instances (unless superuser)
-        user = self.request.user
-        user_query = self.request.query_params.get("user")
-        if user_query is not None and user_query == "me":
-            return WidgetInstance.objects.filter(user=user).order_by("-created_at")
-        elif user_query is not None and (
-            user.is_superuser or str(user.id) == user_query
-        ):
-            return WidgetInstance.objects.filter(user=user_query).order_by(
-                "-created_at"
-            )
-        elif user_query is not None:
-            return WidgetInstance.objects.none()
-        else:
-            return WidgetInstance.objects.all()
+        return WidgetInstance.objects.all()
 
     def get_permissions(self):
         user_query = self.request.query_params.get("user")
@@ -66,13 +56,13 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         # Require special perms for list
         if self.action == "list":
-            # Allow all if user is superuser
+            # Allow all if user is superuser or support user
             if user_query is None:
-                permission_classes = [IsSuperuser]
+                permission_classes = [IsSuperOrSupportUser]
             # Otherwise, just make sure the user is authenticated. Do not allow reading if not. The queryset already
             # only contain this user's instances if they have requested their own.
             else:
-                permission_classes = [IsAuthenticated]
+                permission_classes = [IsAuthenticatedOrReadOnly]
 
         # Special perms for creation
         elif self.action == "create":
@@ -82,10 +72,23 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         elif self.action == "get" and play_id is not None:
             permission_classes = [IsAuthenticated]
 
+        # must have (any) access to instance or elevated perms
+        elif (
+            self.action == "perms"
+            or self.action == "question_sets"
+            or self.action == "scores"
+        ):
+            permission_classes = [HasPermsOrElevatedAccess]
+
+        # must be able to edit an instance
+        elif self.action == "lock":
+            permission_classes = [HasWidgetInstanceEditAccess]
+
         # All other actions have default perms
         else:
             permission_classes = [
-                IsAuthenticatedOrReadOnly & HasWidgetInstanceEditAccessOrReadOnly
+                IsAuthenticatedOrReadOnly,
+                HasWidgetInstanceEditAccessOrReadOnly,
             ]
 
         return [permission() for permission in permission_classes]
@@ -192,11 +195,11 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=["get"],
-        permission_classes=[IsAuthenticated & HasWidgetInstanceEditAccess],
     )
     def lock(self, request, pk=None):
+        instance = self.get_object()
         return Response(
-            {"lock_obtained": WidgetInstanceUtil.get_lock(pk, request.user)}
+            {"lock_obtained": WidgetInstanceUtil.get_lock(instance.id, request.user)}
         )
 
     @action(detail=True, methods=["get"])
@@ -214,11 +217,13 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         serialized.is_valid(raise_exception=True)
         return Response(serialized.data)
 
-    @action(detail=True, methods=["get", "put"])
+    # TODO PUT action NYI
+    @action(
+        detail=True,
+        methods=["get", "put"],
+    )
     def perms(self, request, pk=None):
-
-        instance = WidgetInstance.objects.get(id=pk)
-
+        instance = self.get_object()
         permissions = instance.permissions.all()
         serialized = ObjectPermissionSerializer(permissions, many=True)
         return Response(serialized.data)

@@ -328,9 +328,6 @@ const MyWidgetsPage = () => {
 	 * @returns The main content of the page.
 	 */
 	const mainContentRender = () => {
-
-		console.log(state)
-
 		// Go through a series of cascading conditional checks to determine what will be rendered on the right side of the page
 
 		const widgetSpecified = (state.widgetHash || state.selectedInst)

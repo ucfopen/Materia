@@ -9,8 +9,6 @@ import { access } from '../components/materia-constants'
  * @returns 
  */
 const rawPermsToObj = (perm, isEditable) => {
-	console.log("building perms object for perm:")
-	console.log(perm)
 	return {
 		userId: perm.user,
 		accessLevel: perm.permission,

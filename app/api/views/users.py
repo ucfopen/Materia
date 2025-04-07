@@ -2,9 +2,13 @@ import hashlib
 import json
 import logging
 
-from core.models import UserSettings
-from core.permissions import IsSuperuserOrReadOnly
-from core.serializers import UserMetadataSerializer, UserSerializer
+from core.models import ObjectPermission, UserSettings
+from core.permissions import IsSelfOrElevatedAccess, IsSuperuserOrReadOnly
+from core.serializers import (
+    ObjectPermissionSerializer,
+    UserMetadataSerializer,
+    UserSerializer,
+)
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -12,6 +16,7 @@ from django.shortcuts import redirect
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from util.message_util import MsgBuilder
 
 logger = logging.getLogger("django")
 
@@ -27,11 +32,11 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.none()
 
     def get_queryset(self):
-        user = self.request.user
-        # TODO even superusers don't need a list of every user
-        # if user.is_superuser:
-        #     return User.objects.all()
-        return User.objects.filter(pk=user.pk)
+        pk = self.kwargs.get("pk")
+        if pk is None:
+            # NOBODY should need a full list of all users - not even superusers
+            return User.objects.none()
+        return User.objects.filter(id=pk)
 
     @action(detail=True, methods=["put"])
     def profile_fields(self, request, pk=None):
@@ -59,6 +64,18 @@ class UserViewSet(viewsets.ModelViewSet):
             )
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Get list of objects the user has access to. Requires elevated access for non-self.
+    @action(detail=True, methods=["get"], permission_classes=[IsSelfOrElevatedAccess])
+    def perms(self, request, pk):
+
+        user = self.get_object()
+        if not user:
+            return MsgBuilder.invalid_input().as_drf_response()
+
+        access_permissions = ObjectPermission.objects.filter(user=user)
+        serialized = ObjectPermissionSerializer(access_permissions, many=True)
+        return Response(serialized.data)
 
 
 def get_gravatar(email):
@@ -93,4 +110,3 @@ class UsersApi:
     def logout(request):
         logout(request)
         return redirect("/")
-

@@ -28,7 +28,12 @@ logger = logging.getLogger("django")
 
 
 class ObjectPermission(models.Model):
-    PERMISSION_CHOICES = [("visible", "Read-Only"), ("full", "Full Access")]
+    PERMISSION_VISIBLE = "visible"
+    PERMISSION_FULL = "full"
+    PERMISSION_CHOICES = [
+        (PERMISSION_VISIBLE, "Read-Only"),
+        (PERMISSION_FULL, "Full Access"),
+    ]
 
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="object_permissions"
