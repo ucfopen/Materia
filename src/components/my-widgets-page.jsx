@@ -55,23 +55,15 @@ const MyWidgetsPage = () => {
 	const deleteWidget = useDeleteWidget()
 
 	const { data: user } = useQuery({
-		queryKey: 'user',
-		queryFn: apiGetUser,
+		queryKey: ['user', 'me'],
+		queryFn: ({ queryKey }) => {
+			const [_key, user] = queryKey
+			return apiGetUser(user)
+		},
 		staleTime: Infinity,
 		retry: false,
 		onError: (err) => {
-			if (err.message == "Invalid Login")
-			{
-				setInvalidLogin(true)
-			} else {
-				setAlertDialog({
-					enabled: true,
-					message: 'Failed to get user data.',
-					title: err.message,
-					fatal: err.halt,
-					enableLoginButton: false
-				})
-			}
+			setInvalidLogin(true)
 		}
 	})
 

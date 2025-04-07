@@ -59,6 +59,8 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             # Allow all if user is superuser or support user
             if user_query is None:
                 permission_classes = [IsSuperOrSupportUser]
+            elif user_query == "me":
+                permission_classes = [IsAuthenticated]
             # Otherwise, just make sure the user is authenticated. Do not allow reading if not. The queryset already
             # only contain this user's instances if they have requested their own.
             else:

@@ -38,6 +38,11 @@ class UserViewSet(viewsets.ModelViewSet):
             return User.objects.none()
         return User.objects.filter(id=pk)
 
+    @action(detail=False, methods=["get"])
+    def me(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
     @action(detail=True, methods=["put"])
     def profile_fields(self, request, pk=None):
         serializer = UserMetadataSerializer(data=request.data)

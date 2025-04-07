@@ -151,15 +151,13 @@ export const apiSaveWidget = (_params) => {
 	}
 }
 
-export const apiGetUser = (user) => {
-	if (!!user) user = ''
-	return fetch(`/api/users/${user}`)
-		.then(response => response.json())
+export const apiGetUser = (user = 'me') => {
+	return fetchGet(`/api/users/${user}/`)
 		.then((data) => {
 			return {
-				...data[0],
-				first: data[0].first_name,
-				last: data[0].last_name
+				...data,
+				first: data.first_name,
+				last: data.last_name
 			}
 		})
 }
