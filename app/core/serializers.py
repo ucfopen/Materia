@@ -4,7 +4,6 @@ import json
 
 # debug logging
 import logging
-import os
 
 from core.models import (
     LogPlay,
@@ -79,7 +78,7 @@ class UserMetadataSerializer(serializers.Serializer):
 # Widget engine model serializer (outbound)
 class WidgetSerializer(serializers.ModelSerializer):
     meta_data = serializers.SerializerMethodField()
-    dir = serializers.SerializerMethodField()
+    dir = serializers.CharField(read_only=True)
 
     class Meta:
         model = Widget
@@ -114,9 +113,6 @@ class WidgetSerializer(serializers.ModelSerializer):
 
     def get_meta_data(self, widget):
         return widget.metadata_clean()
-
-    def get_dir(self, widget):
-        return f"{widget.id}-{widget.clean_name}{os.sep}"
 
 
 class Base64JSONField(serializers.Field):

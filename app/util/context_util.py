@@ -46,6 +46,9 @@ class ContextUtil:
         """
         dark_mode = False  # Default setting
 
+        if not request.user or not request.user.is_authenticated:
+            return dark_mode
+
         user_data = UserSettings.objects.filter(user=request.user).first()
         if user_data is not None:
             dark_mode = user_data.profile_fields.get("darkMode", False)

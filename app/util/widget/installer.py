@@ -1,7 +1,9 @@
 import logging
 import os
 import tempfile
+import types
 from datetime import datetime
+from pathlib import Path
 
 from django.utils.timezone import make_aware
 
@@ -162,8 +164,23 @@ class WidgetInstaller:
 
         # loaded = Widget.load_script(playdata_path)
         # $playdata_exporter_names = array_keys(\Materia\Widget::reduce_array_to_functions($loaded));
-        playdata_exporter_names = []
-        manifest_data["meta_data"]["playdata_exporters"] = playdata_exporter_names
+
+        # TODO this (the playdata exporter part) is untested. it is also copies directly from the widget class
+        # Grab and load the playdata exporter script
+        script_path = os.path.join(target_dir, Widget.PATHS_PLAYDATA)
+        script_text = Path(script_path).read_text()
+
+        # Execute the script to load the class
+        script_globals = types.ModuleType("temp_exporter_module")  # Create empty module to act as the script's globals
+        exec(script_text, script_globals.__dict__)  # Script will load the class, which we can find in the globals
+
+        # Find the mappings field in the globals, which should map a human-readable name to each function
+        exporter_mappings = getattr(script_globals, "mappings", None)
+        if exporter_mappings is None or not isinstance(exporter_mappings, dict):
+            # TODO handle this error better?
+            raise Exception("Play data exporter script missing 'mappings' dict")
+
+        manifest_data["meta_data"]["playdata_exporters"] = exporter_mappings.keys()
 
         return target_dir, manifest_data, clean_name
 

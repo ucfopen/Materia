@@ -1,4 +1,6 @@
 import io
+import logging
+from types import FunctionType
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from django.db.models import QuerySet, F
@@ -7,6 +9,8 @@ from core.models import WidgetInstance, LogPlay, DateRange
 from util.logging.session_logger import SessionLogger
 from util.message_util import MsgBuilder, Msg
 from util.widget.validator import ValidatorUtil
+
+logger = logging.getLogger("django")
 
 
 class PlayDataExporter:
@@ -26,7 +30,38 @@ class PlayDataExporter:
             case "Questions and Answers":
                 return PlayDataExporter._export_questions_and_answers(instance, semesters)
             case _:
-                return MsgBuilder.invalid_input(msg="Invalid export type"), ""
+                # Check the widget for its custom playdata exporters
+                methods = instance.widget.get_playdata_exporter_methods()
+                exporter_method = methods.get(export_type, None)
+
+                # A custom exporter was found, run it
+                if exporter_method is not None and isinstance(exporter_method, FunctionType):
+                    try:
+                        result, file_ext = exporter_method(instance, semesters)
+                        # Verify the exporter method returned correct data
+                        if (not isinstance(result, str) and not isinstance(result, bytes)
+                                and not isinstance(result, Msg)):
+                            return MsgBuilder.failure(
+                                msg=f"The playdata exporter returned an invalid data type '{type(result)}'", status=500
+                            ), ""
+                        if not isinstance(file_ext, str):
+                            return MsgBuilder.failure(
+                                msg=f"The playdata exporter returned an invalid file type '{type(file_ext)}'",
+                                status=500
+                            ), ""
+
+                        # All is good, return results
+                        return result, file_ext
+                    except Exception as e:
+                        logger.error(
+                            f"Playdata exporter '{export_type}' for widget {instance.widget.clean_name} failed to run:"
+                        )
+                        logger.error(e)
+                        return MsgBuilder.failure(msg="The playdata exporter failed to run", status=500), ""
+
+                # Otherwise, this export type just doesn't exist
+                else:
+                    return MsgBuilder.invalid_input(msg="Invalid export type"), ""
 
     @staticmethod
     def _export_high_scores(instance: WidgetInstance, semesters: list[str]) -> tuple[str | Msg, str]:
@@ -36,7 +71,7 @@ class PlayDataExporter:
         # Get all play logs for each semester requested
         for semester in semesters:
             [year, term] = semester.split('-')
-            logs = PlayDataExporter._get_all_for_instance(instance, term, int(year))
+            logs = PlayDataExporter.get_all_logs_for_instance(instance, term, int(year))
 
             # Go through each play log, compare current user score and this play's score
             for play in logs:
@@ -69,7 +104,7 @@ class PlayDataExporter:
             data.append([r["last_name"], r["first_name"], "", user_id, "", "", score])
 
         # Build CSV
-        return PlayDataExporter._build_csv(headers, data), "csv"
+        return PlayDataExporter.build_csv(headers, data), "csv"
 
     # Exports all guest scores. For use when the instance is in guest mode
     @staticmethod
@@ -81,7 +116,7 @@ class PlayDataExporter:
         # For each semester, get all play logs
         for semester in semesters:
             [year, term] = semester.split('-')
-            logs = PlayDataExporter._get_all_for_instance(instance, term, int(year))
+            logs = PlayDataExporter.get_all_logs_for_instance(instance, term, int(year))
 
             # For each play log, process its data and add to results
             for play in logs:
@@ -97,7 +132,7 @@ class PlayDataExporter:
             return MsgBuilder.not_found(msg="No play logs found"), ""
 
         # Build as CSV
-        return PlayDataExporter._build_csv(headers, data), "csv"
+        return PlayDataExporter.build_csv(headers, data), "csv"
 
     # Prepare data log zip file
     @staticmethod
@@ -109,7 +144,7 @@ class PlayDataExporter:
         # For each semester, get all play logs
         for semester in semesters:
             [year, term] = semester.split('-')
-            logs = PlayDataExporter._get_all_for_instance(instance, term, int(year))
+            logs = PlayDataExporter.get_all_logs_for_instance(instance, term, int(year))
 
             # For each play log, process its data and add to results
             for play in logs:
@@ -129,7 +164,7 @@ class PlayDataExporter:
             return MsgBuilder.not_found(msg="No play logs found"), ""
 
         # Build play logs csv
-        play_logs_csv = PlayDataExporter._build_csv(headers, play_log_data)
+        play_logs_csv = PlayDataExporter.build_csv(headers, play_log_data)
 
         # TODO find questions and process them here once we know how we're doing questions. check PHP code
 
@@ -142,33 +177,46 @@ class PlayDataExporter:
     # Outputs a .zip file of two CSV files for individual and collective referrers data
     @staticmethod
     def _export_referrer_urls(instance: WidgetInstance, semesters: list[str]) -> tuple[bytes | Msg, str]:
-        raw_data = LogPlay.objects.filter(instance=instance).values("user_id", "referrer_url", "created_at")
-        if len(raw_data) == 0:
-            return MsgBuilder.not_found(msg="No play logs found"), ""
-
-        # Process data for each individual play and their referrer, create CSV
         headers_individual = ["User", "URL", "Date"]
         data_individual = []
-        for datum in raw_data:
-            url = datum["referrer_url"] if datum["referrer_url"] else instance.play_url
-            data_individual.append([datum["user_id"], url, datum["created_at"]])
-        csv_individual = PlayDataExporter._build_csv(headers_individual, data_individual)
-
-        # Count collective number of times a URL appears
         referrer_count = {}
-        for datum in raw_data:
-            url = datum["referrer_url"] if datum["referrer_url"] else instance.play_url
-            if url not in referrer_count:
-                referrer_count[url] = 0
-            else:
-                referrer_count[url] += 1
 
-        # Turn collective data into CSV-friendly format, create CSV
+        for semester in semesters:
+            # Get date object
+            [year, term] = semester.split('-')
+            date = DateRange.objects.filter(semester=term, year=year).first()
+            if date is None:
+                return MsgBuilder.not_found(msg="Semester not found"), ""
+
+            # Form query
+            raw_data = LogPlay.objects.filter(instance=instance).values("user_id", "referrer_url", "created_at")
+            raw_data = raw_data.filter(created_at__gt=date.start_at, created_at__lt=date.end_at)
+            if len(raw_data) == 0:
+                return MsgBuilder.not_found(msg="No play logs found"), ""
+
+            # Process data for each individual play and their referrer
+            for datum in raw_data:
+                url = datum["referrer_url"] if datum["referrer_url"] else instance.play_url
+                user_id = datum["user_id"] if datum["user_id"] else "(Guest)"
+                data_individual.append([user_id, url, datum["created_at"]])
+
+            # Count collective number of times a URL appears
+            for datum in raw_data:
+                url = datum["referrer_url"] if datum["referrer_url"] else instance.play_url
+                if url not in referrer_count:
+                    referrer_count[url] = 0
+                else:
+                    referrer_count[url] += 1
+
+        # Build all individual data into a CSV
+        csv_individual = PlayDataExporter.build_csv(headers_individual, data_individual)
+
+        # Turn collective data into CSV-friendly format, build CSV
         headers_collective = ["URL", "Count"]
         data_collective = []
         for url, count in referrer_count.items():
             data_collective.append([url, count])
-        csv_collective = PlayDataExporter._build_csv(headers_collective, data_collective)
+        csv_collective = PlayDataExporter.build_csv(headers_collective, data_collective)
 
         # Throw CSVs into zip file
         zip_buffer = io.BytesIO()
@@ -184,7 +232,7 @@ class PlayDataExporter:
         raise NotImplementedError()
 
     @staticmethod
-    def _build_csv(headers: list[str], data: list[list[str]]) -> str:
+    def build_csv(headers: list[str], data: list[list[str]]) -> str:
         csv = ",".join(headers) + "\r\n"
         # Add each row of data to the string
         for row in data:
@@ -198,7 +246,7 @@ class PlayDataExporter:
         return csv
 
     @staticmethod
-    def _get_all_for_instance(
+    def get_all_logs_for_instance(
             instance: WidgetInstance, semester: str = "all", year: int = "all", is_student: bool = False
     ) -> QuerySet[LogPlay, dict]:
         # TODO store results in cache
@@ -206,7 +254,7 @@ class PlayDataExporter:
         # Get DateRange object, if specified
         date = None
         if semester != "all" and year != "all":
-            date = DateRange.objects.get(semester=semester, year=year)
+            date = DateRange.objects.filter(semester=semester, year=year).first()
 
         # Form main query. If user is student, do not include user info
         query = LogPlay.objects.filter(instance=instance)

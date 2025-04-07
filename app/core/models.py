@@ -9,7 +9,9 @@ import base64
 import json
 import logging
 import os
+import types
 from datetime import datetime
+from pathlib import Path
 from typing import Self
 
 from django.conf import settings
@@ -665,6 +667,10 @@ class Widget(models.Model):
     creator_guide = models.CharField(max_length=255, default="")
     player_guide = models.CharField(max_length=255, default="")
 
+    @property
+    def dir(self):
+        return f"{self.id}-{self.clean_name}{os.sep}"
+
     def metadata_clean(self):
         meta_raw = self.metadata.all()
         meta_final = {}
@@ -720,6 +726,35 @@ class Widget(models.Model):
         return $load_safer($script_path);
     }
     """
+
+    def get_playdata_exporter_methods(self, script_path: str = None):
+        # Check to see if methods are cached already
+        if hasattr(self, "_playdata_exporter_methods"):
+            return self._playdata_exporter_methods
+
+        # Grab and load the playdata exporter script
+        if script_path is None:
+            script_path = self._make_relative_widget_path(self.PATHS_PLAYDATA)
+        script_text = Path(script_path).read_text()
+
+        # Execute the script to load the class
+        script_globals = types.ModuleType("temp_exporter_module")  # Create empty module to act as the script's globals
+        exec(script_text, script_globals.__dict__)  # Script will load the class, which we can find in the globals
+
+        # Find the mappings field in the globals, which should map a human-readable name to each function
+        exporter_mappings = getattr(script_globals, "mappings", None)
+        if exporter_mappings is None:
+            # TODO handle this error better?
+            raise Exception("Play data exporter script missing 'mappings' dict")
+
+        # Cache these methods for re-use later
+        self._playdata_exporter_methods = exporter_mappings
+
+        return exporter_mappings
+
+    def _make_relative_widget_path(self, script: str) -> str:
+        script_path = os.path.join(settings.DIRS["widgets"], self.dir, script)
+        return script_path
 
     class Meta:
         db_table = "widget"
