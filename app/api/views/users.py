@@ -93,3 +93,4 @@ class UsersApi:
     def logout(request):
         logout(request)
         return redirect("/")
+

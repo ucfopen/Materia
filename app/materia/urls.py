@@ -30,6 +30,8 @@ from core.views.widget import (
     WidgetGuideView,
     WidgetPlayView,
     WidgetPreviewView,
+    WidgetQsetGenerateView,
+    WidgetQsetHistoryView,
 )
 from django.contrib import admin
 from django.urls import include, path, re_path
@@ -60,6 +62,16 @@ urlpatterns = [
         WidgetPlayView.as_view(),
         name="widget play",
     ),
+    path(
+        "preview/<slug:widget_instance_id>/",
+        WidgetPreviewView.as_view(),
+        name="widget preview",
+    ),
+    path(
+        "preview/<slug:widget_instance_id>/<str:instance_name>/",
+        WidgetPreviewView.as_view(),
+        name="widget preview",
+    ),
     # My Widgets
     path("my-widgets/", MyWidgetsView.index, name="my widgets"),
     # Creator
@@ -77,6 +89,15 @@ urlpatterns = [
         "preview/<slug:widget_instance_id>/",
         WidgetPreviewView.as_view(),
         name="widget preview",
+    ),
+    path(
+        "preview/<slug:widget_instance_id>/<title>/",
+        WidgetPreviewView.as_view(),
+        name="widget preview",
+    ),
+    path("qsets/history/", WidgetQsetHistoryView.as_view(), name="widget qset history"),
+    path(
+        "qsets/generate/", WidgetQsetGenerateView.as_view(), name="widget qset generate"
     ),
     # Scores
     path(

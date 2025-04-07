@@ -1,6 +1,7 @@
 from rest_framework import permissions
 from core.models import WidgetInstance
 from util.perm_manager import PermManager
+from util.widget.instance.instance_util import WidgetInstanceUtil
 
 
 class IsSuperuser(permissions.BasePermission):
@@ -29,6 +30,11 @@ class HasWidgetInstanceEditAccess(permissions.BasePermission):
         # Require user to own the widget (not just have collab perms) if they want to delete it
         if request.method == "DELETE":
             return user.is_superuser or widget_instance.user == user or widget_instance.published_by == user
+
+        # Make sure the widget isn't locked
+        # The frontend should stop users from editing if locked, but this is here *just in case*
+        if not WidgetInstanceUtil.user_has_lock_or_is_unlocked(widget_instance, user):
+            return False
 
         # TODO add collaborator ownership check
         # return False

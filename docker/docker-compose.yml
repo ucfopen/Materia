@@ -40,6 +40,8 @@ services:
       - MYSQL_PORT=3306
       - EMAIL_HOST=host.docker.internal
       - EMAIL_PORT=1025
+    env_file:
+      - .env
     volumes:
       - ../app:/var/www/html
       - uploaded_media:/var/www/html/media/

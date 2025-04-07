@@ -78,7 +78,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		onSuccess: (info) => {
 			if (info) {
 				setInstance({ ...instance, widget: info[0] })
-				setCreatorState({...creatorState, canGenerateQset: info.is_generable })
+				setCreatorState({...creatorState, canGenerateQset: info[0]['is_generable']})
 			}
 		},
 		onError: (error) => {
@@ -563,7 +563,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const showQsetHistoryImporter = () => {
-		showEmbedDialog(`${window.BASE_URL}qsets/import/?inst_id=${instance.id}`, 'embed_dialog')
+		showEmbedDialog(`${window.BASE_URL}qsets/history/?inst_id=${instance.id}`, 'embed_dialog')
 	}
 
 	const showQuestionGenerator = () => {
@@ -799,7 +799,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				<a id="returnLink" href={returnLocationUrl}>&larr;Return to {creatorState.returnLocation}</a>
 				{ creatorState.hasCreatorGuide ? <a id="creatorGuideLink" href={creatorState.creatorGuideUrl} target="_blank">Creator's Guide</a> : '' }
 				{ instance.id ? <a id="saveHistoryLink" onClick={showQsetHistoryImporter}>Save History</a> : '' }
-				<a id="importLink" onClick={showQuestionImporter}>Import</a>
 				{ creatorState.canGenerateQset ? <a id="generateLink" onClick={showQuestionGenerator}>Generate</a> : <></> }
 				{ editButtonsRender }
 				<div className="dot"></div>
