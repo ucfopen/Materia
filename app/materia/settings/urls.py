@@ -1,10 +1,7 @@
-
 # Materia URLS config
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-MEDIA_URL = "/media/"
 
 # figure out how to get images working
 
@@ -19,6 +16,8 @@ STATIC_ROOT = "./staticfiles/"
 
 URLS = {
     "BASE_URL": "http://localhost:420/",
+    "MEDIA_URL": "http://localhost:420/media/",
+    "MEDIA_UPLOAD_URL": "http://localhost:420/media/upload",
     "WIDGET_URL": "http://localhost:420/widget/",
     "STATIC_CROSSDOMAIN": "http://localhost:420/",
 }

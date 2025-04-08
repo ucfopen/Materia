@@ -21,10 +21,10 @@ from django.dispatch import receiver
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 from util.perm_manager import PermManager
+from util.widget.asset.manager import AssetManager
 from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
-# from pprint import pformat
 
 
 class ObjectPermission(models.Model):
@@ -124,14 +124,14 @@ class Asset(models.Model):
 
         return asset_id
 
-    # TODO: make this more Django-y
+    # TODO: make this more Django-y?
     def db_store(self, user=None):
         from django.utils.timezone import make_aware
         from util.widget.validator import ValidatorUtil
 
         if ValidatorUtil.is_valid_hash(self.id) and not bool(self.file_type):
             return False
-        asset_id = Asset.get_unused_id()
+        asset_id = self.id if self.id != "" else Asset.get_unused_id()
         if not bool(asset_id):
             return False
         try:
@@ -184,11 +184,29 @@ class Asset(models.Model):
             logger.error(e)
             return False
 
-    def upload_asset_data(self, source_asset_path):
-        # TODO: come back to this later and allow for DB or S3 bucket media storage
-        from storage.file import FileStorageDriver
+    def render(self, size="original"):
+        return AssetManager.get_asset_storage_driver().render(self, size)
 
-        FileStorageDriver.store(self, source_asset_path, "original")
+    def get_mime_type(self):
+        return Asset.MIME_TYPE_FROM_EXTENSION[self.file_type]
+
+    @staticmethod
+    def handle_uploaded_file(user, uploaded_file):
+        asset = Asset()
+        # ordinarily this would be handled in db_store()
+        # we're pre-setting an ID here so we can fail without writing a DB row if there's a driver problem
+        asset.id = Asset.get_unused_id()
+        asset.file_type = Asset.MIME_TYPE_TO_EXTENSION[uploaded_file.content_type]
+        asset.title = uploaded_file.name
+        asset.file_size = uploaded_file.size
+
+        AssetManager.get_asset_storage_driver().handle_uploaded_file(
+            asset, uploaded_file
+        )
+
+        asset.db_store(user)
+
+        return asset
 
     class Meta:
         db_table = "asset"

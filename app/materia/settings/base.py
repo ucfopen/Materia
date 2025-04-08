@@ -3,13 +3,14 @@
 import os
 from pathlib import Path
 
-from .css import *  # noqa:F403, F401
+from .css import *  # noqa: F401, F403
+from .generation import *  # noqa: F401, F403
+from .js import *  # noqa: F401, F403
 
 # import additional config files
-from .generation import *  # noqa:F403, F401
-from .js import *  # noqa:F403, F401
-from .urls import *  # noqa:F403, F401
-from .widgets import *  # noqa:F403, F401
+from .storage import *  # noqa: F401, F403
+from .urls import *  # noqa: F401, F403
+from .widgets import *  # noqa: F401, F403
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,7 +37,7 @@ SECRET_KEY = "materia-local-dev-secret-key"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*", "localhost", "127.0.0.1"]
 
 
 # Application definition

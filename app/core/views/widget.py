@@ -249,6 +249,7 @@ def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
         js_globals={
             "WIDGET_HEIGHT": widget.height,
             "WIDGET_WIDTH": widget.width,
+            "MEDIA_URL": settings.URLS["MEDIA_URL"],
         },
         request=request,
     )
