@@ -13,9 +13,9 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db import models, transaction
+from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.db.models import QuerySet
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 from util.perm_manager import PermManager
@@ -592,7 +592,9 @@ class Question(models.Model):
 
     @data.setter
     def data(self, new_data: dict):
-        self._data = base64.b64encode(json.dumps(new_data).encode("utf-8")).decode("utf-8")
+        self._data = base64.b64encode(json.dumps(new_data).encode("utf-8")).decode(
+            "utf-8"
+        )
 
     class Meta:
         db_table = "question"
@@ -775,6 +777,13 @@ class WidgetInstance(models.Model):
     def get_latest_qset(self) -> "WidgetQset | None":
         return self.qsets.order_by("-created_at").first()
 
+    def get_questions_list(self) -> "list":
+        latest_qset = self.get_latest_qset()
+        if not latest_qset:
+            raise
+        decoded = WidgetQset.decode_data(latest_qset.data)
+        return QuestionSetSerializer().apply_ids_to_questions(decoded)
+
     def get_qset_for_play(self, play_id=None):
         if play_id:
             play = LogPlay.objects.get(id=play_id)
@@ -900,6 +909,7 @@ class WidgetQset(models.Model):
     created_at = models.DateTimeField(default=datetime.now)
     data = models.TextField(db_column="data")
     version = models.CharField(max_length=10, blank=True, null=True)
+    questions_list = models.JSONField(null=True, blank=True)
 
     @classmethod
     def decode_data(cls, encoded_data) -> dict:
@@ -921,67 +931,8 @@ class WidgetQset(models.Model):
     def set_data(self, data_dict):
         self.data = self.encode_data(data_dict)
 
-    # TODO: removed save() method because it became redundant with the updated handling of the data field
-    # save() also included logic to save individual questions,
-    # but we are currently mulling the idea of removing the question model completely
-
-    # TODO: implement this, old code below
     def find_questions(self):
         pass
-
-    # TODO: find the assets!!!
-    # Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QSET, $qset_id, $recursiveQGroup->assets);
-    # public static function find_questions(&$source, $create_ids=false, &$questions=[])
-    # {
-    #     if (is_array($source))
-    #     {
-    #         foreach ($source as $key => &$q)
-    #         {
-    #             if (self::is_question($q))
-    #             {
-    #                 $json = json_encode($q);
-
-    #                 $real_q = Widget_Question::forge()->from_json($json);
-
-    #                 // new question sets need ids
-    #                 if ($create_ids)
-    #                 {
-    #                     if (empty($real_q->id)) $real_q->id = \Str::random('uuid');
-    #                     foreach ($real_q->answers as &$a)
-    #                     {
-    #                         if (empty($a['id'])) $a['id'] = \Str::random('uuid');
-    #                     }
-    #                     $source[$key] = json_decode(json_encode($real_q), true);
-    #                 }
-    #                 if ($real_q->id)	$questions[$real_q->id] = $real_q;
-    #                 else $questions[] = $real_q;
-    #             }
-    #             elseif (is_array($q))
-    #             {
-    #                 // INCEPTION TIME!!
-    #                 self::find_questions($q, $create_ids, $questions);
-    #             }
-    #         }
-    #     }
-    #     return $questions;
-    # }
-
-    # def _decode_data(self) -> dict:
-    #     result = str(self._data)  # Might be loaded as a bytes object, not str
-    #     # TODO determine if we need to conditionally check for b'...' wrapper around qset data blob
-    #     # Remove the b' ... ' that appears when stringifying the bytes object
-    #     if result.startswith("b'") and result.endswith("'"):
-    #         result = result[2:-1]
-
-    #     if result:  # Make sure it's not an empty string or some other falsy object
-    #         decoded_qset_data = base64.b64decode(result).decode("utf-8")
-    #         result = json.loads(decoded_qset_data)
-    #     else:
-    #         result = {}
-    #     return result
-
-    # def _encode_data(self) -> str:
-    #     return base64.b64encode(json.dumps(self.data).encode("utf-8")).decode("utf-8")
 
     class Meta:
         db_table = "widget_qset"

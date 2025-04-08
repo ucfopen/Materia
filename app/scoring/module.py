@@ -181,19 +181,26 @@ class ScoreModule(ABC):
         if self.play_id == "-1":
             complete = True
         else:
-            complete = bool(self.play.is_complete) if self.play else False
+            print(f"self.play: {self.play} and self.play.data: {self.play.data}")
+            complete = bool(self.play.data.is_complete) if self.play else False
 
         return {
             "complete": complete,
             "score": self.calculated_percent,
             "table": self.get_overview_items(),
             "referrer_url": (
-                self.play.referrer_url if self.play and self.play.referrer_url else ""
+                self.play.data.referrer_url
+                if self.play.data and self.play.data.referrer_url
+                else ""
             ),
             "created_at": (
-                self.play.created_at if self.play and self.play.created_at else ""
+                self.play.data.created_at
+                if self.play.data and self.play.data.created_at
+                else ""
             ),
-            "auth": self.play.auth if self.play and self.play.auth else "",
+            "auth": (
+                self.play.data.auth if self.play.data and self.play.data.auth else ""
+            ),
         }
 
     def get_overview_items(self):
@@ -208,13 +215,16 @@ class ScoreModule(ABC):
 
     def load_questions(self, timestamp=False) -> None:
         """Loads questions associated with the widget instance"""
+
         if not self.instance.qset.data:
             print("No qset data found, fetching it now...")
-            self.instance.get_qset(self.instance.id, timestamp)
+            # self.instance.get_qset(self.instance.id, timestamp)
+            # this is not longer a function
+            questions_list = self.instance.questions_list
 
         if self.instance.qset.data:
             # print("\nChecking self.instance.qset.find_questions()...")
-            questions_list = self.instance.qset.get_questions()
+            questions_list = self.instance.get_latest_qset().questions
             print(f" Found {len(questions_list)} questions!")
 
             for q in questions_list:

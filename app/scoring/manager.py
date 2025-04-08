@@ -163,6 +163,9 @@ class ScoringUtil:
             play_id=preview_play_id, instance=widget_instance, play=session_play.data
         )
         score_module.logs = session_play.get_logs()
+        if not hasattr(session_play.data, "created_at"):
+            session_play.data.created_at = datetime.now()
+
         score_module.validate_scores(session_play.data.created_at)
 
         details = score_module.get_score_report()
@@ -269,13 +272,25 @@ class ScoringUtil:
             print("Still not found. Giving up.")
             return None
 
-        if session_play:
-            print("Doing the update")
+        # dont overwrite it
+        # if session_play:
+        #     print("Doing the update")
+        #     # sp = SessionPlay()
+        #     # sp.data = session_play
+        #     sp = SessionPlay()
+        #     sp.data = (
+        #         session_play.data
+        #         if isinstance(session_play, SessionPlay)
+        #         else session_play
+        #     )
+        #     sp.is_preview = is_preview
+        #     session_play = sp
+        #     is_preview = False
+        if not isinstance(session_play, SessionPlay):
             sp = SessionPlay()
-            sp.data = session_play
-            sp.is_preview = is_preview
+            sp.data = session_play  # session_play is a LogPlay
+            sp.is_preview = False
             session_play = sp
-            is_preview = False
 
         widget_folder = f"staticfiles/widget/{instance.widget.id}-{instance.widget.clean_name}/_score-modules"
         script_path = os.path.join(widget_folder, "score_module.py")
@@ -299,13 +314,24 @@ class ScoringUtil:
             session_play.get_logs() if is_preview else session_play.get_logs()
         )
         # score_module.validate_scores()
-        score_module.validate_scores(timestamp=score_module.play.data.created_at)
+        # score_module.validate_scores(timestamp=score_module.play.data.created_at)
+        created_at = getattr(score_module.play, "created_at", None)
+        if not created_at and hasattr(score_module.play, "data"):
+            created_at = getattr(score_module.play.data, "created_at", None)
+        score_module.validate_scores(timestamp=created_at)
 
         details = score_module.get_score_report()
-        instance.get_qset(instance.id, score_module.play.created_at)
+        # instance.get_qset(instance.id, score_module.play.created_at)
+        qset = instance.get_qset_for_play(play_id)
+
+        # details["qset"] = (
+        #     instance.qset.as_json()
+        #     if hasattr(instance.qset, "as_json")
+        #     else {"version": None, "data": None}
+        # )
         details["qset"] = (
-            instance.qset.as_json()
-            if hasattr(instance.qset, "as_json")
+            QuestionSetSerializer(qset).data
+            if qset
             else {"version": None, "data": None}
         )
 

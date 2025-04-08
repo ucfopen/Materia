@@ -86,6 +86,7 @@ class SessionPlay:
         self.data.ip = ""  # TODO
         self.data.elapsed = 0
         self.data.is_valid = "1"  # TODO
+        self.data.auth: str | None = None
         self.data.is_complete = False
         self.data.score = 0.0  # TODO
         self.data.score_possible = 0  # TODO
@@ -248,13 +249,28 @@ class SessionPlay:
         print(
             f"self: {self}, self.data: {self.data}, self.is_preview: {self.is_preview} vars: {vars(self)}"
         )
-        # if self.is_preview and hasattr(self, "_preview_logs"):
-        if self.is_preview:
+        if self.is_preview and hasattr(self, "_preview_logs"):
             print("WE ARE A PREVIEW")
-            print(f"self.data: {self.data}")
-            return self.data._preview_logs
+            return self._preview_logs
         else:
             print("WE ARE NOT A PREVIEW")
             from core.models import Log
-
             return Log.objects.filter(play_id=self.data.id).order_by("game_time")
+
+
+    # def get_logs(self):
+    #     print(
+    #         f"self: {self}, self.data: {self.data}, self.is_preview: {self.is_preview} vars: {vars(self)}"
+    #     )
+    #     # if self.is_preview and hasattr(self, "_preview_logs"):
+    #     if self.is_preview:
+    #         print("WE ARE A PREVIEW")
+    #         print(f"self.data: {self.data}")
+    #         # return self.data._preview_logs
+    #         return self._preview_logs
+    #
+    #     else:
+    #         print("WE ARE NOT A PREVIEW")
+    #         from core.models import Log
+    #
+    #         return Log.objects.filter(play_id=self.data.id).order_by("game_time")

@@ -139,10 +139,11 @@ class Base64JSONField(serializers.Field):
 # qset model serializer (inbound | outbound)
 class QuestionSetSerializer(serializers.ModelSerializer):
     data = Base64JSONField()
+    questions_list = serializers.JSONField(required=False)
 
     class Meta:
         model = WidgetQset
-        fields = ["id", "instance", "created_at", "data", "version"]
+        fields = ["id", "instance", "created_at", "data", "version", "questions_list"]
         extra_kwargs = {
             "id": {"required": False, "read_only": True},
             "instance": {"required": False},
@@ -151,9 +152,15 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             "version": {"required": True},
         }
 
-    # helper function to recursively apply uuids to blank ids
-    def apply_ids_to_questions(self, qset):
+    # helper function to recursively apply uuids to blank ids, also updates questions list
+    def apply_ids_to_questions(self, qset, instance=None):
         import uuid
+
+        print(f"WE ARE IN APPLY ID TO QUESTIONS")
+        print(f"WE ARE IN APPLY ID TO QUESTIONS")
+        print(f"WE ARE IN APPLY ID TO QUESTIONS")
+        print(f"WE ARE IN APPLY ID TO QUESTIONS")
+        questions_list = []
 
         def _process_item(item):
 
@@ -162,6 +169,16 @@ class QuestionSetSerializer(serializers.ModelSerializer):
                     item["id"] is None or item["id"] == 0 or item["id"] == ""
                 ):
                     item["id"] = str(uuid.uuid4())
+                # while we are here, to save time we can append questions to a list and retrieve them later saving them to the model
+                print(f"item: {item}")
+                if item.get("materiaType") == "question" or item.get("type") == "QA":
+                    print("DEBUG")
+                    print("DEBUG")
+                    print("DEBUG")
+                    print(f"Appending question: {item}")
+                    print("DEBUG")
+                    print("DEBUG")
+                    questions_list.append(item)
 
                 for key, value in item.items():
                     item[key] = _process_item(value)
@@ -171,7 +188,13 @@ class QuestionSetSerializer(serializers.ModelSerializer):
 
             return item
 
-        return _process_item(qset)
+        # update WidgetMetaData model to include list
+        if instance:
+            setattr(instance, "questions", questions_list)
+
+        _process_item(qset)
+        print(f"questions_list: {questions_list}")
+        return qset, questions_list
 
     def create(self, validated_data):
         if "instance" not in validated_data:
@@ -182,8 +205,11 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             # despite passing data in as a dict, it's present here as a base64 blob again
             # decode it, apply ids to the dict, then re-encode it
             decoded_data = WidgetQset.decode_data(validated_data["data"])
-            decoded_data = self.apply_ids_to_questions(decoded_data)
+            decoded_data, questions_list = self.apply_ids_to_questions(decoded_data)
+            # decoded_data = self.apply_ids_to_questions(decoded_data, instance)
             validated_data["data"] = WidgetQset.encode_data(decoded_data)
+            # store questions list in db
+            validated_data["questions_list"] = questions_list
 
         return super().create(validated_data)
 
