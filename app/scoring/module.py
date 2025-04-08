@@ -1,3 +1,4 @@
+import json
 from abc import ABC, abstractmethod
 
 from core.models import LogPlay, WidgetInstance
@@ -224,7 +225,10 @@ class ScoreModule(ABC):
 
         if self.instance.qset.data:
             # print("\nChecking self.instance.qset.find_questions()...")
-            questions_list = self.instance.get_latest_qset().questions
+            questions_list = json.loads(
+                base64.b64decode(widget_qset.questions_list).decode()
+            )
+            # questions_list = self.instance.get_latest_qset().questions
             print(f" Found {len(questions_list)} questions!")
 
             for q in questions_list:

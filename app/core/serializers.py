@@ -209,7 +209,11 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             # decoded_data = self.apply_ids_to_questions(decoded_data, instance)
             validated_data["data"] = WidgetQset.encode_data(decoded_data)
             # store questions list in db
-            validated_data["questions_list"] = questions_list
+            question_str = json.dumps(questions_list)
+            question_str = base64.b64encode(question_str.encode("utf-8")).decode(
+                "utf-8"
+            )
+            validated_data["questions_list"] = question_str
 
         return super().create(validated_data)
 

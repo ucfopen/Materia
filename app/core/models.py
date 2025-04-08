@@ -909,7 +909,7 @@ class WidgetQset(models.Model):
     created_at = models.DateTimeField(default=datetime.now)
     data = models.TextField(db_column="data")
     version = models.CharField(max_length=10, blank=True, null=True)
-    questions_list = models.JSONField(null=True, blank=True)
+    questions_list = models.TextField(null=True, blank=True)
 
     @classmethod
     def decode_data(cls, encoded_data) -> dict:
@@ -931,8 +931,11 @@ class WidgetQset(models.Model):
     def set_data(self, data_dict):
         self.data = self.encode_data(data_dict)
 
-    def find_questions(self):
-        pass
+    def get_questions(self):
+        decoded_questions_list = json.loads(
+            base64.b64decode(self.questions_list).decode()
+        )
+        return decoded_questions_list
 
     class Meta:
         db_table = "widget_qset"
