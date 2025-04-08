@@ -558,7 +558,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 	})
 
 	const _beforeUnload = e => {
-		if (inst.widget.is_scorable === '1' && !isPreview && playState !== 'end') {
+		if (inst.widget.is_scorable == true && !isPreview && playState !== 'end') {
 			const confirmationMsg = 'Wait! Leaving now will forfeit this attempt. To save your score you must complete the widget.'
 			e.returnValue = confirmationMsg
 			e.preventDefault()

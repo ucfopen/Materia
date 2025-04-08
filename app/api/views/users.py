@@ -43,14 +43,15 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["put"])
+    @action(detail=True, methods=["put"], permission_classes=[IsSelfOrElevatedAccess])
     def profile_fields(self, request, pk=None):
+        user = self.get_object()
         serializer = UserMetadataSerializer(data=request.data)
 
         if serializer.is_valid():
             validated = serializer.validated_data
 
-            user_profile, _ = UserSettings.objects.get_or_create(user=request.user)
+            user_profile, _ = UserSettings.objects.get_or_create(user=user)
             profile_fields = user_profile.get_profile_fields()
             for key, value in validated.items():
                 profile_fields[key] = value
