@@ -1,6 +1,8 @@
 import logging
 
 from core.models import Asset, ObjectPermission, Question, WidgetInstance
+from django.db.models import Q
+from django.utils import timezone
 from rest_framework import permissions
 from util.perm_manager import PermManager
 from util.widget.instance.instance_util import WidgetInstanceUtil
@@ -46,7 +48,10 @@ class HasPermsOrElevatedAccess(permissions.BasePermission):
                 or isinstance(obj, Question)
                 or isinstance(obj, Asset)
             ):
-                return obj.permissions.filter(user=request.user).exists()
+                return obj.permissions.filter(
+                    Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()),
+                    user=request.user,
+                ).exists()
             else:
                 return False
 
@@ -82,13 +87,12 @@ class HasWidgetInstanceEditAccess(permissions.BasePermission):
         if not WidgetInstanceUtil.user_has_lock_or_is_unlocked(widget_instance, user):
             return False
 
-        # TODO add collaborator ownership check
-        # return False
         return (
             user.is_superuser
             or widget_instance.user == user
             or widget_instance.published_by == user
             or obj.permissions.filter(
+                Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()),
                 object_id=widget_instance.id,
                 user=user,
                 permission=ObjectPermission.PERMISSION_FULL,
