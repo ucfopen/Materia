@@ -440,37 +440,39 @@ export const apiGetQuestionsByType = (arrayOfQuestionIds, questionTypes) => {
 }
 
 export const apiGetAssets = () => {
-	return fetchPost(`/api/json/assets_get`, ({ body: `data=${formatFetchBody([])}` }))
+	return fetchGet(`/api/asset/all/`, ({ body: `data=${formatFetchBody([])}` }))
 }
 
 /** Controller_Api_Asset */
 
 export const apiDeleteAsset = async (assetId) => {
 	const options = {
-		method: 'POST',
+		method: 'DELETE',
 		mode: 'cors',
 		credentials: 'include',
 		headers: {
 			pragma: 'no-cache',
 			'cache-control': 'no-cache',
-			'content-type': 'application/json; charset=UTF-8'
+			'content-type': 'application/json; charset=UTF-8',
+			'X-CSRFToken': getCSRFToken(),
 		}
 	}
-	return fetch(`/api/asset/delete/${assetId}`, options).then(handleErrors)
+	return fetch(`/api/asset/${assetId}/delete/`, options).then(handleErrors)
 }
 
 export const apiRestoreAsset = (assetId) => {
 	const options = {
-		method: 'POST',
+		method: 'PATCH',
 		mode: 'cors',
 		credentials: 'include',
 		headers: {
 			pragma: 'no-cache',
 			'cache-control': 'no-cache',
-			'content-type': 'application/json; charset=UTF-8'
+			'content-type': 'application/json; charset=UTF-8',
+			'X-CSRFToken': getCSRFToken(),
 		}
 	}
-	return fetch(`/api/asset/restore/${assetId}`, options).then(handleErrors)
+	return fetch(`/api/asset/${assetId}/restore/`, options).then(handleErrors)
 }
 
 // Returns boolean, true if the current user can publish the given widget instance, false otherwise

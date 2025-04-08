@@ -1,5 +1,6 @@
 import logging
 import os
+from shutil import rmtree
 from urllib import request
 
 from django.conf import settings
@@ -51,6 +52,10 @@ class Command(base.BaseCommand):
 
         if valid:
             self.install(local_package)
+
+        # clean up remaining temporary files
+        rmtree(os.path.dirname(local_package))
+        rmtree(os.path.dirname(local_checksum))
 
     def install_from_url_no_verify(self, package_url, desired_id):
         local_package = self.download_package(package_url)

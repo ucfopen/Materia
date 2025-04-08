@@ -3,11 +3,15 @@ import os
 import tempfile
 from datetime import datetime
 
-from django.utils.timezone import make_aware
-
-from core.models import PermObjectToUser, Widget, WidgetMetadata, WidgetInstance, WidgetQset
+from core.models import (
+    PermObjectToUser,
+    Widget,
+    WidgetInstance,
+    WidgetMetadata,
+    WidgetQset,
+)
 from django.conf import settings
-
+from django.utils.timezone import make_aware
 from util.unique_id import unique_id
 
 logger = logging.getLogger("django")
@@ -104,8 +108,6 @@ class WidgetInstaller:
             try:
                 existing_widget = Widget.objects.get(id=replace_id)
                 existing_widget_metadata = existing_widget.metadata_clean()
-                logger.info("okay what the fuck")
-                logger.info(existing_widget_metadata)
                 if "demo" in existing_widget_metadata:
                     existing_demo_inst_id = existing_widget_metadata["demo"]
                     logger.info(f"Existing demo found: {existing_demo_inst_id}")
@@ -447,7 +449,9 @@ class WidgetInstaller:
 
             if existing_inst_id:
                 # update the existing instance by adding a new qset
-                widget_instance = WidgetInstance.objects.filter(pk=existing_inst_id).first()
+                widget_instance = WidgetInstance.objects.filter(
+                    pk=existing_inst_id
+                ).first()
                 if widget_instance is None:
                     raise Exception("Could not load existing widget instance")
 
@@ -538,6 +542,10 @@ class WidgetInstaller:
         return json_text
 
     # "uploads" an asset from a widget package
+    # this can probably be more efficient - currently it's copying a file from a temporary location
+    #  to a second temporary location and then copying that second temporaray file to a permanent
+    #  location... ideally, we could just copy the file from the original temporary location and
+    #  be done with it, but this works for now
     def sideload_asset(file):
         import shutil
 
