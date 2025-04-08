@@ -35,7 +35,7 @@ class FileAssetStorageDriver:
                     raise Exception(f"Missing asset data for asset: {asset.id} {size}")
 
                 # if a thumbnail etc. is requested, try to build it
-                asset_path = FileAssetStorageDriver.build_size(size)
+                asset_path = FileAssetStorageDriver.build_size(asset, size)
             else:
                 asset_path = FileAssetStorageDriver.get_local_file_path(asset.id, size)
         except Exception as e:
