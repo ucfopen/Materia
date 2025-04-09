@@ -3,6 +3,9 @@ import logging
 from types import FunctionType
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from django.conf import settings
+from django.core.cache import cache
+
 from core.models import WidgetInstance, LogPlay, DateRange
 from util.logging.session_logger import SessionLogger
 from util.logging.session_play import SessionPlay
@@ -255,12 +258,23 @@ class PlayDataExporter:
     def get_all_plays_for_instance(
             instance: WidgetInstance | str, semester: str = "all", year: int = "all", is_student: bool = False
     ) -> list[LogPlay]:
-        # TODO store results in cache
-        plays = SessionPlay.get_all_plays_for_instance(instance=instance, semester=semester, year=year)
+        # Get cached copy
+        cache_key = f"play-logs.{instance.id if isinstance(instance, WidgetInstance) else instance}.{semester}-{year}"
+        plays = cache.get(cache_key, None)
 
-        if is_student:  # Erase user from log if the requesting user is student
+        # Cache miss, get play logs
+        if plays is None:
+            plays = SessionPlay.get_all_plays_for_instance(instance=instance, semester=semester, year=year)
+        else:
+            print("CACHE HIT")
+
+        # Erase user from log if the requesting user is student
+        if is_student:
             for play in plays:
                 play.user_id = None
                 play.user = None
 
-        return list(plays)
+        # Store result to cache, return
+        result = list(plays)
+        cache.set(cache_key, result, settings.PLAYDATA_EXPORTER_CACHE_TIMEOUT)
+        return result
