@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
 import logging
 
@@ -45,7 +46,7 @@ class PermManager:
 
     @staticmethod
     def clear_all_perms_for_object(object_id, object_type: PermObjectToUser.ObjectType):
-        # TODO rework w new object perms system
+        # TODO rework with new object perms system
         from core.models import PermObjectToUser  # Avoids a circular import. I can't really think of a better solution
         access = PermObjectToUser.objects.filter(
             object_id=object_id,
