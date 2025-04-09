@@ -279,8 +279,9 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         #      once we have object level perms done
 
         instance = self.get_object()
+        is_student = PermManager.user_is_student(request.user)
 
-        result, file_ext = PlayDataExporter.export(instance, export_type, semester_ids)
+        result, file_ext = PlayDataExporter.export(instance, export_type, semester_ids, is_student)
         if type(result) is Msg:
             return result.as_drf_response()
 

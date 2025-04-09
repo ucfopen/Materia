@@ -22,7 +22,7 @@ from core.views.my_widgets import MyWidgetsView
 from core.views import profile as profile_views
 from core.views import login as login_views
 
-from core.views.scores import ScoresView
+from core.views.scores import ScoresView, ScoresViewSingle
 
 from django.urls import include, path, re_path
 from django.contrib import admin
@@ -63,6 +63,7 @@ urlpatterns = [
     # Scores
     path("scores/preview/<slug:widget_instance_id>/", ScoresView.as_view(is_preview=True), name="preview scores"),
     path("scores/<slug:widget_instance_id>/<slug:play_id>/", ScoresView.as_view(), name="scores"),
+    path("scores/single/<slug:widget_instance_id>/<slug:play_id>/", ScoresViewSingle.as_view(), name="single score"),
 
     # API (TODO: improve API routing, retire api/json)
     path("api/", include("api.urls.api_urls")),

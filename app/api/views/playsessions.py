@@ -1,11 +1,8 @@
-# import json
-# debug logging
 import logging
 
 from django.http import JsonResponse
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from core.models import Log, LogPlay, WidgetInstance
@@ -13,16 +10,19 @@ from core.permissions import HasWidgetInstanceEditAccess
 from core.serializers import (
     PlayLogUpdateSerializer,
     PlaySessionSerializer,
-    PlaySessionWithExtrasSerializer,
+    PlaySessionWithExtrasSerializer, PlaySessionSerializerStudentView, PlaySessionSerializerWithUserInfo,
 )
+from util.custom_paginations import PageNumberWithTotalPagination
+from util.logging.play_data_exporter import PlayDataExporter
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
+from util.perm_manager import PermManager
 
 # from pprint import pformat
 logger = logging.getLogger("django")
 
 
-class PlaySessionPagination(PageNumberPagination):
+class PlaySessionPagination(PageNumberWithTotalPagination):
     page_size = 100
     page_size_query_param = "page_size"
     max_page_size = 100
@@ -37,6 +37,10 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
     # we only need extras (widget name, inst name) when on the profile page
     def get_serializer_class(self):
+        if self.request.query_params.get("inst_id") and PermManager.user_is_student(self.request.user):
+            return PlaySessionSerializerStudentView
+        if self.request.query_params.get("inst_id") and self.request.query_params.get("include_user_info", False):
+            return PlaySessionSerializerWithUserInfo
         if self.request.query_params.get("include_activity"):
             return PlaySessionWithExtrasSerializer
         else:
@@ -47,8 +51,15 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     # default queryset returns all plays for the current user
     # inst and widget names are only included via ?include_activity=true
     def get_queryset(self):
+        inst_id = self.request.query_params.get("inst_id")
         if "pk" in self.kwargs:
             return LogPlay.objects.get(pk=self.kwargs["pk"])
+        if inst_id:
+            # TODO make sure perms are set up right here
+            semester = self.request.query_params.get("semester", "all")
+            year = self.request.query_params.get("year", "all")
+            is_student = PermManager.user_is_student(self.request.user)
+            return PlayDataExporter.get_all_plays_for_instance(inst_id, semester, year, is_student)
         else:
             if self.request.query_params.get("include_activity"):
                 return LogPlay.objects.select_related(

@@ -10,28 +10,30 @@ from util.message_util import Msg, MsgBuilder
 from util.widget.validator import ValidatorUtil
 
 
-def export_survey_formatting(instance: WidgetInstance, semesters: list[str]) -> tuple[bytes | Msg, str]:
+def export_survey_formatting(
+        instance: WidgetInstance, semesters: list[str], is_student: bool
+) -> tuple[bytes | Msg, str]:
     headers = ["User ID", "Last Name", "First Name", "Semester", "Game Time (seconds)"]
     csvs = {}  # Contains processed data and rows for the CSV for each qset
 
     for semester in semesters:
         [year, term] = semester.split("-")
-        play_sessions = PlayDataExporter.get_all_logs_for_instance(instance, term, int(year))
+        play_sessions = PlayDataExporter.get_all_plays_for_instance(instance, term, int(year), is_student)
 
         # Go through each play, and gather all events for that play
         results = {}
         for play in play_sessions:
-            play_id = play["id"]
-            results[play_id] = []
+            results[play.id] = []
+            last, first = (play.user.last_name, play.user.first_name) if play.user else ("", "")
 
             # Go through each log for this play
-            play_logs = SessionLogger.get_logs(play_id)
+            play_logs = SessionLogger.get_logs(play.id)
             for play_log in play_logs:
                 event = {
-                    "last_name": play["last"],
-                    "first_name": play["first"],
-                    "user_id": play["user_id"] if play["user_id"] else "(Guest)",
-                    "qset_id": play["qset_id"],
+                    "last_name": last,
+                    "first_name": first,
+                    "user_id": play.user.id if play.user else "(Guest)",
+                    "qset_id": play.qset.id,
                     "semester": semester,
                     "type": play_log.log_type,
                     "item_id": play_log.item_id,
@@ -40,7 +42,7 @@ def export_survey_formatting(instance: WidgetInstance, semesters: list[str]) -> 
                     "game_time": play_log.game_time,
                     "created_at": play_log.created_at
                 }
-                results[play_id].append(event)
+                results[play.id].append(event)
 
         # Return if we didn't find any results
         if len(results) == 0:

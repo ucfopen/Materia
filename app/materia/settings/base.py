@@ -4,11 +4,11 @@ import os
 from pathlib import Path
 
 # import additional config files
-from .generation import *
-from .widgets import *
-from .urls import *
-from .css import *
-from .js import *
+from .generation import *  # noqa
+from .widgets import *  # noqa
+from .urls import *  # noqa
+from .css import *  # noqa
+from .js import *  # noqa
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,7 +54,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
     ],
-    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler'
+    "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
 }
 
 MIDDLEWARE = [

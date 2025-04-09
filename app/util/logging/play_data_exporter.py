@@ -3,10 +3,9 @@ import logging
 from types import FunctionType
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from django.db.models import QuerySet, F
-
 from core.models import WidgetInstance, LogPlay, DateRange
 from util.logging.session_logger import SessionLogger
+from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder, Msg
 from util.widget.validator import ValidatorUtil
 
@@ -15,18 +14,20 @@ logger = logging.getLogger("django")
 
 class PlayDataExporter:
     @staticmethod
-    def export(instance: WidgetInstance, export_type: str, semesters_string: str) -> tuple[str | bytes | Msg, str]:
+    def export(
+            instance: WidgetInstance, export_type: str, semesters_string: str, is_student: bool
+    ) -> tuple[str | bytes | Msg, str]:
         semesters = semesters_string.split(',')
 
         match export_type:
             case "High Scores":
-                return PlayDataExporter._export_high_scores(instance, semesters)
+                return PlayDataExporter._export_high_scores(instance, semesters, is_student)
             case "All Scores":
-                return PlayDataExporter._export_all_scores(instance, semesters)
+                return PlayDataExporter._export_all_scores(instance, semesters, is_student)
             case "Full Event Log":
-                return PlayDataExporter._export_full_event_log(instance, semesters)
+                return PlayDataExporter._export_full_event_log(instance, semesters, is_student)
             case "Referrer URLs":
-                return PlayDataExporter._export_referrer_urls(instance, semesters)
+                return PlayDataExporter._export_referrer_urls(instance, semesters, is_student)
             case "Questions and Answers":
                 return PlayDataExporter._export_questions_and_answers(instance, semesters)
             case _:
@@ -37,7 +38,7 @@ class PlayDataExporter:
                 # A custom exporter was found, run it
                 if exporter_method is not None and isinstance(exporter_method, FunctionType):
                     try:
-                        result, file_ext = exporter_method(instance, semesters)
+                        result, file_ext = exporter_method(instance, semesters, is_student)
                         # Verify the exporter method returned correct data
                         if (not isinstance(result, str) and not isinstance(result, bytes)
                                 and not isinstance(result, Msg)):
@@ -64,34 +65,34 @@ class PlayDataExporter:
                     return MsgBuilder.invalid_input(msg="Invalid export type"), ""
 
     @staticmethod
-    def _export_high_scores(instance: WidgetInstance, semesters: list[str]) -> tuple[str | Msg, str]:
+    def _export_high_scores(instance: WidgetInstance, semesters: list[str], is_student: bool) -> tuple[str | Msg, str]:
         headers = ["Last Name", "First Name", "ID", "SIS User ID", "SIS Login ID", "Section", "Score"]
         results = {}
 
         # Get all play logs for each semester requested
         for semester in semesters:
             [year, term] = semester.split('-')
-            logs = PlayDataExporter.get_all_logs_for_instance(instance, term, int(year))
+            logs = PlayDataExporter.get_all_plays_for_instance(instance, term, int(year), is_student)
 
             # Go through each play log, compare current user score and this play's score
             for play in logs:
                 # Do not include if user is guest
-                if not play["user_id"]:
+                if not play.user:
                     continue
 
-                user_id = play["user_id"]
+                user_id = play.user.id
 
                 # Add user to results if not already present
                 if user_id not in results:
                     results[user_id] = {
                         "score": 0,
-                        "last_name": play["last"],
-                        "first_name": play["first"],
+                        "last_name": play.user.last_name,
+                        "first_name": play.user.first_name,
                         "semester": semester,
                     }
 
                 # Update user's highest score in results dict
-                results[user_id]["score"] = max(results[user_id]["score"], play["percent"])
+                results[user_id]["score"] = max(results[user_id]["score"], play.percent)
 
         # Throw 404 if there are no play logs
         if len(results) == 0:
@@ -108,7 +109,7 @@ class PlayDataExporter:
 
     # Exports all guest scores. For use when the instance is in guest mode
     @staticmethod
-    def _export_all_scores(instance: WidgetInstance, semesters: list[str]) -> tuple[str | Msg, str]:
+    def _export_all_scores(instance: WidgetInstance, semesters: list[str], is_student: bool) -> tuple[str | Msg, str]:
         headers = ["User ID", "Last Name", "First Name", "Score", "Semester"]
         data = []
         count = 0
@@ -116,16 +117,16 @@ class PlayDataExporter:
         # For each semester, get all play logs
         for semester in semesters:
             [year, term] = semester.split('-')
-            logs = PlayDataExporter.get_all_logs_for_instance(instance, term, int(year))
+            logs = PlayDataExporter.get_all_plays_for_instance(instance, term, int(year), is_student)
 
             # For each play log, process its data and add to results
             for play in logs:
                 # Ignore non-guest plays
-                if play["user_id"]:
+                if play.user:
                     continue
 
                 # Add to data list
-                data.append([f"Guest {++count}", play["last"], play["first"], f"{play["percent"]}%", semester])
+                data.append([f"Guest {++count}", "", "", f"{play.percent}%", semester])
 
         # Throw 404 when there is no data found
         if len(data) == 0:
@@ -136,25 +137,28 @@ class PlayDataExporter:
 
     # Prepare data log zip file
     @staticmethod
-    def _export_full_event_log(instance: WidgetInstance, semesters: list[str]) -> tuple[bytes | Msg, str]:
+    def _export_full_event_log(
+            instance: WidgetInstance, semesters: list[str], is_student: bool
+    ) -> tuple[bytes | Msg, str]:
         headers = ["User ID", "Last Name", "First Name", "Play ID", "Semester", "Type", "Item ID", "Text", "Value",
-                   "Game TIme", "Created At"]
+                   "Game Time", "Created At"]
         play_log_data = []
 
         # For each semester, get all play logs
         for semester in semesters:
             [year, term] = semester.split('-')
-            logs = PlayDataExporter.get_all_logs_for_instance(instance, term, int(year))
+            logs = PlayDataExporter.get_all_plays_for_instance(instance, term, int(year), is_student)
 
             # For each play log, process its data and add to results
             for play in logs:
                 # If there is no username, it is a guest user
-                username = play["user_id"] if "user_id" in play.keys() else "(Guest)"
+                username = play.user.id if play.user else "(Guest)"
 
                 # Get and then process each log
-                play_events = SessionLogger.get_logs(play["id"])
+                play_events = SessionLogger.get_logs(play.id)
                 for play_event in play_events:
-                    row = [username, play["last"], play["first"], play["id"], semester, play_event.log_type,
+                    last, first = (play.user.last_name, play.user.first_name) if play.user else ("", "")
+                    row = [username, last, first, play.id, semester, play_event.log_type,
                            play_event.item_id, play_event.text, play_event.value, play_event.game_time,
                            play_event.created_at]
                     play_log_data.append(row)
@@ -176,7 +180,9 @@ class PlayDataExporter:
 
     # Outputs a .zip file of two CSV files for individual and collective referrers data
     @staticmethod
-    def _export_referrer_urls(instance: WidgetInstance, semesters: list[str]) -> tuple[bytes | Msg, str]:
+    def _export_referrer_urls(
+            instance: WidgetInstance, semesters: list[str], is_student: bool
+    ) -> tuple[bytes | Msg, str]:
         headers_individual = ["User", "URL", "Date"]
         data_individual = []
         referrer_count = {}
@@ -188,21 +194,20 @@ class PlayDataExporter:
             if date is None:
                 return MsgBuilder.not_found(msg="Semester not found"), ""
 
-            # Form query
-            raw_data = LogPlay.objects.filter(instance=instance).values("user_id", "referrer_url", "created_at")
-            raw_data = raw_data.filter(created_at__gt=date.start_at, created_at__lt=date.end_at)
+            # Form query, only including user info if requesting user isn't a student
+            raw_data = PlayDataExporter.get_all_plays_for_instance(instance, term, int(year), is_student)
             if len(raw_data) == 0:
                 return MsgBuilder.not_found(msg="No play logs found"), ""
 
             # Process data for each individual play and their referrer
             for datum in raw_data:
-                url = datum["referrer_url"] if datum["referrer_url"] else instance.play_url
-                user_id = datum["user_id"] if datum["user_id"] else "(Guest)"
-                data_individual.append([user_id, url, datum["created_at"]])
+                url = datum.referrer_url if datum.referrer_url else instance.play_url
+                user_id = datum.user.id if datum.user else "(Guest)"
+                data_individual.append([user_id, url, datum.created_at])
 
             # Count collective number of times a URL appears
             for datum in raw_data:
-                url = datum["referrer_url"] if datum["referrer_url"] else instance.play_url
+                url = datum.referrer_url if datum.referrer_url else instance.play_url
                 if url not in referrer_count:
                     referrer_count[url] = 0
                 else:
@@ -245,30 +250,17 @@ class PlayDataExporter:
             csv += ",".join(row) + "\r\n"
         return csv
 
+    # Build on top of the SessionPlay function, except adds caching and allows filtering out user info
     @staticmethod
-    def get_all_logs_for_instance(
-            instance: WidgetInstance, semester: str = "all", year: int = "all", is_student: bool = False
-    ) -> QuerySet[LogPlay, dict]:
+    def get_all_plays_for_instance(
+            instance: WidgetInstance | str, semester: str = "all", year: int = "all", is_student: bool = False
+    ) -> list[LogPlay]:
         # TODO store results in cache
+        plays = SessionPlay.get_all_plays_for_instance(instance=instance, semester=semester, year=year)
 
-        # Get DateRange object, if specified
-        date = None
-        if semester != "all" and year != "all":
-            date = DateRange.objects.filter(semester=semester, year=year).first()
+        if is_student:  # Erase user from log if the requesting user is student
+            for play in plays:
+                play.user_id = None
+                play.user = None
 
-        # Form main query. If user is student, do not include user info
-        query = LogPlay.objects.filter(instance=instance)
-
-        if is_student:
-            query = query.values("id", "created_at", "is_complete", "percent", "elapsed", "qset_id")
-        else:
-            query = (query
-                .values("id", "created_at", "is_complete", "percent", "elapsed", "qset_id", "user_id")
-                .annotate(first=F("user__first_name"), last=F("user__last_name"))
-            )
-
-        # Filter by date
-        if date is not None:
-            query = query.filter(created_at__gt=date.start_at, created_at__lt=date.end_at)
-
-        return query
+        return list(plays)

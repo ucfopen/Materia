@@ -396,6 +396,54 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
         ]
 
 
+class PlaySessionSerializerStudentView(serializers.ModelSerializer):
+    class Meta:
+        model = LogPlay
+        fields = [
+            "id",
+            "instance",
+            "is_valid",
+            "is_complete",
+            "score",
+            "score_possible",
+            "percent",
+            "elapsed",
+            "qset_id",
+            # "environment_data",
+            "auth",
+            "referrer_url",
+            "context_id",
+            "semester_id",
+            "created_at",
+        ]
+
+
+class PlaySessionSerializerWithUserInfo(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = LogPlay
+        fields = [
+            "id",
+            "instance",
+            "is_valid",
+            "is_complete",
+            "score",
+            "score_possible",
+            "percent",
+            "elapsed",
+            "qset_id",
+            # "environment_data",
+            "auth",
+            "referrer_url",
+            "context_id",
+            "semester_id",
+            "created_at",
+            "user",
+            "user_id",
+        ]
+
+
 class NotificationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
@@ -403,6 +451,7 @@ class NotificationsSerializer(serializers.ModelSerializer):
 
 
 class ScoreSummarySerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     term = serializers.CharField()
     year = serializers.IntegerField()
     students = serializers.IntegerField()
@@ -431,6 +480,7 @@ class ScoreSummarySerializer(serializers.Serializer):
                         distribution[i] = 0
 
                 summary[semester_key] = {
+                    "id": log.semester.id,
                     "term": log.semester.semester,
                     "year": log.created_at.year,
                     "students": 1,
@@ -450,6 +500,7 @@ class ScoreSummarySerializer(serializers.Serializer):
             for data in summary.values():
                 results.append(
                     {
+                        "id": data["id"],
                         "term": data["term"],
                         "year": data["year"],
                         "students": data["students"],

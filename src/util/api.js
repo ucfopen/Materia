@@ -328,20 +328,25 @@ export const apiGetScoreSummary = instId => {
 }
 
 export const apiGetPlayLogs = (instId, term, year, page_number) => {
-	return fetchPost('/api/json/play_logs_get', { body: `data=${formatFetchBody([instId, term, year, page_number])}` })
+	const params = new URLSearchParams({
+		inst_id: instId, semester: term, year: year, include_user_info: true, page: page_number
+	})
+	return fetchGet(`/api/play-sessions/?${params}`)
 		.then(results => {
 			if (!results) return []
-			if (results.pagination.length == 0) return []
+			if (results.count === 0) return []
 
 			const scoresByUser = new Map()
-			results.pagination.forEach(log => {
+			results.results.forEach(log => {
 				let scoresForUser
-				if (log.user_id === null || log.user_id == undefined) log.user_id = 0
+				if (log.user_id === null || log.user_id === undefined) log.user_id = 0
 
 				if (!scoresByUser.has(log.user_id)) {
 
 					// initialize user
-					const name = log.first === null || log.first === undefined ? 'All Guests' : `${log.first} ${log.last}`
+					const first = log.user?.first_name ?? null
+					const last = log.user?.last_name ?? null
+					const name = first === null || last == null ? 'All Guests' : `${first} ${last}`
 					scoresForUser = {
 						userId: log.user_id,
 						name,
@@ -360,14 +365,14 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 				scoresForUser.scores.push({
 					elapsed: parseInt(log.elapsed, 10) + 's',
 					playId: log.id,
-					score: log.done === '1' ? Math.round(parseFloat(log.perc)) + '%' : '---',
-					created_at: log.time
+					score: log.is_complete === '1' ? Math.round(parseFloat(log.percent)) + '%' : '---',
+					created_at: log.created_at
 				})
 
 			})
 
 			const logs = Array.from(scoresByUser, ([name, value]) => value)
-			const data = { 'total_num_pages': results.total_num_pages, pagination: logs }
+			const data = { 'total_num_pages': results.total_pages, pagination: logs }
 			return data
 		})
 }
