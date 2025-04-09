@@ -3,16 +3,20 @@
 import os
 from pathlib import Path
 
+from .css import *  # noqa: F401, F403
+from .generation import *  # noqa: F401, F403
+from .js import *  # noqa: F401, F403
+
 # import additional config files
-from .generation import *  # noqa
-from .widgets import *  # noqa
-from .urls import *  # noqa
-from .css import *  # noqa
-from .js import *  # noqa
+from .storage import *  # noqa: F401, F403
+from .urls import *  # noqa: F401, F403
+from .widgets import *  # noqa: F401, F403
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-APP_PATH = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))).resolve().parent
+APP_PATH = (
+    Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))).resolve().parent
+)
 
 DIRS = {
     "media": os.path.realpath(os.path.join(APP_PATH, "media")),  # + os.sep,
@@ -33,7 +37,7 @@ SECRET_KEY = "materia-local-dev-secret-key"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -83,7 +87,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.dark_mode",
-                "core.context_processors.fonts"
+                "core.context_processors.fonts",
             ],
         },
     },
@@ -166,18 +170,9 @@ LOGGING = {
 
 SEMESTERS = [
     {
-        "spring": {
-            "month": 1,
-            "day": 1
-        },
-        "summer": {
-            "month": 5,
-            "day": 3
-        },
-        "fall": {
-            "month": 8,
-            "day": 7
-        }
+        "spring": {"month": 1, "day": 1},
+        "summer": {"month": 5, "day": 3},
+        "fall": {"month": 8, "day": 7},
     }
 ]
 

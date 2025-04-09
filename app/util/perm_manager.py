@@ -1,8 +1,7 @@
-from __future__ import annotations
 from typing import TYPE_CHECKING
-from django.contrib.auth.models import User
-
 import logging
+
+from django.contrib.auth.models import User
 
 logger = logging.getLogger("django")
 
@@ -13,7 +12,9 @@ if TYPE_CHECKING:
 class PermManager:
     @staticmethod
     def user_is_student(user: User):
-        return not PermManager.does_user_have_roles(user, ["basic_author", "super_user"])
+        return not PermManager.does_user_have_roles(
+            user, ["basic_author", "super_user"]
+        )
         # return user.groups.filter(name="Student").exists()
 
     # Returns True if user has at least one of the roles specified
@@ -30,23 +31,21 @@ class PermManager:
         # Check to see if any of the roles are present
         return user.groups.filter(name__in=roles).exists()
 
-    # @staticmethod
-    # def get_all_objects_for_user(
-    #         user: User | str, object_type: int, perms: list[int] = None,
-    # ) -> QuerySet:
-    #     from core.models import PermObjectToUser, WidgetInstance
-    #     base_query = PermObjectToUser.objects.filter(object_type=object_type, user=user)
-    #     if perms is not None and len(perms) > 0:
-    #         base_query = base_query.filter(perm__in=perms)
-    #
-    #     match object_type:
-    #         case PermObjectToUser.ObjectType.INSTANCE:
-    #             return WidgetInstance.objects.filter(id__in=[pk for pk in base_query.values_list("object_id")])
-    #         case _:
-    #             return None  # TODO
+    @staticmethod
+    def get_all_objects_of_type_for_user(user_id, object_type, perms):
+        # dodging circular import errors, else this would be at the top of the file
+        from core.models import PermObjectToUser
+
+        if len(perms) > 0 and isinstance(perms, list):
+            query_perms = list(map(str, perms))
+
+            return PermObjectToUser.objects.filter(
+                object_type=object_type, user_id=user_id, perm__in=query_perms
+            )
 
     @staticmethod
     def clear_all_perms_for_object(object_id, object_type: PermObjectToUser.ObjectType):
+        # TODO rework w new object perms system
         from core.models import PermObjectToUser  # Avoids a circular import. I can't really think of a better solution
         access = PermObjectToUser.objects.filter(
             object_id=object_id,

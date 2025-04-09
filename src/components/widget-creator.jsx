@@ -477,7 +477,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 								qset.data,
 								qset.version
 							])
-						}).catch((err) => onInitFail(err))
+						}).catch(err => onInitFail(err))
 						break
 				}
 			}
