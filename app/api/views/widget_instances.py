@@ -3,8 +3,9 @@ import logging
 from core.models import LogPlay, PermObjectToUser, Widget, WidgetInstance, WidgetQset
 from core.permissions import (
     CanCreateWidgetInstances,
+    HasWidgetInstanceEditAccess,
     HasWidgetInstanceEditAccessOrReadOnly,
-    IsSuperuser, HasWidgetInstanceEditAccess,
+    IsSuperuser,
 )
 from core.serializers import (
     PlayIdSerializer,
@@ -19,7 +20,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-
 from util.perm_manager import PermManager
 from util.widget.instance.instance_util import WidgetInstanceUtil
 

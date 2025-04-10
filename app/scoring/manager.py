@@ -272,20 +272,6 @@ class ScoringUtil:
             print("Still not found. Giving up.")
             return None
 
-        # dont overwrite it
-        # if session_play:
-        #     print("Doing the update")
-        #     # sp = SessionPlay()
-        #     # sp.data = session_play
-        #     sp = SessionPlay()
-        #     sp.data = (
-        #         session_play.data
-        #         if isinstance(session_play, SessionPlay)
-        #         else session_play
-        #     )
-        #     sp.is_preview = is_preview
-        #     session_play = sp
-        #     is_preview = False
         if not isinstance(session_play, SessionPlay):
             sp = SessionPlay()
             sp.data = session_play  # session_play is a LogPlay
@@ -322,7 +308,15 @@ class ScoringUtil:
 
         details = score_module.get_score_report()
         # instance.get_qset(instance.id, score_module.play.created_at)
-        qset = instance.get_qset_for_play(play_id)
+        # we need to have a check if its a preview play cause they are not in db
+        if session_play.is_preview:
+            print("getting qset via session...")
+            print("getting qset via session...")
+            print("getting qset via session...")
+            print("getting qset via session...")
+            qset = instance.get_qset_for_play(play_id, True)
+        else:
+            qset = instance.get_qset_for_play(play_id)
 
         # details["qset"] = (
         #     instance.qset.as_json()

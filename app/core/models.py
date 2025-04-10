@@ -784,27 +784,34 @@ class WidgetInstance(models.Model):
         decoded = WidgetQset.decode_data(latest_qset.data)
         return QuestionSetSerializer().apply_ids_to_questions(decoded)
 
-    def get_qset_for_play(self, play_id=None):
+    def get_qset_for_play(self, play_id=None, is_preview=False):
         print("HELPHELPHELPEHLPEHEPLP")
         print("HELPHELPHELPEHLPEHEPLP")
         print("HELPHELPHELPEHLPEHEPLP")
         print("HELPHELPHELPEHLPEHEPLP")
-        if play_id:
+        if play_id and not is_preview:
             print(f"play id: {play_id}")
             print(f"play id: {play_id}")
             print(f"play id: {play_id}")
-            play = LogPlay.objects.get(id=play_id)
+            play = LogPlay.objects.get(id=play_id)  # this will fail if we are a preview
             return (
                 self.qsets.filter(created_at__lte=play.created_at)
                 .order_by("-created_at")
                 .first()
             )
+        print("we are a preview: ", is_preview)
         return self.get_latest_qset()
 
     def playable_by_current_user(self, user: User):
-        print(f"self.is_playable: {self.widget.is_playable}, user: {user}, user.is_authenticated: {user.is_authenticated}")
-        print(f"self.is_playable: {self.widget.is_playable}, user: {user}, user.is_authenticated: {user.is_authenticated}")
-        print(f"self.is_playable: {self.widget.is_playable}, user: {user}, user.is_authenticated: {user.is_authenticated}")
+        print(
+            f"self.is_playable: {self.widget.is_playable}, user: {user}, user.is_authenticated: {user.is_authenticated}"
+        )
+        print(
+            f"self.is_playable: {self.widget.is_playable}, user: {user}, user.is_authenticated: {user.is_authenticated}"
+        )
+        print(
+            f"self.is_playable: {self.widget.is_playable}, user: {user}, user.is_authenticated: {user.is_authenticated}"
+        )
         return self.widget.is_playable and (user.is_authenticated or self.guest_access)
 
     def save(self, *args, **kwargs):
