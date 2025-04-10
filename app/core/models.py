@@ -971,6 +971,16 @@ class WidgetInstance(models.Model):
     def play_url(self):
         return f"{settings.URLS["BASE_URL"]}play/{self.id}/{slugify(self.name)}/"
 
+    @property
+    def preview_url(self):
+        return f"{settings.URLS["BASE_URL"]}preview/{self.id}/{slugify(self.name)}/"
+
+    @property
+    def embed_url(self):
+        if self.is_draft:
+            return None
+        return f"{settings.URLS["BASE_URL"]}embed/{self.id}/{slugify(self.name)}/"
+
     class Meta:
         db_table = "widget_instance"
         indexes = [

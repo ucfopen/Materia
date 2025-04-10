@@ -17,7 +17,7 @@ class ScoresView(TemplateView):
         is_embedded = self.kwargs.get('is_embedded', False)
         token = self.kwargs.get('token')
 
-        context = _get_context_data(widget_instance_id, is_embedded, self.is_preview, token)
+        context = _get_context_data(request, widget_instance_id, is_embedded, self.is_preview, token)
         return self.render_to_response(context)
 
 
