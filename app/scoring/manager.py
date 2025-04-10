@@ -304,7 +304,13 @@ class ScoringUtil:
         created_at = getattr(score_module.play, "created_at", None)
         if not created_at and hasattr(score_module.play, "data"):
             created_at = getattr(score_module.play.data, "created_at", None)
+
+        print(f"created_at: {created_at}")
+        print(f"created_at: {created_at}")
+        print("DOING VALIDATE SCORES")
         score_module.validate_scores(timestamp=created_at)
+
+        print("GETTING SCORE REPORT")
 
         details = score_module.get_score_report()
         # instance.get_qset(instance.id, score_module.play.created_at)
@@ -323,10 +329,16 @@ class ScoringUtil:
         #     if hasattr(instance.qset, "as_json")
         #     else {"version": None, "data": None}
         # )
+
+        from core.serializers import QuestionSetSerializer
+
         details["qset"] = (
             QuestionSetSerializer(qset).data
             if qset
             else {"version": None, "data": None}
         )
+        print("details: ", details)
+        print("details: ", details)
+        print("details: ", details)
 
         return details

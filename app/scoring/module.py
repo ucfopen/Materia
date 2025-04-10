@@ -1,3 +1,4 @@
+import base64
 import json
 from abc import ABC, abstractmethod
 
@@ -9,6 +10,7 @@ from util.semester import Semester
 
 
 class ScoreModule(ABC):
+    print("THE VERY START OF THE SCORE MODULE")
 
     def __init__(self, play_id: str, instance: WidgetInstance, play=None):
         self.logs = []
@@ -72,11 +74,18 @@ class ScoreModule(ABC):
         `calculated_percent`, which are eventually written to the database
         by the api. validates the individual question scores are valid.
         """
+        print("BEGGINING OF VALIDATE_SCORES FUNCTION")
+        print("BEGGINING OF VALIDATE_SCORES FUNCTION")
+        print("BEGGINING OF VALIDATE_SCORES FUNCTION")
+        print("BEGGINING OF VALIDATE_SCORES FUNCTION")
         session = SessionPlay.get_or_none(str(self.play_id))
         if not session:
-            return False
+            print("no session")
+            # TODO, make it work for previews? make it by session not from db?
+            # return False
 
         if not timestamp:
+            print("no timestamp")
             if not self.play:
                 self.play = logplay.objects.get(id=self.play_id)
 
@@ -97,6 +106,9 @@ class ScoreModule(ABC):
                         "attempt limit met: you have already met the attempt limit for this widget."
                     )
 
+        print("LOADING QUESTIONS")
+        print("LOADING QUESTIONS")
+        print("LOADING QUESTIONS")
         self.load_questions(timestamp)
 
         if not self.logs:
@@ -173,13 +185,22 @@ class ScoreModule(ABC):
 
     def get_score_report(self) -> object:
         """returns a report of the calculated score"""
+        print("HELLO WHY ARENT YOU PRINTING YOU FUCK")
+        print("HELLO WHY ARENT YOU PRINTING YOU FUCK")
+        print("HELLO WHY ARENT YOU PRINTING YOU FUCK")
+        print("HELLO WHY ARENT YOU PRINTING YOU FUCK")
+        print("HELLO WHY ARENT YOU PRINTING YOU FUCK")
         self.score_display["overview"] = self.get_score_overview()
         self.score_display["details"] = self.get_score_details()
+        print(f"SCORE DISPLAY: {self.score_display}")
         return self.score_display
 
     def get_score_overview(self):
         complete = False
-        if self.play_id == "-1":
+        # TODO: mark it complete for previews, i guess they should have play_id's of negative one.
+        print(f"self.play_id is {self.play_id}")
+        # if self.play_id == "-1":
+        if self.play_id:
             complete = True
         else:
             print(f"self.play: {self.play} and self.play.data: {self.play.data}")
@@ -206,6 +227,8 @@ class ScoreModule(ABC):
 
     def get_overview_items(self):
         overview_items = []
+        print("GETTING OVERVIEW ITEMS")
+        print("GETTING OVERVIEW ITEMS")
         overview_items.append(
             {"message": "points lost", "value": self.calculated_percent - 100}
         )
@@ -221,7 +244,8 @@ class ScoreModule(ABC):
             print("No qset data found, fetching it now...")
             # self.instance.get_qset(self.instance.id, timestamp)
             # this is not longer a function
-            questions_list = self.instance.questions_list
+            # we need to decode this base64
+            # questions_list = self.instance.questions_list
 
         if self.instance.qset.data:
             # print("\nChecking self.instance.qset.find_questions()...")
@@ -249,7 +273,10 @@ class ScoreModule(ABC):
 
     def get_score_details(self):
         details = []
+        print("GETTING SCORE DETAILS")
+        print(f"in score details, the questions are {self.questions}")
         for log in self.logs:
+            print(f"LOG: {log}")
             log_type = log.log_type if hasattr(log, "log_type") else log["type"]
             if log_type == "question_answered":
                 item_id = log.item_id if hasattr(log, "item_id") else log["item_id"]
