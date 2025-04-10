@@ -180,6 +180,15 @@ class Asset(models.Model):
         db_table = "asset"
 
 
+# Custom LONGBLOB field for storing binary asset data
+# Django doesn't natively support LONGBLOB - BinaryField is BLOB
+class LongBlobField(models.BinaryField):
+    def db_type(self, connection):
+        if connection.vendor == "mysql":
+            return "LONGBLOB"
+        return super().db_type(connection)
+
+
 # Revisit this later - either it sticks in the new version or is replaced with something Django-y
 # Rebuild the FuelPHP version locally using the DB storage driver for assets, see what goes in here
 # Maybe come up with a process to pull binaries out of this table and write them to disk somewhere?
@@ -187,13 +196,13 @@ class Asset(models.Model):
 class AssetData(models.Model):
     # This model is not used in the application. The table is empty.
     id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
-    type = models.CharField(max_length=10)
+    file_type = models.CharField(max_length=10)
     status = models.CharField(max_length=20)
     size = models.CharField(max_length=20)
     bytes = models.IntegerField()  # consider using db_column to change the name
     hash = models.CharField(max_length=255)
     created_at = models.DateTimeField(default=datetime.now)
-    data = models.TextField()
+    data = LongBlobField()
 
     class Meta:
         db_table = "asset_data"
