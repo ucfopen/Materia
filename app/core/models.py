@@ -18,6 +18,7 @@ from django.db import models, transaction
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.functional import classproperty
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 from util.perm_manager import PermManager
@@ -177,6 +178,10 @@ class Asset(models.Model):
 
     def get_mime_type(self):
         return Asset.MIME_TYPE_FROM_EXTENSION[self.file_type]
+
+    @classproperty
+    def content_type(cls):
+        return ContentType.objects.get_for_model(cls)
 
     @staticmethod
     def handle_uploaded_file(user, uploaded_file):
@@ -636,6 +641,10 @@ class Question(models.Model):
             "utf-8"
         )
 
+    @classproperty
+    def content_type(cls):
+        return ContentType.objects.get_for_model(cls)
+
     class Meta:
         db_table = "question"
         indexes = [
@@ -907,6 +916,10 @@ class WidgetInstance(models.Model):
     def get_qset_history(self) -> QuerySet["WidgetQset"]:
         qsets = WidgetQset.objects.filter(instance=self).order_by("-created_at")
         return qsets
+
+    @classproperty
+    def content_type(cls):
+        return ContentType.objects.get_for_model(cls)
 
     class Meta:
         db_table = "widget_instance"

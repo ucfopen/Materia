@@ -5,7 +5,6 @@ import os
 import magic
 from core.models import User
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
@@ -81,10 +80,9 @@ class AssetManager:
         from core.models import Asset, ObjectPermission
 
         user = User.objects.get(id=user_id)
-        asset_type = ContentType.objects.get(app_label="core", model="asset")
         assets = Asset.objects.filter(
             id__in=ObjectPermission.objects.filter(
-                content_type=asset_type, user=user
+                content_type=Asset.content_type, user=user
             ).values_list("object_id", flat=True)
         )
 
