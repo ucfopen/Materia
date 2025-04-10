@@ -270,7 +270,6 @@
 				left: 5px;
 				top: 10px;
 				width: 40px;
-
 				background: #0093e7;
 				color: #fff;
 				border-radius: 3px;
@@ -279,7 +278,6 @@
 				font-weight: 700;
 				text-align: center;
 				overflow: hidden;
-
 				padding-top: 2px;
 				padding-bottom: 4px;
 				height: inherit;
@@ -291,9 +289,7 @@
 				right: 5px;
 				top: 5px;
 				text-align: right;
-
 				color: #a4a4a4;
-
 				font-size: 11px;
 				font-weight: 700;
 			}
@@ -494,6 +490,8 @@
 	}
 
 	section.page {
+
+
 		background: #21232a url('/img/user_page_background_dark.gif') 0 0 repeat-y;
 
 		h2 {
@@ -617,11 +615,15 @@
 				// a {
 				// 	color: #fff;
 				// }
+				a
+				{
+					color: #ffffff;
+				}
 
 				&.selected {
 					a {
 						// background: #21232a;
-						color: #fff;
+						color: #000000;
 					}
 				}
 			}
@@ -650,9 +652,318 @@
 }
 
 
-	@media (max-width: 500px) {
+	@media (min-width: 780px) and (max-width: 950px) {
+		// .darkMode .user section.page .activity_log .score-link {
+		// 	width: 80%;
 
+		// }
+
+		.darkMode
+		{
+			.user
+			{
+				section.page
+				  {
+					.user_type.staff
+					{
+						position: relative;
+						right: 100%;
+					}
+					h2 {
+						width: 80%;
+					}
+					.activity_log
+					{
+						.score-link
+						{
+							width: 80%;
+						}
+					}
+				  }
+			}
+		}
+
+
+
+		}
+
+	@media (min-width: 580px) and (max-width: 780px) {
+		.darkMode
+		{
+			.user
+			{
+				section.page
+				  {
+					.user_type.staff
+					{
+						position: relative;
+						right: 80%;
+					}
+
+
+					h2 {
+						width: 380px;
+					}
+
+
+
+					.activity_log
+					{
+						.date {
+							right:28%
+						}
+						.score-link
+						{
+							width: 64%;
+						}
+					}
+				  }
+			}
+		}
+
+
+
+		.user {
+			section.page {
+				.main_navigation
+				{
+					li {
+						a {
+							color: #000000;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@media (min-width: 370px) and (max-width: 580px) {
 		.darkMode .user, .darkMode .settings {
+			section.page {
+			background: none;
+
+				h2 {
+					width: 80%;
+				}
+
+
+					.main_navigation
+				{
+
+					background-color: #212020;
+					height: 190px;
+					border-right: 1px solid #191818;
+					border-left: 1px solid #191818 !important;
+					border-top: 1px solid #191818 !important;
+					border-bottom: 1px solid #191818 !important;
+					top: 10px;
+					left: 0%;
+
+
+					.selected_profile
+					{
+							background:none;
+							font-weight: 100;
+							text-decoration: underline rgb(255, 255, 255) 3.5px;
+							border: none;
+							height: 45px;
+
+
+					}
+
+					.activity_log {
+						.score-link {
+							width: 80%;
+						}
+					}
+
+
+					ul  {
+						padding-left: 90px;
+						padding-top: 25px;
+	                    display: flex;
+				        flex-direction: row;
+
+
+					li {
+						a {
+							color: #0f0f0f;
+						}
+
+						&.selected {
+							a {
+								background:none;
+								 text-decoration: underline rgb(255, 255, 255) 3.5px;
+								border: none;
+								color:white
+							}
+						}
+
+
+
+					}
+
+					}
+
+
+
+
+				}
+			}
+
+		}
+
+		  .user, .settings {
+				.avatar_big {
+						img {
+							position: relative;
+							width: 40px !important;
+							height: 40px !important;
+							left: 40%;
+							bottom: 10px !important;
+						}
+
+				}
+				section.page {
+					background: none;
+					.activity_log {
+						.date {
+							position: relative;
+							right: 250px;
+							top: 9px;
+						}
+					}
+				}
+					.main_navigation
+				{
+					background-color: rgb(216, 216, 216);
+					ul  {
+						padding-left: 90px !important;
+						padding-top: 25px !important;
+	                    display: flex;
+				        flex-direction: row;
+
+					}
+
+						height: 70px !important;
+						width: 100% !important;
+						left: 9px !important;
+						margin: -10px !important;
+						top: 10px !important;
+					li {
+
+						a {
+							color:#000;
+						}
+
+
+						&.selected {
+						a {
+							  border: 1px solid #c4c4c4; // Add border to all sides
+ 							 border-bottom: none;
+							height: 25px;
+							width: 84% !important;
+
+						}
+
+					}
+				 }
+				}
+
+				.settings_content {
+
+				width: 180%;
+				position: relative;
+				right: 100px;
+				top: 95px;
+				}
+
+				.action_button {
+					top: 15px;
+					left: 20%;
+				}
+ 		 }
+
+		.user {
+			section.page {
+				overflow: hidden;
+				background: none;
+
+
+					.main_navigation
+				{
+						background-color: #dcdcdd;
+						height: 90px;
+						border-bottom: none;
+						top: 10px;
+						left: 0%;
+						margin: -10px;
+
+						li {
+							a {
+								color: #ffffff;
+							}
+
+						}
+
+
+
+					.selected_profile
+					{
+
+							background-color: #ffffff;
+							height: 45px;
+							border: 1px solid #c4c4c4; // Add border to all sides
+ 							 border-bottom: none;
+
+					}
+					ul  {
+
+						padding-left: 90px;
+						padding-top: 25px;
+	                    display: flex;
+				        flex-direction: row;
+
+					}
+
+
+
+				}
+
+
+				.avatar_big img
+				{
+					position: relative;
+					width: 40px;
+					height: 40px;
+					left: 40%;
+					bottom: 0px;
+
+
+
+				};
+				.no_logs {
+					width: 25%;
+
+				}
+
+				.profile {
+
+				width: 180%;
+				position: relative;
+				right: 120px;
+				top: 80px;
+				}
+			}
+
+
+		}
+
+	}
+
+	@media (min-width: 180px) and (max-width: 370px) {
+
+			.darkMode .user, .darkMode .settings {
 			section.page {
 			background: none;
 
@@ -692,7 +1003,7 @@
 
 					li {
 						a {
-							color: #ffff;
+							color: #0b0b0b;
 						}
 
 						&.selected {
@@ -732,7 +1043,7 @@
 					background: none;
 					.activity_log {
 						.date {
-							position: absolute;
+							position: relative;
 							right: 250px;
 							top: 9px;
 						}
@@ -740,6 +1051,7 @@
 				}
 					.main_navigation
 				{
+					background-color: rgb(216, 216, 216);
 					ul  {
 						padding-left: 90px !important;
 						padding-top: 25px !important;
@@ -795,6 +1107,13 @@
 						top: 10px;
 						left: 0%;
 						margin: -10px;
+
+						li {
+							a {
+								color: #ffffff;
+							}
+
+						}
 
 
 

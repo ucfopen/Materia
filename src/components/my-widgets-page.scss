@@ -1458,6 +1458,7 @@
 			display: grid;
 			margin-left: 20%;
 
+
 		}
 
 		aside {
@@ -1823,7 +1824,7 @@
 
 			&.unchosen {
 				&:not(.bearded) {
-					background: #ffffff url('/img/kogneato_mywidgets.svg') 10% 30%/250px auto no-repeat;
+					background: #21232a url("/img/kogneato_mywidgets_dark.svg") 10% 30%/250px auto no-repeat !important;
 				}
 
 			}
