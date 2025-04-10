@@ -3,7 +3,7 @@ import logging
 import os
 
 import magic
-from core.models import Asset, ObjectPermission, User
+from core.models import User
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from util.widget.validator import ValidatorUtil
@@ -78,6 +78,8 @@ class AssetManager:
         }
 
     def get_user_disk_usage(user_id):
+        from core.models import Asset, ObjectPermission
+
         user = User.objects.get(id=user_id)
         asset_type = ContentType.objects.get(app_label="core", model="asset")
         assets = Asset.objects.filter(
