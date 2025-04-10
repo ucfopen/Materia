@@ -1,4 +1,16 @@
+from core.models import Asset, ObjectPermission
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import filters
+
+
+class AssetFilterBackend(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        asset_type = ContentType.objects.get(app_label="core", model="asset")
+        return Asset.objects.filter(
+            id__in=ObjectPermission.objects.filter(
+                content_type=asset_type, user=request.user
+            ).values_list("object_id", flat=True)
+        )
 
 
 # filter applied to /api/instances/ queryset

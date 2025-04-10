@@ -75,11 +75,8 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
 
         # must have (any) access to instance or elevated perms
-        elif (
-            self.action == "perms"
-            or self.action == "question_sets"
-            or self.action == "scores"
-        ):
+        # TODO: question_sets can't be restricted in this way, but we may want more context-sensitive authorization
+        elif self.action == "perms" or self.action == "scores":
             permission_classes = [HasPermsOrElevatedAccess]
 
         # must be able to edit an instance

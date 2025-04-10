@@ -13,7 +13,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register(r"asset", assets.AssetViewSet)
+router.register(r"assets", assets.AssetViewSet)
 router.register(r"users", users.UserViewSet)
 router.register(r"widgets", widgets.WidgetViewSet)
 router.register(r"play-sessions", playsessions.PlaySessionViewSet)

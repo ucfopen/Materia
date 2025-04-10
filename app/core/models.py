@@ -140,13 +140,6 @@ class Asset(models.Model):
                 self.created_at = make_aware(datetime.now())
                 self.save()
 
-                # p = PermObjectToUser()
-                # p.object_id = asset_id
-                # p.user = user
-                # p.perm = PermObjectToUser.Perm.FULL
-                # p.object_type = PermObjectToUser.ObjectType.ASSET
-                # p.save()
-
             return True
 
         except Exception as e:
@@ -168,12 +161,7 @@ class Asset(models.Model):
                     ad_obj.delete()
                 except AssetData.DoesNotExist:
                     pass
-                # TODO remove ObjectPermission records associated with asset
 
-                # for perm in PermObjectToUser.objects.filter(
-                #     object_id=self.id, object_type=PermObjectToUser.ObjectType.ASSET
-                # ):
-                #     perm.delete()
             self = Asset()
             return True
 

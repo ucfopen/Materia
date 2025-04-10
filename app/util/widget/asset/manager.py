@@ -3,17 +3,15 @@ import logging
 import os
 
 import magic
+from core.models import Asset, ObjectPermission, User
 from django.conf import settings
-from util.perm_manager import PermManager
+from django.contrib.contenttypes.models import ContentType
 from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
 
 
 class AssetManager:
-    def update_asset(asset_id, properties=[]):
-        pass
-
     # old method for server upload storage
     # differences from PHP - including file path separate from file info
     #  as those data points are not part of the same source, also allowing
@@ -62,24 +60,6 @@ class AssetManager:
 
         return asset
 
-    def get_assets_by_user(user_id, perm_type):
-        # importing per-method to avoid circular imports
-        from core.models import Asset, PermObjectToUser
-
-        perms = PermManager.get_all_objects_of_type_for_user(
-            user_id, PermObjectToUser.ObjectType.ASSET.value, [perm_type]
-        )
-        # TODO: probably a cleaner ORM-only way of doing this?
-        ids = list(map(lambda p: p.object_id, perms))
-        assets = []
-        if len(ids) == 0:
-            return []
-        for asset in Asset.objects.filter(id__in=ids):
-            if perm_type is PermObjectToUser.Perm.VISIBLE:
-                asset.is_shared = True
-            assets.append(asset)
-        return assets
-
     def user_has_space_for(user, number_bytes):
         # NOTE: this technically allows an infinite number of unowned assets
         # it isn't necessarily safe, and we may want to revisit this later
@@ -98,12 +78,14 @@ class AssetManager:
         }
 
     def get_user_disk_usage(user_id):
-        # importing per-method to avoid circular imports
-        from core.models import PermObjectToUser
-
-        assets = AssetManager.get_assets_by_user(
-            user_id, PermObjectToUser.Perm.FULL.value
+        user = User.objects.get(id=user_id)
+        asset_type = ContentType.objects.get(app_label="core", model="asset")
+        assets = Asset.objects.filter(
+            id__in=ObjectPermission.objects.filter(
+                content_type=asset_type, user=user
+            ).values_list("object_id", flat=True)
         )
+
         total_used = 0
         for asset in assets:
             total_used = total_used + asset.file_size
