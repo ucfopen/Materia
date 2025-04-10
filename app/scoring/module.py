@@ -240,15 +240,19 @@ class ScoreModule(ABC):
     def load_questions(self, timestamp=False) -> None:
         """Loads questions associated with the widget instance"""
 
-        if not self.instance.qset.data:
+        # if not self.instance.qset.data:
+        if not self.instance.get_latest_qset():
             print("No qset data found, fetching it now...")
+            self.instance.get_qset(timestamp)
             # self.instance.get_qset(self.instance.id, timestamp)
             # this is not longer a function
             # we need to decode this base64
             # questions_list = self.instance.questions_list
 
-        if self.instance.qset.data:
+        # if self.instance.qset.data:
+        if self.instance.get_latest_qset():
             # print("\nChecking self.instance.qset.find_questions()...")
+            widget_qset = self.instance.get_latest_qset()
             questions_list = json.loads(
                 base64.b64decode(widget_qset.questions_list).decode()
             )
