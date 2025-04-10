@@ -785,7 +785,14 @@ class WidgetInstance(models.Model):
         return QuestionSetSerializer().apply_ids_to_questions(decoded)
 
     def get_qset_for_play(self, play_id=None):
+        print("HELPHELPHELPEHLPEHEPLP")
+        print("HELPHELPHELPEHLPEHEPLP")
+        print("HELPHELPHELPEHLPEHEPLP")
+        print("HELPHELPHELPEHLPEHEPLP")
         if play_id:
+            print(f"play id: {play_id}")
+            print(f"play id: {play_id}")
+            print(f"play id: {play_id}")
             play = LogPlay.objects.get(id=play_id)
             return (
                 self.qsets.filter(created_at__lte=play.created_at)
@@ -795,6 +802,9 @@ class WidgetInstance(models.Model):
         return self.get_latest_qset()
 
     def playable_by_current_user(self, user: User):
+        print(f"self.is_playable: {self.widget.is_playable}, user: {user}, user.is_authenticated: {user.is_authenticated}")
+        print(f"self.is_playable: {self.widget.is_playable}, user: {user}, user.is_authenticated: {user.is_authenticated}")
+        print(f"self.is_playable: {self.widget.is_playable}, user: {user}, user.is_authenticated: {user.is_authenticated}")
         return self.widget.is_playable and (user.is_authenticated or self.guest_access)
 
     def save(self, *args, **kwargs):

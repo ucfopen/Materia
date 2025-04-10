@@ -63,6 +63,12 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         )
         if serializer.is_valid():
             validated = serializer.validated_data
+            print("WHAT IS VALIDATED")
+            print("WHAT IS VALIDATED")
+            print("WHAT IS VALIDATED")
+            print(f"validated: {validated}")
+            print("WHAT IS VALIDATED")
+            print("WHAT IS VALIDATED")
             session_play = SessionPlay()
             play_id = session_play.start(validated["instance"], request.user.id)
             return JsonResponse({"playId": play_id})
@@ -106,7 +112,9 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     session = SessionPlay(pk)
                     session.update_elapsed()
                 else:
-                    preview_play_id = update_serializer.validated_data["preview_play_id"]
+                    preview_play_id = update_serializer.validated_data[
+                        "preview_play_id"
+                    ]
                     request.session[f"previewPlayLogs.{preview_play_id}"] = logs
                     request.session.modified = True
                     # preview_session_key = (
