@@ -455,7 +455,8 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
         ]
 
 
-class PlaySessionSerializerStudentView(serializers.ModelSerializer):
+# play session model; do not include user_id
+class PlaySessionStudentViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = LogPlay
         fields = [
@@ -477,7 +478,8 @@ class PlaySessionSerializerStudentView(serializers.ModelSerializer):
         ]
 
 
-class PlaySessionSerializerWithUserInfo(serializers.ModelSerializer):
+# play session model; include extra info about user
+class PlaySessionWithExtraUserInfoSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
     class Meta:

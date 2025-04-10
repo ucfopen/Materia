@@ -8,8 +8,8 @@ from core.serializers import (
     PlaySessionCreateSerializer,
     PlaySessionSerializer,
     PlaySessionWithExtrasSerializer,
-    PlaySessionSerializerStudentView,
-    PlaySessionSerializerWithUserInfo,
+    PlaySessionStudentViewSerializer,
+    PlaySessionWithExtraUserInfoSerializer,
 )
 from django.http import JsonResponse
 from rest_framework import permissions, status, viewsets
@@ -40,10 +40,10 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     # we only need extras (widget name, inst name) when on the profile page
     def get_serializer_class(self):
         if self.request.query_params.get("inst_id") and PermManager.user_is_student(self.request.user):
-            return PlaySessionSerializerStudentView
-        if self.request.query_params.get("inst_id") and self.request.query_params.get("include_user_info", False):
-            return PlaySessionSerializerWithUserInfo
-        if self.request.query_params.get("include_activity"):
+            return PlaySessionStudentViewSerializer
+        elif self.request.query_params.get("inst_id") and self.request.query_params.get("include_user_info", False):
+            return PlaySessionWithExtraUserInfoSerializer
+        elif self.request.query_params.get("include_activity"):
             return PlaySessionWithExtrasSerializer
         else:
             return PlaySessionSerializer
@@ -56,8 +56,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         inst_id = self.request.query_params.get("inst_id")
         if "pk" in self.kwargs:
             return LogPlay.objects.get(pk=self.kwargs["pk"])
-        if inst_id:
-            # TODO make sure perms are set up right here
+        if inst_id is not None:
             semester = self.request.query_params.get("semester", "all")
             year = self.request.query_params.get("year", "all")
             is_student = PermManager.user_is_student(self.request.user)

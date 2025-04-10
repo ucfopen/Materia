@@ -23,6 +23,8 @@ from django.dispatch import receiver
 from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
+
+from util.message_util import MsgBuilder, Msg
 from util.perm_manager import PermManager
 from util.widget.asset.manager import AssetManager
 from util.widget.validator import ValidatorUtil
@@ -747,10 +749,10 @@ class Widget(models.Model):
     }
     """
 
-    def get_playdata_exporter_methods(self, script_path: str = None):
+    def get_playdata_exporter_methods(self, script_path: str = None) -> dict[str, types.FunctionType] | Msg:
         # Check to see if methods are cached already
-        if hasattr(self, "_playdata_exporter_methods"):
-            return self._playdata_exporter_methods
+        if hasattr(Widget, "playdata_exporter_methods"):
+            return Widget.playdata_exporter_methods
 
         # Grab and load the playdata exporter script
         if script_path is None:
@@ -764,11 +766,12 @@ class Widget(models.Model):
         # Find the mappings field in the globals, which should map a human-readable name to each function
         exporter_mappings = getattr(script_globals, "mappings", None)
         if exporter_mappings is None:
-            # TODO handle this error better?
-            raise Exception("Play data exporter script missing 'mappings' dict")
+            logger.error(f"Play data exporter for widget '{self.name}' ({self.id}) is invalid!")
+            logger.error(" - Missing top level dict object named 'mappings'.")
+            return MsgBuilder.failure(msg="Play data exporter script is invalid; missing 'mappings' dict")
 
         # Cache these methods for re-use later
-        self._playdata_exporter_methods = exporter_mappings
+        Widget.playdata_exporter_methods = exporter_mappings
 
         return exporter_mappings
 

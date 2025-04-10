@@ -36,6 +36,8 @@ class PlayDataExporter:
             case _:
                 # Check the widget for its custom playdata exporters
                 methods = instance.widget.get_playdata_exporter_methods()
+                if isinstance(methods, Msg):
+                    return methods, ""
                 exporter_method = methods.get(export_type, None)
 
                 # A custom exporter was found, run it
@@ -265,8 +267,6 @@ class PlayDataExporter:
         # Cache miss, get play logs
         if plays is None:
             plays = SessionPlay.get_all_plays_for_instance(instance=instance, semester=semester, year=year)
-        else:
-            print("CACHE HIT")
 
         # Erase user from log if the requesting user is student
         if is_student:
