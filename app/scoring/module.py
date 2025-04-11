@@ -268,6 +268,7 @@ class ScoreModule(ABC):
             for question in self.questions:
                 print("ID is ", question["id"])
             print("self.questions is : ", self.questions)
+            self.questions = {q["id"]: q for q in questions_list}
 
             # Debug output
             # print("\nAvailable Questions in self.questions:")
@@ -276,22 +277,22 @@ class ScoreModule(ABC):
             # print("\n")
 
     def get_score_details(self):
-        details = []
+        table = []
         print("GETTING SCORE DETAILS")
-        print(f"in score details, the questions are {self.questions}")
         for log in self.logs:
             print(f"LOG: {log}")
             log_type = log.log_type if hasattr(log, "log_type") else log["type"]
-            if log_type == "question_answered":
+            if log_type in ["question_answered", "SCORE_QUESTION_ANSWERED"]:
                 item_id = log.item_id if hasattr(log, "item_id") else log["item_id"]
                 if item_id in self.questions:
-                    # self.details_for_question_answered(log)?
-                    details.append(self.details_for_question_answered(log))
+                    row = self.details_for_question_answered(log)["data"]
+                    table.append(row)
+
         return [
             {
                 "title": self._ss_table_title,
                 "headers": self._ss_table_headers,
-                "table": details,
+                "table": table,
             }
         ]
 
@@ -303,11 +304,12 @@ class ScoreModule(ABC):
 
         return {
             "data": [
+                score,
                 self.get_ss_question(log, question),
                 self.get_ss_answer(log, question),
                 self.get_ss_expected_answers(log, question),
             ],
-            "data_style": ["question", "response", "answer"],
+            "data_style": ["score", "question", "response", "answer"],
             "score": score,
             "feedback": self.get_feedback(log, question["answers"]),
             "type": log.log_type if hasattr(log, "log_type") else log["type"],
@@ -337,6 +339,11 @@ class ScoreModule(ABC):
         if score in (0, "0"):
             return "no-value"
         return "partial-value"
+
+    def get_ss_question(self, log, question) -> str:
+        if "questions" in question and len(question["questions"]) > 0:
+            return question["questions"][0].get("text", "")
+        return "[no question text]"
 
     def get_ss_answer(self, log, question) -> str:
         return log.text if hasattr(log, "text") else log["text"]
