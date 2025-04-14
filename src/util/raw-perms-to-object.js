@@ -1,39 +1,25 @@
 import { access } from '../components/materia-constants'
 
 /**
- * It takes a permission code and an editable flag, and returns an object with the permission code, an
- * expiration time, and flags for whether the user can view, copy, edit, delete, and share the file
- * @param {array} array - containing [permCode = access.VISIBLE, expireTime = null]
- * @param {boolean} isEditable - true if the user can edit the permissions of the item
- * @returns An object with the following properties:
- *
- * 	accessLevel: permCode
- *
- * 	expireTime: expireTime
- *
- * 	editable: permCode > access.VISIBLE && isEditable
- *
- * 	shareable: permCode > access.VISIBLE
- *
- * 	can: {
- *
- * 		view: [access.VISIBLE, access.COPY, access.SHARE, access.FULL]
- *
- * }
+ * Converts a raw permissions object from the API into the schema utilized by various front-end elements
+ * Note this is a significant departure from the permissions system used in Materia 10.x and below
+ * The can: verbs are simplified based on the two-tier permissions model, but more specificity can be added in the future
+ * @param {object} perm 
+ * @param {boolean} isEditable 
+ * @returns 
  */
-const rawPermsToObj = ([permCode = access.VISIBLE, expireTime = null], isEditable) => {
-	permCode = parseInt(permCode, 10)
+const rawPermsToObj = (perm, isEditable) => {
 	return {
-		accessLevel: permCode,
-		expireTime,
-		editable: permCode > access.VISIBLE && isEditable,
-		shareable: permCode > access.VISIBLE, // old, but difficult to replace with can.share :/
+		userId: perm.user,
+		accessLevel: perm.permission,
+		expireTime: perm.expires_at ? new Date(perm.expires_at) : null,
+		editable: perm.permission != access.VISIBLE && isEditable,
 		can: {
-			view: [access.VISIBLE, access.COPY, access.SHARE, access.FULL, access.SU].includes(permCode),
-			copy: [access.COPY, access.SHARE, access.FULL, access.SU].includes(permCode),
-			edit: [access.FULL, access.SU].includes(permCode),
-			delete: [access.FULL, access.SU].includes(permCode),
-			share: [access.SHARE, access.FULL, access.SU].includes(permCode)
+			view: true, // implicit with all access types
+			copy: true, // implicit with all access types
+			edit: perm.permission == access.FULL,
+			delete: perm.permission == access.FULL,
+			share: true // implicit with all access types
 		}
 	}
 }
