@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from django.contrib.sessions.backends.base import SessionBase
@@ -5,29 +6,33 @@ from django.utils.timezone import make_aware
 
 from core.models import Log
 from util.logging.session_play import SessionPlay
+from util.message_util import Msg, MsgBuilder
 from util.widget.validator import ValidatorUtil
+
+logger = logging.getLogger("django")
 
 
 # Util for adding logs for play sessions
-# TODO look into maybe merging in as class methods of SessionPlay, it seems like these would make sense to belong there. only issue really is preview mode
+# TODO look into maybe merging in as class methods of SessionPlay, it seems like these would make sense to belong there.
+#      only issue really is preview mode
 class SessionLogger:
 
     # Takes a list of logs and saves all of them
     @staticmethod
-    def store_log_array(play_session: SessionPlay, logs: list[dict]):
+    def store_log_array(play_session: SessionPlay, logs: list[dict]) -> Msg | None:
         # Validate play_session
         if play_session.is_preview or not ValidatorUtil.is_valid_long_hash(play_session.data.id):
-            print("Incorrect play_id")  # TODO: better logging
-            return
+            return MsgBuilder.invalid_input("Invalid Play ID")
 
         # Validate logs
         if not isinstance(logs, list) or len(logs) == 0:
-            print("No logs sent")  # TODO: better logging
-            return
+            return MsgBuilder.invalid_input("No logs sent")
 
         # Process and save each log
         for log in logs:
             SessionLogger._validate_and_store_log(log, play_session)
+
+        return None
 
     # Shortcut for adding a single log
     @staticmethod
@@ -150,22 +155,14 @@ class SessionLogger:
 
     @staticmethod
     def _validate_and_store_log(raw_log: dict, session_play: SessionPlay | None) -> Log:
-        log_type = default_if_none(raw_log.get("type"), 0)
-        item_id = default_if_none(raw_log.get("item_id"), "")
-        text = default_if_none(raw_log.get("text"), "")
-        value = default_if_none(raw_log.get("value"), "")
-        game_time = default_if_none(raw_log.get("game_time"), 0)
+        log_type = raw_log.get("type", 0)
+        item_id = raw_log.get("item_id", "")
+        text = raw_log.get("text", "")
+        value = raw_log.get("value", "")
+        game_time = raw_log.get("game_time", 0)
         created_at = make_aware(datetime.now())
 
         return SessionLogger.add_log(
             SessionLogger.get_log_type(log_type), item_id, text,
             value, game_time, created_at, session_play
         )
-
-
-# TODO maybe move this into a util class?
-def default_if_none(value, default):
-    if value is None:
-        return default
-    else:
-        return value

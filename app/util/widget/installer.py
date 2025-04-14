@@ -1,7 +1,10 @@
 import logging
 import os
+import sys
 import tempfile
 from datetime import datetime
+
+from django.core.management import color_style
 
 from core.models import (
     PermObjectToUser,
@@ -19,6 +22,7 @@ logger = logging.getLogger("django")
 
 class WidgetInstaller:
 
+    @staticmethod
     def get_temp_dir():
         temporary_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir())
 
@@ -51,6 +55,7 @@ class WidgetInstaller:
         # if (isset($dir)) static::cleanup($dir);
         # return $success;
 
+    @staticmethod
     def extract_package_and_install(widget_file, skip_upgrade=False, replace_id=0):
         from core.models import LogActivity
 
@@ -84,9 +89,22 @@ class WidgetInstaller:
             # else
 
             # this would normally run in the 'else' of the block above
-            raise Exception(
-                f"Existing widgets found for {clean_name}, not upgrading due to --skip-upgrade option"
-            )
+            # raise Exception(
+            #     f"Existing widgets found for {clean_name}, not upgrading due to --skip-upgrade option"
+            # )
+
+            arg = sys.argv[0]
+            if arg is not None and arg.endswith("manage.py"):  # Running from manage.py, print out extra info
+                print(color_style().ERROR(f"Multiple existing widgets found with the name '{clean_name}':"))
+                for matching_widget in matching_widgets:
+                    print(color_style().ERROR(f" ==> ID:{matching_widget.id} ({matching_widget.name})"))
+                print(color_style().WARNING("Run install again with --replace-id=ID option"))
+                return False
+            else:
+                raise Exception(
+                    f"Existing widgets found for {clean_name}, not upgrading due to --skip-upgrade option"
+                )
+
         if num_existing > 0 and replace_id == 0:
             raise Exception(f"Multiple existing widgets share clean name {clean_name}")
         if num_existing == 1 and not skip_upgrade and replace_id == 0:
@@ -144,6 +162,7 @@ class WidgetInstaller:
 
     # Unzip a .wigt file into a temp directory, validate it, and extract manifest data
     # return array
+    @staticmethod
     def unzip_and_read_manifest(widget_file):
         from core.models import Widget
 
@@ -168,6 +187,7 @@ class WidgetInstaller:
 
         return target_dir, manifest_data, clean_name
 
+    @staticmethod
     def unzip_to_tmp(file):
         from zipfile import ZipFile
 
@@ -192,6 +212,7 @@ class WidgetInstaller:
 
     # checks to make sure the widget contains the required data.
     # throws with the reason if not.
+    @staticmethod
     def validate_widget(dir):
         # 1. Do we have a manifest yaml file?
         manifest_data = WidgetInstaller.get_manifest_data(dir)
