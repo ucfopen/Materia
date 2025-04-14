@@ -9,6 +9,7 @@ from core.models import (
     Asset,
     LogPlay,
     Notification,
+    ObjectPermission,
     UserSettings,
     Widget,
     WidgetInstance,
@@ -601,3 +602,11 @@ class PromptGenerationRequestSerializer(serializers.Serializer):
 class WidgetInstanceCopyRequestSerializer(serializers.Serializer):
     new_name = serializers.ModelField(model_field=WidgetInstance()._meta.get_field("name"))
     copy_existing_perms = serializers.BooleanField(required=False, default=False)
+
+
+class ObjectPermissionSerializer(serializers.ModelSerializer):
+
+    # TODO content_type is returning an integer value, it should give us the actual content type name?
+    class Meta:
+        model = ObjectPermission
+        fields = ["user", "content_type", "object_id", "permission", "expires_at"]

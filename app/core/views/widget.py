@@ -207,9 +207,9 @@ def _create_player_page(
 
     # Check to see if this widget is playable
     # TODO check status - see php
-    if not is_preview and not is_demo and instance.is_draft:
+    if not is_preview and instance.is_draft:
         return _create_draft_not_playable_page(request)
-    if not is_preview and not is_demo and not instance.widget.is_playable:
+    if not is_demo and not instance.widget.is_playable:
         return _create_widget_retired_page(request, is_embedded)
     if autoplay is False:
         # TODO
@@ -234,6 +234,7 @@ def _display_widget(
             "DEMO_ID": instance.id,
             "WIDGET_WIDTH": instance.widget.width,
             "WIDGET_HEIGHT": instance.widget.height,
+            "MEDIA_URL": settings.URLS["MEDIA_URL"],
         },
         request=request,
     )

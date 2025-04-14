@@ -29,6 +29,11 @@ class PlaySessionPagination(PageNumberWithTotalPagination):
     page_size_query_param = "page_size"
     max_page_size = 100
 
+    def get_page_size(self, request):
+        if request.query_params.get("include_activity"):
+            return 8
+        return self.page_size
+
 
 class PlaySessionViewSet(viewsets.ModelViewSet):
     # TODO permissions checks:

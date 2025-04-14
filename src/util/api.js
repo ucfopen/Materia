@@ -52,7 +52,7 @@ const fetchPost = (url, options = null) => fetch(url, fetchWriteOptions("POST", 
 const fetchPut = (url, options = null) => fetch(url, fetchWriteOptions("PUT", options)).then(handleErrors)
 const fetchPatch = (url, options = null) => fetch(url, fetchWriteOptions("PATCH", options)).then(handleErrors)
 const fetchGet = (url) => fetch(url).then(handleErrors)
-const fetchDelete = (url) => fetch(url, fetchWriteOptions("DELETE")).then(handleErrors)
+const fetchDelete = (url, options = null) => fetch(url, fetchWriteOptions("DELETE", options)).then(handleErrors)
 
 // Helper function to simplify encoding fetch body values
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
@@ -155,15 +155,13 @@ export const apiSaveWidget = (_params) => {
 	}
 }
 
-export const apiGetUser = (user) => {
-	if (!!user) user = ''
-	return fetch(`/api/users/${user}`)
-		.then(response => response.json())
+export const apiGetUser = (user = 'me') => {
+	return fetchGet(`/api/users/${user}/`)
 		.then((data) => {
 			return {
-				...data[0],
-				first: data[0].first_name,
-				last: data[0].last_name
+				...data,
+				first: data.first_name,
+				last: data.last_name
 			}
 		})
 }
@@ -444,39 +442,15 @@ export const apiGetQuestionsByType = (arrayOfQuestionIds, questionTypes) => {
 }
 
 export const apiGetAssets = () => {
-	return fetchGet(`/api/asset/all/`, ({ body: `data=${formatFetchBody([])}` }))
+	return fetchGet(`/api/assets/`)
 }
 
-/** Controller_Api_Asset */
-
-export const apiDeleteAsset = async (assetId) => {
-	const options = {
-		method: 'DELETE',
-		mode: 'cors',
-		credentials: 'include',
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/json; charset=UTF-8',
-			'X-CSRFToken': getCSRFToken(),
-		}
-	}
-	return fetch(`/api/asset/${assetId}/delete/`, options).then(handleErrors)
+export const apiDeleteAsset = (assetId) => {
+	return fetchDelete(`/api/assets/${assetId}/`, ({ body: {}}))
 }
 
 export const apiRestoreAsset = (assetId) => {
-	const options = {
-		method: 'PATCH',
-		mode: 'cors',
-		credentials: 'include',
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/json; charset=UTF-8',
-			'X-CSRFToken': getCSRFToken(),
-		}
-	}
-	return fetch(`/api/asset/${assetId}/restore/`, options).then(handleErrors)
+	return fetchPost(`/api/assets/${assetId}/restore/`, ({ body: {}}))
 }
 
 // Returns boolean, true if the current user can publish the given widget instance, false otherwise

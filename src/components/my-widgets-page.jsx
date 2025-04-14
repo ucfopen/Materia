@@ -55,23 +55,15 @@ const MyWidgetsPage = () => {
 	const deleteWidget = useDeleteWidget()
 
 	const { data: user } = useQuery({
-		queryKey: 'user',
-		queryFn: apiGetUser,
+		queryKey: ['user', 'me'],
+		queryFn: ({ queryKey }) => {
+			const [_key, user] = queryKey
+			return apiGetUser(user)
+		},
 		staleTime: Infinity,
 		retry: false,
 		onError: (err) => {
-			if (err.message == "Invalid Login")
-			{
-				setInvalidLogin(true)
-			} else {
-				setAlertDialog({
-					enabled: true,
-					message: 'Failed to get user data.',
-					title: err.message,
-					fatal: err.halt,
-					enableLoginButton: false
-				})
-			}
+			setInvalidLogin(true)
 		}
 	})
 
@@ -122,20 +114,20 @@ const MyWidgetsPage = () => {
 
 	// hook associated with updates to the selected instance and perms associated with that instance
 	useEffect(() => {
-		if (state.selectedInst && permUsers && user && permUsers.user_perms?.hasOwnProperty(user.id)) {
+		const ownPerms = permUsers?.filter(perm => perm.user == user.id)
+
+		if (state.selectedInst && permUsers && user && ownPerms.length) {
 			const isEditable = state.selectedInst.widget.is_editable
+
 			const othersPerms = new Map()
-			for (const i in permUsers.widget_user_perms) {
-				othersPerms.set(parseInt(i), rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
-			}
-			let _myPerms
-			for (const i in permUsers.user_perms) {
-				_myPerms = rawPermsToObj(permUsers.user_perms[i], isEditable)
-			}
-			setState({ ...state, otherUserPerms: othersPerms, myPerms: _myPerms })
+			permUsers.forEach(other => {
+				othersPerms.set(other.user, rawPermsToObj(other, isEditable))
+			})
+			
+			setState(state => ({...state, myPerms: rawPermsToObj(ownPerms[0], isEditable), otherUserPerms: othersPerms}))
 		}
 		else if (state.selectedInst && permUsers) {
-			setState({...state, noAccess: true})
+			setState(state => ({...state, noAccess: true}))
 		}
 	}, [state.selectedInst, JSON.stringify(permUsers)])
 
