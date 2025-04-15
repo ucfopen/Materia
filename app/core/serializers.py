@@ -291,6 +291,13 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "play_url",
             "qset",
         ]
+        read_only_fields = [
+            "id",
+            "user_id",
+            "is_student_made",
+            "widget",
+            "widget_id",
+        ]
 
 
 class WidgetInstanceSerializerNoIdentifyingInfo(serializers.ModelSerializer):

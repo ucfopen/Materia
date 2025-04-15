@@ -3,7 +3,7 @@ import { useInfiniteQuery } from 'react-query'
 import { apiSearchInstances } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
-export default function useSearchInstances(query = "") {
+export default function useSearchInstances(query = "", includeDeleted = false) {
 
 	const [errorState, setErrorState] = useState(false)
 
@@ -31,7 +31,7 @@ export default function useSearchInstances(query = "") {
 	}
 
 	const getWidgetInstances = ({ pageParam = 1 }) => {
-		return apiSearchInstances(query, pageParam)
+		return apiSearchInstances(query, pageParam, includeDeleted)
 	}
 
 	const {
@@ -44,7 +44,7 @@ export default function useSearchInstances(query = "") {
 		status,
 		refetch
 	} = useInfiniteQuery({
-		queryKey: ['searched_instances', query],
+		queryKey: ['searched_instances', query, includeDeleted],
 		queryFn: getWidgetInstances,
 		enabled: query.length > 0,
 		getNextPageParam: (lastPage, pages) => lastPage.next_page,

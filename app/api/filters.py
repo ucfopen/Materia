@@ -20,7 +20,7 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
         search_query = request.query_params.get("search")
 
         if user_query == "me":
-            return queryset.filter(user=user).order_by("-created_at")
+            return queryset.filter(user=user, is_deleted=False).order_by("-created_at")
         elif user_query is not None:
             if (
                 user.is_superuser
@@ -31,10 +31,11 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
             else:
                 return queryset.none()
         elif search_query is not None:
+            include_deleted = request.query_params.get("include_deleted", False)
             return queryset.filter(
                 # Add your fields here
-                Q(name__icontains=search_query)
-                | Q(id__icontains=search_query)
+                Q(name__icontains=search_query) | Q(id__icontains=search_query),
+                is_deleted=False if not include_deleted else Q(),
             )
 
         return queryset.order_by("-created_at")

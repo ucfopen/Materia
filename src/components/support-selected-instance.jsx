@@ -170,10 +170,10 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 				return
 			}
 			else {
-				u.open_at = stringToDateObj(availableDate, availableTime)
+				u.open_at = new Date(`${availableDate} ${availableTime}`).toString()
 			}
 			setUpdatedInst({...updatedInst,
-				'open_at': stringToDateObj(availableDate, availableTime)
+				'open_at': new Date(`${availableDate} ${availableTime}`).toString()
 			})
 		}
 		if (!closeDisabled){
@@ -182,10 +182,10 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 				return
 			}
 			else {
-				u.close_at = stringToDateObj(closeDate, closeTime)
+				u.close_at = new Date(`${closeDate} ${closeTime}`).toString()
 			}
 			setUpdatedInst({...updatedInst,
-				'close_at': stringToDateObj(closeDate, closeTime)
+				'close_at': new Date(`${closeDate} ${closeTime}`).toString()
 			})
 		}
 
@@ -197,15 +197,13 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 
 
 		const args = {
-			instId: u.id,
+			id: u.id,
 			name: u.name,
-			qset: null,
-			isDraft: null,
-			openAt: u.open_at,
-			closeAt: u.close_at,
+			open_at: u.open_at,
+			close_at: u.close_at,
 			attempts: u.attempts,
-			guestAccess: u.guest_access,
-			embeddedOnly: u.embedded_only,
+			guest_access: u.guest_access,
+			embedded_only: u.embedded_only,
 		}
 
 		updateWidget.mutate({

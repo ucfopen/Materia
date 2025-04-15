@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from 'react-query'
-import { apiUpdateWidget } from '../../util/api'
+import { apiUpdateWidgetInstance } from '../../util/api'
 
 export default function useSupportUpdateWidget() {
 	const queryClient = useQueryClient()
 
 	// Optimistically updates the cache value on mutate
 	return useMutation(
-		apiUpdateWidget,
+		apiUpdateWidgetInstance,
 		{
 			onSuccess: (data, variables) => {
 				// Refresh widgets

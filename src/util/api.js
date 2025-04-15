@@ -228,8 +228,10 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
 	 * @param {bool} 	$is_student_made
  * @returns {object} updated instance
  */
-export const apiUpdateWidget = ({ args }) => {
-	return fetchPost('/api/widget_instance/update/', { body: args })
+export const apiUpdateWidgetInstance = ({ args }) => {
+	const instId = args.id
+	delete args.id
+	return fetchPatch(`/api/instances/${instId}/`, { body: args })
 }
 
 export const apiGetWidgetLock = (id = null) => {
@@ -242,8 +244,8 @@ export const apiGetWidgetLock = (id = null) => {
  * @param {string} input (letters only)
  * @returns {array} of matches
  */
-export const apiSearchInstances = (input, pageParam = 1) => {
-	return fetchGet(`/api/instances/?search=${input}&page=${pageParam}`)
+export const apiSearchInstances = (input, pageParam = 1, include_deleted = false) => {
+	return fetchGet(`/api/instances/?search=${input}&page=${pageParam}&include_deleted=${include_deleted}`)
 }
 
 export const apiGetWidgetInstanceScores = (instId, send_token) => {
