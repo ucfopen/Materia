@@ -95,13 +95,15 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     logs = logs[0]
 
                 for log in logs:
+                    print(f"DEBUGGGG: Log is equal to {log}")
+                    print(f"DEBUGGGG: Log is equal to {log}")
                     log_model = Log(
                         play_id=pk,
-                        log_type=log["type"],
-                        item_id=log["item_id"],
-                        text=log["text"],
-                        value=log["value"],
-                        game_time=log["game_time"],
+                        log_type=log.get("type"),
+                        item_id=log.get("item_id"),
+                        text=log.get("text", ""),
+                        value=log.get("value", ""),
+                        game_time=log.get("game_time", -1),
                     )
 
                     # only plays are saved to the db - previews are stored in request session (see below)

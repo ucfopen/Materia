@@ -350,26 +350,30 @@ class LogSubmissionSerializer(serializers.Serializer):
 
         if "item_id" in validated_data and validated_data["item_id"]:
             validated_data["item_id"] = str(validated_data["item_id"])
+            validated_data["type"] = SessionLogger.get_log_type(validated_data["type"])
+            validated_data["text"] = validated_data.get("text", "")
+            # validated_data["value"] = validated_data.get("value", "")
+            validated_data["value"] = validated_data.get("value") or ""
 
         return validated_data
 
-    def validate(self, data):
-        if not isinstance(data, list):
-            data = [data]
+    # def validate(self, data):
+    #     if not isinstance(data, list):
+    #         data = [data]
 
-            logs = []
-            for log in data:
-                # TODO what if the log type is actually invalid? Right now it'll return LogType.EMPTY
-                log["type"] = SessionLogger.get_log_type(log["type"])
-                log["text"] = log.get("text", "")
-                log["value"] = log.get("value", "")
+    #         logs = []
+    #         for log in data:
+    #             # TODO what if the log type is actually invalid? Right now it'll return LogType.EMPTY
+    #             log["type"] = SessionLogger.get_log_type(log["type"])
+    #             log["text"] = log.get("text", "")
+    #             log["value"] = log.get("value", "")
 
-                logs.append(log)
-            print(f"LOGS: {logs}")
-            print(f"LOGS: {logs}")
-            print(f"LOGS: {logs}")
-            print(f"LOGS: {logs}")
-            return logs
+    #             logs.append(log)
+    #         print(f"LOGS: {logs}")
+    #         print(f"LOGS: {logs}")
+    #         print(f"LOGS: {logs}")
+    #         print(f"LOGS: {logs}")
+    #         return logs
 
 
 # serializes and validates individual logs for a play (inbound)

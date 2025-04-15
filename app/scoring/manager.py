@@ -297,9 +297,15 @@ class ScoringUtil:
             # play=session_play if not is_preview else session_play.data,
             play=session_play,
         )
-        score_module.logs = (
-            session_play.get_logs() if is_preview else session_play.get_logs()
-        )
+        # score_module.logs = (
+        #     session_play.get_logs() if is_preview else session_play.get_logs()
+        # )
+        logs = session_play.get_logs()
+        print(f"DEBUG: Loaded {len(logs)} logs from session_play.get_logs()")
+        print(f"DEBUG: Loaded {len(logs)} logs from session_play.get_logs()")
+        print(f"DEBUG: Loaded {len(logs)} logs from session_play.get_logs()")
+        score_module.logs = logs
+
         # score_module.validate_scores()
         # score_module.validate_scores(timestamp=score_module.play.data.created_at)
         created_at = getattr(score_module.play, "created_at", None)
