@@ -1,4 +1,4 @@
-import { apiUpdateWidgetAdmin } from '../util/api'
+import { apiUpdateWidgetEngine } from '../util/api'
 import React, { useState, useEffect } from 'react'
 
 const WidgetListCard = ({widget = null}) => {
@@ -74,32 +74,17 @@ const WidgetListCard = ({widget = null}) => {
 			demo: state.widget.meta_data.demo,
         }
 
-        apiUpdateWidgetAdmin(update).then(response => {
-            let errorMessage = []
-            let success = false
-			for (let prop in response) {
-				const stat = response[prop]
-				if (stat !== true) {
-                    errorMessage.push(stat)
-				}
-            }
-            if (errorMessage.length == 0)
-            {
-                if (response.length < 1)
-                {
-                    errorMessage.push("Error")
-                }
-                else success = true
-            }
-            setState(prevState => ({...prevState, errorMessage: errorMessage, success: success}))
+        apiUpdateWidgetEngine(update)
+        .then(response => {
+            setState(prevState => ({...prevState, success: true}))
         }).catch(err => {
-            setState(prevState => ({...prevState, errorMessage: [err], success: false}))
+            setState(prevState => ({...prevState, errorMessage: err.message, success: false}))
         })
     }
 
     let widgetErrorsRender = null
     if (state.errorMessage) {
-        widgetErrorsRender = state.errorMessage.map((error, i) => <div key={i} className="error"><p>{error}</p></div>)
+        widgetErrorsRender = <div className="error"><p>{state.errorMessage}</p></div>
     }
 
     let widgetSuccessRender = null
@@ -144,7 +129,7 @@ const WidgetListCard = ({widget = null}) => {
                     </div>
                     <div>
                         <span>
-                            <label>Installed:</label>{ state.widget.created_at /* * 1000 | date:yyyy-MM-dd */ }
+                            <label>Installed:</label>{ new Date(state.widget.created_at).toLocaleString() }
                         </span>
                     </div>
                     <div>

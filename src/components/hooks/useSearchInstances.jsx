@@ -18,7 +18,7 @@ export default function useSearchInstances(query = "") {
 			let dataMap = []
 			return [
 				...dataMap.concat(
-					...list.pages.map(page => page.pagination.map(instance => {
+					...list.pages.map(page => page.results.map(instance => {
 						// adding an 'img' property to widget instance objects
 						return {
 							...instance,
@@ -30,7 +30,7 @@ export default function useSearchInstances(query = "") {
 		} else return []
 	}
 
-	const getWidgetInstances = ({ pageParam = 0 }) => {
+	const getWidgetInstances = ({ pageParam = 1 }) => {
 		return apiSearchInstances(query, pageParam)
 	}
 

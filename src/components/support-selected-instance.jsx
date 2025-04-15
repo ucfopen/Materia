@@ -14,21 +14,12 @@ import Alert from './alert'
 
 const addZero = i => `${i}`.padStart(2, '0')
 
-const objToDateString = time => {
-	if (time < 0) return time
-	const timeObj = new Date(time * 1000)
-	const year = String(timeObj.getFullYear())
-	const month = addZero(timeObj.getMonth() + 1)
-	const day = addZero(timeObj.getDate())
-	return `${year}-${month}-${day}`
+const objToDateString = date => {
+	return new Date(date).toLocaleDateString()
 }
 
 const objToTimeString = time => {
-	if (time < 0) return time
-	const timeObj = new Date(time * 1000)
-	const hours = addZero(timeObj.getHours())
-	const minutes = addZero(timeObj.getMinutes())
-	return `${hours}:${minutes}`
+	return new Date(time).toLocaleTimeString()
 }
 
 const stringToDateObj = (date, time) => Date.parse(date + 'T' + time) / 1000
@@ -41,12 +32,12 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 	const [showCollab, setShowCollab] = useState(false)
 	const [showAttempts, setShowAttempts] = useState(false)
 	const [showScoreDetails, setShowScoreDetails] = useState(false)
-	const [availableDisabled, setAvailableDisabled] = useState(inst.open_at < 0)
-	const [availableDate, setAvailableDate] = useState(inst.open_at < 0 ? '' : objToDateString(inst.open_at))
-	const [availableTime, setAvailableTime] = useState(inst.open_at < 0 ? '' : objToTimeString(inst.open_at))
-	const [closeDisabled, setCloseDisabled] = useState(inst.close_at < 0)
-	const [closeDate, setCloseDate] = useState(inst.close_at < 0 ? '' : objToDateString(inst.close_at))
-	const [closeTime, setCloseTime] = useState(inst.close_at < 0 ? '' : objToTimeString(inst.close_at))
+	const [availableDisabled, setAvailableDisabled] = useState(inst.open_at == null)
+	const [availableDate, setAvailableDate] = useState(inst.open_at == null ? '' : objToDateString(inst.open_at))
+	const [availableTime, setAvailableTime] = useState(inst.open_at == null ? '' : objToTimeString(inst.open_at))
+	const [closeDisabled, setCloseDisabled] = useState(inst.close_at == null)
+	const [closeDate, setCloseDate] = useState(inst.close_at == null ? '' : objToDateString(inst.close_at))
+	const [closeTime, setCloseTime] = useState(inst.close_at == null ? '' : objToTimeString(inst.close_at))
 	const [errorText, setErrorText] = useState('')
 	const [successText, setSuccessText] = useState('')
 	const [invalidLogin, setInvalidLogin] = useState(false)
@@ -78,17 +69,13 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 		staleTime: Infinity,
 		retry: false,
 		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setInvalidLogin(true)
-			} else {
-				setAlertDialog({
-					enabled: true,
-					message: err.cause,
-					title: err.message,
-					fatal: err.halt,
-					enableLoginButton: false
-				})
-			}
+			setAlertDialog({
+				enabled: true,
+				message: err.cause,
+				title: err.message,
+				fatal: err.halt,
+				enableLoginButton: false
+			})
 		}
 	})
 
@@ -107,18 +94,21 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 
 	useEffect(() => {
 		if (perms) {
-			const isEditable = inst.widget.is_editable === '1'
+			const isEditable = inst.widget.is_editable
 			const othersPerms = new Map()
-			for(const i in perms.widget_user_perms){
-				othersPerms.set(parseInt(i), rawPermsToObj(perms.widget_user_perms[i], isEditable))
+			const myPerms = new Map()
+			for(const perm in perms){
+				
+				if (perm.user == currentUser?.id) {
+					myPerms.set(perm.user, rawPermsToObj(perm, isEditable))
+				}
+				else {
+					othersPerms.set(perm.user, rawPermsToObj(perm, isEditable))
+				}
 			}
-			let _myPerms = {}
-			for(const i in perms.user_perms){
-				_myPerms = rawPermsToObj(perms.user_perms[i], isEditable)
-			}
-			_myPerms.isSupportUser = true
+			myPerms.isSupportUser = true
 
-			setAllPerms({myPerms: _myPerms, otherUserPerms: othersPerms})
+			setAllPerms({myPerms: myPerms, otherUserPerms: othersPerms})
 		}
 	}, [perms])
 
@@ -372,11 +362,11 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 					</div>
 					<div>
 						<label>Owner:</label>
-						{loadingInstOwner || instOwner == undefined ? 'Loading...' : `${instOwner[updatedInst.user_id]?.first} ${instOwner[updatedInst.user_id]?.last}`}
+						{loadingInstOwner || instOwner == undefined ? 'Loading...' : `${instOwner[updatedInst.user_id]?.first_name} ${instOwner[updatedInst.user_id]?.last_name}`}
 					</div>
 					<div>
 						<label>Date Created:</label>
-						{(new Date(updatedInst.created_at*1000)).toLocaleString()}
+						{new Date(updatedInst.created_at).toLocaleString()}
 					</div>
 					<div>
 						<label>Draft:</label>
@@ -438,7 +428,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 							<input type='radio'
 								name='available'
 								id="open-at-available"
-								value={updatedInst.open_at}
+								value={updatedInst.open_at ?? 'never'}
 								checked={availableDisabled == false}
 								onChange={() => setAvailableDisabled(false)}
 							/>
@@ -471,7 +461,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 							<input type='radio'
 								name='closes'
 								id="close-at"
-								value={updatedInst.close_at}
+								value={updatedInst.close_at ?? 'never'}
 								checked={closeDisabled == false}
 								onChange={() => setCloseDisabled(false)}
 							/>

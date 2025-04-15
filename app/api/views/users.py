@@ -34,8 +34,15 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         pk = self.kwargs.get("pk")
         if pk is None:
+            # an explicit list of user ids has been provided - only return these users
+            # TODO verify if this should be restricted to elevated access (does collab needs it?)
+            if self.request.query_params.get("ids"):
+                return User.objects.filter(
+                    id__in=self.request.query_params.get("ids").split(",")
+                )
             # NOBODY should need a full list of all users - not even superusers
-            return User.objects.none()
+            else:
+                return User.objects.none()
         return User.objects.filter(id=pk)
 
     @action(detail=False, methods=["get"])

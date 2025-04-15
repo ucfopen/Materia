@@ -85,8 +85,7 @@ export const apiGetUserWidgetInstances = (page_number = 0) => {
 }
 
 export const apiGetInstancesForUser = userId => {
-	return fetch(`/api/admin/user/${userId}`)
-		.then(handleErrors)
+	return fetchGet(`/api/admin/user/${userId}`)
 }
 
 export const apiGetWidgetsByType = (widgetType="default") => {
@@ -164,13 +163,12 @@ export const apiGetUser = (user = 'me') => {
 }
 
 export const apiGetUsers = arrayOfUserIds => {
-	return fetchPost('/api/user/user_get', { body: `data=${formatFetchBody([arrayOfUserIds])}` })
+	return fetchGet(`/api/users/?ids=${arrayOfUserIds.toString()}`)
 		.then(users => {
 			const keyedUsers = {}
 			if (Array.isArray(users)) {
 				users.forEach(u => { keyedUsers[u.id] = u })
 			}
-
 			return keyedUsers
 		})
 }
@@ -244,19 +242,8 @@ export const apiGetWidgetLock = (id = null) => {
  * @param {string} input (letters only)
  * @returns {array} of matches
  */
-export const apiSearchInstances = (input, page_number = 0) => {
-	let pattern = /[A-Za-z]+/g
-	let match = input.match(pattern)
-	if (!match || !match.length) input = ' '
-	return fetch(`/api/admin/instance_search/${input}/${page_number}`)
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
-		})
-		.then(resp => {
-			writeToStorage('widgets', resp)
-			return resp
-		})
+export const apiSearchInstances = (input, pageParam = 1) => {
+	return fetchGet(`/api/instances/?search=${input}&page=${pageParam}`)
 }
 
 export const apiGetWidgetInstanceScores = (instId, send_token) => {
@@ -576,20 +563,8 @@ export const apiGetWidgetsAdmin = () => {
 		.then(handleErrors)
 }
 
-export const apiUpdateWidgetAdmin = widget => {
-	return fetch(`/api/admin/widget/${widget.id}`,
-	{
-		method: 'POST',
-		mode: 'cors',
-		credentials: 'include',
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/json; charset=UTF-8'
-		},
-		body: JSON.stringify(widget)
-	})
-		.then(handleErrors)
+export const apiUpdateWidgetEngine = widget => {
+	return fetchPut(`/api/widgets/${widget.id}/`, ({ body: widget }))
 }
 
 export const apiUploadWidgets = (files) => {

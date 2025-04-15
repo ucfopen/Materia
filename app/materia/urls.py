@@ -19,6 +19,9 @@ from api.views.users import UsersApi
 from core.views import login as login_views
 from core.views import main as core_views
 from core.views import profile as profile_views
+from core.views.admin import instance as instance_admin
+from core.views.admin import user as user_admin
+from core.views.admin import widget as widget_admin
 from core.views.catalog import CatalogView
 from core.views.media import MediaImportView, MediaRender, MediaUpload
 from core.views.my_widgets import MyWidgetsView
@@ -117,6 +120,9 @@ urlpatterns = [
     path("settings/", profile_views.settings, name="settings"),
     path("users/login", login_views.login, name="login"),
     path("login/", login_views.login, name="login"),
+    path("admin/widget", widget_admin, name="widget admin"),
+    path("admin/instance", instance_admin, name="instance admin"),
+    path("admin/user", user_admin, name="user admin"),
     path("admin/", admin.site.urls),
     path("users/logout/", UsersApi.logout, name="logout"),
     # Media

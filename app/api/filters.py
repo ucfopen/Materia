@@ -1,4 +1,5 @@
 from core.models import Asset, ObjectPermission
+from django.db.models import Q
 from rest_framework import filters
 
 
@@ -16,6 +17,7 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         user = request.user
         user_query = request.query_params.get("user")
+        search_query = request.query_params.get("search")
 
         if user_query == "me":
             return queryset.filter(user=user).order_by("-created_at")
@@ -28,4 +30,11 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
                 return queryset.filter(user=user_query).order_by("-created_at")
             else:
                 return queryset.none()
+        elif search_query is not None:
+            return queryset.filter(
+                # Add your fields here
+                Q(name__icontains=search_query)
+                | Q(id__icontains=search_query)
+            )
+
         return queryset.order_by("-created_at")

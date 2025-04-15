@@ -130,6 +130,30 @@ class WidgetSerializer(serializers.ModelSerializer):
     def get_dir(self, widget):
         return f"{widget.id}-{widget.clean_name}{os.sep}"
 
+    def update(self, widget, validated_data):
+        allowed_fields = [
+            "clean_name",
+            "in_catalog",
+            "is_editable",
+            "is_scorable",
+            "is_playable",
+            "restrict_publish",
+            "about",
+            "excerpt",
+            "demo",
+        ]
+
+        for field, value in validated_data.items():
+            if field not in allowed_fields:
+                raise serializers.ValidationError(
+                    f"Field not allowed to be modified: {field}"
+                )
+            setattr(widget, field, value)
+
+        widget.save()
+
+        return widget
+
 
 class Base64JSONField(serializers.Field):
     def to_representation(self, value):
