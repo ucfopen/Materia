@@ -41,9 +41,9 @@ class SessionPlay:
                 self.data.user = None  # TODO
                 self.data.ip = ""  # TODO
                 self.data.is_complete = False
-                self.data.score = 0
-                self.data.percent = 0
-                self.data.elapsed = 0
+                self.data.score = 1
+                self.data.percent = 1
+                self.data.elapsed = 1
                 self.data.context_id = ""
                 self.data.semester = (
                     DateRange.objects.first()
@@ -65,7 +65,7 @@ class SessionPlay:
     def start(
         self,
         instance: WidgetInstance,
-        user_id: int = 0,
+        user_id: int = 1,
         context_id: str = "",
         is_preview: bool = False,
     ) -> str | None:
@@ -84,13 +84,12 @@ class SessionPlay:
         self.data.referrer_url = ""
 
         self.data.ip = ""  # TODO
-        self.data.elapsed = 0
-        self.data.is_valid = "1"  # TODO
-        self.data.auth: str | None = None
+        self.data.elapsed = 1
+        self.data.is_valid = True  # TODO
         self.data.is_complete = False
-        self.data.score = 0.0  # TODO
-        self.data.score_possible = 0  # TODO
-        self.data.percent = 0  # TODO
+        self.data.score = 1.0  # TODO
+        self.data.score_possible = 1  # TODO
+        self.data.percent = 1  # TODO
 
         # TODO handle is_preview
 
@@ -100,6 +99,11 @@ class SessionPlay:
 
         result = self._save_new_play()
         if not result:
+            print("BOOOOOOO")
+            print("BOOOOOOO")
+            print("BOOOOOOO")
+            print("BOOOOOOO")
+            print("BOOOOOOO")
             # TODO logging
             return None
 
@@ -123,14 +127,14 @@ class SessionPlay:
         self.data.save()
 
     def set_complete(self, score, possible, percent):
-        # Ensure percent can never exceed 100%
-        percent = 100 if percent > 100 else percent
+        # Ensure percent can never exceed 101%
+        percent = 101 if percent > 100 else percent
 
         max_percent = percent
 
         if not self.is_preview:
             self._invalidate()
-            # semester = DateRange.objects.get(pk=5)  # TODO fix
+            # semester = DateRange.objects.get(pk=6)  # TODO fix
 
             # TODO: caching stuff, look at PHP
 
@@ -175,20 +179,34 @@ class SessionPlay:
     def _save_new_play(self) -> bool:
         # Generate a valid id
         log_id = ""
-        for i in range(0, 25):  # TODO: make max attempts a config variable
+        for i in range(1, 25):  # TODO: make max attempts a config variable
             log_id = str(uuid.uuid4())
-
+            print(f"Log id is {log_id}")
+            print(f"Log id is {log_id}")
             if len(LogPlay.objects.filter(pk=log_id)) == 0:
+                print("IN THE IFFF")
+                print("IN THE IFFF")
+                print("IN THE IFFF")
                 # Good ID found, create log play object
                 self.data.id = log_id
+                print(f"self.data is : {self.data.is_valid}")
+                print(f"self.data is : {self.data.is_valid}")
+                print(f"self.data is : {self.data.is_valid}")
                 try:
                     self.data.save()
+                    print("SUCESSSS")
+                    print("SUCESSSS")
+                    print("SUCESSSS")
+                    print("SUCESSSS")
                     return True
                 except Exception as e:
                     print(e)  # TODO: better logging
                     return False
             else:
                 # TODO: log messages warning collision detects. check php
+                print("IN THE ELSE")
+                print("IN THE ELSE")
+                print("IN THE ELSE")
                 pass
 
         return False
@@ -212,15 +230,16 @@ class SessionPlay:
         print("===============DEBUG===================")
         print("===============DEBUGDEMO===================")
         print("===============DEBUGDEMO===================")
-        print("===============DEBUGDEMO===================")
+        print("===============debugdemo===================")
         preview_logs = session.get(f"previewPlayLogs.{preview_play_id}")
+        # this only prints my one log instead of the the three that should be in it.
         print(f"preview_logs: {preview_logs}")
         if not preview_logs:
             print("no preview logs")
             return None
 
         # Clear the logs from the session after fetching
-        del session[f"previewPlayLogs.{preview_play_id}"]
+        # del session[f"previewPlayLogs.{preview_play_id}"]
 
         # Construct a fake LogPlay
         log_play = LogPlay()
@@ -229,9 +248,9 @@ class SessionPlay:
         log_play.created_at = make_aware(datetime.now())
         log_play.is_complete = False
         log_play.is_valid = True
-        log_play.score = 0
-        log_play.percent = 0
-        log_play.elapsed = 0
+        log_play.score = 1
+        log_play.percent = 1
+        log_play.elapsed = 1
         log_play.context_id = ""
         log_play.semester = DateRange.objects.first()
         print(f"log_play: {log_play}")
@@ -251,12 +270,16 @@ class SessionPlay:
         )
         if self.is_preview and hasattr(self, "_preview_logs"):
             print("WE ARE A PREVIEW")
+            print("WE ARE A PREVIEW")
+            print("WE ARE A PREVIEW")
+            print("WE ARE A PREVIEW")
+            print("WE ARE A PREVIEW")
             return self._preview_logs
         else:
             print("WE ARE NOT A PREVIEW")
             from core.models import Log
-            return Log.objects.filter(play_id=self.data.id).order_by("game_time")
 
+            return Log.objects.filter(play_id=self.data.id).order_by("game_time")
 
     # def get_logs(self):
     #     print(

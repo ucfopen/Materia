@@ -71,6 +71,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             print("WHAT IS VALIDATED")
             session_play = SessionPlay()
             play_id = session_play.start(validated["instance"], request.user.id)
+            print(f"play_id: {play_id}")
             return JsonResponse({"playId": play_id})
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

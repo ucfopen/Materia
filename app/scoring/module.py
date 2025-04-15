@@ -123,15 +123,23 @@ class ScoreModule(ABC):
         """Processes logs to determine score"""
         print(
             f"\n=== Processing Logs: Found {len(self.logs)} logs in {self.__class__.__name__} ===\n"
+            f"\n=== Processing Logs: Found {len(self.logs)} logs in {self.__class__.__name__} ===\n"
+            f"\n=== Processing Logs: Found {len(self.logs)} logs in {self.__class__.__name__} ===\n"
         )
 
         if len(self.logs) == 0:
             print("No logs found! No questions were answered.")
             return
 
+        i = 0
         for log in self.logs:
-            log_type = log.log_type if hasattr(log, "log_type") else log["type"]
-            print(f" Processing log of type: {log_type}")
+            # log_type = log.log_type if hasattr(log, "log_type") else log["type"]
+            log_type = (
+                log.log_type if hasattr(log, "log_type") else log["type"]
+            ).lower()
+
+            print(f" iteration {i}Processing log of type: {log_type}")
+            i += 1
 
             if log_type in ["widget_end", "WIDGET_END"]:
                 self.finished = True
@@ -281,7 +289,10 @@ class ScoreModule(ABC):
         print("GETTING SCORE DETAILS")
         for log in self.logs:
             print(f"LOG: {log}")
-            log_type = log.log_type if hasattr(log, "log_type") else log["type"]
+            # log_type = log.log_type if hasattr(log, "log_type") else log["type"]
+            log_type = (
+                log.log_type if hasattr(log, "log_type") else log["type"]
+            ).lower()
             if log_type in ["question_answered", "SCORE_QUESTION_ANSWERED"]:
                 item_id = log.item_id if hasattr(log, "item_id") else log["item_id"]
                 if item_id in self.questions:

@@ -247,6 +247,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 			let enginePath
 
 			if (!isPreview && playId === null) {
+				console.log("play id is null, but it is this: " , playId)
 				_onLoadFail('Unable to start play session.')
 				return
 			}

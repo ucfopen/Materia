@@ -155,6 +155,7 @@ class ScoringUtil:
             raise Exception("No score module found")
 
         # Manually reconstruct SessionPlay-like object from session data
+        print("Doing get_preview_play_details in this funciton")
         session_play = SessionPlay.get_preview_play(session, preview_play_id)
         if not session_play:
             raise Exception("Invalid preview play session")

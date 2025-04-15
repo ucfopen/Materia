@@ -365,6 +365,10 @@ class LogSubmissionSerializer(serializers.Serializer):
                 log["value"] = log.get("value", "")
 
                 logs.append(log)
+            print(f"LOGS: {logs}")
+            print(f"LOGS: {logs}")
+            print(f"LOGS: {logs}")
+            print(f"LOGS: {logs}")
             return logs
 
 
@@ -391,6 +395,9 @@ class PlayLogUpdateSerializer(serializers.Serializer):
                     )
 
             logs = LogSubmissionSerializer(data=data["logs"], many=True)
+            print(f"0LOGS IN PlayLOG_UPDATE_SERIALIZER {logs}")
+            print(f"0LOGS IN PlayLOG_UPDATE_SERIALIZER {logs}")
+            print(f"0LOGS IN PlayLOG_UPDATE_SERIALIZER {logs}")
             if logs.is_valid():
                 return {
                     "logs": logs.validated_data,

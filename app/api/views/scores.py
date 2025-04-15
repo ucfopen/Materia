@@ -94,7 +94,7 @@ class ScoresApi:
 
         print("getting instance score history")
         # scores = ScoringUtil.get_guest_play_details(play_id, instance)
-        scores = ScoringUtil.get_guest_play_details(request.session, instance, play_id)
+        scores = ScoringUtil.get_guest_play_details(request.session, instance, play_id, False)
         print(f"Scores: {scores}")
         if not scores:
             return MsgBuilder.expired().as_json_response()
