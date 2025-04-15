@@ -20,47 +20,48 @@ class S3AssetStorageDriver:
     def get_view_url(id, size):
         return f"{settings.DRIVER_SETTINGS["s3"]["view_url"]}{id}_{size}"
 
-    def get_client():
+    def get_s3(get_client=False):
         s = settings.DRIVER_SETTINGS["s3"]
-
-        config = {"region_name": s["region"]}
-
-        # Endpoint config is only required for fakeS3 - the param is not required for actual S3 on AWS
-        if "fakes3_enabled" in s and s["fakes3_enabled"]:
-            config["endpoint_url"] = settings.DRIVER_SETTINGS["s3"]["endpoint"]
-
-        if "force_path_style" in s and s["force_path_style"]:
-            config["s3"] = {"addressing_style": "path"}
 
         try:
             # Configure credentials depending on whether we're providing them from env or Amazon's IMDSv2 service
             # IMDS is HIGHLY recommended for prod usage on AWS
+            session = None
             if s["credential_provider"] == "imds":
                 # Credentials are sourced from the EC2 instance's IAM role
                 session = boto3.Session()
-                return session.resource("s3", **config)
             elif s["credential_provider"] == "env":
-                config["aws_access_key_id"] = settings.DRIVER_SETTINGS["s3"]["key"]
-                config["aws_secret_access_key"] = settings.DRIVER_SETTINGS["s3"][
-                    "secret_key"
-                ]
-                config["aws_session_token"] = (
-                    settings.DRIVER_SETTINGS["s3"]["token"] or None
-                )
-                return boto3.resource("s3", **config)
+                session_config = {
+                    "region_name": s["region"],
+                    "aws_access_key_id": s["key"],
+                    "aws_secret_access_key": s["secret_key"],
+                    "aws_session_token": s["token"] or None,
+                }
+                session = boto3.Session(**session_config)
             else:
                 raise Exception(
                     "S3: Failed to determine credential provider. Did you set the appropriate environment variable?"
                 )
         except Exception as e:
-            logger.error("S3: Failed to create S3 resource.")
+            logger.error("S3: Failed to create S3 session.")
             logger.error(e)
+
+        s3_config = {}
+        # Endpoint config is only required for fakeS3 - the param is not required for actual S3 on AWS
+        if "fakes3_enabled" in s and s["fakes3_enabled"]:
+            s3_config["endpoint_url"] = s["endpoint"]
+
+        if "force_path_style" in s and s["force_path_style"]:
+            s3_config["s3"] = {"addressing_style": "path"}
+
+        if get_client:
+            return session.client("s3", **s3_config)
+        else:
+            return session.resource("s3", **s3_config)
 
     def store(asset, image_path, size):
         if not asset.is_valid():
             raise Exception("Invalid asset for storing")
-        key = S3AssetStorageDriver.get_key_name(asset.id, size)
-        bucket = settings.DRIVER_SETTINGS["s3"]["bucket"]
 
         # TODO: tie these to an env variable to verbosely log S3 actions, or just toss them?
         # logger.info(f"Storing asset data in s3: {key} ({asset.get_mime_type()})")
@@ -68,21 +69,24 @@ class S3AssetStorageDriver:
         # logger.info(f"Size: {size}")
         # logger.info(f"Bucket: {bucket}")
         # logger.info(f"Asset file_size: {asset.file_size}")
+        key = S3AssetStorageDriver.get_key_name(asset.id, size)
 
         try:
-            with open(image_path, "rb") as source_file:
-                s3 = S3AssetStorageDriver.get_client()
-                s3.Object(bucket, key).put(
-                    Body=source_file, ContentType=asset.get_mime_type()
-                )
+            s3_client = S3AssetStorageDriver.get_s3(True)
+            s3_client.upload_file(
+                Filename=image_path,
+                Bucket=settings.DRIVER_SETTINGS["s3"]["bucket"],
+                Key=key,
+                ExtraArgs={"ContentType": asset.get_mime_type()},
+            )
         except Exception as e:
             logger.error(f"S3: Failed to store asset {key}")
             logger.error(e)
 
     def exists(id, size):
-        s3 = S3AssetStorageDriver.get_client()
+        s3_resource = S3AssetStorageDriver.get_s3()
         try:
-            s3.Object(
+            s3_resource.Object(
                 settings.DRIVER_SETTINGS["s3"]["bucket"], f"media/{id}_{size}"
             ).load()
             return True
@@ -94,17 +98,25 @@ class S3AssetStorageDriver:
                 logger.error(e)
 
     def handle_uploaded_file(asset, uploaded_file):
-        temporary_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir())
+        # temporary_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir())
 
-        if os.path.isfile(temporary_file.name):
-            temporary_file.close()
+        # if os.path.isfile(temporary_file.name):
+        #     temporary_file.close()
 
-        with open(temporary_file.name, "wb+") as tmp:
-            for chunk in uploaded_file.chunks():
-                tmp.write(chunk)
+        # with open(temporary_file.name, "wb+") as tmp:
+        #     for chunk in uploaded_file.chunks():
+        #         tmp.write(chunk)
 
-        S3AssetStorageDriver.store(asset, temporary_file.name, "original")
-        os.remove(temporary_file.name)
+        # S3AssetStorageDriver.store(asset, temporary_file.name, "original")
+        # os.remove(temporary_file.name)
+        s3_client = S3AssetStorageDriver.get_s3(True)
+        uploaded_file.seek(0)
+        s3_client.upload_fileobj(
+            Fileobj=uploaded_file,
+            Bucket=settings.DRIVER_SETTINGS["s3"]["bucket"],
+            Key=S3AssetStorageDriver.get_key_name(asset.id, "original"),
+            ExtraArgs={"ContentType": asset.get_mime_type()},
+        )
 
     def render(asset, size):
         from django.http import HttpResponseNotFound
@@ -145,7 +157,7 @@ class S3AssetStorageDriver:
         #  thumbnail is written directly to S3 instead of being stored
         #  on disk temporarily
 
-        s3 = S3AssetStorageDriver.get_client()
+        s3 = S3AssetStorageDriver.get_s3()
         key = S3AssetStorageDriver.get_key_name(asset.id, "original")
         bucket = settings.DRIVER_SETTINGS["s3"]["bucket"]
 
@@ -214,3 +226,65 @@ class S3AssetStorageDriver:
             os.remove(temporary_file.name)
             logger.info("Error saving new size to S3")
             logger.info(e)
+
+    def migrate_to(driver, cleanup_delete=False):
+        if driver == "file":
+            from .file import FileAssetStorageDriver
+
+            s = settings.DRIVER_SETTINGS["s3"]
+
+            s3_resource = S3AssetStorageDriver.get_s3()
+            bucket = s3_resource.Bucket(s["bucket"])
+            for obj in bucket.objects.all():
+                # stripping the folder prefix from the filename, if there is one
+                filename = obj.key
+                if "subdir" in s and s["subdir"] != "":
+                    filename = filename.replace(f"{s["subdir"]}/", "")
+                asset_id, size = filename.split("_")
+                asset_path = FileAssetStorageDriver.get_local_file_path(asset_id, size)
+
+                bucket.download_file(obj.key, asset_path)
+
+                if cleanup_delete:
+                    obj.delete()
+
+        elif driver == "db":
+            from core.models import Asset
+
+            from .db import DBAssetStorageDriver
+
+            s = settings.DRIVER_SETTINGS["s3"]
+
+            s3_resource = S3AssetStorageDriver.get_s3()
+            bucket = s3_resource.Bucket(s["bucket"])
+            for obj in bucket.objects.all():
+                # stripping the folder prefix from the filename, if there is one
+                filename = obj.key
+                if "subdir" in s and s["subdir"] != "":
+                    filename = filename.replace(f"{s["subdir"]}/", "")
+                asset_id, size = filename.split("_")
+
+                # DB only stores originals, ignore others
+                if size != "original":
+                    # Unless we're getting rid of everything as we go
+                    # Delete the file so it's not lingering after the original is migrated
+                    if cleanup_delete:
+                        obj.delete()
+                    else:
+                        continue
+
+                temporary_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir())
+
+                if os.path.isfile(temporary_file.name):
+                    temporary_file.close()
+
+                bucket.download_file(obj.key, temporary_file.name)
+                asset_obj = Asset.objects.get(id=asset_id)
+                DBAssetStorageDriver.store(asset_obj, temporary_file.name, "original")
+
+                os.remove(temporary_file.name)
+
+                if cleanup_delete:
+                    obj.delete()
+        else:
+            raise Exception("S3 Driver: Invalid driver option selected for migration")

@@ -4,6 +4,8 @@ import logging
 import os
 from datetime import datetime
 
+from django.conf import settings
+
 logger = logging.getLogger("django")
 
 
@@ -28,7 +30,7 @@ class DBAssetStorageDriver:
 
                 data_obj = AssetData()
                 data_obj.id = asset.id
-                data_obj.type = asset.file_type
+                data_obj.file_type = asset.file_type
                 data_obj.status = "ready"
                 data_obj.size = size
                 data_obj.bytes = os.path.getsize(asset_path)
@@ -151,3 +153,42 @@ class DBAssetStorageDriver:
         resized_bytes.seek(0)
 
         return resized_bytes.getvalue()
+
+    def migrate_to(driver, cleanup_delete=False):
+        from core.models import Asset, AssetData
+
+        if driver == "s3":
+            from .s3 import S3AssetStorageDriver
+
+            s3_client = S3AssetStorageDriver.get_s3(True)
+            for asset_data in AssetData.objects.all():
+                asset_bytes = io.BytesIO(asset_data.data)
+                asset_bytes.seek(0)
+                s3_client.upload_fileobj(
+                    Fileobj=asset_bytes,
+                    Bucket=settings.DRIVER_SETTINGS["s3"]["bucket"],
+                    Key=S3AssetStorageDriver.get_key_name(asset_data.id, "original"),
+                    ExtraArgs={
+                        "ContentType": Asset.MIME_TYPE_FROM_EXTENSION[
+                            asset_data.file_type
+                        ]
+                    },
+                )
+                if cleanup_delete:
+                    asset_data.delete()
+
+        elif driver == "file":
+            from .file import FileAssetStorageDriver
+
+            for asset_data in AssetData.objects.all():
+                asset_path = FileAssetStorageDriver.get_local_file_path(
+                    asset_data.id, asset_data.size
+                )
+
+                with open(asset_path, "wb") as asset_file:
+                    asset_file.write(asset_data.data)
+
+                if cleanup_delete:
+                    asset_data.delete()
+        else:
+            raise Exception("DB Driver: Invalid driver option selected for migration")

@@ -12,7 +12,6 @@ from core.models import (
 )
 from django.conf import settings
 from django.utils.timezone import make_aware
-from util.unique_id import unique_id
 
 logger = logging.getLogger("django")
 
@@ -542,30 +541,15 @@ class WidgetInstaller:
         return json_text
 
     # "uploads" an asset from a widget package
-    # this can probably be more efficient - currently it's copying a file from a temporary location
-    #  to a second temporary location and then copying that second temporaray file to a permanent
-    #  location... ideally, we could just copy the file from the original temporary location and
-    #  be done with it, but this works for now
     def sideload_asset(file):
-        import shutil
-
         from util.widget.asset.manager import AssetManager
 
         try:
-            # copy asset to wherever files would normally be uploaded
-            mock_upload_file_path = os.path.join(
-                settings.DIRS["media_uploads"], unique_id("sideload_")
-            )
-            logger.info(f"Copying asset {file} to {mock_upload_file_path}")
-            shutil.copyfile(file, mock_upload_file_path)
-
-            # process the upload
-            # get the file information... somehow?
-            upload_info = os.stat(mock_upload_file_path)
+            upload_info = os.stat(file)
             asset = AssetManager.new_asset_from_file(
                 f"Demo asset {os.path.basename(file)}",
                 upload_info,
-                mock_upload_file_path,
+                file,
             )
             return asset
 
