@@ -1266,7 +1266,7 @@
 
 			&.unchosen {
 				&:not(.bearded) {
-					background: #ffffff url('/img/kogneato_mywidgets.svg')55% 30%/250px auto no-repeat;
+					background: #ffffff url('/img/kogneato_mywidgets_pointing_down.svg')55% 30%/250px auto no-repeat;
 				}
 
 			}
@@ -1430,7 +1430,7 @@
 
 			&.unchosen {
 				&:not(.bearded) {
-					background: #ffffff url('/img/kogneato_mywidgets.svg') 50% 30%/250px auto no-repeat;
+					background: #ffffff url('/img/kogneato_mywidgets_pointing_down.svg') 50% 30%/250px auto no-repeat;
 				}
 
 			}
@@ -1510,8 +1510,8 @@
 		}
 
 		.share-widget-container {
-			width: 80%;
-			right: 50px;
+			width: 60%;
+			
 		}
 
 	}
@@ -1605,7 +1605,7 @@
 
 			&.unchosen {
 				&:not(.bearded) {
-					background: #ffffff url('/img/kogneato_mywidgets.svg') 55% 30%/250px auto no-repeat;
+					background: #ffffff url('/img/kogneato_mywidgets_pointing_down.svg') 55% 30%/250px auto no-repeat;
 				}
 
 			}
@@ -1824,7 +1824,7 @@
 
 			&.unchosen {
 				&:not(.bearded) {
-					background: #21232a url("/img/kogneato_mywidgets_dark.svg") 10% 30%/250px auto no-repeat !important;
+					background: #ffffff url("/img/kogneato_mywidgets_pointing_down.svg") 10% 30%/250px auto no-repeat !important;
 				}
 
 			}
