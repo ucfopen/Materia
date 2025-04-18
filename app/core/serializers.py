@@ -10,6 +10,7 @@ from core.models import (
     Asset,
     LogPlay,
     Notification,
+    ObjectPermission,
     UserSettings,
     Widget,
     WidgetInstance,
@@ -552,3 +553,11 @@ class QsetGenerationRequestSerializer(serializers.Serializer):
 # Used for incoming requests for prompt generation. Does NOT map to a model.
 class PromptGenerationRequestSerializer(serializers.Serializer):
     prompt = serializers.CharField(min_length=1, max_length=10000)
+
+
+class ObjectPermissionSerializer(serializers.ModelSerializer):
+
+    # TODO content_type is returning an integer value, it should give us the actual content type name?
+    class Meta:
+        model = ObjectPermission
+        fields = ["user", "content_type", "object_id", "permission", "expires_at"]

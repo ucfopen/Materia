@@ -19,20 +19,21 @@ const ProfilePage = () => {
 
 	const mounted = useRef(false)
 	const { data: currentUser, isFetching} = useQuery({
-		queryKey: 'user',
-		queryFn: apiGetUser,
+		queryKey: ['user', 'me'],
+		queryFn: ({ queryKey }) => {
+			const [_key, user] = queryKey
+			return apiGetUser(user)
+		},
 		staleTime: Infinity,
 		retry: false,
 		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setAlertDialog({
-					enabled: true,
-					message: 'You must be logged in to view your profile.',
-					title: 'Login Required',
-					fatal: true,
-					enableLoginButton: true
-				})
-			}
+			setAlertDialog({
+				enabled: true,
+				message: 'You must be logged in to view your profile.',
+				title: 'Login Required',
+				fatal: true,
+				enableLoginButton: true
+			})
 		}
 	})
 

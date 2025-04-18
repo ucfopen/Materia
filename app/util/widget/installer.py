@@ -3,13 +3,7 @@ import os
 import tempfile
 from datetime import datetime
 
-from core.models import (
-    PermObjectToUser,
-    Widget,
-    WidgetInstance,
-    WidgetMetadata,
-    WidgetQset,
-)
+from core.models import Widget, WidgetInstance, WidgetMetadata, WidgetQset
 from django.conf import settings
 from django.utils.timezone import make_aware
 
@@ -489,14 +483,6 @@ class WidgetInstaller:
                 except Exception as e:
                     logger.error("Error saving new demo instance:")
                     logger.error(e)
-
-                # make sure nobody owns the demo widget
-                access = PermObjectToUser.objects.filter(
-                    object_id=widget_instance.id,
-                    object_type=PermObjectToUser.ObjectType.INSTANCE,
-                )
-                for a in access:
-                    a.delete()
 
             # TODO: this was originally a static output - may have to change this, maybe not?
             logger.info(f"Demo installed: {widget_instance.id}")
