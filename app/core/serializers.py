@@ -41,6 +41,24 @@ class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
     profile_fields = serializers.SerializerMethodField()
 
+    # remove sensitive information when requesting with non-privileged access
+    def get_fields(self):
+        fields = super().get_fields()
+        elevated = self.context.get("elevated_access")
+
+        if not elevated:
+            for field in [
+                "username",
+                "email",
+                "profile_fields",
+                "date_joined",
+                "last_login",
+            ]:
+                if fields[field]:
+                    fields.pop(field)
+
+        return fields
+
     def get_avatar(self, user):
         clean_email = user.email.strip().lower().encode("utf-8")
         hash_email = hashlib.md5(clean_email).hexdigest()
@@ -52,7 +70,19 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "email", "avatar", "profile_fields"]
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "avatar",
+            "profile_fields",
+            "date_joined",
+            "last_login",
+        ]
+
+        read_only_fields = ["id", "date_joined", "last_login"]
 
 
 # User metadata (profile fields) serializer (inbound)
@@ -587,6 +617,10 @@ class PromptGenerationRequestSerializer(serializers.Serializer):
 
 
 class ObjectPermissionSerializer(serializers.ModelSerializer):
+    content_type = serializers.SerializerMethodField()
+
+    def get_content_type(self, obj):
+        return obj.content_type.model
 
     # TODO content_type is returning an integer value, it should give us the actual content type name?
     class Meta:

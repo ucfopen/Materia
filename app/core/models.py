@@ -1047,6 +1047,9 @@ class WidgetQset(models.Model):
 
 
 class UserSettings(models.Model):
+
+    DEFAULT_PROFILE_FIELDS = {"useGravatar": False, "darkMode": False}
+
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="profile_settings"
     )
@@ -1057,13 +1060,20 @@ class UserSettings(models.Model):
         self.save()
 
     def get_profile_fields(self):
+        if not self.profile_fields:
+            self.initialize_profile_fields()
         return self.profile_fields
+
+    def initialize_profile_fields(self):
+        self.profile_fields = {**self.DEFAULT_PROFILE_FIELDS}
+        self.save()
 
 
 @receiver(post_save, sender=User)
 def create_user_settings(sender, instance, created, **kwargs):
     if created:
-        UserSettings.objects.create(user=instance)
+        settings = UserSettings.objects.create(user=instance)
+        settings.initialize_profile_fields()
 
 
 @receiver(post_save, sender=User)

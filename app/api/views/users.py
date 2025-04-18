@@ -1,9 +1,8 @@
-import hashlib
 import json
 import logging
 
 from core.models import ObjectPermission, UserSettings
-from core.permissions import IsSelfOrElevatedAccess, IsSuperuserOrReadOnly
+from core.permissions import IsSelfOrElevatedAccess, IsSuperOrSupportUser
 from core.serializers import (
     ObjectPermissionSerializer,
     UserMetadataSerializer,
@@ -11,23 +10,64 @@ from core.serializers import (
 )
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from util.message_util import MsgBuilder
 
 logger = logging.getLogger("django")
 
 
+class UserListPagination(PageNumberPagination):
+    page_size = 50
+    page_size_query_param = "page_size"
+    max_page_size = 50
+
+
 class UserViewSet(viewsets.ModelViewSet):
 
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated, IsSuperuserOrReadOnly]
-    # NEVER allow user creation or deletion from the API
-    # PATCH requires SU
-    http_method_names = ["get", "patch", "head", "put"]
+    pagination_class = UserListPagination
+
+    # we attach elevated_access to the serializer context to inform the serializer
+    # which fields to include:
+    # all users get full info about themselves (/me), only elevated users get full info
+    # when requesting non-self user data
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["elevated_access"] = (
+            self.request.user.is_superuser
+            or self.request.user.groups.filter(name="support_user").exists()
+            or self.action == "me"
+        )
+        return context
+
+    def get_permissions(self):
+        if self.action in [
+            "put",
+            "patch",
+        ]:  # only superusers can modify user properties!
+            return [permissions.IsSuperuser()]
+        elif (
+            self.action == "list"
+            and self.request.query_params.get("search") is not None
+        ):  # only users with elevated access can search for users carte blanche
+            return [permissions.IsAuthenticated(), IsSuperOrSupportUser()]
+        elif (
+            self.action == "list" and self.request.query_params.get("ids") is not None
+        ):  # allow authenticated users to retrieve specific ids (required for collab)
+            return [permissions.IsAuthenticated()]
+        elif (
+            self.action == "retrieve"
+        ):  # allow authenticated users to retrieve specific user data
+            return [permissions.IsAuthenticated()]
+        else:  # do not allow remaining actions (create, delete) under any circumstance
+            return []
 
     queryset = User.objects.none()
 
@@ -40,14 +80,27 @@ class UserViewSet(viewsets.ModelViewSet):
                 return User.objects.filter(
                     id__in=self.request.query_params.get("ids").split(",")
                 )
+            elif self.request.query_params.get("search"):
+                search = self.request.query_params.get("search")
+                return User.objects.filter(
+                    Q(first_name__icontains=search)
+                    | Q(last_name__icontains=search)
+                    | Q(email__icontains=search)
+                )
             # NOBODY should need a full list of all users - not even superusers
             else:
                 return User.objects.none()
         return User.objects.filter(id=pk)
 
+    # disable paginated response when we're requesting an array of ids
+    def paginate_queryset(self, queryset):
+        if self.request.query_params.get("ids") is not None:
+            return None
+        return super().paginate_queryset(queryset)
+
     @action(detail=False, methods=["get"])
     def me(self, request):
-        serializer = UserSerializer(request.user)
+        serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
     @action(detail=True, methods=["put"], permission_classes=[IsSelfOrElevatedAccess])
@@ -87,14 +140,19 @@ class UserViewSet(viewsets.ModelViewSet):
             return MsgBuilder.invalid_input().as_drf_response()
 
         access_permissions = ObjectPermission.objects.filter(user=user)
+
+        type = request.query_params.get("type")
+        if type:
+            try:
+                content_type = ContentType.objects.get(model=type)
+                access_permissions = access_permissions.filter(
+                    content_type=content_type
+                )
+            except ContentType.DoesNotExist:
+                return MsgBuilder.invalid_input().as_drf_response()
+
         serialized = ObjectPermissionSerializer(access_permissions, many=True)
         return Response(serialized.data)
-
-
-def get_gravatar(email):
-    clean_email = email.strip().lower().encode("utf-8")
-    hash_email = hashlib.md5(clean_email).hexdigest()
-    return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
 
 
 # API stuff below this line is not yet converted to DRF #
