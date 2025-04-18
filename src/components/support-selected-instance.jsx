@@ -360,7 +360,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 					</div>
 					<div>
 						<label>Owner:</label>
-						{loadingInstOwner || instOwner == undefined ? 'Loading...' : `${instOwner[updatedInst.user_id]?.first_name} ${instOwner[updatedInst.user_id]?.last_name}`}
+						{loadingInstOwner || instOwner == undefined ? 'Loading...' : `${instOwner[updatedInst.user_id]?.first_name ?? ''} ${instOwner[updatedInst.user_id]?.last_name ?? 'System Widget (No Owner)'}`}
 					</div>
 					<div>
 						<label>Date Created:</label>

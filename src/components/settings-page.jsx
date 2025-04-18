@@ -134,7 +134,7 @@ const SettingsPage = () => {
 
 				<h2>
 					<span>Settings</span>
-					{`${currentUser.first} ${currentUser.last}`}
+					{`${currentUser.first_name} ${currentUser.last_name}`}
 				</h2>
 
 				<span>Notifications</span>

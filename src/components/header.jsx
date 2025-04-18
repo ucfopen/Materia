@@ -112,7 +112,7 @@ const Header = ({
 			userAvatarRender = (
 				<>
 					<div className="profile-bar-options">
-						<a href='/profile'>{`${user.first} ${user.last}`}</a>
+						<a href='/profile'>{`${user.first_name} ${user.last_name}`}</a>
 						<a onClick={logoutUser}>Logout</a>
 					</div>
 					<a href='/profile'><img src={user.avatar} onClick={showUserOptions}/></a>
@@ -134,7 +134,7 @@ const Header = ({
 					<span className="arrow-top"></span>
 					<ul>
 						<li>
-							<span>{`${user.first} ${user.last}`}</span>
+							<span>{`${user.first_name} ${user.last_name}`}</span>
 						</li>
 						<li>
 							<a href='/profile'>Profile</a>

@@ -153,7 +153,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 				<img className='avatar' src={user.avatar} />
 
 				<span className={`name ${user.is_owner ? 'user-match-owner' : user.is_student ? 'user-match-student' : ''}`}>
-					{`${user.first} ${user.last}`}
+					{`${user.first_name} ${user.last_name}`}
 				</span>
 			</div>
 			{ selfDemoteWarningRender }

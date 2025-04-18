@@ -232,7 +232,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					onClick={() => onClickMatch(match)}>
 					<img className='collab-match-avatar' src={match.avatar} alt="user avatar" />
 					<p className={`collab-match-name ${match.is_student ? 'collab-match-student' : ''}`}>
-						{match.first} {match.last}
+						{match.first_name} {match.last_name}
 					</p>
 				</div>
 			)

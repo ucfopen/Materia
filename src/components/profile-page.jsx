@@ -170,7 +170,7 @@ const ProfilePage = () => {
 							</span>
 						</div>
 						<h2>
-						{`${currentUser.first} ${currentUser.last}`}
+						{`${currentUser.first_name} ${currentUser.last_name}`}
 						</h2>
 					</div>
 
