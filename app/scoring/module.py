@@ -34,6 +34,10 @@ class ScoreModule(ABC):
             "correct answer",
         ]
         print(f"DEBUG: ScoreModule initialized with {len(self.logs)} logs")
+        print("NOOOOOOO WHY YOU USING BASE CLASS AHHHHHHH")
+        print("NOOOOOOO WHY YOU USING BASE CLASS AHHHHHHH")
+        print("NOOOOOOO WHY YOU USING BASE CLASS AHHHHHHH")
+        print("NOOOOOOO WHY YOU USING BASE CLASS AHHHHHHH")
 
     def validate(self) -> bool:
         """perform all validation"""
@@ -123,6 +127,10 @@ class ScoreModule(ABC):
 
     def process_score_logs(self):
         """Processes logs to determine score"""
+        print("\n=========== ENTERED process_score_logs() ===========", flush=True)
+        print("\n=========== ENTERED process_score_logs() ===========", flush=True)
+        print("\n=========== ENTERED process_score_logs() ===========", flush=True)
+
         print(
             f"\n=== Processing Logs: Found {len(self.logs)} logs in {self.__class__.__name__} ===\n"
             f"\n=== Processing Logs: Found {len(self.logs)} logs in {self.__class__.__name__} ===\n"
@@ -146,24 +154,44 @@ class ScoreModule(ABC):
             print(f" iteration {i}Processing log of type: {log_type}")
             i += 1
 
+            print("SANITY CHECK")
             if log_type in ["widget_end", "WIDGET_END"]:
+                print("WE GOT WIDGET_END")
                 self.finished = True
             elif log_type in ["final_score_from_client", "FINAL_SCORE_FROM_CLIENT"]:
+                print("WE GOT FINAL SCORE FROM CLIENT")
                 self.handle_log_client_final_score(log)
-            elif log_type in ["question_answered", "SCORE_QUESTION_ANSWERED"]:
+            elif log_type in [
+                "question_answered",
+                "SCORE_QUESTION_ANSWERED",
+                "score_question_answered",
+            ]:
+                print("WE ARE GOING TO CALL HANDLE_LOG_QUESTION_ANSWERED!!!!!!")
                 self.handle_log_question_answered(
                     log
                 )  # THIS should lead to check_answer()
-            elif log_type in ["widget_interaction", "SCORE_WIDGET_INTERACTION"]:
+            elif log_type in [
+                "widget_interaction",
+                "SCORE_WIDGET_INTERACTION",
+                "score_widget_interaction",
+            ]:
+                print("WE GOT WIDGET INTERACTION OR SCORE WIDGET INTERACTION")
                 print("WE ARE HANDLING WIDGET INTERACTION!!!!!")
                 self.handle_log_widget_interaction(log)
             elif log_type in ["score_participation", "SCORE_PARTICIPATION"]:
+                print("WE ARE IN SCORE PARTICIPATION")
                 self.verified_score = (
                     log.value if hasattr(log, "value") else log["value"]
                 )
+            print("END OF FOR LOOP")
 
     def handle_log_widget_interaction(self, log):
         """abstract method for handling widget interactions"""
+        print("this should be overridden")
+        print("this should be overridden")
+        print("this should be overridden")
+        print("this should be overridden")
+        print("this should be overridden")
         pass
 
     def handle_log_client_final_score(self, log) -> None:
@@ -174,6 +202,11 @@ class ScoreModule(ABC):
         self.global_modifiers.append(int(val) - 100)
 
     def handle_log_question_answered(self, log):
+        print("WHY ARE YOU BEING CALLED HERER RAHHHHHHHHHHHHH")
+        print("WHY ARE YOU BEING CALLED HERER RAHHHHHHHHHHHHH")
+        print("WHY ARE YOU BEING CALLED HERER RAHHHHHHHHHHHHH")
+        print("WHY ARE YOU BEING CALLED HERER RAHHHHHHHHHHHHH")
+        print("WHY ARE YOU BEING CALLED HERER RAHHHHHHHHHHHHH")
         self.total_questions += 1
         score = self.check_answer(log)
         self.verified_score += score
@@ -185,7 +218,15 @@ class ScoreModule(ABC):
 
     def calculate_score(self):
         """calculate final score percentage"""
+        print(f"global_mod: {self.global_modifiers}")
         global_mod = sum(self.global_modifiers)
+
+        # Sum up all the scores
+        print(f"self.scores.values is {self.scores.values()}")
+        print(f"self.scores.values is {self.scores.values()}")
+        print(f"self.scores.values is {self.scores.values()}")
+        self.verified_score = sum(self.scores.values())
+
         if self.total_questions > 0:
             points = self.verified_score + global_mod * self.total_questions
             self.calculated_percent = points / self.total_questions
@@ -193,16 +234,14 @@ class ScoreModule(ABC):
             points = self.verified_score + global_mod
             self.calculated_percent = points
 
-        # make sure score is between 0 and 100
+        # Clamp between 0 and 100
         self.calculated_percent = max(0, min(self.calculated_percent, 100))
+
+        print(f"[DEBUG] Final Score: {self.calculated_percent}")
+        print("this is in abstract class")
 
     def get_score_report(self) -> object:
         """returns a report of the calculated score"""
-        print("HELLO WHY ARENT YOU PRINTING YOU FUCK")
-        print("HELLO WHY ARENT YOU PRINTING YOU FUCK")
-        print("HELLO WHY ARENT YOU PRINTING YOU FUCK")
-        print("HELLO WHY ARENT YOU PRINTING YOU FUCK")
-        print("HELLO WHY ARENT YOU PRINTING YOU FUCK")
         self.score_display["overview"] = self.get_score_overview()
         self.score_display["details"] = self.get_score_details()
         print(f"SCORE DISPLAY: {self.score_display}")
@@ -299,7 +338,11 @@ class ScoreModule(ABC):
                 log.log_type if hasattr(log, "log_type") else log["type"]
             ).lower()
             # if log_type in ["question_answered", "SCORE_QUESTION_ANSWERED"]:
-            if log_type in ["question_answered", "score_question_answered"]:
+            if log_type in [
+                "question_answered",
+                "score_question_answered",
+                "SCORE_QUESTION_ANSWERED",
+            ]:
 
                 item_id = log.item_id if hasattr(log, "item_id") else log["item_id"]
                 if item_id in self.questions:

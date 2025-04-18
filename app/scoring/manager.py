@@ -345,7 +345,5 @@ class ScoringUtil:
             else {"version": None, "data": None}
         )
         print("details: ", details)
-        print("details: ", details)
-        print("details: ", details)
 
         return details
