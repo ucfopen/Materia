@@ -90,6 +90,9 @@ class ScoringUtil:
         exec(code, mod.__dict__)
 
         # Now pick the class name from widget.score_module
+        print("score_module class expected by widget:", instance.widget.score_module)
+        print("classes in mod:", dir(mod))
+
         ScoreClass = getattr(mod, instance.widget.score_module, None)
         if not ScoreClass:
             raise Exception("No score module found")
@@ -114,6 +117,9 @@ class ScoringUtil:
         else:
             details["qset"] = {"version": None, "data": None}
 
+        # if "qset" in details and isinstance(details["qset"], dict):
+        #     details["qset"].pop("questions_list", None)
+
         import datetime
 
         def json_serial(obj):
@@ -122,6 +128,9 @@ class ScoringUtil:
             raise TypeError(f"Type {type(obj)} not serializable")
 
         import json
+
+        if isinstance(details["qset"], dict):
+            details["qset"].pop("questions_list", None)
 
         print("\n=== DEBUG: API Response (get_play_details) ===\n")
         print(json.dumps(details, indent=4, default=json_serial))
@@ -339,11 +348,16 @@ class ScoringUtil:
 
         from core.serializers import QuestionSetSerializer
 
+        # if "qset" in details and isinstance(details["qset"], dict):
+        #     details["qset"].pop("questions_list", None)
+
         details["qset"] = (
             QuestionSetSerializer(qset).data
             if qset
             else {"version": None, "data": None}
         )
+        if isinstance(details["qset"], dict):
+            details["qset"].pop("questions_list", None)
         print("details: ", details)
 
         return details

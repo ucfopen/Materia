@@ -10,7 +10,6 @@ from util.semester import Semester
 
 
 class ScoreModule(ABC):
-    print("THE VERY START OF THE SCORE MODULE")
 
     def __init__(self, play_id: str, instance: WidgetInstance, play=None):
         self.logs = []
@@ -33,11 +32,6 @@ class ScoreModule(ABC):
             "your response",
             "correct answer",
         ]
-        print(f"DEBUG: ScoreModule initialized with {len(self.logs)} logs")
-        print("NOOOOOOO WHY YOU USING BASE CLASS AHHHHHHH")
-        print("NOOOOOOO WHY YOU USING BASE CLASS AHHHHHHH")
-        print("NOOOOOOO WHY YOU USING BASE CLASS AHHHHHHH")
-        print("NOOOOOOO WHY YOU USING BASE CLASS AHHHHHHH")
 
     def validate(self) -> bool:
         """perform all validation"""
@@ -79,11 +73,7 @@ class ScoreModule(ABC):
         `calculated_percent`, which are eventually written to the database
         by the api. validates the individual question scores are valid.
         """
-        print("BEGGINING OF VALIDATE_SCORES FUNCTION")
-        print("BEGGINING OF VALIDATE_SCORES FUNCTION")
-        print("BEGGINING OF VALIDATE_SCORES FUNCTION")
-        print("BEGGINING OF VALIDATE_SCORES FUNCTION")
-        print(f"DEBUG: Before process_score_logs, self.logs has {len(self.logs)} logs")
+        # print(f"DEBUG: Before process_score_logs, self.logs has {len(self.logs)} logs")
         session = SessionPlay.get_or_none(str(self.play_id))
         if not session:
             print("no session")
@@ -112,9 +102,6 @@ class ScoreModule(ABC):
                         "attempt limit met: you have already met the attempt limit for this widget."
                     )
 
-        print("LOADING QUESTIONS")
-        print("LOADING QUESTIONS")
-        print("LOADING QUESTIONS")
         self.load_questions(timestamp)
 
         if not self.logs:
@@ -127,16 +114,10 @@ class ScoreModule(ABC):
 
     def process_score_logs(self):
         """Processes logs to determine score"""
-        print("\n=========== ENTERED process_score_logs() ===========", flush=True)
-        print("\n=========== ENTERED process_score_logs() ===========", flush=True)
-        print("\n=========== ENTERED process_score_logs() ===========", flush=True)
 
         print(
             f"\n=== Processing Logs: Found {len(self.logs)} logs in {self.__class__.__name__} ===\n"
-            f"\n=== Processing Logs: Found {len(self.logs)} logs in {self.__class__.__name__} ===\n"
-            f"\n=== Processing Logs: Found {len(self.logs)} logs in {self.__class__.__name__} ===\n"
         )
-        # so we got one log but it contains an array of logs. how do we split it.
 
         if len(self.logs) == 0:
             print("No logs found! No questions were answered.")
@@ -179,18 +160,12 @@ class ScoreModule(ABC):
                 print("WE ARE HANDLING WIDGET INTERACTION!!!!!")
                 self.handle_log_widget_interaction(log)
             elif log_type in ["score_participation", "SCORE_PARTICIPATION"]:
-                print("WE ARE IN SCORE PARTICIPATION")
                 self.verified_score = (
                     log.value if hasattr(log, "value") else log["value"]
                 )
-            print("END OF FOR LOOP")
 
     def handle_log_widget_interaction(self, log):
         """abstract method for handling widget interactions"""
-        print("this should be overridden")
-        print("this should be overridden")
-        print("this should be overridden")
-        print("this should be overridden")
         print("this should be overridden")
         pass
 
@@ -202,11 +177,6 @@ class ScoreModule(ABC):
         self.global_modifiers.append(int(val) - 100)
 
     def handle_log_question_answered(self, log):
-        print("WHY ARE YOU BEING CALLED HERER RAHHHHHHHHHHHHH")
-        print("WHY ARE YOU BEING CALLED HERER RAHHHHHHHHHHHHH")
-        print("WHY ARE YOU BEING CALLED HERER RAHHHHHHHHHHHHH")
-        print("WHY ARE YOU BEING CALLED HERER RAHHHHHHHHHHHHH")
-        print("WHY ARE YOU BEING CALLED HERER RAHHHHHHHHHHHHH")
         self.total_questions += 1
         score = self.check_answer(log)
         self.verified_score += score
@@ -214,6 +184,7 @@ class ScoreModule(ABC):
     @abstractmethod
     def check_answer(self, log):
         """abstract method to check answers. implement this in child classes."""
+        print("this should be overridden")
         pass
 
     def calculate_score(self):
@@ -221,9 +192,7 @@ class ScoreModule(ABC):
         print(f"global_mod: {self.global_modifiers}")
         global_mod = sum(self.global_modifiers)
 
-        # Sum up all the scores
-        print(f"self.scores.values is {self.scores.values()}")
-        print(f"self.scores.values is {self.scores.values()}")
+        # sum up all the scores
         print(f"self.scores.values is {self.scores.values()}")
         self.verified_score = sum(self.scores.values())
 
@@ -238,7 +207,6 @@ class ScoreModule(ABC):
         self.calculated_percent = max(0, min(self.calculated_percent, 100))
 
         print(f"[DEBUG] Final Score: {self.calculated_percent}")
-        print("this is in abstract class")
 
     def get_score_report(self) -> object:
         """returns a report of the calculated score"""
@@ -279,8 +247,6 @@ class ScoreModule(ABC):
 
     def get_overview_items(self):
         overview_items = []
-        print("GETTING OVERVIEW ITEMS")
-        print("GETTING OVERVIEW ITEMS")
         overview_items.append(
             {"message": "points lost", "value": self.calculated_percent - 100}
         )
@@ -296,25 +262,24 @@ class ScoreModule(ABC):
         if not self.instance.get_latest_qset():
             print("No qset data found, fetching it now...")
             self.instance.get_qset(timestamp)
-            # self.instance.get_qset(self.instance.id, timestamp)
-            # this is not longer a function
-            # we need to decode this base64
-            # questions_list = self.instance.questions_list
 
-        # if self.instance.qset.data:
         if self.instance.get_latest_qset():
-            # print("\nChecking self.instance.qset.find_questions()...")
             widget_qset = self.instance.get_latest_qset()
+            question_row = widget_qset.flattened_questions.first()
+            if not question_row:
+                raise Exception("No question row found")
+                return
+
+            # questions_list = json.loads(
+            #     base64.b64decode(widget_qset.questions_list).decode()
+            # )
             questions_list = json.loads(
-                base64.b64decode(widget_qset.questions_list).decode()
+                base64.b64decode(question_row.questions_list).decode()
             )
-            # questions_list = self.instance.get_latest_qset().questions
             print(f" Found {len(questions_list)} questions!")
 
             for q in questions_list:
                 print(f" - {q['id']}")
-            # Convert self.questions into a dictionary
-            # self.questions = {q["id"]: q for q in questions_list}
             self.questions = questions_list
             print("self.questions length is ", len(self.questions))
             for question in self.questions:
@@ -322,7 +287,6 @@ class ScoreModule(ABC):
             print("self.questions is : ", self.questions)
             self.questions = {q["id"]: q for q in questions_list}
 
-            # Debug output
             # print("\nAvailable Questions in self.questions:")
             # for qid in self.questions.keys():
             #     print(f" - {qid}")
@@ -330,10 +294,8 @@ class ScoreModule(ABC):
 
     def get_score_details(self):
         table = []
-        print("GETTING SCORE DETAILS")
         for log in self.logs:
             print(f"LOG: {log}")
-            # log_type = log.log_type if hasattr(log, "log_type") else log["type"]
             log_type = (
                 log.log_type if hasattr(log, "log_type") else log["type"]
             ).lower()
@@ -346,7 +308,7 @@ class ScoreModule(ABC):
 
                 item_id = log.item_id if hasattr(log, "item_id") else log["item_id"]
                 if item_id in self.questions:
-                    row = self.details_for_question_answered(log)["data"]
+                    row = self.details_for_question_answered(log)
                     table.append(row)
 
         return [

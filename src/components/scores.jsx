@@ -559,6 +559,7 @@ const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded,
 				)
 				break
 			case STATE_INVALID:
+				console.log("WHY ARE WE INVALID HERE? ERROR: ", errorState)
 				errorStateRender = (
 					<div className="invalid container general">
 						<section className="page score_restrict">

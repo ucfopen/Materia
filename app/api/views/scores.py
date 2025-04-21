@@ -94,7 +94,9 @@ class ScoresApi:
 
         print("getting instance score history")
         # scores = ScoringUtil.get_guest_play_details(play_id, instance)
-        scores = ScoringUtil.get_guest_play_details(request.session, instance, play_id, False)
+        scores = ScoringUtil.get_guest_play_details(
+            request.session, instance, play_id, False
+        )
         print(f"Scores: {scores}")
         if not scores:
             return MsgBuilder.expired().as_json_response()
@@ -138,6 +140,10 @@ class ScoresApi:
             if not play_details:
                 return MsgBuilder.expired().as_json_response()
 
+            print("PLAY DETAILS: ", play_details)
+            print("PLAY DETAILS: ", play_details)
+            print("PLAY DETAILS: ", play_details)
+            print("PLAY DETAILS: ", play_details)
             return JsonResponse(play_details)
         else:
             # Get real play details
@@ -149,6 +155,10 @@ class ScoresApi:
             if not session_play.data.instance.playable_by_current_user(request.user):
                 return MsgBuilder.no_login().as_json_response()
 
+            print("session_play: ", session_play)
+            print("session_play: ", session_play)
+            print("session_play: ", session_play)
+            print("session_play: ", session_play)
             return JsonResponse(ScoringUtil.get_play_details(session_play))
 
     # Gets score distributions (total and by semester) for a widget instance.
@@ -191,4 +201,9 @@ class ScoresApi:
         summaries = summaries.values()
         summaries = sorted(summaries, key=lambda k: k["id"])
 
+        print("SUMMARIES: ", summaries)
+        print("SUMMARIES: ", summaries)
+        print("SUMMARIES: ", summaries)
+        print("SUMMARIES: ", summaries)
+        print("SUMMARIES: ", summaries)
         return JsonResponse({"summaries": summaries})

@@ -213,9 +213,19 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             question_str = base64.b64encode(question_str.encode("utf-8")).decode(
                 "utf-8"
             )
-            validated_data["questions_list"] = question_str
+            # no longer save it to widgetQset
+            # validated_data["questions_list"] = question_str
+            widget_qset = super().create(validated_data)
+            from core.models import Question
 
-        return super().create(validated_data)
+            Question.objects.create(
+                qset=widget_qset,
+                questions_list=base64.b64encode(
+                    json.dumps(questions_list).encode()
+                ).decode("utf-8"),
+            )
+
+        return widget_qset
 
 
 # instance model serializer (inbound | outbound)
@@ -352,7 +362,6 @@ class LogSubmissionSerializer(serializers.Serializer):
             validated_data["item_id"] = str(validated_data["item_id"])
             validated_data["type"] = SessionLogger.get_log_type(validated_data["type"])
             validated_data["text"] = validated_data.get("text", "")
-            # validated_data["value"] = validated_data.get("value", "")
             validated_data["value"] = validated_data.get("value") or ""
 
         return validated_data

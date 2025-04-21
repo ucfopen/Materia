@@ -568,39 +568,22 @@ class PermObjectToUser(models.Model):
 
 class Question(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(
-        User,
-        related_name="questions",
-        on_delete=models.PROTECT,
-        db_column="user_id",
-        blank=True,
+    qset = models.ForeignKey(
+        "WidgetQset",
+        related_name="flattened_questions",
+        on_delete=models.CASCADE,
+        db_column="qset_id",
         null=True,
+        blank=True,
     )
-    type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
-    text = models.TextField()
+    # base 64 encoded json list of questions
+    questions_list = models.TextField()
     created_at = models.DateTimeField(default=datetime.now)
-    _data = models.TextField(blank=True, null=True, db_column="data")
-    hash = models.CharField(unique=True, max_length=32)
-    qset = models.ManyToManyField(
-        "WidgetQset", through=MapQuestionToQset, related_name="questions"
-    )
-
-    @property
-    def data(self) -> dict:
-        decoded_data = base64.b64decode(self._data).decode("utf-8")
-        return json.loads(decoded_data)
-
-    @data.setter
-    def data(self, new_data: dict):
-        self._data = base64.b64encode(json.dumps(new_data).encode("utf-8")).decode(
-            "utf-8"
-        )
 
     class Meta:
         db_table = "question"
         indexes = [
-            models.Index(fields=["hash"], name="question_hash"),
-            models.Index(fields=["type"], name="question_type"),
+            models.Index(fields=["qset"], name="question_qset_idx"),
         ]
 
 
@@ -777,13 +760,6 @@ class WidgetInstance(models.Model):
     def get_latest_qset(self) -> "WidgetQset | None":
         return self.qsets.order_by("-created_at").first()
 
-    def get_questions_list(self) -> "list":
-        latest_qset = self.get_latest_qset()
-        if not latest_qset:
-            raise
-        decoded = WidgetQset.decode_data(latest_qset.data)
-        return QuestionSetSerializer().apply_ids_to_questions(decoded)
-
     def get_qset_for_play(self, play_id=None, is_preview=False):
         if play_id and not is_preview:
             print(f"play id: {play_id}")
@@ -914,7 +890,7 @@ class WidgetQset(models.Model):
     created_at = models.DateTimeField(default=datetime.now)
     data = models.TextField(db_column="data")
     version = models.CharField(max_length=10, blank=True, null=True)
-    questions_list = models.TextField(null=True, blank=True)
+    # questions_list = models.TextField(null=True, blank=True)
 
     @classmethod
     def decode_data(cls, encoded_data) -> dict:
