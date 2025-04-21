@@ -1,11 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useInfiniteQuery } from 'react-query'
-import { apiGetWidgetInstances } from '../../util/api'
-import { iconUrl } from '../../util/icon-url'
+import { apiGetUserPlaySessions } from '../../util/api'
 
 // facilitates paginated requests for widget instances. Returns a flat list with some handlers associated with the query.
 // will default to the current user ("me"), but allows requests for another user id if passed as a param on init or via the exposed setUser method.
-export default function useInstanceList(user) {
+export default function useGetPlaySessions(user, autofetch) {
 
 	const [errorState, setErrorState] = useState(false)
 
@@ -13,7 +12,7 @@ export default function useInstanceList(user) {
 	// this creates a flat list of instances from the paginated list that's subsequently sorted
 	const formatData = (list) => {
 		if (list?.type == 'error') {
-			console.error(`Widget instances failed to load with error: ${list.msg}`);
+			console.error(`Play sessions failed to load with error: ${list.msg}`);
 			setErrorState(true)
 			return []
 		}
@@ -21,21 +20,14 @@ export default function useInstanceList(user) {
 			let dataMap = []
 			return [
 				...dataMap.concat(
-					...list.pages.map(page => page.results.map(instance => {
-						// adding an 'img' property to widget instance objects for continued
-						//  compatibility with any downstream LTIs using the widget picker
-						return {
-							...instance,
-							img: iconUrl(BASE_URL + 'widget/', instance.widget?.dir, 275)
-						}
-					}))
+					...list.pages.map(page => page.results)
 				)
 			]
 		} else return []
 	}
 
-	const getInstances = ({pageParam = 1}) => {
-		return apiGetWidgetInstances(user, pageParam)
+	const getPlaySessions = ({pageParam = 1}) => {
+		return apiGetUserPlaySessions(user, pageParam)
 	}
 
 	const {
@@ -48,8 +40,8 @@ export default function useInstanceList(user) {
 		status,
 		refetch
 	} = useInfiniteQuery({
-		queryKey: ['instances', user],
-		queryFn: getInstances,
+		queryKey: ['user-activity', user],
+		queryFn: getPlaySessions,
 		getNextPageParam: (lastPage, pages) => lastPage.next != null ? lastPage.next.match(/page=([0-9]+)/)[1] : undefined,
 		refetchOnWindowFocus: false
 	})
@@ -59,16 +51,19 @@ export default function useInstanceList(user) {
 	},[error])
 
 	// memoize the instance list since this is a large, expensive query
-	const instances = useMemo(() => formatData(data), [data])
+	const playSessions = useMemo(() => formatData(data), [data])
+
+	console.log(isFetching)
 
 	useEffect(() => {
-		if (hasNextPage) fetchNextPage()
-	},[instances])
+		if (hasNextPage && autofetch) fetchNextPage()
+	},[playSessions])
 
 	return {
-		instances: instances,
-		isFetching: isFetching || hasNextPage,
-		refresh: () => refetch(),
+		plays: playSessions,
+		isFetching: isFetching,
+		hasNextPage: hasNextPage,
+		fetchNextPage: fetchNextPage,
 		...(errorState == true ? {error: true} : {}) // the error value is only provided if errorState is true
 	}
 }

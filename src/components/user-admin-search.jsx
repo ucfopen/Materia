@@ -17,7 +17,7 @@ const UserAdminSearch = ({onClick = () => {}}) => {
 					<img src={user.avatar} alt="user avatar"/>
 				</div>
 				<div className="info-holder">
-					{user.first} {user.last}
+					{user.first_name} {user.last_name}
 				</div>
 			</div>
 		)

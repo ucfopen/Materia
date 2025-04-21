@@ -14,18 +14,18 @@ export default function useUserList(query = "") {
 			return []
 		}
 		if (list?.pages) {
-            let dataMap = []
-            list.pages.forEach(page => {
-                dataMap.push(...page.pagination)
-            })
-            return dataMap
-        }
-
-        return []
+			let dataMap = []
+			return [
+				...dataMap.concat(
+					...list.pages.map(page => page.results)
+				)
+			]
+		}
+		else return []
 	}
 
-	const getData = ({ pageParam = 0 }) => {
-        return apiSearchUsers(query, pageParam)
+	const getData = ({ pageParam = 1 }) => {
+		return apiSearchUsers(query, pageParam)
 	}
 
 	const {

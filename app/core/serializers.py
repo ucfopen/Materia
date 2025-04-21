@@ -23,9 +23,6 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 from util.logging.session_logger import SessionLogger
 
-# from pprint import pformat
-
-
 logger = logging.getLogger("django")
 
 
@@ -502,6 +499,7 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
 
     inst_name = serializers.CharField(source="instance.name", read_only=True)
     widget_name = serializers.CharField(source="instance.widget.name", read_only=True)
+    widget_icon = serializers.SerializerMethodField()
 
     class Meta:
         model = LogPlay
@@ -524,7 +522,11 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
             "created_at",
             "inst_name",
             "widget_name",
+            "widget_icon",
         ]
+
+    def get_widget_icon(self, play):
+        return f"{play.instance.widget.id}-{play.instance.widget.clean_name}{os.sep}"
 
 
 class NotificationsSerializer(serializers.ModelSerializer):

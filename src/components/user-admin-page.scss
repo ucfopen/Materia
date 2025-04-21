@@ -545,6 +545,17 @@
 			border-radius: 10px;
 		}
 	}
+
+	div.error {
+		width: calc(100% - 20px);
+		left: 0;
+		padding: 10px;
+
+		color: #fff;
+		background: $color-red;
+		border-top-left-radius: 5px;
+		border-top-right-radius: 5px;
+	}
 }
 
 .darkMode .support-page {

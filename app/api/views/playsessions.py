@@ -3,6 +3,7 @@
 import logging
 from pprint import pformat
 
+from api.filters import LogPlayFilterBackend
 from core.models import Log, LogPlay
 from core.permissions import HasWidgetInstanceEditAccess
 from core.serializers import (
@@ -12,6 +13,7 @@ from core.serializers import (
     PlaySessionWithExtrasSerializer,
 )
 from django.http import JsonResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -39,28 +41,16 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     #   must have instance play perms to CREATE, PUT play log
     permission_classes = [permissions.IsAuthenticated, HasWidgetInstanceEditAccess]
     pagination_class = PlaySessionPagination
+    filter_backends = [LogPlayFilterBackend, DjangoFilterBackend]
+
+    queryset = LogPlay.objects.all()
 
     # we only need extras (widget name, inst name) when on the profile page
     def get_serializer_class(self):
-        if self.request.query_params.get("include_activity"):
+        if self.request.query_params.get("include_activity", "false").lower() == "true":
             return PlaySessionWithExtrasSerializer
         else:
             return PlaySessionSerializer
-
-    queryset = LogPlay.objects.none()
-
-    # default queryset returns all plays for the current user
-    # inst and widget names are only included via ?include_activity=true
-    def get_queryset(self):
-        if "pk" in self.kwargs:
-            return LogPlay.objects.get(pk=self.kwargs["pk"])
-        else:
-            if self.request.query_params.get("include_activity"):
-                return LogPlay.objects.select_related(
-                    "instance", "instance__widget"
-                ).filter(user=self.request.user)
-            else:
-                return LogPlay.objects.filter(user=self.request.user)
 
     def create(self, request):
         serializer = PlaySessionCreateSerializer(

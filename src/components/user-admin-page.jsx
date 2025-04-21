@@ -23,20 +23,13 @@ const UserAdminPage = () => {
 		}
 	})
 
-	const { data: userFromHash } = useQuery({
-		queryKey: ['search-users', userHash],
+	const { data: userFromHash, refetch: refetchFromHash } = useQuery({
+		queryKey: ['user', userHash],
 		queryFn: () => apiGetUsers([userHash]),
-		enabled: userHash != undefined && userHash != selectedUser?.id,
-		placeholderData: null,
+		enabled: userHash != undefined,
+		placeholderData: undefined,
 		staleTime: Infinity,
-		retry: false,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				window.location.href = '/login'
-			} else {
-				setError((err.message || "Error") + ": Failed to retrieve user(s).")
-			}
-		}
+		retry: false
 	})
 
 	useEffect(() => {
@@ -47,12 +40,21 @@ const UserAdminPage = () => {
 
 	useEffect(() => {
 		if (userFromHash && userFromHash[userHash]) {
+			setError('')
 			setSelectedUser(userFromHash[userHash])
+		}
+		else if (userFromHash != undefined) {
+			setError("Failed to retrieve user.")
+			setSelectedUser(null)
 		}
 	},[userFromHash])
 
+	useEffect(() => {
+		if (userHash && userHash != selectedUser?.id) refetchFromHash()
+	},[userHash])
+
 	const listenToHashChange = () => {
-		const match = window.location.hash.match(/#([0-9])$/)
+		let match = window.location.hash.match(/#([0-9]+)$/)
 		if (match != undefined && match[1] != undefined) setUserHash(match[[1]])
 	}
 
@@ -66,10 +68,11 @@ const UserAdminPage = () => {
 	}
 
 	let pageRenderContent = <UserAdminSearch onClick={handleUserSelect}/>
+	let errorContent = <></>
 	if (error) {
-		pageRenderContent = <div className="error">{error}</div>
+		errorContent = <div className="error">{error}</div>
 	}
-	else if (selectedUser) pageRenderContent = <UserAdminSelected selectedUser={selectedUser} currentUser={currentUser} onReturn={() => setSelectedUser(null)}></UserAdminSelected>
+	if (selectedUser) pageRenderContent = <UserAdminSelected selectedUser={selectedUser} currentUser={currentUser} onReturn={() => setSelectedUser(null)}></UserAdminSelected>
 
 	return (
 		<>
@@ -77,6 +80,7 @@ const UserAdminPage = () => {
 			<div className="support-page">
 				<div>
 					{ pageRenderContent }
+					{errorContent}
 				</div>
 			</div>
 		</>

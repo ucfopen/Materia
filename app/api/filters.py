@@ -1,6 +1,10 @@
+import logging
+
 from core.models import Asset, ObjectPermission, WidgetInstance
 from django.db.models import Q
 from rest_framework import filters
+
+logger = logging.getLogger("django")
 
 
 class AssetFilterBackend(filters.BaseFilterBackend):
@@ -47,3 +51,29 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
             )
 
         return queryset.order_by("-created_at")
+
+
+class LogPlayFilterBackend(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        pk = view.kwargs.get("pk")
+        user = request.user
+        user_query = request.query_params.get("user")
+
+        # user is requesting their own logs
+        if user_query == "me":
+            return queryset.filter(user=user).order_by("-created_at")
+        # user is requesting an arbitrary user's logs: requires elevated perms or self
+        elif user_query is not None:
+            if (
+                user.is_superuser
+                or user.groups.filter(name="support_user").exists()
+                or str(user.id) == user_query
+            ):
+                return queryset.filter(user=user_query).order_by("-created_at")
+            else:
+                return queryset.none()
+
+                # user wants ALL the logs
+        elif pk is None and user_query is None:
+            # NEVER return every play log in the DB !!!!!!
+            return queryset.none()

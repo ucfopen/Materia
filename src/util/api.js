@@ -59,9 +59,8 @@ const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
 
 
-export const apiGetWidgetInstances = ({ pageParam = 1 }) => {
-	return fetch(`/api/instances/?user=me&page=${pageParam}`)
-	.then(resp => resp.json())
+export const apiGetWidgetInstances = (user, pageParam) => {
+	return fetchGet(`/api/instances/?user=${user}&page=${pageParam}`)
 }
 
 export const apiGetWidgetInstance = (instId, getDeleted=false) => {
@@ -85,7 +84,7 @@ export const apiGetUserWidgetInstances = (page_number = 0) => {
 }
 
 export const apiGetInstancesForUser = userId => {
-	return fetchGet(`/api/admin/user/${userId}`)
+	return fetchGet(`/api/instances/?user=${userId}`)
 }
 
 export const apiGetWidgetsByType = (widgetType="default") => {
@@ -153,13 +152,6 @@ export const apiSaveWidget = (_params) => {
 
 export const apiGetUser = (user = 'me') => {
 	return fetchGet(`/api/users/${user}/`)
-		.then((data) => {
-			return {
-				...data,
-				first: data.first_name,
-				last: data.last_name
-			}
-		})
 }
 
 export const apiGetUsers = arrayOfUserIds => {
@@ -195,8 +187,8 @@ export const apiDeleteNotification = (data) => {
 	return fetchPost('/api/notifications/delete/', { body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` })
 }
 
-export const apiSearchUsers = (input = '', page_number = 0) => {
-	return fetchPost('/api/json/users_search', { body: `data=${formatFetchBody([input, page_number])}` })
+export const apiSearchUsers = (input = '', pageParam = 1) => {
+	return fetchGet(`/api/users/?search=${input}&pageParam=${pageParam}`)
 }
 
 export const apiGetUserPermsForInstance = instId => {
@@ -447,10 +439,8 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 
 /** Controller_Api_User */
 
-export const apiGetUserPlaySessions = ({pageParam = 1}) => {
-	return fetch(`/api/play-sessions/?include_activity=true&page=${pageParam}`)
-		.then(resp => resp.json())
-		.then(data => data)
+export const apiGetUserPlaySessions = (user, pageParam = 1) => {
+	return fetchGet(`/api/play-sessions/?user=${user}&include_activity=true&page=${pageParam}`)
 }
 
 export const apiUpdateUserSettings = (settings) => {
