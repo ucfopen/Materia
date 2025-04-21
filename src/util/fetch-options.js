@@ -1,6 +1,6 @@
 import {getCSRFToken} from "./api";
 
-const fetchWriteOptions = (method, {body = null} = {}) => ({
+const fetchWriteOptions = (method, {body = {}} = {}) => ({
 	'headers': {
 		'cache-control': 'no-cache',
 		'pragma': 'no-cache',

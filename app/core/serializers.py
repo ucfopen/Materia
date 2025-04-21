@@ -21,6 +21,7 @@ from django.utils.text import slugify
 from rest_framework import serializers, status
 from rest_framework.response import Response
 from util.logging.session_logger import SessionLogger
+from util.perm_manager import PermManager
 
 # from pprint import pformat
 
@@ -39,6 +40,10 @@ class AssetSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
     profile_fields = serializers.SerializerMethodField()
+    is_student = serializers.SerializerMethodField()
+
+    def get_is_student(self, user):
+        return PermManager.user_is_student(user)
 
     def get_avatar(self, user):
         clean_email = user.email.strip().lower().encode("utf-8")
@@ -51,7 +56,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "email", "avatar", "profile_fields"]
+        fields = ["id", "first_name", "last_name", "email", "avatar", "profile_fields", "is_student"]
 
 
 # User metadata (profile fields) serializer (inbound)
@@ -602,6 +607,17 @@ class PromptGenerationRequestSerializer(serializers.Serializer):
 class WidgetInstanceCopyRequestSerializer(serializers.Serializer):
     new_name = serializers.ModelField(model_field=WidgetInstance()._meta.get_field("name"))
     copy_existing_perms = serializers.BooleanField(required=False, default=False)
+
+
+# Used for incoming requests to update perms. Does not map to a model.
+class PermsUpdateRequestItemSerializer(serializers.Serializer):
+    expiration = serializers.DateTimeField(required=False, allow_null=True, default=None)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    perm_level = serializers.ChoiceField(choices=ObjectPermission.PERMISSION_CHOICES, allow_null=True)
+
+
+class PermsUpdateRequestListSerializer(serializers.Serializer):
+    updates = serializers.ListField(child=PermsUpdateRequestItemSerializer())
 
 
 class ObjectPermissionSerializer(serializers.ModelSerializer):

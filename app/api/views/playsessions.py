@@ -2,7 +2,6 @@ import logging
 from pprint import pformat
 
 from core.models import Log, LogPlay
-from core.permissions import HasWidgetInstanceEditAccess
 from core.serializers import (
     PlayLogUpdateSerializer,
     PlaySessionCreateSerializer,
@@ -39,7 +38,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     # TODO permissions checks:
     #   must have instance edit perms to access all logs associated with an instance
     #   must have instance play perms to CREATE, PUT play log
-    permission_classes = [permissions.IsAuthenticated, HasWidgetInstanceEditAccess]
+    permission_classes = [permissions.IsAuthenticated]
     pagination_class = PlaySessionPagination
 
     # we only need extras (widget name, inst name) when on the profile page

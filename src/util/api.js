@@ -48,11 +48,11 @@ export const handleErrors = async resp => {
 	return data
 }
 
-const fetchPost = (url, options = null) => fetch(url, fetchWriteOptions("POST", options)).then(handleErrors)
-const fetchPut = (url, options = null) => fetch(url, fetchWriteOptions("PUT", options)).then(handleErrors)
-const fetchPatch = (url, options = null) => fetch(url, fetchWriteOptions("PATCH", options)).then(handleErrors)
+const fetchPost = (url, options = {}) => fetch(url, fetchWriteOptions("POST", options)).then(handleErrors)
+const fetchPut = (url, options = {}) => fetch(url, fetchWriteOptions("PUT", options)).then(handleErrors)
+const fetchPatch = (url, options = {}) => fetch(url, fetchWriteOptions("PATCH", options)).then(handleErrors)
 const fetchGet = (url) => fetch(url).then(handleErrors)
-const fetchDelete = (url, options = null) => fetch(url, fetchWriteOptions("DELETE", options)).then(handleErrors)
+const fetchDelete = (url, options = {}) => fetch(url, fetchWriteOptions("DELETE", options)).then(handleErrors)
 
 // Helper function to simplify encoding fetch body values
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
@@ -166,8 +166,9 @@ export const apiGetUser = (user = 'me') => {
 		})
 }
 
-export const apiGetUsers = arrayOfUserIds => {
-	return fetchGet('/api/users/')
+export const apiGetUsers = (arrayOfUserIds = []) => {
+	const params = new URLSearchParams({ ids: arrayOfUserIds })
+	return fetchGet(`/api/users/?${params}`)
 		.then(users => {
 			const keyedUsers = {}
 			if (Array.isArray(users)) {
@@ -195,8 +196,9 @@ export const apiDeleteNotification = (data) => {
 	return fetchPost('/api/notifications/delete/', { body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` })
 }
 
-export const apiSearchUsers = (input = '', page_number = 0) => {
-	return fetchPost('/api/json/users_search', { body: `data=${formatFetchBody([input, page_number])}` })
+export const apiSearchUsers = (input = '', page_number = 1) => {
+	const params = new URLSearchParams({ query: input, page: page_number })
+	return fetchGet(`/api/users/search/?${params}`)
 }
 
 export const apiGetUserPermsForInstance = instId => {
@@ -205,7 +207,7 @@ export const apiGetUserPermsForInstance = instId => {
 }
 
 export const apiSetUserInstancePerms = ({ instId, permsObj }) => {
-	return fetchPost('/api/json/permissions_set', { body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId, permsObj])}` })
+	return fetchPut(`/api/instances/${instId}/perms/`, { body: { updates: permsObj } })
 }
 
 export const apiCanEditWidgets = arrayOfWidgetIds => {
