@@ -997,8 +997,21 @@ class WidgetInstance(models.Model):
 
         # Copy perms, if requested
         if copy_exiting_perms:
-            # TODO implement once we figure out object-level perms
-            pass
+            existing_perms = self.permissions.all()
+            for existing_perm in existing_perms:
+                dupe.permissions.create(
+                    user=existing_perm.user,
+                    permission=existing_perm.permission,
+                    expires_at=existing_perm.expires_at,
+                )
+
+        # Otherwise, just give the requesting user FULL perms to this dupe
+        else:
+            dupe.permissions.create(
+                user=owner,
+                permission=ObjectPermission.PERMISSION_FULL,
+                expires_at=None
+            )
 
         return dupe
 

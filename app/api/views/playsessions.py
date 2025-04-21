@@ -16,7 +16,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from util.logging.session_play import SessionPlay
 from util.custom_paginations import PageNumberWithTotalPagination
-from util.logging.play_data_exporter import PlayDataExporter
 from util.message_util import MsgBuilder
 from util.perm_manager import PermManager
 
@@ -63,8 +62,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         if inst_id is not None:
             semester = self.request.query_params.get("semester", "all")
             year = self.request.query_params.get("year", "all")
-            is_student = PermManager.user_is_student(self.request.user)
-            return PlayDataExporter.get_all_plays_for_instance(inst_id, semester, year, is_student)
+            return SessionPlay.get_all_plays_for_instance(inst_id, semester, year)
         else:
             if self.request.query_params.get("include_activity"):
                 return LogPlay.objects.select_related(
