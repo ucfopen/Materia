@@ -77,6 +77,11 @@ services:
       - frontend
       - backend
 
+  redis:
+    image: redis:3.2
+    networks:
+      - backend
+
 volumes:
   # static_files: {} # compiled js/css and uploaded widgets
   uploaded_media: {} # uploaded media files
