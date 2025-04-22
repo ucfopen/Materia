@@ -89,7 +89,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             permission_classes = [HasFullPermsOrElevated]
 
         # User must have full perms and lock to edit
-        elif self.action == "update":
+        elif self.action == "update" or self.action == "partial_update":
             permission_classes = [HasFullInstancePermsAndLockOrElevated]
 
         # Anyone can play a widget and get its qset
@@ -247,7 +247,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         serialized.is_valid(raise_exception=True)
         return Response(serialized.data)
 
-    # TODO PUT action NYI
     @action(
         detail=True,
         methods=["get", "put"],
