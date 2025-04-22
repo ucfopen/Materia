@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_filters",
     "rest_framework",
     # apps
     "core",
@@ -178,5 +179,7 @@ SEMESTERS = [
 ]
 
 USER_SETTINGS_CACHE_TIMEOUT = 3600
-
+PLAYDATA_EXPORTER_CACHE_TIMEOUT = 120
 LOCK_TIMEOUT = 120
+
+LOGIN_URL = "/login/"

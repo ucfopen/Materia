@@ -170,9 +170,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		enabled: !!instance.id,
 		staleTime: Infinity,
 		retry: false,
-		onSuccess: (success) => {
-			if (!success) {
-				onInitFail('Someone else is editing this widget, you will be able to edit after they finish.')
+		onSuccess: (lock_obtained) => {
+			if (!lock_obtained) {
+				onInitFail({ message: 'Someone else is editing this widget, you will be able to edit after they finish.' })
 			}
 		},
 		onError: (error) => {

@@ -84,8 +84,9 @@ class MsgBuilder:
     def failure(
         title: str = "Action Failed",
         msg: str = "The requested action could not be completed",
+        status: int = 403
     ) -> Msg:
-        return Msg(title, msg, MsgType.FAILURE, MsgSeverity.ERROR, False, 403)
+        return Msg(title, msg, MsgType.FAILURE, MsgSeverity.ERROR, False, status)
 
     @staticmethod
     def not_found(

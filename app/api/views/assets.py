@@ -1,101 +1,48 @@
 import logging
 from datetime import datetime
 
-from core.models import Asset, PermObjectToUser
+from api.filters import AssetFilterBackend
+from core.models import Asset
+from core.permissions import HasPermsOrElevatedAccess
 from core.serializers import AssetSerializer
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from util.widget.asset.manager import AssetManager
+from util.message_util import MsgBuilder
 
 logger = logging.getLogger("django")
 
 
-class AssetViewSet(viewsets.ViewSet):
+class AssetViewSet(viewsets.ModelViewSet):
     queryset = Asset.objects.all()
     serializer_class = AssetSerializer
+    permission_classes = [HasPermsOrElevatedAccess]
 
-    def get_queryset(self):
-        return AssetManager.get_assets_by_user(
-            self.request.user.id, PermObjectToUser.Perm.FULL.value
-        )
+    filter_backends = [AssetFilterBackend, DjangoFilterBackend]
 
-    @action(detail=False, methods=["GET"])
-    def all(self, request):
-        assets = self.get_queryset()
-        serialized = self.serializer_class(assets, many=True)
-        return Response(serialized.data)
-
-    @action(detail=True, methods=["DELETE"])
-    def delete(self, request, pk=None):
+    def destroy(self, request, pk=None):
+        asset = self.get_object()
         try:
-            try:
-                PermObjectToUser.objects.get(
-                    user=request.user, object_id=pk, perm=PermObjectToUser.Perm.FULL
-                )
-            except PermObjectToUser.DoesNotExist:
-                return Response(
-                    {
-                        "detail": "User does not own asset.",
-                        "status": status.HTTP_403_FORBIDDEN,
-                    }
-                )
 
-            try:
-                asset_obj = Asset.objects.get(id=pk)
-                asset_obj.is_deleted = True
-                asset_obj.deleted_at = datetime.now()
-                asset_obj.save()
+            asset.is_deleted = True
+            asset.deleted_at = datetime.now()
+            asset.save()
 
-                return Response(
-                    {"detail": "Asset deleted.", "status": status.HTTP_200_OK}
-                )
+            return Response({"detail": "Asset deleted.", "status": status.HTTP_200_OK})
 
-            except Asset.DoesNotExist:
-                return Response(
-                    {"detail": "Asset does not exist.", "status": status.HTTP_410_GONE}
-                )
         except Exception:
-            return Response(
-                {
-                    "detail": "Asset not deleted.",
-                    "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                }
-            )
+            return MsgBuilder.failure().as_drf_response()
 
-    @action(detail=True, methods=["PATCH"])
+    @action(detail=True, methods=["POST"])
     def restore(self, request, pk=None):
+        asset = self.get_object()
         try:
-            try:
-                PermObjectToUser.objects.get(
-                    user=request.user, object_id=pk, perm=PermObjectToUser.Perm.FULL
-                )
-            except PermObjectToUser.DoesNotExist:
-                return Response(
-                    {
-                        "detail": "User does not own asset.",
-                        "status": status.HTTP_403_FORBIDDEN,
-                    }
-                )
+            asset.is_deleted = False
+            asset.deleted_at = None
+            asset.save()
 
-            try:
-                asset_obj = Asset.objects.get(id=pk)
-                asset_obj.is_deleted = False
-                asset_obj.deleted_at = None
-                asset_obj.save()
+            return Response({"detail": "Asset restored.", "status": status.HTTP_200_OK})
 
-                return Response(
-                    {"detail": "Asset restored.", "status": status.HTTP_200_OK}
-                )
-
-            except Asset.DoesNotExist:
-                return Response(
-                    {"detail": "Asset does not exist.", "status": status.HTTP_410_GONE}
-                )
         except Exception:
-            return Response(
-                {
-                    "detail": "Asset not restored.",
-                    "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                }
-            )
+            return MsgBuilder.failure().as_drf_response()

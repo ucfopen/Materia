@@ -22,7 +22,7 @@ from core.views import profile as profile_views
 from core.views.catalog import CatalogView
 from core.views.media import MediaImportView, MediaRender, MediaUpload
 from core.views.my_widgets import MyWidgetsView
-from core.views.scores import ScoresView
+from core.views.scores import ScoresView, ScoresViewSingle
 from core.views.widget import (
     WidgetCreatorView,
     WidgetDemoView,
@@ -112,6 +112,12 @@ urlpatterns = [
         ScoresView.as_view(),
         name="scores",
     ),
+    path(
+        "scores/single/<slug:widget_instance_id>/<slug:play_id>/",
+        ScoresViewSingle.as_view(),
+        name="single score"
+    ),
+
     # API (TODO: improve API routing, retire api/json)
     path("api/", include("api.urls.api_urls")),
     # path("api/user/activity", UsersApi.activity),

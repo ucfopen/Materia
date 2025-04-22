@@ -1,8 +1,17 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING, Type
+
+from django.db import models
+from django.db.models import QuerySet
+
 import logging
 
 from django.contrib.auth.models import User, AnonymousUser
 
 logger = logging.getLogger("django")
+
+if TYPE_CHECKING:
+    from core.models import WidgetInstance
 
 
 class PermManager:
@@ -24,7 +33,7 @@ class PermManager:
         if type(roles) is str:
             roles = [roles]
 
-        # Empty list of rolls, just return true
+        # Empty list of roles, just return true
         if not roles:
             return True
 
@@ -32,13 +41,33 @@ class PermManager:
         return user.groups.filter(name__in=roles).exists()
 
     @staticmethod
-    def get_all_objects_of_type_for_user(user_id, object_type, perms):
-        # dodging circular import errors, else this would be at the top of the file
-        from core.models import PermObjectToUser
+    def get_all_objects_of_type_for_user[T: Type[models.Model]](
+            obj: T, user: User | str | int, perms: list[str]
+    ) -> QuerySet[T]:
+        if len(perms) <= 0:
+            return obj.objects.none()
 
-        if len(perms) > 0 and isinstance(perms, list):
-            query_perms = list(map(str, perms))
+        from core.models import ObjectPermission
+        all_ids = (ObjectPermission.objects
+                   .filter(user=user, content_type=obj.content_type, permission__in=perms)
+                   .values("object_id"))
+        return obj.objects.filter(pk__in=all_ids)
 
-            return PermObjectToUser.objects.filter(
-                object_type=object_type, user_id=user_id, perm__in=query_perms
-            )
+    @staticmethod
+    def clear_all_perms_for_object(obj: Type[models.Model]):
+        if hasattr(obj, "permissions"):
+            obj.permissions.all().delete()
+
+    @staticmethod
+    def is_superuser_or_elevated(user: User) -> bool:
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.is_superuser or user.groups.filter(name="support_user").exists()
+
+    # Sets permissions for every asset linked to an instance
+    # If a user already has FULL perms for an asset, changes are ignored
+    @staticmethod
+    def set_user_asset_perms_for_instance(user: User, instance: WidgetInstance, perm: str, expires: str = None):
+        pass
+        # TODO this needs to be implemented, probably once we figure out how MapAssetToObject will actually work

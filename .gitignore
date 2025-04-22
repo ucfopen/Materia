@@ -85,6 +85,7 @@ materia-pkg-build-info.yml
 
 yarn-error.log
 
+public/rest_framework
 public/dist/*
 !public/dist/package.json
 !public/dist/path.js

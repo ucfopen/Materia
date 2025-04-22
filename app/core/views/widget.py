@@ -87,7 +87,7 @@ class WidgetPreviewView(MateriaLoginMixin, TemplateView):
 
         # Check if widget is playable
         if not widget_instance.playable_by_current_user(self.request.user):
-            return _create_draft_not_playable_page(self.request)
+            return _create_draft_not_playable_page(request=self.request)
 
         # return _display_widget(instance=widget_instance, is_embedded=False)
         return _create_player_page(
@@ -208,7 +208,7 @@ def _create_player_page(
 
     if not instance_status["is_open"]:
         return _create_widget_login_page(instance, request, is_embedded, is_preview)
-    if not is_demo and instance.is_draft:
+    if not is_preview and instance.is_draft:
         return _create_draft_not_playable_page(request)
     if not is_demo and not instance.widget.is_playable:
         return _create_widget_retired_page(request, is_embedded)
@@ -236,6 +236,7 @@ def _display_widget(
             "DEMO_ID": instance.id,
             "WIDGET_WIDTH": instance.widget.width,
             "WIDGET_HEIGHT": instance.widget.height,
+            "MEDIA_URL": settings.URLS["MEDIA_URL"],
         },
         request=request,
     )

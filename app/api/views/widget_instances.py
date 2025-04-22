@@ -1,25 +1,33 @@
 import logging
 
-from core.models import LogPlay, PermObjectToUser, Widget, WidgetInstance, WidgetQset
+from django.http import HttpResponse
+
+from api.filters import UserInstanceFilterBackend
+from core.models import LogPlay, WidgetInstance, WidgetQset, LogActivity
 from core.permissions import (
     CanCreateWidgetInstances,
-    HasWidgetInstanceEditAccessOrReadOnly,
-    IsSuperuser, HasWidgetInstanceEditAccess,
+    HasPermsOrElevatedAccess,
+    IsSuperOrSupportUser, HasFullPermsOrElevated, HasFullPermsOrElevatedOrReadOnly,
+    HasFullInstancePermsAndLockOrElevated, DenyAll,
 )
 from core.serializers import (
+    ObjectPermissionSerializer,
     PlayIdSerializer,
     QuestionSetSerializer,
     ScoreSummarySerializer,
     WidgetInstanceSerializer,
-    WidgetInstanceSerializerNoIdentifyingInfo,
+    WidgetInstanceSerializerNoIdentifyingInfo, WidgetInstanceCopyRequestSerializer, PermsUpdateRequestListSerializer,
 )
-from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
+from util.logging.play_data_exporter import PlayDataExporter
+from util.message_util import MsgBuilder, Msg
 from util.perm_manager import PermManager
 from util.widget.instance.instance_util import WidgetInstanceUtil
 
@@ -40,52 +48,57 @@ class WidgetInstancePagination(PageNumberPagination):
 class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     pagination_class = WidgetInstancePagination
+    filter_backends = [UserInstanceFilterBackend, DjangoFilterBackend]
 
+    # queryset filtering managed via UserInstanceFilterBackend
     def get_queryset(self):
-        # If user param is specified, return that user's instances. Otherwise, return all.
-        # Make sure the user cannot access other user's lists of instances (unless superuser)
-        user = self.request.user
-        user_query = self.request.query_params.get("user")
-        if user_query is not None and user_query == "me":
-            return WidgetInstance.objects.filter(user=user).order_by("-created_at")
-        elif user_query is not None and (
-            user.is_superuser or str(user.id) == user_query
-        ):
-            return WidgetInstance.objects.filter(user=user_query).order_by(
-                "-created_at"
-            )
-        elif user_query is not None:
-            return WidgetInstance.objects.none()
-        else:
-            return WidgetInstance.objects.all()
+        return WidgetInstance.objects.all()
 
     def get_permissions(self):
         user_query = self.request.query_params.get("user")
-        play_id = self.request.query_params.get("play_id")
+        # play_id = self.request.query_params.get("play_id")
 
         # Require special perms for list
         if self.action == "list":
-            # Allow all if user is superuser
+            # Allow all if user is superuser or support user
             if user_query is None:
-                permission_classes = [IsSuperuser]
+                permission_classes = [IsSuperOrSupportUser]
             # Otherwise, just make sure the user is authenticated. Do not allow reading if not. The queryset already
             # only contain this user's instances if they have requested their own.
             else:
                 permission_classes = [IsAuthenticated]
 
+        # must have (any) access to instance or elevated perms
+        # TODO: question_sets can't be restricted in this way, but we may want more context-sensitive authorization
+        elif (self.action == "scores"
+              or self.action == "copy"
+              or self.action == "export_playdata"
+        ):
+            permission_classes = [HasPermsOrElevatedAccess]
+
+        # any authenticated user can ask what users have what perms on an instance - but only owners can update perms
+        elif self.action == "perms":
+            permission_classes = [HasFullPermsOrElevatedOrReadOnly]
+
         # Special perms for creation
         elif self.action == "create":
             permission_classes = [CanCreateWidgetInstances]
 
-        # A valid play ID grants access
-        elif self.action == "get" and play_id is not None:
-            permission_classes = [IsAuthenticated]
+        # User needs full perms to delete or lock widget
+        elif self.action == "destroy" or self.action == "lock":
+            permission_classes = [HasFullPermsOrElevated]
 
-        # All other actions have default perms
+        # User must have full perms and lock to edit
+        elif self.action == "update":
+            permission_classes = [HasFullInstancePermsAndLockOrElevated]
+
+        # Anyone can play a widget and get its qset
+        elif self.action == "question_sets" or self.action == "retrieve":
+            permission_classes = [AllowAny]
+
+        # Catch all just to block anything else
         else:
-            permission_classes = [
-                IsAuthenticatedOrReadOnly & HasWidgetInstanceEditAccessOrReadOnly
-            ]
+            permission_classes = [DenyAll]
 
         return [permission() for permission in permission_classes]
 
@@ -115,12 +128,15 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             raise ValidationError("You cannot publish this widget")
 
         # Add and override some additional info, including user and student status stuffs
-        serializer.save(
+        new_instance = serializer.save(
             user=self.request.user,
             is_student_made=is_student,
             guest_access=is_student,
             attempts=-1,
         )
+
+        # add the permission record for the instance owner
+        new_instance.permissions.create(user=self.request.user, permission="full")
 
     def perform_update(self, serializer):
         instance = self.get_object()
@@ -148,6 +164,27 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # TODO create session_activities for each updated field? see original PHP code
 
         serializer.save()
+
+    def perform_destroy(self, instance):
+        instance = self.get_object()
+
+        # Clear all permissions on the object
+        PermManager.clear_all_perms_for_object(instance)
+
+        # TODO send event trigger
+
+        # Set deleted flag
+        instance.is_deleted = True
+        instance.save()
+
+        # Create activity log
+        LogActivity.objects.create(
+            user=self.request.user,
+            type=LogActivity.TYPE_DELETE_WIDGET,
+            item_id=instance.id,
+            value_1=instance.name,
+            value_2=instance.widget.id,
+        )
 
     # /api/instances/<inst id>/question_sets/
     # ?latest=true GET param for only the latest qset
@@ -185,9 +222,15 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     # /api/instances/<inst id>/lock/
-    @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated & HasWidgetInstanceEditAccess])
+    @action(
+        detail=True,
+        methods=["get"],
+    )
     def lock(self, request, pk=None):
-        return Response({"lock_obtained": WidgetInstanceUtil.get_lock(pk, request.user)})
+        instance = self.get_object()
+        return Response(
+            {"lock_obtained": WidgetInstanceUtil.get_lock(instance.id, request.user)}
+        )
 
     @action(detail=True, methods=["get"])
     def scores(self, request, pk=None):
@@ -204,14 +247,115 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         serialized.is_valid(raise_exception=True)
         return Response(serialized.data)
 
-    # TODO this is a temp response until instance permissions comes fully online
-    @action(detail=True, methods=["get", "put"])
+    # TODO PUT action NYI
+    @action(
+        detail=True,
+        methods=["get", "put"],
+    )
     def perms(self, request, pk=None):
-        return Response(
-            {
-                "user_perms": {request.user.id: [PermObjectToUser.Perm.FULL, None]},
-                "widget_user_perms": {
-                    request.user.id: [PermObjectToUser.Perm.FULL, None]
-                },
-            }
-        )
+        instance = self.get_object()
+
+        if request.method == "GET":
+            permissions = instance.permissions.all()
+            serialized = ObjectPermissionSerializer(permissions, many=True)
+            return Response(serialized.data)
+        elif request.method == "PUT":
+            # Verify request data
+            request_serializer = PermsUpdateRequestListSerializer(data=request.data)
+            if not request_serializer.is_valid():
+                return Response(request_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            # Go through each perm request and process it
+            refusals = []
+            for update in request_serializer.validated_data.get("updates", []):
+                user = update["user"]
+                perm_level = update["perm_level"]
+                expiration = update["expiration"]
+
+                # TODO: there should be a check here to make sure a user can't assign greater perms than what they
+                #       current have. this was easier when perms were int-based, but not so much now.
+                #       though, im not sure if it even matters - because to use this endpoint, a user must have FULL
+                #       perms anyway (and i dont imagine there being a perm greater than FULL)
+
+                # If perm_level is null, delete the perm entry
+                if perm_level is None:
+                    instance.permissions.filter(user=user).delete()
+                    continue
+
+                # If this user is a student, make sure we can only give them perms if this instance is in guest mode
+                if PermManager.user_is_student(user):
+                    if not instance.guest_access:
+                        refusals.append(user)
+                        continue
+
+                    # Additionally, if this user is a student, give them view access to all assets of this instance
+                    # TODO smth abt this doesnt sound right - shouldn't we be giving perms to everyone?
+                    #      maybe i just dont understand how asset perms work
+                    PermManager.set_user_asset_perms_for_instance(user, instance, perm_level)
+
+                # Otherwise, update or create that perm
+                instance.permissions.update_or_create(
+                    user=user,
+                    defaults={"permission": perm_level, "expires_at": expiration}
+                )
+
+                # TODO send a notification here
+
+            # If there was a refusal, return a message
+            if len(refusals) > 0:
+                return MsgBuilder.student_collab().as_drf_response()
+
+            # Otherwise, return success
+            return Response({"success": True})
+
+    @action(detail=True, methods=["put"])
+    def copy(self, request, pk=None):
+        request_serializer = WidgetInstanceCopyRequestSerializer(data=request.data)
+        if not request_serializer.is_valid():
+            return Response(request_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        name = request_serializer.validated_data.get("new_name")
+        copy_existing_perms = request_serializer.validated_data.get("copy_existing_perms")
+
+        instance = self.get_object()
+        try:
+            duplicate = instance.duplicate(request.user, name, copy_existing_perms)
+        except Exception as e:
+            logger.error("Failed to copy widget instance:")
+            logger.error(e)
+            return MsgBuilder.failure(msg="Widget instance could not be copied.").as_drf_response()
+
+        return Response(WidgetInstanceSerializer(duplicate).data)
+
+    # WAS /data/export/
+    # This endpoint can be visited directly and the file will download, or can be called like a normal API endpoint
+    @action(detail=True, methods=["get"])
+    def export_playdata(self, request, pk=None):
+        # Get and validate query params
+        export_type = request.query_params.get("type", None)
+        semester_ids = request.query_params.get("semesters", "")
+
+        if export_type is None:
+            return MsgBuilder.invalid_input(msg="Missing export_type query parameter").as_drf_response()
+
+        # TODO original code required user to have FULL perms, not just edit perms. come back around to this
+        #      once we have object level perms done
+
+        instance = self.get_object()
+        is_student = PermManager.user_is_student(request.user)
+
+        result, file_ext = PlayDataExporter.export(instance, export_type, semester_ids, is_student)
+        if type(result) is Msg:
+            return result.as_drf_response()
+
+        # technically supposed to use DRF's Response here, but it adds additional processing that makes switching
+        # between different file formats (strings like CSVs, blobs like ZIP files, etc.) more difficult
+        resp = HttpResponse(result)
+        resp["Pragma"] = "public"
+        resp["Expires"] = "0"
+        resp["Cache-Control"] = "must-revalidate, post-check=0, pre-check=0"
+        resp["Content-Type"] = "application/force-download"
+        resp["Content-Type"] = "application/octet-stream"
+        resp["Content-Type"] = "application/download"
+        resp["Content-Disposition"] = f"attachment; filename=\"export_{instance.name}.{file_ext}\""
+        return resp

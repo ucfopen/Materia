@@ -5,6 +5,8 @@
 
 # figure out how to get images working
 
+import os
+
 STATIC_URL = "/static/"
 STATIC_ROOT = "./staticfiles/"
 
@@ -22,9 +24,24 @@ LOGIN_LINKS = [
 # ]
 
 URLS = {
-    "BASE_URL": "http://localhost:420/",
-    "MEDIA_URL": "http://localhost:420/media/",
-    "MEDIA_UPLOAD_URL": "http://localhost:420/media/upload",
-    "WIDGET_URL": "http://localhost:420/widget/",
-    "STATIC_CROSSDOMAIN": "http://localhost:420/",
+    "BASE_URL": os.environ.get(
+        "BASE_URL",
+        "http://localhost/",
+    ),
+    "MEDIA_URL": os.environ.get(
+        "MEDIA_URL",
+        "http://localhost/media/",
+    ),
+    "MEDIA_UPLOAD_URL": os.environ.get(
+        "MEDIA_UPLOAD_URL",
+        "http://localhost/media/upload",
+    ),
+    "WIDGET_URL": os.environ.get(
+        "WIDGET_URL",
+        "http://localhost/widget/",
+    ),
+    "STATIC_CROSSDOMAIN": os.environ.get(
+        "STATIC_CROSSDOMAIN",
+        "http://localhost/",
+    ),
 }

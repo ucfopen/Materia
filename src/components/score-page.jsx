@@ -3,9 +3,9 @@ import Header from './header'
 import Scores from './scores'
 
 const ScorePage = () => {
-	// get the playId from the url if using /scores/single/:playId/:instId url
-	const res = window.location.pathname.match(/\/scores\/single\/([a-z0-9\-_]+)/i)
-	const single_id = (res && res[1]) || null
+	// get the playId from the url if using /scores/single/:instId/:playId url
+	const res = window.location.pathname.match(/\/scores\/single\/([a-z0-9\-_]+)\/([a-z0-9\-_]+)/i)
+	const single_id = (res && res[2]) || null
 
 	// We don't want users who click the 'View more details' link via an LTI to play again, since at that point
 	// the play will no longer be connected to the LTI details.
