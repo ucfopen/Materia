@@ -681,7 +681,7 @@ class UserExtraAttempts(models.Model):
 
 class Widget(models.Model):
     # update these to the relevant paths when those Python files exist
-    PATHS_PLAYDATA = os.path.join("_exports", "playdata_exporters.php")
+    PATHS_PLAYDATA = os.path.join("_exports", "playdata_exporters.py")
     PATHS_SCOREMOD = os.path.join("_score-modules", "score_module.php")
 
     SCORE_TYPE_CHOICES = [
@@ -787,8 +787,12 @@ class Widget(models.Model):
 
         # Grab and load the playdata exporter script
         if script_path is None:
-            script_path = self._make_relative_widget_path(self.PATHS_PLAYDATA)
-        script_text = Path(script_path).read_text()
+            script_path = Path(self._make_relative_widget_path(self.PATHS_PLAYDATA))
+
+        if not script_path.exists():
+            return {}  # no custom playdata exporter, no custom methods to return
+
+        script_text = script_path.read_text()
 
         # Execute the script to load the class
         script_globals = types.ModuleType("temp_exporter_module")  # Create empty module to act as the script's globals
