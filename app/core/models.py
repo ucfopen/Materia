@@ -11,7 +11,7 @@ import logging
 import os
 from datetime import datetime
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.db import models, transaction
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
@@ -19,6 +19,8 @@ from django.dispatch import receiver
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 from util.perm_manager import PermManager
+from util.scoring.scoring_util import ScoringUtil
+from util.semester_util import SemesterUtil
 from util.widget.asset.manager import AssetManager
 from util.widget.validator import ValidatorUtil
 
@@ -784,6 +786,43 @@ class WidgetInstance(models.Model):
         db_column="published_by",
     )
 
+    @property
+    def dir(self):
+        return f"{self.id}-{self.clean_name}{os.sep}"
+
+    def status(self, context: str = None):
+        semester = SemesterUtil.get_current_semester()
+
+        now = datetime.now()
+        start = self.open_at
+        end = self.close_at
+        attempts_used = ScoringUtil.get_instance_score_history(self, context, semester)
+
+        # Check to see if any extra attempts have been provided to the user. Decrement attempts_used if so.
+        extra_attempts = ScoringUtil.get_instance_extra_attempts(self, context, semester)
+        attempts_used -= extra_attempts
+
+        has_attempts = self.attempts == -1 or attempts_used < self.attempts
+
+        does_open = start is not None
+        does_close = end is not None
+        always_open = not does_open and not does_close
+        will_open = does_open and start > now
+        will_close = does_close and end > now
+        is_open = always_open or ((not does_open or start < now) and (will_close or not does_close))
+        is_closed = not always_open and (does_close and end < now)
+
+        return {
+            "is_open": is_open,
+            "is_closed": is_closed,
+            "does_open": does_open,
+            "does_close": does_close,
+            "will_open": will_open,
+            "will_close": will_close,
+            "always_open": always_open,
+            "has_attempts": has_attempts,
+        }
+
     def create_qset(self, data, version=None):
         qset = WidgetQset(
             instance=self,
@@ -805,8 +844,8 @@ class WidgetInstance(models.Model):
             )
         return self.get_latest_qset()
 
-    def playable_by_current_user(self, user: User):
-        return self.widget.is_playable and (user.is_authenticated or self.guest_access)
+    def playable_by_current_user(self, user: User | AnonymousUser):
+        return self.widget.is_playable and (self.guest_access or user.is_authenticated)
 
     def save(self, *args, **kwargs):
         # check for requirements

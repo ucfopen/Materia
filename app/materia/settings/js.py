@@ -17,4 +17,5 @@ JS_GROUPS = {
     "settings": [JS_BASEURL + "settings.js"],
     "scores": [JS_BASEURL + "scores.js"],
     "media": [JS_BASEURL + "media.js"],
+    "no-permission": [JS_BASEURL + "no-permission.js"],
 }

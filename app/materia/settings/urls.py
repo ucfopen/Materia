@@ -8,6 +8,13 @@
 STATIC_URL = "/static/"
 STATIC_ROOT = "./staticfiles/"
 
+LOGIN_URL = "/login/"
+
+LOGIN_LINKS = [
+    {"href": "/lookup-username", "title": "Lookup Username"},
+    {"href": "/password-reset", "title": "Reset Password"},
+]
+
 # STATIC_URL = "/"
 # STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # STATICFILES_DIRS = [

@@ -16,7 +16,6 @@ const LoginPage = () => {
 		loginLinks: '',
 		errContent: '',
 		noticeContent: '',
-		errContent: '',
 		context: 'login',
 	})
 
@@ -79,7 +78,12 @@ const LoginPage = () => {
 		const data = await response.json()
 		if (response.ok) {
 			localStorage.setItem('username', state.loginUser)
-			window.location.href = state.actionRedirect
+
+			// Redirect based on next param
+			// TODO this prolly needs to be expanded upon in relation to LTI events, etc. but django by default
+			// 			uses 'next' for redirecting after logins, and expects the front-end to handle the redirect
+			const params = new URLSearchParams(window.location.search)
+			window.location.href = params.get('next') ?? '/profile/'
 		} else {
 			setState(prevState => ({
 				...prevState,
