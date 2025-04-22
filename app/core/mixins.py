@@ -13,7 +13,7 @@ class MateriaLoginMixin(LoginRequiredMixin):
         return self.login_global_vars
 
     def login_needed(self, request) -> bool:
-        return not request.user.is_authenticated()
+        return not request.user.is_authenticated
 
     def dispatch(self, request, *args, **kwargs):
         if self.login_needed(request):
