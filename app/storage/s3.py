@@ -98,17 +98,6 @@ class S3AssetStorageDriver:
                 logger.error(e)
 
     def handle_uploaded_file(asset, uploaded_file):
-        # temporary_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir())
-
-        # if os.path.isfile(temporary_file.name):
-        #     temporary_file.close()
-
-        # with open(temporary_file.name, "wb+") as tmp:
-        #     for chunk in uploaded_file.chunks():
-        #         tmp.write(chunk)
-
-        # S3AssetStorageDriver.store(asset, temporary_file.name, "original")
-        # os.remove(temporary_file.name)
         s3_client = S3AssetStorageDriver.get_s3(True)
         uploaded_file.seek(0)
         s3_client.upload_fileobj(
