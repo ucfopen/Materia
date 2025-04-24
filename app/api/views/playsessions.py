@@ -118,15 +118,20 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     preview_play_id = update_serializer.validated_data[
                         "preview_play_id"
                     ]
-                    request.session[f"previewPlayLogs.{preview_play_id}"] = logs
+                    # request.session[f"previewPlayLogs.{preview_play_id}"] = logs
+                    # request.session.modified = True
+                    #we will combined them not override them
+                    preview_session_key = f"previewPlayLogs.{preview_play_id}"
+                    existing_logs = request.session.get(preview_session_key, [])
+                    combined_logs = existing_logs + logs
+                    #get rid of duplicates
+                    seen = {}
+                    for log in combined_logs:
+                        key = log.get("queueId") or log.get("itemId"), log.get("type")
+                        seen[key] = log
+
+                    request.session[preview_session_key] = list(seen.values())
                     request.session.modified = True
-                    # preview_session_key = (
-                    #     f"preview_play_logs_{update_serializer.validated_data["preview_inst_id"]}_"
-                    #     f"{update_serializer.validated_data["preview_play_id"]}"
-                    # )
-                    # if preview_session_key not in request.session:
-                    #     request.session[preview_session_key] = []
-                    # request.session[preview_session_key].extend(logs)
 
                 return Response({"status": status.HTTP_200_OK, "success": True})
 
