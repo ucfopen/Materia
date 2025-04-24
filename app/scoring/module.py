@@ -327,7 +327,7 @@ class ScoreModule(ABC):
 
         return {
             "data": [
-                score,
+                # score,
                 self.get_ss_question(log, question),
                 self.get_ss_answer(log, question),
                 self.get_ss_expected_answers(log, question),

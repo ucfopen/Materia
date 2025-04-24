@@ -127,7 +127,8 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     #get rid of duplicates
                     seen = {}
                     for log in combined_logs:
-                        key = log.get("queueId") or log.get("itemId"), log.get("type")
+                        print(f"KEY: {log.get('queueId')} / {log.get('item_id')} / {log.get('type')}")
+                        key = log.get("queueId") or log.get("item_id"), log.get("type")
                         seen[key] = log
 
                     request.session[preview_session_key] = list(seen.values())
