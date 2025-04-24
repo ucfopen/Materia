@@ -4,9 +4,9 @@ import { access } from '../components/materia-constants'
  * Converts a raw permissions object from the API into the schema utilized by various front-end elements
  * Note this is a significant departure from the permissions system used in Materia 10.x and below
  * The can: verbs are simplified based on the two-tier permissions model, but more specificity can be added in the future
- * @param {object} perm 
- * @param {boolean} isEditable 
- * @returns 
+ * @param {object} perm
+ * @param {boolean} isEditable
+ * @returns
  */
 const rawPermsToObj = (perm, isEditable) => {
 	return {
@@ -19,7 +19,7 @@ const rawPermsToObj = (perm, isEditable) => {
 			copy: true, // implicit with all access types
 			edit: perm.permission == access.FULL,
 			delete: perm.permission == access.FULL,
-			share: true // implicit with all access types
+			share: perm.permission == access.FULL, // Refers to the ability to share with collaborators
 		}
 	}
 }

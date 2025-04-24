@@ -83,7 +83,7 @@ class WidgetPreviewView(TemplateView):
 
         # Check if widget is playable
         if not widget_instance.playable_by_current_user(self.request.user):
-            return _create_draft_not_playable_page()
+            return _create_draft_not_playable_page(request=self.request)
 
         # return _display_widget(instance=widget_instance, is_embedded=False)
         return _create_player_page(

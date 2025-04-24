@@ -4,7 +4,6 @@ import json
 
 # debug logging
 import logging
-import os
 
 from core.models import (
     Asset,
@@ -22,6 +21,7 @@ from django.utils.text import slugify
 from rest_framework import serializers, status
 from rest_framework.response import Response
 from util.logging.session_logger import SessionLogger
+from util.perm_manager import PermManager
 
 # from pprint import pformat
 
@@ -40,6 +40,10 @@ class AssetSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
     profile_fields = serializers.SerializerMethodField()
+    is_student = serializers.SerializerMethodField()
+
+    def get_is_student(self, user):
+        return PermManager.user_is_student(user)
 
     def get_avatar(self, user):
         clean_email = user.email.strip().lower().encode("utf-8")
@@ -52,7 +56,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "email", "avatar", "profile_fields"]
+        fields = ["id", "first_name", "last_name", "email", "avatar", "profile_fields", "is_student"]
 
 
 # User metadata (profile fields) serializer (inbound)
@@ -91,7 +95,7 @@ class UserMetadataSerializer(serializers.Serializer):
 # Widget engine model serializer (outbound)
 class WidgetSerializer(serializers.ModelSerializer):
     meta_data = serializers.SerializerMethodField()
-    dir = serializers.SerializerMethodField()
+    dir = serializers.CharField(read_only=True)
 
     class Meta:
         model = Widget
@@ -126,9 +130,6 @@ class WidgetSerializer(serializers.ModelSerializer):
 
     def get_meta_data(self, widget):
         return widget.metadata_clean()
-
-    def get_dir(self, widget):
-        return f"{widget.id}-{widget.clean_name}{os.sep}"
 
 
 class Base64JSONField(serializers.Field):
@@ -199,8 +200,9 @@ class QuestionSetSerializer(serializers.ModelSerializer):
 
 # instance model serializer (inbound | outbound)
 class WidgetInstanceSerializer(serializers.ModelSerializer):
-    preview_url = serializers.SerializerMethodField()
-    play_url = serializers.SerializerMethodField()
+    preview_url = serializers.CharField(read_only=True)
+    play_url = serializers.CharField(read_only=True)
+    embed_url = serializers.CharField(read_only=True, allow_null=True)
     qset = QuestionSetSerializer(required=False)
 
     def _handle_qset(self, qset, widget_instance):
@@ -238,14 +240,6 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
         required=False
     )  # Model's save function will auto-generate an ID if it is empty
 
-    def get_preview_url(self, instance):
-        return f"{settings.URLS["BASE_URL"]}preview/{instance.id}/{slugify(instance.name)}/"
-
-    def get_play_url(self, instance):
-        return (
-            f"{settings.URLS["BASE_URL"]}play/{instance.id}/{slugify(instance.name)}/"
-        )
-
     class Meta:
         model = WidgetInstance
         fields = [
@@ -265,6 +259,7 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "widget_id",
             "preview_url",
             "play_url",
+            "embed_url",
             "qset",
         ]
 
@@ -466,6 +461,56 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
         ]
 
 
+# play session model; do not include user_id
+class PlaySessionStudentViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LogPlay
+        fields = [
+            "id",
+            "instance",
+            "is_valid",
+            "is_complete",
+            "score",
+            "score_possible",
+            "percent",
+            "elapsed",
+            "qset_id",
+            # "environment_data",
+            "auth",
+            "referrer_url",
+            "context_id",
+            "semester_id",
+            "created_at",
+        ]
+
+
+# play session model; include extra info about user
+class PlaySessionWithExtraUserInfoSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = LogPlay
+        fields = [
+            "id",
+            "instance",
+            "is_valid",
+            "is_complete",
+            "score",
+            "score_possible",
+            "percent",
+            "elapsed",
+            "qset_id",
+            # "environment_data",
+            "auth",
+            "referrer_url",
+            "context_id",
+            "semester_id",
+            "created_at",
+            "user",
+            "user_id",
+        ]
+
+
 class NotificationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
@@ -473,6 +518,7 @@ class NotificationsSerializer(serializers.ModelSerializer):
 
 
 class ScoreSummarySerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     term = serializers.CharField()
     year = serializers.IntegerField()
     students = serializers.IntegerField()
@@ -501,6 +547,7 @@ class ScoreSummarySerializer(serializers.Serializer):
                         distribution[i] = 0
 
                 summary[semester_key] = {
+                    "id": log.semester.id,
                     "term": log.semester.semester,
                     "year": log.created_at.year,
                     "students": 1,
@@ -520,6 +567,7 @@ class ScoreSummarySerializer(serializers.Serializer):
             for data in summary.values():
                 results.append(
                     {
+                        "id": data["id"],
                         "term": data["term"],
                         "year": data["year"],
                         "students": data["students"],
@@ -553,6 +601,23 @@ class QsetGenerationRequestSerializer(serializers.Serializer):
 # Used for incoming requests for prompt generation. Does NOT map to a model.
 class PromptGenerationRequestSerializer(serializers.Serializer):
     prompt = serializers.CharField(min_length=1, max_length=10000)
+
+
+# Used for incoming requests to copy a widget instance. Does NOT map to a model.
+class WidgetInstanceCopyRequestSerializer(serializers.Serializer):
+    new_name = serializers.ModelField(model_field=WidgetInstance()._meta.get_field("name"))
+    copy_existing_perms = serializers.BooleanField(required=False, default=False)
+
+
+# Used for incoming requests to update perms. Does not map to a model.
+class PermsUpdateRequestItemSerializer(serializers.Serializer):
+    expiration = serializers.DateTimeField(required=False, allow_null=True, default=None)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    perm_level = serializers.ChoiceField(choices=ObjectPermission.PERMISSION_CHOICES, allow_null=True)
+
+
+class PermsUpdateRequestListSerializer(serializers.Serializer):
+    updates = serializers.ListField(child=PermsUpdateRequestItemSerializer())
 
 
 class ObjectPermissionSerializer(serializers.ModelSerializer):

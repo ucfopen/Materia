@@ -16,7 +16,7 @@ export default function useDeleteWidget() {
 						...previous,
 						pages: previous.pages.map((page) => ({
 							...page,
-							pagination: page.pagination.filter(widget => widget.id !== data)
+							results: page.results.filter(widget => widget.id !== variables['instId'])
 						})),
 						modified: Math.floor(Date.now() / 1000)
 					}

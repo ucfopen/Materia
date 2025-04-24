@@ -1,5 +1,5 @@
 const parseTime = (time) => {
-	const timeObj = new Date(time * 1000)
+	const timeObj = new Date(time)
 	let amPm = 'am'
 	let hour = timeObj.getHours()
 	let minute = timeObj.getMinutes()
