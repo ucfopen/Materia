@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.sessions.backends.base import SessionBase
+from django.db.models import QuerySet
 from django.utils.timezone import make_aware
 
 from core.models import Log
@@ -9,7 +10,8 @@ from util.widget.validator import ValidatorUtil
 
 
 # Util for adding logs for play sessions
-# TODO look into maybe merging in as class methods of SessionPlay, it seems like these would make sense to belong there. only issue really is preview mode
+# TODO look into maybe merging in as class methods of SessionPlay,
+#      it seems like these would make sense to belong there. only issue really is preview mode
 class SessionLogger:
 
     # Takes a list of logs and saves all of them
@@ -66,6 +68,11 @@ class SessionLogger:
 
         # TODO \Sesssion::set('previewPlayLogs.'.$instId, $logs);
         session[session_key] = logs
+
+    # Get logs for play ID. Very simple function, but just here to keep things consistent.
+    @staticmethod
+    def get_logs(play_id: str) -> QuerySet[Log]:
+        return Log.objects.filter(play_id=play_id)
 
     @staticmethod
     def get_log_type(log_type_id: int) -> str:

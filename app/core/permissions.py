@@ -10,6 +10,11 @@ from util.widget.instance.instance_util import WidgetInstanceUtil
 logger = logging.getLogger("django")
 
 
+class DenyAll(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return False
+
+
 class IsSuperuser(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_superuser
@@ -17,30 +22,26 @@ class IsSuperuser(permissions.BasePermission):
 
 class IsSuperOrSupportUser(permissions.BasePermission):
     def has_permission(self, request, view):
-        return (
-            request.user.is_superuser
-            or request.user.groups.filter(name="support_user").exists()
-        )
+        return PermManager.is_superuser_or_elevated(request.user)
 
 
 class IsSelfOrElevatedAccess(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated
+        return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
         return (
-            request.user.is_superuser
-            or request.user.groups.filter(name="support_user").exists()
+            PermManager.is_superuser_or_elevated(request.user)
             or obj.id == request.user.id
         )
 
 
+# Asks if a user has *any* perms at all on an object (or is elevated)
 class HasPermsOrElevatedAccess(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if (
-            request.user.is_superuser
-            or request.user.groups.filter(name="support_user").exists()
-        ):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        elif (PermManager.is_superuser_or_elevated(request.user)):
             return True
         else:
             if (
@@ -63,45 +64,35 @@ class IsSuperuserOrReadOnly(permissions.BasePermission):
         return request.user and request.user.is_superuser
 
 
-class HasWidgetInstanceEditAccess(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if hasattr(obj, "instance"):
-            widget_instance = obj.instance
-        elif isinstance(obj, WidgetInstance):
-            widget_instance = obj
-        else:
-            return False
-
+class CanCreateWidgetInstances(permissions.BasePermission):
+    def has_permission(self, request, view):
         user = request.user
+        if user is None or PermManager.does_user_have_roles(user, "no_author"):
+            return False
+        return True
 
-        # Require user to own the widget (not just have collab perms) if they want to delete it
-        if request.method == "DELETE":
-            return (
-                user.is_superuser
-                or widget_instance.user == user
-                or widget_instance.published_by == user
-            )
 
-        # Make sure the widget isn't locked
-        # The frontend should stop users from editing if locked, but this is here *just in case*
-        if not WidgetInstanceUtil.user_has_lock_or_is_unlocked(widget_instance, user):
+class HasFullPermsOrElevated(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        # False if user isn't logged in
+        if not user or not user.is_authenticated:
             return False
 
-        return (
-            user.is_superuser
-            or widget_instance.user == user
-            or widget_instance.published_by == user
-            or obj.permissions.filter(
+        # True if is elevated user
+        if PermManager.is_superuser_or_elevated(request.user):
+            return True
+
+        # Otherwise, check if user has full perms on this object
+        if hasattr(obj, "permissions"):
+            return obj.permissions.filter(
                 Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()),
-                object_id=widget_instance.id,
-                user=user,
+                user=request.user,
                 permission=ObjectPermission.PERMISSION_FULL,
             ).exists()
-            or False
-        )
 
 
-class HasWidgetInstanceEditAccessOrReadOnly(HasWidgetInstanceEditAccess):
+class HasFullPermsOrElevatedOrReadOnly(HasFullPermsOrElevated):
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -109,9 +100,30 @@ class HasWidgetInstanceEditAccessOrReadOnly(HasWidgetInstanceEditAccess):
         return super().has_object_permission(request, view, obj)
 
 
-class CanCreateWidgetInstances(permissions.BasePermission):
-    def has_permission(self, request, view):
-        user = request.user
-        if user is None or PermManager.does_user_have_roles(user, "no_author"):
+class HasFullInstancePermsAndLockOrElevated(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if not isinstance(obj, WidgetInstance):
             return False
-        return True
+
+        user = request.user
+
+        # False if user isn't logged in
+        if not user or not user.is_authenticated:
+            return False
+
+        # True if is elevated user
+        if PermManager.is_superuser_or_elevated(request.user):
+            return True
+
+        # Make sure the widget isn't locked
+        # The frontend should stop users from editing if locked, but this is here *just in case*
+        if not WidgetInstanceUtil.user_has_lock_or_is_unlocked(obj, user):
+            return False
+
+        # Otherwise, check if user has full perms on this object
+        if hasattr(obj, "permissions"):
+            return obj.permissions.filter(
+                Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()),
+                user=request.user,
+                permission=ObjectPermission.PERMISSION_FULL,
+            ).exists()

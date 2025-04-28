@@ -6,7 +6,7 @@ export default function useSupportUpdateWidget() {
 
 	// Optimistically updates the cache value on mutate
 	return useMutation(
-		apiUpdateWidgetInstance,
+		({ args }) => apiUpdateWidgetInstance(args),
 		{
 			onSuccess: (data, variables) => {
 				// Refresh widgets

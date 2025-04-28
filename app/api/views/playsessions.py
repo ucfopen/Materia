@@ -1,30 +1,30 @@
-# import json
-# debug logging
 import logging
 from pprint import pformat
 
 from api.filters import LogPlayFilterBackend
 from core.models import Log, LogPlay
-from core.permissions import HasWidgetInstanceEditAccess
 from core.serializers import (
     PlayLogUpdateSerializer,
     PlaySessionCreateSerializer,
     PlaySessionSerializer,
+    PlaySessionStudentViewSerializer,
     PlaySessionWithExtrasSerializer,
+    PlaySessionWithExtraUserInfoSerializer,
 )
 from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from util.custom_paginations import PageNumberWithTotalPagination
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
+from util.perm_manager import PermManager
 
 logger = logging.getLogger("django")
 
 
-class PlaySessionPagination(PageNumberPagination):
+class PlaySessionPagination(PageNumberWithTotalPagination):
     page_size = 100
     page_size_query_param = "page_size"
     max_page_size = 100
@@ -39,7 +39,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     # TODO permissions checks:
     #   must have instance edit perms to access all logs associated with an instance
     #   must have instance play perms to CREATE, PUT play log
-    permission_classes = [permissions.IsAuthenticated, HasWidgetInstanceEditAccess]
+    permission_classes = [permissions.IsAuthenticated]
     pagination_class = PlaySessionPagination
     filter_backends = [LogPlayFilterBackend, DjangoFilterBackend]
 
@@ -47,7 +47,17 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
     # we only need extras (widget name, inst name) when on the profile page
     def get_serializer_class(self):
-        if self.request.query_params.get("include_activity", "false").lower() == "true":
+        if self.request.query_params.get("inst_id") and PermManager.user_is_student(
+            self.request.user
+        ):
+            return PlaySessionStudentViewSerializer
+        elif self.request.query_params.get("inst_id") and self.request.query_params.get(
+            "include_user_info", False
+        ):
+            return PlaySessionWithExtraUserInfoSerializer
+        elif (
+            self.request.query_params.get("include_activity", "false").lower() == "true"
+        ):
             return PlaySessionWithExtrasSerializer
         else:
             return PlaySessionSerializer

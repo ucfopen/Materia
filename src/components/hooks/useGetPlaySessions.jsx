@@ -42,7 +42,7 @@ export default function useGetPlaySessions(user, autofetch) {
 	} = useInfiniteQuery({
 		queryKey: ['user-activity', user],
 		queryFn: getPlaySessions,
-		getNextPageParam: (lastPage, pages) => lastPage.next != null ? lastPage.next.match(/page=([0-9]+)/)[1] : undefined,
+		getNextPageParam: (lastPage, pages) => lastPage.next,
 		refetchOnWindowFocus: false
 	})
 

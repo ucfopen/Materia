@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetUsers } from '../util/api'
+import { apiUserVerify } from '../util/api'
 import useUpdateWidget from './hooks/useUpdateWidget'
 import Modal from './modal'
 import PeriodSelect from './period-select'
@@ -78,20 +78,24 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 	const [state, setState] = useState(initState())
 	const mounted = useRef(false)
 	const mutateWidget = useUpdateWidget()
-	const { data: fetchedUsers } = useQuery({
-		queryKey: ['user-search', inst.id],
-		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
+	const { data: userData, isError: isUserDataErrored, error: userDataError } = useQuery({
+		queryKey: ['user-verify-user', inst.id],
+		queryFn: apiUserVerify,
 		placeholderData: {},
 		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys())?.length > 0,
 		staleTime: Infinity,
 		retry: false,
-		onError: (err) => {
-			console.error(`Error: ${err.message}`);
-			if (err.message == "Invalid Login") {
+	})
+
+	// Handle error from user verification
+	useEffect(() => {
+		if (isUserDataErrored) {
+			console.error(`Error: ${userDataError.message}`);
+			if (userDataError.message === "Invalid Login") {
 				setInvalidLogin(true);
 			}
 		}
-	})
+	}, [isUserDataErrored])
 
 	// Used for initialization
 	useEffect(() => {
@@ -99,14 +103,14 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 		const open = inst.open_at
 		const close = inst.close_at
 		const dates = [
-			open > -1 ? new Date(open * 1000) : null,
-			close > -1 ? new Date(close * 1000) : null,
+			open !== null ? new Date(open) : null,
+			close !== null ? new Date(close) : null,
 		]
 		let _availability = []
 		let access = inst.guest_access === true ? 'guest' : 'normal'
 		access = inst.embedded_only === true ? 'embed' : access
 
-		// Gets the initila date, time, & period data
+		// Gets the initial date, time, & period data
 		dates.forEach((date, i) => {
 			let data = {
 				header: i === 0 ? 'Available' : 'Closes',
@@ -153,8 +157,8 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 			},
 			changes: {
 				radios: [
-					parseInt(inst.open_at) === -1 ? true : false,
-					parseInt(inst.close_at) === -1 ? true : false
+					inst.open_at === null,
+					inst.close_at === null,
 				],
 				dates: [
 					dateOpen,
@@ -202,11 +206,8 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 		let _showWarning = false
 
 		if (val !== 'guest' && inst.guest_access) {
-			for (const key in fetchedUsers) {
-				if (fetchedUsers.hasOwnProperty(key) && fetchedUsers[key].is_student) {
-					_showWarning = true
-					break
-				}
+			if (userData?.['permLevel'] === 'student') {
+				_showWarning = true
 			}
 		}
 
@@ -298,7 +299,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 
 			// It is anytime
 			if (state.formData.changes.radios[index] === true) {
-				newDates.push(-1)
+				newDates.push(null)
 				continue
 			}
 
@@ -325,7 +326,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 			}
 			else {
 				let dateStr = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear()
-				newDate = Date.parse(dateStr + ' ' + time + ' ' + period) / 1000
+				newDate = new Date(dateStr + ' ' + time + ' ' + period).toISOString()
 			}
 
 			errors.dateErrors[index] = dateError

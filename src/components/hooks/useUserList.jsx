@@ -15,13 +15,13 @@ export default function useUserList(query = "") {
 		}
 		if (list?.pages) {
 			let dataMap = []
-			return [
-				...dataMap.concat(
-					...list.pages.map(page => page.results)
-				)
-			]
+			list.pages.forEach(page => {
+				dataMap.push(...page.results)
+			})
+			return dataMap
 		}
-		else return []
+
+		return []
 	}
 
 	const getData = ({ pageParam = 1 }) => {
@@ -42,7 +42,7 @@ export default function useUserList(query = "") {
 		queryFn: getData,
 		enabled: query.length > 0,
 		getNextPageParam: (lastPage, pages) => {
-			return lastPage.next_page
+			return lastPage.next
 		},
 		refetchOnWindowFocus: false
 	})

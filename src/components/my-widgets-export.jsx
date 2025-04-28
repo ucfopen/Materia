@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Modal from './modal'
 import './my-widgets-export.scss'
+import {useMutation, useQuery} from "react-query";
 
 const DEFAULT_OPTIONS = ['Questions and Answers']
 
@@ -105,6 +106,57 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 		)
 	}
 
+	const exportDataDownloader = useMutation({
+		mutationFn: async () => {
+			// Request from server
+			const response = await fetch(`/api/instances/${inst.id}/export_playdata/?type=${encodeURIComponent(state.exportType)}&semesters=${state.selectedSemesters}`)
+
+			// Handle errors
+			if (!response.ok) {
+				let messageJson
+				try {
+					messageJson = await response.json()
+				} catch {
+					throw new Error(response.statusText)
+				}
+				if (messageJson.msg && messageJson.title) {
+					throw new Error(messageJson.title, {cause: messageJson.msg, halt: messageJson.halt ?? true, type: messageJson.type})
+				} else {
+					throw new Error(response.statusText)
+				}
+			}
+
+			// Decode as blob and get file name, if present
+			const blob = await response.blob()
+			let fileName = "export.txt"
+			if (response.headers.has('content-disposition')) {
+				const matches = response.headers.get('content-disposition').match(/filename="(?<fileName>.*)"/)
+				fileName = matches?.groups?.["fileName"] ?? fileName
+			}
+
+			return { blob, fileName }
+		},
+		onSuccess: ({ blob, fileName }) => {
+			// Download blob as fileName
+			const objectUrl = URL.createObjectURL(blob)
+			const a = document.createElement('a')
+			a.style.display = 'none'
+			a.href = objectUrl
+			a.download = fileName
+			document.body.appendChild(a)
+			a.click()
+			URL.revokeObjectURL(objectUrl)
+			document.body.removeChild(a)
+		},
+		onError: (err) => {
+			console.error(err)
+		}
+	})
+
+	const handleOnDownload = () => {
+		exportDataDownloader.mutate()
+	}
+
 	const semesterOptionElements = scores.map((val, index) => (
 		<li key={index}>
 			<label className='checkbox-wrapper' htmlFor={val.id}>
@@ -118,7 +170,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 				<span className='custom-checkbox'></span>
 				{val.year + ' ' + val.term}
 			</label>
-			
+
 		</li>
 	))
 
@@ -153,10 +205,9 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 								{ exportOptionElements }
 							</select>
 							<p className='download'>
-								<a href={`/data/export/${inst.id}?type=${encodeURIComponent(state.exportType)}&semesters=${state.selectedSemesters}`}
-									className='action_button arrow_down_button'>
+								<button onClick={handleOnDownload} className='action_button arrow_down_button'>
 									Download {state.exportType}
-								</a>
+								</button>
 							</p>
 							{ canvasDataDisclaimer }
 						</div>
@@ -184,7 +235,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 							<span className='custom-checkbox'></span>
 							- Check all
 						</label>
-						
+
 					</li>
 					{ semesterOptionElements }
 				</ul>

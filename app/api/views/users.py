@@ -16,14 +16,16 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from util.custom_paginations import PageNumberWithTotalPagination
 from util.message_util import MsgBuilder
 
 logger = logging.getLogger("django")
 
 
-class UserListPagination(PageNumberPagination):
+class UserPagination(PageNumberWithTotalPagination):
     page_size = 50
     page_size_query_param = "page_size"
     max_page_size = 50
@@ -32,7 +34,7 @@ class UserListPagination(PageNumberPagination):
 class UserViewSet(viewsets.ModelViewSet):
 
     serializer_class = UserSerializer
-    pagination_class = UserListPagination
+    pagination_class = UserPagination
 
     # we attach elevated_access to the serializer context to inform the serializer
     # which fields to include:
@@ -73,13 +75,20 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         pk = self.kwargs.get("pk")
+        user_ids = self.request.query_params.get("ids")
+
         if pk is None:
-            # an explicit list of user ids has been provided - only return these users
-            # TODO verify if this should be restricted to elevated access (does collab needs it?)
-            if self.request.query_params.get("ids"):
-                return User.objects.filter(
-                    id__in=self.request.query_params.get("ids").split(",")
-                )
+            if user_ids is not None:
+                try:
+                    user_ids = [int(s.strip()) for s in user_ids.split(",")]
+                except Exception:
+                    raise ValidationError(
+                        detail={"ids": "Must be a comma separated list of integers"}
+                    )
+                    # an explicit list of user ids has been provided - only return these users
+                    # TODO verify if this should be restricted to elevated access (does collab needs it?)
+                return User.objects.filter(pk__in=user_ids)
+
             elif self.request.query_params.get("search"):
                 search = self.request.query_params.get("search")
                 return User.objects.filter(
@@ -153,6 +162,29 @@ class UserViewSet(viewsets.ModelViewSet):
 
         serialized = ObjectPermissionSerializer(access_permissions, many=True)
         return Response(serialized.data)
+
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def search(self, request):
+        # Get search query
+        query: str = request.query_params.get("query")
+        if query is None or query.strip() == "":
+            raise ValidationError(detail=["Missing non-empty 'query' parameter"])
+
+        users = (
+            User.objects.filter(
+                Q(username__icontains=query)
+                | Q(first_name__icontains=query)
+                | Q(last_name__icontains=query)
+                | Q(email__icontains=query)
+            )
+            .filter(~Q(id=request.user.id))  # dont include self
+            .order_by("first_name")
+        )  # TODO dont include superusers? php doesnt, but questions why we aren't
+
+        paginator = UserPagination()
+        paginated_queryset = paginator.paginate_queryset(users, request)
+        serializer = self.get_serializer(paginated_queryset, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 # API stuff below this line is not yet converted to DRF #
