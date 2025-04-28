@@ -22,4 +22,5 @@ CSS_GROUPS = {
     "scores": [CSS_BASEURL + "scores.css"],
     "media": [CSS_BASEURL + "media.css"],
     "no-permission": [CSS_BASEURL + "no-permission.css"],
+    "pre-embed": [CSS_BASEURL + "pre-embed-placeholder.css"],
 }

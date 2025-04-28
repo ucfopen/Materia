@@ -32,7 +32,7 @@ class ScoringUtil:
     @staticmethod
     def get_instance_extra_attempts(instance: WidgetInstance, context_id: str, semester: DateRange) -> int:
         result = UserExtraAttempts.objects.filter(
-            instance=instance,
+            inst_id=instance.id,
             context_id=context_id,
             semester=semester.id,  # TODO: model calls for id and not foreign key
             # TODO: user_id =

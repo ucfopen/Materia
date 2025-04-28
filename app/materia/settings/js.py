@@ -18,4 +18,7 @@ JS_GROUPS = {
     "scores": [JS_BASEURL + "scores.js"],
     "media": [JS_BASEURL + "media.js"],
     "no-permission": [JS_BASEURL + "no-permission.js"],
+    "no-attempts": [JS_BASEURL + "no-attempts.js"],
+    "pre-embed": [JS_BASEURL + "pre-embed-placeholder.js"],
+    "embedded-only": [JS_BASEURL + "embedded-only.js"],
 }

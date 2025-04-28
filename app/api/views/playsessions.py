@@ -75,13 +75,11 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         serializer = PlaySessionCreateSerializer(
             data=request.data, context={"request": request}
         )
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             validated = serializer.validated_data
             session_play = SessionPlay()
             play_id = session_play.start(validated["instance"], request.user.id)
             return JsonResponse({"playId": play_id})
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, pk=None):
         if not pk:
@@ -91,7 +89,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             data=request.data, context={"request": request, "session_id": pk}
         )
 
-        if update_serializer.is_valid():
+        if update_serializer.is_valid(raise_exception=True):
 
             try:
                 is_preview = update_serializer.validated_data["is_preview"]
@@ -136,11 +134,6 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 return MsgBuilder.failure(
                     "Failed to Save", "Your play logs could not be saved."
                 ).as_drf_response()
-
-        else:
-            return Response(
-                update_serializer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
 
     def destroy(self, request, *args, **kwargs):
         return Response(

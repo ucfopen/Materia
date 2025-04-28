@@ -168,18 +168,6 @@ class WidgetInstaller:
 
         clean_name = Widget.make_clean_name(manifest_data["general"]["name"])
 
-        # TODO: figure out how to parse all of the play data exporter function options
-        #  and add their names to the existing metadata
-        # in the PHP version, the Widget::load_script function would basically make the
-        #  class/methods/etc. in the play data exporter PHP file available in this scope
-        #  so that they could be parsed
-
-        # load the play data exporter script to add its method names to the metadata
-        # playdata_path = os.path.join(target_dir, Widget.PATHS_PLAYDATA)
-
-        # loaded = Widget.load_script(playdata_path)
-        # $playdata_exporter_names = array_keys(\Materia\Widget::reduce_array_to_functions($loaded));
-
         # Grab and load the playdata exporter script
         script_path = Path(os.path.join(target_dir, Widget.PATHS_PLAYDATA))
         if script_path.exists():

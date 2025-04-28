@@ -22,6 +22,7 @@ from django.db import models, transaction
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.functional import classproperty
 from django.utils.timezone import make_aware
@@ -870,10 +871,10 @@ class WidgetInstance(models.Model):
         from util.semester_util import SemesterUtil
         semester = SemesterUtil.get_current_semester()
 
-        now = datetime.now()
+        now = timezone.now()
         start = self.open_at
         end = self.close_at
-        attempts_used = ScoringUtil.get_instance_score_history(self, context, semester)
+        attempts_used = ScoringUtil.get_instance_score_history(self, context, semester).count()
 
         # Check to see if any extra attempts have been provided to the user. Decrement attempts_used if so.
         extra_attempts = ScoringUtil.get_instance_extra_attempts(self, context, semester)
@@ -922,78 +923,39 @@ class WidgetInstance(models.Model):
         return self.get_latest_qset()
 
     def playable_by_current_user(self, user: User | AnonymousUser):
-        return self.widget.is_playable and (self.guest_access or user.is_authenticated)
+        return self.guest_access or user.is_authenticated
 
     def save(self, *args, **kwargs):
-        # check for requirements
-        # TODO: this requires a user check, revisit later
-        # if not self.is_draft and not self.widget.publishable_by(user):
-        #     return False
+        # No user or permissions checks are checked here.
+        # It is up to the endpoint itself to enforce permissions, etc.
+
         is_new = not ValidatorUtil.is_valid_hash(self.id)
         success = False
 
         # ADDING A NEW INSTANCE
         if is_new:
             from util.widget.instance.hash import WidgetInstanceHash
-
-            # try this many times to generate an instance ID to avoid collisions
-            tries = 3
-
+            tries = 3  # try this many times to generate an instance ID to avoid collisions
             while not success:
                 tries = tries - 1
                 if tries < 0:
                     raise Exception("Unable to save new widget instance")
-                # TODO: figure users out
-                # self.published_by = None if self.is_draft else user
-
+                self.published_by = None if self.is_draft else self.user
                 try:
                     hash = WidgetInstanceHash.generate_key_hash()
                     self.id = hash
                     self.created_at = make_aware(datetime.now())
                     super().save(*args, **kwargs)
-                    # self.qset.save()
                     success = True
                 # TODO: use a more specific exception
                 except Exception as e:
                     logger.info(e)
                     # try again until the retries run out
-            # success must be true to get here
-            # TODO: give the current user perms to this instance, however that works
-            # Perm_Manager::set_user_object_perms($hash, Perm::INSTANCE, $this->user_id, [Perm::FULL => Perm::ENABLE]);
 
         # UPDATING AN EXISTING INSTANCE
         else:
-            new_publisher = self.published_by
-            if not new_publisher and not self.is_draft:
-                # TODO: figure users out
-                # new_publisher = user
-                pass
-
-            self.published_by = new_publisher
             self.updated_at = make_aware(datetime.now())
             super().save(*args, **kwargs)
-            # self.qset.save()
-
-            # ^ If qset is a whole new object, it'll be saved as a new object.
-            #   Otherwise, it'll just save the current qset.
-
-            # TODO: originally this was meant to check if the number of rows affected by the 'update' query
-            # is greater than zero - may make more sense to try/except this to check for failures?
-            success = True
-
-        # historically this is where we would save the qset
-        # due to the way foreign key relationships etc. work the qset isn't really an arbitrary object
-        #  that we can do with as we please any more, so the qset relationship and maintenance should
-        #  probably happen outside of this function
-
-        # TODO: figure users out
-        # activity = LogActivity()
-        # activity.user_id = user.id
-        # activity.type = LogActivity.TYPE_CREATE_WIDGET if is_new else LogActivity.TYPE_EDIT_WIDGET
-        # item_id = self.id
-        # value_1 = self.name
-        # value_2 = self.widget.id
-        # activity.save()
 
         return
 
@@ -1176,23 +1138,6 @@ class WidgetQset(models.Model):
     #     }
     #     return $questions;
     # }
-
-    # def _decode_data(self) -> dict:
-    #     result = str(self._data)  # Might be loaded as a bytes object, not str
-    #     # TODO determine if we need to conditionally check for b'...' wrapper around qset data blob
-    #     # Remove the b' ... ' that appears when stringifying the bytes object
-    #     if result.startswith("b'") and result.endswith("'"):
-    #         result = result[2:-1]
-
-    #     if result:  # Make sure it's not an empty string or some other falsy object
-    #         decoded_qset_data = base64.b64decode(result).decode("utf-8")
-    #         result = json.loads(decoded_qset_data)
-    #     else:
-    #         result = {}
-    #     return result
-
-    # def _encode_data(self) -> str:
-    #     return base64.b64encode(json.dumps(self.data).encode("utf-8")).decode("utf-8")
 
     class Meta:
         db_table = "widget_qset"

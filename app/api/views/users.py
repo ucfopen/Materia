@@ -17,7 +17,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -71,7 +71,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         serializer = UserMetadataSerializer(data=request.data)
 
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             validated = serializer.validated_data
 
             user_profile, _ = UserSettings.objects.get_or_create(user=user)
@@ -91,8 +91,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(
                 {"success": True, "profile_fields": user_profile.profile_fields}
             )
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Get list of objects the user has access to. Requires elevated access for non-self.
     @action(detail=True, methods=["get"], permission_classes=[IsSelfOrElevatedAccess])
@@ -121,7 +119,8 @@ class UserViewSet(viewsets.ModelViewSet):
                      | Q(email__icontains=query)
                  )
                  .filter(~Q(id=request.user.id))  # dont include self
-                 .order_by("first_name"))  # TODO dont include superusers? php doesnt, but questions why we aren't
+                 .filter(is_superuser=False)  # TODO PHP asks why we are filtering our superusers
+                 .order_by("first_name"))
 
         paginator = UserPagination()
         paginated_queryset = paginator.paginate_queryset(users, request)
