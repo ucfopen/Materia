@@ -19,7 +19,7 @@ The following methods for theming Materia are listed from _simplest_ to _most po
 
 ## 1. Common links, emails, etc. (Highly recommended)
 
-Items such as specific emails, links, phone numbers for your institution can be listed in many areas on Materia's
+Items such as specific emails, links, and phone numbers for your institution can be listed in many areas on Materia's
 webpages. To easily modify these, check out `theme/common.json`. This file will be present with a set of placeholders.
 
 Once done, [test and rebuild your frontend](#once-finished-test-and-deploy).

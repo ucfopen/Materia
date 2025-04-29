@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import { Base64 } from 'js-base64'
+import SupportInfoText from 'MateriaText/support/support-info.mdx'
 
 import './support-info.scss'
 
@@ -26,13 +27,13 @@ const SupportInfo = () => {
 						<h3>{values.title ? values.title : 'No title'}</h3>
 						{values.subtitle ? <span className='subtitle'>{values.subtitle}</span> : ''}
 						<dl className='contact'>
-							{values.website ? 
+							{values.website ?
 								<>
 									<dt>Website</dt>
 									<dd><a href={values.website}>{values.website}</a></dd>
 								</>
 								: ''}
-							{values.email ? 
+							{values.email ?
 								<>
 									<dt>Email</dt>
 									<dd><a href={`mailto:${values.email}`}>{values.email}</a></dd>
@@ -45,7 +46,7 @@ const SupportInfo = () => {
 								</>
 								: ''}
 						</dl>
-						
+
 					</section>
 				)
 			}
@@ -58,7 +59,7 @@ const SupportInfo = () => {
 
 	return (
 		<div className="error-support">
-			{ state.supportInfo }
+			<SupportInfoText />
 		</div>
  	)
 }
