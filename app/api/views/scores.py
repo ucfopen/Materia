@@ -76,11 +76,6 @@ class ScoresApi:
         instance_id = json_body.get("instanceId")
         play_id = json_body.get("playId")
         print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
-        print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
-        print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
-        print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
-        print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
-        print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
 
         if not instance_id or not ValidatorUtil.is_valid_hash(instance_id):
             return MsgBuilder.invalid_input(msg=str(instance_id)).as_json_response()
@@ -94,14 +89,82 @@ class ScoresApi:
 
         print("getting instance score history")
         # scores = ScoringUtil.get_guest_play_details(play_id, instance)
-        scores = ScoringUtil.get_guest_play_details(
+        # scores = ScoringUtil.get_guest_play_details(
+        #     request.session, instance, play_id, False
+        # )
+        play_data = ScoringUtil.get_guest_play_details(
             request.session, instance, play_id, False
         )
-        print(f"Scores: {scores}")
-        if not scores:
+
+        if not play_data:
             return MsgBuilder.expired().as_json_response()
 
-        return JsonResponse(scores)
+        semester = DateRange.objects.get(pk=5)  # TODO
+        token = json_body.get("token")
+        # Grab context ID
+        context_id = None
+        if token:
+            result = ""  # TODO: \Event::trigger('before_score_display', $token)
+            if len(result) > 0:
+                context_id = result
+        else:
+            session_context_id = False  # TODO: \Session::get('context_id', false))
+            if session_context_id:
+                context_id = session_context_id
+
+        # Get scores and return
+        # raw_scores = ScoringUtil.get_instance_score_history(instance, context_id)
+        # print(f"DEBUG: RAW SCORES IS {raw_scores}")
+        # print(f"DEBUG: RAW SCORES IS {raw_scores}")
+        # print(f"DEBUG: RAW SCORES IS {raw_scores}")
+        # print(f"DEBUG: RAW SCORES IS {raw_scores}")
+        # scores = [
+        #     {
+        #         "id": s["id"],
+        #         "created_at": int(s["created_at"].timestamp()),
+        #         "percent": s["percent"],
+        #     }
+        #     for s in raw_scores
+        # ]
+
+        from django.utils.timezone import localtime
+
+        if play_data:
+            scores = [
+                {
+                    "id": play_id,
+                    "created_at": int(
+                        localtime(play_data["overview"]["created_at"]).timestamp()
+                    ),
+                    "percent": play_data["overview"]["score"],
+                }
+            ]
+        else:
+            print("DEBUG: OUR SCORES ARE NULL :(((((")
+            scores = []
+
+        attempts_used = len(
+            ScoringUtil.get_instance_score_history(instance, context_id, semester)
+        )
+        extra = (
+            ScoringUtil.get_instance_extra_attempts(instance, context_id, semester)
+            if context_id
+            else 0
+        )
+        attempts_left = instance.attempts - attempts_used + extra
+
+        return JsonResponse(
+            {
+                "scores": scores,
+                "attemptsLeft": attempts_left,
+            }
+        )
+
+        # print(f"Scores: {scores}")
+        # if not scores:
+        #     return MsgBuilder.expired().as_json_response()
+        #
+        # return JsonResponse(scores)
 
     # WAS widget_instance_play_scores_get
     # Gets play details (from Log table, containing player's answers and actions) for a play_id

@@ -150,37 +150,25 @@ class ScoringUtil:
         from util.logging.session_play import SessionPlay
 
         instance = session_play.data.instance
-        # play = session_play.data
         widget_folder = f"staticfiles/widget/{instance.widget.id}-{instance.widget.clean_name}/_score-modules"
 
-        script_path = os.path.join(widget_folder, "score_module.py")
-        # print("DEBUG: Attempting to load:", script_path)
-
-        # # read the file’s text
-        # code = Path(script_path).read_text()
-        #
-        # import types
-        #
-        # mod = types.ModuleType("temp_score_module")
-        # exec(code, mod.__dict__)
-
-        # ScoreClass = getattr(mod, instance.widget.score_module, None)
         ScoreClass = ScoringUtil.load_score_class(script_path, instance)
         if not ScoreClass:
             raise Exception("No score module found")
 
         # gets the score report
         details = ScoringUtil.run_score_module(
-            session_play, instance, ScoreClass, play.created_at
+            session_play, instance, ScoreClass, session_play.data.created_at
         )
 
-        instance.get_qset(instance.id, play.created_at)
-        details["qset"] = instance.qset
+        qset = instance.get_qset_for_play(session_play.data.id)
+        from core.serializers import QuestionSetSerializer
 
-        if hasattr(instance.qset, "as_json"):
-            details["qset"] = instance.qset.as_json()
-        else:
-            details["qset"] = {"version": None, "data": None}
+        details["qset"] = (
+            QuestionSetSerializer(qset).data
+            if qset
+            else {"version": None, "data": None}
+        )
 
         import datetime
 
@@ -247,7 +235,6 @@ class ScoringUtil:
         print(f"Getting guest play details for play_id={play_id}")
 
         session_play = SessionPlay.get_preview_play(session, play_id)
-        # is_preview = True
 
         if not session_play:
             print("Preview play not found in session. Trying DB LogPlay...")
