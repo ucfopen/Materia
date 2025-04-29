@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Self
 
+from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.utils.timezone import make_aware
 from django.contrib.auth.models import User
@@ -187,3 +188,21 @@ class SessionPlay:
             return False
 
         return session_play.validate(request)
+
+    @staticmethod
+    def get_all_plays_for_instance(
+            instance: WidgetInstance | str, semester: str = "all", year: int = "all",
+    ) -> QuerySet:
+        # Get DateRange object, if specified
+        date = None
+        if semester != "all" and year != "all":
+            date = DateRange.objects.filter(semester=semester, year=year).first()
+
+        # Form main query
+        query = LogPlay.objects.filter(instance=instance)
+
+        # Filter by date
+        if date is not None:
+            query = query.filter(created_at__gt=date.start_at, created_at__lt=date.end_at)
+
+        return query

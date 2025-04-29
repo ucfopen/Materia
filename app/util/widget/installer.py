@@ -1,17 +1,14 @@
 import logging
 import os
 import tempfile
+import types
 from datetime import datetime
+from pathlib import Path
 
-from core.models import (
-    PermObjectToUser,
-    Widget,
-    WidgetInstance,
-    WidgetMetadata,
-    WidgetQset,
-)
+from core.models import Widget, WidgetInstance, WidgetMetadata, WidgetQset
 from django.conf import settings
 from django.utils.timezone import make_aware
+
 from util.unique_id import unique_id
 
 logger = logging.getLogger("django")
@@ -163,8 +160,24 @@ class WidgetInstaller:
 
         # loaded = Widget.load_script(playdata_path)
         # $playdata_exporter_names = array_keys(\Materia\Widget::reduce_array_to_functions($loaded));
-        playdata_exporter_names = []
-        manifest_data["meta_data"]["playdata_exporters"] = playdata_exporter_names
+
+        # Grab and load the playdata exporter script
+        script_path = Path(os.path.join(target_dir, Widget.PATHS_PLAYDATA))
+        if script_path.exists():
+            script_text = script_path.read_text()
+
+            # Execute the script to load the class
+            script_globals = types.ModuleType("temp_exporter_module")  # Empty module to act as the script's globals
+            exec(script_text, script_globals.__dict__)  # Script will load the class, which we can find in the globals
+
+            # Find the mappings field in the globals, which should map a human-readable name to each function
+            exporter_mappings = getattr(script_globals, "mappings", None)
+            if exporter_mappings is None or not isinstance(exporter_mappings, dict):
+                raise Exception("Play data exporter script missing top level 'mappings' dict")
+
+            manifest_data["meta_data"]["playdata_exporters"] = exporter_mappings.keys()
+        else:
+            manifest_data["meta_data"]["playdata_exporters"] = []  # no custom playdata exporter methods
 
         return target_dir, manifest_data, clean_name
 
@@ -500,14 +513,6 @@ class WidgetInstaller:
                 except Exception as e:
                     logger.error("Error saving new demo instance:")
                     logger.error(e)
-
-                # make sure nobody owns the demo widget
-                access = PermObjectToUser.objects.filter(
-                    object_id=widget_instance.id,
-                    object_type=PermObjectToUser.ObjectType.INSTANCE,
-                )
-                for a in access:
-                    a.delete()
 
             # TODO: this was originally a static output - may have to change this, maybe not?
             logger.info(f"Demo installed: {widget_instance.id}")

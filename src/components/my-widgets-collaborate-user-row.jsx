@@ -41,7 +41,7 @@ const CalendarContainer = ({children}) => {
 }
 
 const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, readOnly}) => {
-	const [state, setState] = useState({...initRowState(), ...perms, expireDate: timestampToDisplayDate(perms.expireTime)})
+	const [state, setState] = useState({...initRowState(), ...perms, expireDate: new Date(perms.expireTime)})
 	const ref = useRef()
 
 	// updates parent everytime local state changes
@@ -50,7 +50,6 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 			accessLevel: state.accessLevel,
 			expireTime: state.expireTime,
 			editable: state.editable,
-			shareable: state.shareable,
 			can: state.can,
 			remove: state.remove
 		})
@@ -72,13 +71,12 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 			setState({...state, showExpire: !state.showExpire})
 	}
 
-	const clearExpire = () => setState({...state, showExpire: false, expireDate: timestampToDisplayDate(), expireTime: null})
+	const clearExpire = () => setState({...state, showExpire: false, expireDate: new Date(), expireTime: null})
 
 	const changeLevel = e => setState({...state, accessLevel: e.target.value})
 
 	const onExpireChange = date => {
-		const timestamp = date.getTime()/1000
-		setState({...state, expireDate: date, expireTime: timestamp})
+		setState({...state, expireDate: date, expireTime: date})
 	}
 
 	let selfDemoteWarningRender = null
@@ -153,7 +151,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 				<img className='avatar' src={user.avatar} />
 
 				<span className={`name ${user.is_owner ? 'user-match-owner' : user.is_student ? 'user-match-student' : ''}`}>
-					{`${user.first} ${user.last}`}
+					{`${user.first_name} ${user.last_name}`}
 				</span>
 			</div>
 			{ selfDemoteWarningRender }

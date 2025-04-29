@@ -114,6 +114,8 @@ class MediaUpload:
             upload_response["Pragma"] = "no-cache"
             upload_response.status_code = 200
 
+            asset.permissions.create(user=request.user, permission="full")
+
             return upload_response
         except Exception:
             return JsonResponse({"error": "Error processing upload"}, status=500)
