@@ -193,7 +193,7 @@ def _create_player_page(
     autoplay: bool | None = None,
 ):
     # TODO call the LtiEvents/on_before_play_start_event() function. Seems to relate to LTI stuffs
-    context_id = None  # TODO ^
+    # context_id = None  # TODO ^
 
     # Check if embed only widget
     if not is_embedded and instance.embedded_only:
@@ -206,15 +206,15 @@ def _create_player_page(
         ))
 
     # Check to see if this widget is playable
-    instance_status = instance.status(context_id)
+    login_messages = _generate_widget_login_messages(instance)
 
-    if not instance_status["is_open"]:
-        return _create_widget_login_page(instance, request, is_embedded, is_preview)  # TODO
+    if not login_messages["is_open"]:
+        return _create_widget_not_open_page(instance, request, login_messages, is_embedded)
     if not is_preview and instance.is_draft:
         return _create_draft_not_playable_page(request)
     if not is_demo and not instance.widget.is_playable:
         return _create_widget_retired_page(request, is_embedded)
-    if not instance_status["has_attempts"]:
+    if not login_messages["has_attempts"]:
         return _create_no_attempts_page(request, instance, is_embedded)
     if autoplay is not None and autoplay is False:
         return _create_pre_embed_placeholder_page(request, instance)
@@ -260,56 +260,28 @@ def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
     )
 
 
-# Used for creating special login pages conditionally, if a widget is found to be restricted
-def _create_widget_login_page(
+# Used for creating the 'not open' page for widgets if it is closed
+def _create_widget_not_open_page(
     instance: WidgetInstance,
     request: HttpRequest,
+    login_messages: dict,
     is_embedded: bool = False,
-    is_preview: bool = False,
 ):
-    login_messages = _generate_widget_login_messages(instance)
-
-    js_resources = []
-    css_resources = []
     js_globals = {
         "NAME": instance.name,
         "WIDGET_NAME": instance.widget.name,
-        "ICON_DIR": settings.URLS["WIDGET_URL"] + instance.widget.dir
+        "ICON_DIR": settings.URLS["WIDGET_URL"] + instance.widget.dir,
+        "IS_EMBEDDED": is_embedded,
+        "SUMMARY": login_messages["summary"],
+        "DESC": login_messages["desc"],
+        "START": login_messages["start"],
+        "END": login_messages["end"]
     }
 
-    if login_messages["is_open"]:
-        title = "Login"
-        js_resources.append(*settings.JS_GROUPS["login"])
-        css_resources.append(*settings.CSS_GROUPS["login"])
-
-        js_globals["IS_EMBEDDED"] = is_embedded
-        js_globals["ACTION_LOGIN"] = settings.LOGIN_URL
-        js_globals["ACTION_REDIRECT"] = request.get_full_path()
-        js_globals["LOGIN_USER"] = settings.VERBAGE["USERNAME"]
-        js_globals["LOGIN_PW"] = settings.VERBAGE["PASSWORD"]
-        js_globals["CONTEXT"] = "widget"
-        js_globals["IS_PREVIEW"] = is_preview
-
-        # Condense login links into a string with delimiters
-        link_items = []
-        for link in settings.LOGIN_LINKS:
-            link_items.append(f"{link["href"]}***{link["title"]}")
-        js_globals["LOGIN_LINKS"] = "@@@".join(link_items)
-    else:
-        title = "Widget Unavailable"
-        js_resources.append(*settings.JS_GROUPS["closed"])
-        css_resources.append(*settings.CSS_GROUPS["login"])
-
-        js_globals["IS_EMBEDDED"] = is_embedded
-        js_globals["SUMMARY"] = login_messages["summary"]
-        js_globals["DESC"] = login_messages["desc"]
-        js_globals["START"] = login_messages["start"]
-        js_globals["END"] = login_messages["end"]
-
     return ContextUtil.create(
-        title=title,
-        js_resources=js_resources,
-        css_resources=css_resources,
+        title="Widget Unavailable",
+        js_resources=settings.JS_GROUPS["closed"],
+        css_resources=settings.CSS_GROUPS["login"],
         js_globals=js_globals,
         request=request,
     )
@@ -446,6 +418,7 @@ def _generate_widget_login_messages(instance: WidgetInstance) -> dict:
         "start": instance.open_at.isoformat() if instance.open_at is not None else None,
         "end": instance.close_at.isoformat() if instance.close_at is not None else None,
         "is_open": instance_status["is_open"],
+        "has_attempts": instance_status["has_attempts"],
     }
 
 

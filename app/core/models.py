@@ -18,7 +18,7 @@ from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.db import models, transaction
+from django.db import models, transaction, DatabaseError
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -947,8 +947,7 @@ class WidgetInstance(models.Model):
                     self.created_at = make_aware(datetime.now())
                     super().save(*args, **kwargs)
                     success = True
-                # TODO: use a more specific exception
-                except Exception as e:
+                except DatabaseError as e:
                     logger.info(e)
                     # try again until the retries run out
 
@@ -1093,10 +1092,6 @@ class WidgetQset(models.Model):
 
     def set_data(self, data_dict):
         self.data = self.encode_data(data_dict)
-
-    # TODO: removed save() method because it became redundant with the updated handling of the data field
-    # save() also included logic to save individual questions,
-    # but we are currently mulling the idea of removing the question model completely
 
     # TODO: implement this, old code below
     def find_questions(self):
