@@ -1,3 +1,4 @@
+import datetime
 import importlib
 import json
 import math
@@ -56,144 +57,11 @@ class ScoringUtil:
 
         return result.extra_attempts if result else 0
 
-    # @staticmethod
-    # def get_guest_instance_score_history(instance: WidgetInstance, play_id: str):
-    #     session = ?
-    #     details = get_preview_play_details(session, instance, play_id, )
-
-    # Get score and play details for a SessionPlay
-    @staticmethod
-    def get_play_details(session_play):
-        """Finds score module, runs it, and returns the details"""
-
-        import os
-
-        from util.logging.session_play import SessionPlay
-
-        instance = session_play.data.instance
-        play = session_play.data
-        widget_folder = f"staticfiles/widget/{instance.widget.id}-{instance.widget.clean_name}/_score-modules"
-
-        print("========================DEBUG=========================")
-        print(f"Widget folder: {widget_folder}")
-        print(f"clean_name: {instance.widget.clean_name}")
-        print("========================DEBUG=========================")
-        script_path = os.path.join(widget_folder, "score_module.py")
-        print("DEBUG: Attempting to load:", script_path)
-
-        # read the file’s text
-        code = Path(script_path).read_text()
-
-        import types
-
-        mod = types.ModuleType("temp_score_module")
-        exec(code, mod.__dict__)
-
-        # Now pick the class name from widget.score_module
-        print("score_module class expected by widget:", instance.widget.score_module)
-        print("classes in mod:", dir(mod))
-
-        ScoreClass = getattr(mod, instance.widget.score_module, None)
-        if not ScoreClass:
-            raise Exception("No score module found")
-
-        score_module = ScoreClass(play_id=play.id, instance=instance, play=play)
-        # Load logs
-        score_module.logs = session_play.get_logs()
-        # Run validation
-        score_module.validate_scores(play.created_at)
-
-        # Build scoreboard
-        print("========================DEBUG=========================")
-        details = score_module.get_score_report()
-        print("========================DEBUG=========================")
-        print(details)
-
-        # Optionally attach Qset
-        instance.get_qset(instance.id, play.created_at)
-        details["qset"] = instance.qset
-        if hasattr(instance.qset, "as_json"):
-            details["qset"] = instance.qset.as_json()
-        else:
-            details["qset"] = {"version": None, "data": None}
-
-        # if "qset" in details and isinstance(details["qset"], dict):
-        #     details["qset"].pop("questions_list", None)
-
-        import datetime
-
-        def json_serial(obj):
-            if isinstance(obj, datetime.datetime):
-                return obj.isoformat()  # Converts datetime to "YYYY-MM-DDTHH:MM:SS"
-            raise TypeError(f"Type {type(obj)} not serializable")
-
-        import json
-
-        if isinstance(details["qset"], dict):
-            details["qset"].pop("questions_list", None)
-
-        print("\n=== DEBUG: API Response (get_play_details) ===\n")
-        print(json.dumps(details, indent=4, default=json_serial))
-        print("\n============================================\n")
-        print("again========================DEBUG=========================")
-        print(details)
-        print("========================DEBUG=========================")
-
-        return details
-
-    @staticmethod
-    def get_preview_play_details(session, widget_instance, preview_play_id):
-        """Same as get_play_details but for previews where they are not stored in database and only are available in session."""
-
-        import os
-        import types
-
-        from util.logging.session_play import SessionPlay
-
-        # Get widget folder path
-        widget_folder = f"staticfiles/widget/{widget_instance.widget.id}-{widget_instance.widget.clean_name}/_score-modules"
-        script_path = os.path.join(widget_folder, "score_module.py")
-
-        # Load Python script from file
-        code = Path(script_path).read_text()
-        mod = types.ModuleType("temp_score_module")
-        exec(code, mod.__dict__)
-
-        ScoreClass = getattr(mod, widget_instance.widget.score_module, None)
-        if not ScoreClass:
-            raise Exception("No score module found")
-
-        # Manually reconstruct SessionPlay-like object from session data
-        print("Doing get_preview_play_details in this funciton")
-        session_play = SessionPlay.get_preview_play(session, preview_play_id)
-        if not session_play:
-            raise Exception("Invalid preview play session")
-
-        score_module = ScoreClass(
-            play_id=preview_play_id, instance=widget_instance, play=session_play.data
-        )
-        score_module.logs = session_play.get_logs()
-        if not hasattr(session_play.data, "created_at"):
-            session_play.data.created_at = datetime.now()
-
-        score_module.validate_scores(session_play.data.created_at)
-
-        details = score_module.get_score_report()
-
-        widget_instance.get_qset(widget_instance.id, session_play.data.created_at)
-        details["qset"] = (
-            widget_instance.qset.as_json()
-            if hasattr(widget_instance.qset, "as_json")
-            else {"version": None, "data": None}
-        )
-
-        return details
-
-    # Selects the number of scores in each bracket (where bracket 0 is 0% - 9%, bracket 1 is, 10% - 19%, etc.)
-    # for each semester, ordered by semester for the given widget instance. Note that 100% is lumped into bracket 9.
-    # This query uses all scores, not just the highest score of a player.
     @staticmethod
     def get_widget_score_distribution(instance: WidgetInstance) -> dict[int, dict]:
+        """selects the number of scres in each bracket, for each esmeter ordered by semester for the given widget sintance.
+        0%-9% would be in bracket 0, 10-19% is in bracket 1, etc. 100% is in bracket 9
+        """
         plays_per_bracket_and_semester = (
             LogPlay.objects.filter(instance=instance, is_complete=True)
             .annotate(
@@ -206,11 +74,9 @@ class ScoringUtil:
                 players=Count("*"),
                 year=F("semester__year"),
                 term=F("semester__semester"),
-            )  # Add additional useful fields
+            )
             # .order_by(-F("semester__start_at")) TODO
         )
-
-        print(plays_per_bracket_and_semester)
 
         # Process results
         semesters = {}
@@ -234,9 +100,9 @@ class ScoringUtil:
 
         return semesters
 
-    # grabs the average score and number of plays for a widget instance per semester.
     @staticmethod
     def get_widget_score_summary(instance: WidgetInstance) -> dict[int, dict]:
+        """grabs the average score and number of plays for a widget instance for each semester"""
         results = (
             LogPlay.objects.filter(instance=instance, is_complete=True)
             .annotate(term_id=F("semester__id"))
@@ -246,7 +112,7 @@ class ScoringUtil:
             .annotate(year=F("semester__year"), term=F("semester__semester"))
         )
 
-        # Convert query set into a dict + fix some data
+        # convert query set into a dict + fix some data
         summaries = {}
         for d in results:
             summaries[d["term_id"]] = d
@@ -254,6 +120,119 @@ class ScoringUtil:
             del summaries[d["term_id"]]["term_id"]
 
         return summaries
+
+    @staticmethod
+    def load_score_class(script_path: str, instance: WidgetInstance):
+        code = Path(script_path).read_text()
+        import types
+
+        mod = types.ModuleType("temp_score_module")
+        exec(code, mod.__dict__)
+        return getattr(mod, instance.widget.score_module, None)
+
+    @staticmethod
+    def run_score_module(
+        session_play, instance: WidgetInstance, ScoreClass, created_at
+    ):
+        play = session_play.data
+        score_module = ScoreClass(play_id=play.id, instance=instance, play=session_play)
+        score_module.logs = session_play.get_logs()
+        score_module.validate_scores(timestamp=created_at)
+        return score_module.get_score_report()
+
+    # Get score and play details for a SessionPlay
+    @staticmethod
+    def get_play_details(session_play):
+        """Finds score module, runs it, and returns the details"""
+
+        import os
+
+        from util.logging.session_play import SessionPlay
+
+        instance = session_play.data.instance
+        # play = session_play.data
+        widget_folder = f"staticfiles/widget/{instance.widget.id}-{instance.widget.clean_name}/_score-modules"
+
+        script_path = os.path.join(widget_folder, "score_module.py")
+        # print("DEBUG: Attempting to load:", script_path)
+
+        # # read the file’s text
+        # code = Path(script_path).read_text()
+        #
+        # import types
+        #
+        # mod = types.ModuleType("temp_score_module")
+        # exec(code, mod.__dict__)
+
+        # ScoreClass = getattr(mod, instance.widget.score_module, None)
+        ScoreClass = ScoringUtil.load_score_class(script_path, instance)
+        if not ScoreClass:
+            raise Exception("No score module found")
+
+        # gets the score report
+        details = ScoringUtil.run_score_module(
+            session_play, instance, ScoreClass, play.created_at
+        )
+
+        instance.get_qset(instance.id, play.created_at)
+        details["qset"] = instance.qset
+
+        if hasattr(instance.qset, "as_json"):
+            details["qset"] = instance.qset.as_json()
+        else:
+            details["qset"] = {"version": None, "data": None}
+
+        import datetime
+
+        # def json_serial(obj):
+        #     if isinstance(obj, datetime.datetime):
+        #         return obj.isoformat()  # Converts datetime to "YYYY-MM-DDTHH:MM:SS"
+        #     raise TypeError(f"Type {type(obj)} not serializable")
+        import json
+
+        if isinstance(details["qset"], dict):
+            details["qset"].pop("questions_list", None)
+
+        # print("\n=== DEBUG: API Response (get_play_details) ===\n")
+        # print(json.dumps(details, indent=4, default=json_serial))
+
+        return details
+
+    @staticmethod
+    def get_preview_play_details(session, widget_instance, preview_play_id):
+        """Same as get_play_details but for previews where they are not stored in database and only are available in session."""
+
+        import os
+        import types
+
+        from util.logging.session_play import SessionPlay
+
+        widget_folder = f"staticfiles/widget/{widget_instance.widget.id}-{widget_instance.widget.clean_name}/_score-modules"
+        script_path = os.path.join(widget_folder, "score_module.py")
+
+        ScoreClass = ScoringUtil.load_score_class(script_path, widget_instance)
+        if not ScoreClass:
+            raise Exception("No score module found")
+
+        session_play = SessionPlay.get_preview_play(session, preview_play_id)
+        if not session_play:
+            raise Exception("Invalid preview play session")
+
+        details = ScoringUtil.run_score_module(
+            session_play,
+            widget_instance,
+            ScoreClass,
+            session_play.data.created_at,
+        )
+
+        widget_instance.get_qset(widget_instance.id, session_play.data.created_at)
+        details["qset"] = (
+            widget_instance.qset.as_json()
+            if hasattr(widget_instance.qset, "as_json")
+            else {"version": None, "data": None}
+        )
+
+        return details
 
     @staticmethod
     def get_guest_play_details(
@@ -273,10 +252,6 @@ class ScoringUtil:
         if not session_play:
             print("Preview play not found in session. Trying DB LogPlay...")
             session_play = LogPlay.objects.filter(pk=play_id, instance=instance).first()
-            # session_play = LogPlay.objects.filter(
-            #     pk=play_id, instance=instance, is_complete=True
-            # ).first()
-            # is_preview = False
 
         if not session_play:
             print("Still not found. Giving up.")
@@ -290,66 +265,26 @@ class ScoringUtil:
 
         widget_folder = f"staticfiles/widget/{instance.widget.id}-{instance.widget.clean_name}/_score-modules"
         script_path = os.path.join(widget_folder, "score_module.py")
-        code = Path(script_path).read_text()
 
-        mod = types.ModuleType("temp_score_module")
-        exec(code, mod.__dict__)
-
-        ScoreClass = getattr(mod, instance.widget.score_module, None)
+        ScoreClass = ScoringUtil.load_score_class(script_path, instance)
         if not ScoreClass:
             raise Exception("No score module found")
 
-        print(f"session_play: {session_play}")
-        score_module = ScoreClass(
-            play_id=play_id,
-            instance=instance,
-            # play=session_play if not is_preview else session_play.data,
-            play=session_play,
-        )
-        # score_module.logs = (
-        #     session_play.get_logs() if is_preview else session_play.get_logs()
-        # )
         logs = session_play.get_logs()
-        print(f"DEBUG: Loaded {len(logs)} logs from session_play.get_logs()")
-        print(f"DEBUG: Loaded {len(logs)} logs from session_play.get_logs()")
-        print(f"DEBUG: Loaded {len(logs)} logs from session_play.get_logs()")
-        score_module.logs = logs
+        created_at = getattr(session_play.data, "created_at", datetime.datetime.now())
+        if not created_at:
+            print("DEBUG: No created_at found in session_play.data")
+        details = ScoringUtil.run_score_module(
+            session_play, instance, ScoreClass, created_at
+        )
 
-        # score_module.validate_scores()
-        # score_module.validate_scores(timestamp=score_module.play.data.created_at)
-        created_at = getattr(score_module.play, "created_at", None)
-        if not created_at and hasattr(score_module.play, "data"):
-            created_at = getattr(score_module.play.data, "created_at", None)
-
-        print(f"created_at: {created_at}")
-        print(f"created_at: {created_at}")
-        print("DOING VALIDATE SCORES")
-        score_module.validate_scores(timestamp=created_at)
-
-        print("GETTING SCORE REPORT")
-
-        details = score_module.get_score_report()
-        # instance.get_qset(instance.id, score_module.play.created_at)
-        # we need to have a check if its a preview play cause they are not in db
+        # do i still need this?
         if session_play.is_preview:
-            print("getting qset via session...")
-            print("getting qset via session...")
-            print("getting qset via session...")
-            print("getting qset via session...")
             qset = instance.get_qset_for_play(play_id, True)
         else:
             qset = instance.get_qset_for_play(play_id)
 
-        # details["qset"] = (
-        #     instance.qset.as_json()
-        #     if hasattr(instance.qset, "as_json")
-        #     else {"version": None, "data": None}
-        # )
-
         from core.serializers import QuestionSetSerializer
-
-        # if "qset" in details and isinstance(details["qset"], dict):
-        #     details["qset"].pop("questions_list", None)
 
         details["qset"] = (
             QuestionSetSerializer(qset).data
