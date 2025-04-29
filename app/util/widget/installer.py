@@ -71,25 +71,6 @@ class WidgetInstaller:
         num_existing = len(matching_widgets)
 
         if skip_upgrade and num_existing > 0:
-            # TODO: see if it's possible to recreate this block
-            # pretty much just produces special contextual output if this is running in a terminal
-            # if (\Fuel::$is_cli)
-            # {
-            #     \Cli::write("Multiple Existing widgets found with name $clean_name", 'red');
-            #     foreach ($matching_widgets as $i => $matching_widget)
-            #     {
-            #         \Cli::write("==> ID:{$matching_widget['id']} ({$matching_widget['name']})", 'green');
-            #     }
-            #     \Cli::write('Run install again with "--replace-id=ID" option', 'yellow');
-            #     return false;
-            # }
-            # else
-
-            # this would normally run in the 'else' of the block above
-            # raise Exception(
-            #     f"Existing widgets found for {clean_name}, not upgrading due to --skip-upgrade option"
-            # )
-
             arg = sys.argv[0]
             if arg is not None and arg.endswith("manage.py"):  # Running from manage.py, print out extra info
                 print(color_style().ERROR(f"Multiple existing widgets found with the name '{clean_name}':"))

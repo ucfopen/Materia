@@ -3,10 +3,10 @@ import logging
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
 
-from core.mixins import MateriaLoginMixin
+from core.mixins import MateriaLoginMixin, MateriaLoginNeeded, MateriaLoginByExceptionMixin
 from core.models import Widget, WidgetInstance
 from django.conf import settings
-from django.http import HttpRequest, HttpResponseNotFound, Http404
+from django.http import HttpRequest, Http404
 from django.views.generic import TemplateView
 from util.context_util import ContextUtil
 from util.perm_manager import PermManager
@@ -36,7 +36,7 @@ class WidgetDetailView(TemplateView):
         )
 
 
-class WidgetDemoView(TemplateView):
+class WidgetDemoView(MateriaLoginByExceptionMixin, TemplateView):
     template_name = "react.html"
 
     def get_context_data(self, widget_slug):
@@ -58,7 +58,7 @@ class WidgetDemoView(TemplateView):
         )
 
 
-class WidgetPlayView(TemplateView):
+class WidgetPlayView(MateriaLoginByExceptionMixin, TemplateView):
     template_name = "react.html"
 
     def get_context_data(self, widget_instance_id, instance_name=None):
@@ -83,7 +83,7 @@ class WidgetPreviewView(MateriaLoginMixin, TemplateView):
         # Get widget instance
         widget_instance = WidgetInstance.objects.get(pk=widget_instance_id)
         if not widget_instance:
-            return HttpResponseNotFound("Could not find widget instance")
+            raise Http404("Could not find widget instance")
 
         # Check if widget is playable
         if not widget_instance.playable_by_current_user(self.request.user):
@@ -201,13 +201,15 @@ def _create_player_page(
 
     # Check to see if login is required
     if not instance.playable_by_current_user(request.user):
-        return _create_widget_login_page(instance, request, is_embedded, is_preview)
+        raise MateriaLoginNeeded(login_global_vars=_create_widget_login_vars(
+            instance, request, is_embedded, is_preview
+        ))
 
     # Check to see if this widget is playable
     instance_status = instance.status(context_id)
 
     if not instance_status["is_open"]:
-        return _create_widget_login_page(instance, request, is_embedded, is_preview)
+        return _create_widget_login_page(instance, request, is_embedded, is_preview)  # TODO
     if not is_preview and instance.is_draft:
         return _create_draft_not_playable_page(request)
     if not is_demo and not instance.widget.is_playable:
@@ -217,7 +219,7 @@ def _create_player_page(
     if autoplay is not None and autoplay is False:
         return _create_pre_embed_placeholder_page(request, instance)
 
-    # NOTE: play session creation originally occured here, in the view
+    # NOTE: play session creation originally occurred here, in the view
     # sessions are now always instantiated from the API
     # Create and return player page context
     return _display_widget(instance, request, is_embedded)
@@ -311,6 +313,34 @@ def _create_widget_login_page(
         js_globals=js_globals,
         request=request,
     )
+
+
+def _create_widget_login_vars(
+    instance: WidgetInstance,
+    request: HttpRequest,
+    is_embedded: bool = False,
+    is_preview: bool = False,
+) -> dict:
+    js_globals = {
+        "NAME": instance.name,
+        "WIDGET_NAME": instance.widget.name,
+        "ICON_DIR": settings.URLS["WIDGET_URL"] + instance.widget.dir,
+        "IS_EMBEDDED": is_embedded,
+        "ACTION_LOGIN": settings.LOGIN_URL,
+        "ACTION_REDIRECT": request.get_full_path(),
+        "LOGIN_USER": settings.VERBAGE["USERNAME"],
+        "LOGIN_PW": settings.VERBAGE["PASSWORD"],
+        "CONTEXT": "widget",
+        "IS_PREVIEW": is_preview
+    }
+
+    # Condense login links into a string with delimiters
+    link_items = []
+    for link in settings.LOGIN_LINKS:
+        link_items.append(f"{link["href"]}***{link["title"]}")
+    js_globals["LOGIN_LINKS"] = "@@@".join(link_items)
+
+    return js_globals
 
 
 def _create_draft_not_playable_page(request: HttpRequest):

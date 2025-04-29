@@ -2,12 +2,13 @@ from django.http import HttpResponseRedirect, Http404, HttpRequest, HttpResponse
 from django.conf import settings
 from django.views.generic import TemplateView
 
+from core.mixins import MateriaLoginMixin, MateriaLoginNeeded
 from core.models import WidgetInstance
 from util.context_util import ContextUtil
 from util.logging.session_play import SessionPlay
 
 
-class ScoresView(TemplateView):
+class ScoresView(MateriaLoginMixin, TemplateView):
     template_name = 'react.html'
     is_preview = False
 
@@ -24,8 +25,11 @@ class ScoresView(TemplateView):
 # Allow LTI launches to score screens
 # In Canvas, this is shown on the grade review
 # enabled by launch param ext_outcome_data_values_accepted=url
-class ScoresViewSingle(TemplateView):
+class ScoresViewSingle(MateriaLoginMixin, TemplateView):
     template_name = 'react.html'
+
+    def initial_login_check(self, request) -> bool:
+        return False
 
     def get(self, request, *args, **kwargs):
         # Get url args
@@ -75,10 +79,7 @@ def _get_context_data(
 
     # Verify user is able to play this widget
     if not instance.playable_by_current_user(request.user):
-        # TODO:
-        # Session::set_flash('notice', 'Please log in to view your scores.');
-        # Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
-        raise Http404()
+        raise MateriaLoginNeeded(login_message="Please log in to view your scores.")
 
     # Set up context and return
     js_globals = {
@@ -88,8 +89,6 @@ def _get_context_data(
 
     if token:
         js_globals["LAUNCH_TOKEN"] = token
-
-    # TODO: insert support inline info - see php
 
     return ContextUtil.create(
         title="Score Results",

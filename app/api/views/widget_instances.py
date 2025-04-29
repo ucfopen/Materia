@@ -339,9 +339,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         if export_type is None:
             return MsgBuilder.invalid_input(msg="Missing export_type query parameter").as_drf_response()
 
-        # TODO original code required user to have FULL perms, not just edit perms. come back around to this
-        #      once we have object level perms done
-
         instance = self.get_object()
         is_student = PermManager.user_is_student(request.user)
 

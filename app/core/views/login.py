@@ -11,7 +11,7 @@ def login(request):
     title = request.session.get("login_title", "Login")
 
     # Dump in all extra login global vars
-    login_global_vars = request.session.get("login_global_vars", {})
+    login_global_vars = request.session.get("login_global_vars", {}) or {}
     for k, v in login_global_vars.items():
         js_globals[k] = v
 

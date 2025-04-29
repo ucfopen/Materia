@@ -36,7 +36,6 @@ from core.views.widget import (
 from django.contrib import admin
 from django.urls import include, path, re_path
 
-handler403 = "core.views.exception_handlers.forbidden"
 
 urlpatterns = [
     # api router and endpoint registration in api_urls
