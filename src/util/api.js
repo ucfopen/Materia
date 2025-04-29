@@ -1,8 +1,18 @@
 import { useEffect } from 'react'
-import fetchPOSTOptions from './fetch-options'
+import fetchWriteOptions from './fetch-options'
 import { useQueryClient } from 'react-query'
 import { objectTypes } from '../components/materia-constants'
 import { error } from 'jquery'
+
+export const getCSRFToken = () => {
+	const cookies = document.cookie.split(';')
+	for(let cookie of cookies) {
+		if(cookie.startsWith('csrftoken=')) {
+			return cookie.split('=')[1]
+		}
+	}
+	return ''
+}
 
 // checks response for errors and decodes json
 const handleErrors = async resp => {
@@ -17,14 +27,14 @@ const handleErrors = async resp => {
 		})
 		// check if error has message
 		if (errMsg.msg && errMsg.title) {
-			throw new Error(errMsg.title, {cause: errMsg.msg, halt: errMsg.halt, type: errMsg.type})
+			throw new Error(errMsg.title, {cause: errMsg.msg, halt: errMsg.halt ?? true, type: errMsg.type})
 		}
 		// sometimes it's in body
 		else if (errMsg.body) {
 			let body = JSON.parse(errMsg.body)
 			// check if body has error message or warning
 			if (body) {
-				throw new Error(body.title, {cause: body.msg, halt: body.halt, type: body.type})
+				throw new Error(body.title, {cause: body.msg, halt: body.halt ?? true, type: body.type})
 			}
 		}
 		throw new Error(resp.statusText)
@@ -33,24 +43,32 @@ const handleErrors = async resp => {
 	const data = await resp.json().catch(() => { return null })
 	// just in case server side didn't return error status code with error
 	if (data?.type == "error") {
-		throw Error(data.title, {cause: data.msg, halt: data.halt, type: data.type})
+		throw Error(data.title, {cause: data.msg, halt: data.halt ?? true, type: data.type})
 	}
 	return data
 }
 
-const fetchGet = (url, options = null) => fetch(url, fetchPOSTOptions(options)).then(handleErrors)
+const fetchPost = (url, options = null) => fetch(url, fetchWriteOptions("POST", options)).then(handleErrors)
+const fetchPut = (url, options = null) => fetch(url, fetchWriteOptions("PUT", options)).then(handleErrors)
+const fetchPatch = (url, options = null) => fetch(url, fetchWriteOptions("PATCH", options)).then(handleErrors)
+const fetchGet = (url) => fetch(url).then(handleErrors)
 
 // Helper function to simplify encoding fetch body values
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
-/** API v1 */
+
+
+export const apiGetWidgetInstances = ({ pageParam = 1 }) => {
+	return fetch(`/api/instances/?user=me&page=${pageParam}`)
+	.then(resp => resp.json())
+}
 
 export const apiGetWidgetInstance = (instId, getDeleted=false) => {
-	return fetchGet(`/api/json/widget_instances_get/`, { body: { instanceIds: [instId], getDeleted } })
-	  .then(widget => {
-			return widget['instances']?.[0] ?? {}
-		})
+	return fetch(`/api/instances/${instId}/`)
+	.then(resp => resp.json())
 }
+
+/** API v1 */
 
 /**
  * It fetches the widget instances from the server, and if successful, writes the response to local
@@ -58,7 +76,7 @@ export const apiGetWidgetInstance = (instId, getDeleted=false) => {
  * @returns An array of objects.
  */
 export const apiGetUserWidgetInstances = (page_number = 0) => {
-	return fetchGet(`/api/json/widget_paginate_user_instances_get/${page_number}`, { body: `data=${formatFetchBody([page_number])}` })
+	return fetchPost(`/api/json/widget_paginate_user_instances_get/${page_number}`, { body: `data=${formatFetchBody([page_number])}` })
 		.then(resp => {
 			writeToStorage('widgets', resp)
 			return resp
@@ -71,15 +89,22 @@ export const apiGetInstancesForUser = userId => {
 }
 
 export const apiGetWidgetsByType = (widgetType="default") => {
-	return fetchGet('/api/json/widgets_get_by_type/', { body: { widgetType } })
+	return fetchPost('/api/widgets/get_by_type/', { body: { widgetType } })
 }
 
 // Gets widget info
-export const apiGetWidget = widgetId => {
-	return fetchGet('/api/json/widgets_get/', { body: { widgetIds: [widgetId] } })
-		.then(widgets => {
-			return widgets?.length > 0 ? widgets[0] : {}
-		})
+export const apiGetWidget = (ids=[], type='default') => {
+	let params = `?type=${type}`
+
+	if (ids.length) {
+		const idsFilter = ids.toString()
+		params += `&ids=${idsFilter}`
+	}
+	return fetch(`/api/widgets/${params}`)
+		.then(response => response.json())
+		.then((data) => {
+			return data
+	})
 }
 
 /**
@@ -89,7 +114,7 @@ export const apiGetWidget = widgetId => {
  * @returns The widget instance id
  */
 export const apiCopyWidget = values => {
-	return fetchGet(`/api/json/widget_instance_copy`, { body: `data=${formatFetchBody([values.instId, values.title, values.copyPermissions])}` })
+	return fetchPost(`/api/json/widget_instance_copy`, { body: `data=${formatFetchBody([values.instId, values.title, values.copyPermissions])}` })
 }
 
 /**
@@ -98,59 +123,49 @@ export const apiCopyWidget = values => {
  * @returns The response from the server.
  */
 export const apiDeleteWidget = ({ instId }) => {
-	return fetchGet('/api/json/widget_instance_delete/', { body: `data=${formatFetchBody([instId])}` })
+	return fetchPost('/api/json/widget_instance_delete/', { body: `data=${formatFetchBody([instId])}` })
 }
 
 export const apiSaveWidget = (_params) => {
-	const defaults = {
-		qset: null,
-		is_draft: null,
-		open_at: null,
-		close_at: null,
-		attempts: null,
-		guest_access: null,
-		embedded_only: null,
-	}
-
-	let params = Object.assign({}, defaults, _params)
-
-	if (params.inst_id != null) {
-		// limit args to the the following params
-		let args = [
-			params.inst_id,
-			params.name,
-			params.qset,
-			params.is_draft,
-			params.open_at,
-			params.close_at,
-			params.attempts,
-			params.guest_access,
-			params.embedded_only,
-		]
-
-		return fetchGet('/api/json/widget_instance_update/', { body: `data=${formatFetchBody(args)}` })
-
+	if (_params.instId != null) {
+		// limit args to the following params
+		const body = {
+			name: _params?.name ?? undefined,
+			qset: _params?.qset ?? undefined,
+			is_draft: _params?.isDraft ?? undefined,
+			open_at: _params?.open_at ?? undefined,
+			close_at: _params?.close_at ?? undefined,
+			attempts: _params?.attempts ?? undefined,
+			guest_access: _params?.guest_access ?? undefined,
+			embedded_only: _params?.embedded_only ?? undefined,
+		}
+		return fetchPatch(`/api/instances/${_params.instId}/`, { body })
 	} else {
-		let args = [
-			params.widget_id,
-			params.name,
-			params.qset,
-			params.is_draft
-		]
-		return fetchGet('/api/json/widget_instance_save/', { body: `data=${formatFetchBody(args)}` })
+		const body = {
+			widget_id: parseInt(_params.widgetId),
+			name: _params.name,
+			qset: _params.qset,
+			is_draft: _params.isDraft,
+		}
+		return fetchPost('/api/instances/', { body })
 	}
 }
 
-export const apiGetUser = () => {
-	return fetchGet('/api/json/user_get', { body: `data=${formatFetchBody([])}` })
-		.then(user => {
-			writeToStorage('user', user)
-			return user
+export const apiGetUser = (user) => {
+	if (!!user) user = ''
+	return fetch(`/api/users/${user}`)
+		.then(response => response.json())
+		.then((data) => {
+			return {
+				...data[0],
+				first: data[0].first_name,
+				last: data[0].last_name
+			}
 		})
 }
 
 export const apiGetUsers = arrayOfUserIds => {
-	return fetchGet('/api/json/user_get', { body: `data=${formatFetchBody([arrayOfUserIds])}` })
+	return fetchPost('/api/user/user_get', { body: `data=${formatFetchBody([arrayOfUserIds])}` })
 		.then(users => {
 			const keyedUsers = {}
 			if (Array.isArray(users)) {
@@ -161,46 +176,45 @@ export const apiGetUsers = arrayOfUserIds => {
 		})
 }
 
-export const apiAuthorSuper = () => {
-	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody(['super_user'])}` })
-		.then(user => user)
-		.catch(error => false)
-}
-
-export const apiAuthorSupport = () => {
-	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody(['support_user'])}` })
-		.then(user => user)
-		.catch(error => false)
-}
-
-export const apiAuthorVerify = () => {
-	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody([])}` })
-		.then(user => user)
-		.catch(error => false)
+// this endpoint now returns both authentication status and perm level
+export const apiUserVerify = () => {
+	return fetch('/api/session/verify/')
+	.then(response => response.json())
+	.then(data => {
+		return data
+	})
+	.catch(error => false)
 }
 
 export const apiGetNotifications = () => {
-	return fetchGet('/api/json/notifications_get/', { body: `data=${formatFetchBody([])}` })
+	return fetch('/api/notifications/')
+	.then(response => response.json())
+	.then(data => {
+		return data
+	})
 }
 
 export const apiDeleteNotification = (data) => {
-	return fetchGet('/api/json/notification_delete/', { body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` })
+	return fetchPost('/api/notifications/delete/', { body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` })
 }
 
 export const apiSearchUsers = (input = '', page_number = 0) => {
-	return fetchGet('/api/json/users_search', { body: `data=${formatFetchBody([input, page_number])}` })
+	return fetchPost('/api/json/users_search', { body: `data=${formatFetchBody([input, page_number])}` })
 }
 
 export const apiGetUserPermsForInstance = instId => {
-	return fetchGet('/api/json/permissions_get', { body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId])}` })
+	return fetch(`/api/instances/${instId}/perms/`)
+	.then(resp => resp.json())
 }
 
 export const apiSetUserInstancePerms = ({ instId, permsObj }) => {
-	return fetchGet('/api/json/permissions_set', { body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId, permsObj])}` })
+	return fetchPost('/api/json/permissions_set', { body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId, permsObj])}` })
 }
 
 export const apiCanEditWidgets = arrayOfWidgetIds => {
-	return fetchGet('/api/json/widget_instance_edit_perms_verify', { body: `data=${formatFetchBody([arrayOfWidgetIds])}` })
+	// TODO HEY UPDATE THIS YOU DUMMY
+	return {"is_locked":false,"can_publish":true,"can_edit":true}
+	// return fetchPost('/api/json/widget_instance_edit_perms_verify', { body: `data=${formatFetchBody([arrayOfWidgetIds])}` })
 }
 
 /**
@@ -218,11 +232,12 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
  * @returns {object} updated instance
  */
 export const apiUpdateWidget = ({ args }) => {
-	return fetchGet('/api/json/widget_instance_update', { body: `data=${formatFetchBody(args)}` })
+	return fetchPost('/api/widget_instance/update/', { body: args })
 }
 
 export const apiGetWidgetLock = (id = null) => {
-	return fetchGet('/api/json/widget_instance_lock', { body: `data=${formatFetchBody([id])}` })
+	return fetchGet(`/api/instances/${id}/lock/`)
+		.then(data => data["lock_obtained"])
 }
 
 /**
@@ -246,52 +261,75 @@ export const apiSearchInstances = (input, page_number = 0) => {
 }
 
 export const apiGetWidgetInstanceScores = (instId, send_token) => {
-	return fetchGet('/api/json/widget_instance_scores_get/', { body: { instanceId: instId, token: send_token } })
+	return fetchPost('/api/scores/get_for_widget_instance/', { body: { instanceId: instId, token: send_token } })
 }
 
 
 export const apiGetGuestWidgetInstanceScores = (instId, playId) => {
-	return fetchGet('/api/json/guest_widget_instance_scores_get/', { body: { instanceId: instId, playId: playId } })
+	return fetchPost('/api/scores/get_for_widget_instance_guest/', { body: { instanceId: instId, playId: playId } })
 }
 
-export const apiGetWidgetInstancePlayScores = (playId, previewInstId) => {
-	return fetchGet('/api/json/widget_instance_play_scores_get/', { body: { playId, previewInstId } })
+export const apiGetWidgetInstancePlayScores = (playId, previewInstId, previewPlayId) => {
+	return fetchPost('/api/scores/get_play_details/', { body: { playId, previewInstId, previewPlayId } })
 }
 
 export const apiGetScoreDistribution = instId => {
-	return fetchGet('/api/json/score_raw_distribution_get', { body: `data=${formatFetchBody([instId])}` })
+	return fetchPost('/api/json/score_raw_distribution_get', { body: `data=${formatFetchBody([instId])}` })
 }
 
 export const apiGetScoreSummary = instId => {
-	return fetchGet('/api/json/score_summary_get/', { body: { instanceId: instId, includeStorageData: true } })
-		.then(resp => {
-      const scores = resp['summaries']
-			if (!scores) return []
-
-			const ranges = [
-				'0-9',
-				'10-19',
-				'20-29',
-				'30-39',
-				'40-49',
-				'50-59',
-				'60-69',
-				'70-79',
-				'80-89',
-				'90-100',
-			]
-
-			scores.forEach(semester => {
-				semester.graphData = semester.distribution?.map((d, i) => ({ label: ranges[i], value: d }))
-				semester.totalScores = semester.distribution?.reduce((total, count) => total + count)
-			})
-
-			return scores
+	return fetch(`/api/instances/${instId}/scores/`)
+	.then(resp => resp.json())
+	.then(data => {
+		const scores = data
+		const ranges = [
+			'0-9',
+			'10-19',
+			'20-29',
+			'30-39',
+			'40-49',
+			'50-59',
+			'60-69',
+			'70-79',
+			'80-89',
+			'90-100',
+		]
+		scores.forEach(semester => {
+			semester.graphData = semester.distribution?.map((d, i) => ({ label: ranges[i], value: d }))
+			semester.totalScores = semester.distribution?.reduce((total, count) => total + count)
 		})
+
+		return scores
+	})
+	// return fetchPost('/api/json/score_summary_get/', { body: { instanceId: instId, includeStorageData: true } })
+	// 	.then(resp => {
+    //   const scores = resp['summaries']
+	// 		if (!scores) return []
+
+	// 		const ranges = [
+	// 			'0-9',
+	// 			'10-19',
+	// 			'20-29',
+	// 			'30-39',
+	// 			'40-49',
+	// 			'50-59',
+	// 			'60-69',
+	// 			'70-79',
+	// 			'80-89',
+	// 			'90-100',
+	// 		]
+
+	// 		scores.forEach(semester => {
+	// 			semester.graphData = semester.distribution?.map((d, i) => ({ label: ranges[i], value: d }))
+	// 			semester.totalScores = semester.distribution?.reduce((total, count) => total + count)
+	// 		})
+
+	// 		return scores
+	// 	})
 }
 
 export const apiGetPlayLogs = (instId, term, year, page_number) => {
-	return fetchGet('/api/json/play_logs_get', { body: `data=${formatFetchBody([instId, term, year, page_number])}` })
+	return fetchPost('/api/json/play_logs_get', { body: `data=${formatFetchBody([instId, term, year, page_number])}` })
 		.then(results => {
 			if (!results) return []
 			if (results.pagination.length == 0) return []
@@ -336,101 +374,139 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 }
 
 export const apiGetStorageData = instId => {
-	return fetchGet('/api/json/play_storage_get', ({ body: `data=${formatFetchBody([instId])}` }))
+	return fetchPost('/api/json/play_storage_get', ({ body: `data=${formatFetchBody([instId])}` }))
 }
 
 // Widget player api calls
-export const apiGetPlaySession = ({ widgetId }) => {
-	return fetchGet('/api/json/session_play_create/', ({ body: { instanceId: widgetId } }))
+export const apiCreatePlaySession = ({ widgetId }) => {
+	return fetch('/api/play-sessions/', {
+		method: 'POST',
+		body: JSON.stringify({ instanceId: widgetId }),
+		headers: {
+			'content-type': 'application/json',
+			'X-CSRFToken': getCSRFToken(),
+		}
+	})
+		.then(resp => resp.json())
+		.then(data => data)
 }
 
 export const apiGetQuestionSet = (instanceId, playId = null) => {
-	return fetchGet('/api/json/question_set_get/', ({ body: { instanceId, playId } }))
-    .then(resp => resp["qset"])
+	return fetch(`/api/instances/${instanceId}/question_sets/?latest=true`)
+		.then(resp => resp.json())
 }
 
-export const apiGenerateQset = ({inst_id, widget_id, topic, include_images, num_questions, build_off_existing}) => {
-	return fetchGet('/api/json/question_set_generate/', ({ body: `data=${formatFetchBody([inst_id, widget_id, topic, include_images, num_questions, build_off_existing])}` }))
+export const apiGenerateQset = ({instId, widgetId, topic, includeImages, numQuestions, buildOffExisting}) => {
+	return fetchPost('/api/generate/qset/', ({ body: {
+		instance_id: instId,
+		widget_id: widgetId,
+		topic,
+		include_images: includeImages,
+		num_questions: numQuestions,
+		build_off_existing: buildOffExisting
+	} }))
 }
 
 export const apiSessionVerify = (play_id) => {
-	return fetchGet('/api/json/session_play_verify/', ({ body: `data=${formatFetchBody([play_id])}` }))
+	return fetch(`/api/play-sessions/${play_id}/verify/`)
+	.then(resp => resp.json())
+	.then(data => {
+		return data.valid
+	})
 }
 
 export const apiSavePlayStorage = ({ play_id, logs }) => {
-	return fetchGet('/api/json/play_storage_data_save/', ({ body: `data=${formatFetchBody([play_id, logs])}` }))
+	return fetchPost('/api/json/play_storage_data_save/', ({ body: `data=${formatFetchBody([play_id, logs])}` }))
 }
 
 export const apiSavePlayLogs = ({ request }) => {
-	return fetchGet('/api/json/play_logs_save/', ({ body: request }))
+	return fetch(`/api/play-sessions/${request.playId}/`, {
+		method: 'PUT',
+		body: JSON.stringify(request),
+		headers: {
+			'X-CSRFToken': getCSRFToken(),
+			'content-type': 'application/json'
+		}
+	})
+	.then(handleErrors)
 }
 
-export const apiGetQuestionsByType = (arrayOfQuestionIds, arrayOfQuestionTypes) => {
-	return fetchGet('/api/json/questions_get', ({ body: `data=${formatFetchBody([arrayOfQuestionIds, arrayOfQuestionTypes])}` }))
+export const apiGetQuestionsByType = (arrayOfQuestionIds, questionTypes) => {
+	return fetchPost('/api/user/get_questions/', ({ body: { ids: arrayOfQuestionIds, types: questionTypes } }))
+		.then(data => {
+			console.log(data.questions[0])
+			return data["questions"]
+		})
 }
 
 export const apiGetAssets = () => {
-	return fetchGet(`/api/json/assets_get`, ({ body: `data=${formatFetchBody([])}` }))
+	return fetchGet(`/api/asset/all/`, ({ body: `data=${formatFetchBody([])}` }))
 }
 
 /** Controller_Api_Asset */
 
 export const apiDeleteAsset = async (assetId) => {
 	const options = {
-		method: 'POST',
+		method: 'DELETE',
 		mode: 'cors',
 		credentials: 'include',
 		headers: {
 			pragma: 'no-cache',
 			'cache-control': 'no-cache',
-			'content-type': 'application/json; charset=UTF-8'
+			'content-type': 'application/json; charset=UTF-8',
+			'X-CSRFToken': getCSRFToken(),
 		}
 	}
-	return fetch(`/api/asset/delete/${assetId}`, options).then(handleErrors)
+	return fetch(`/api/asset/${assetId}/delete/`, options).then(handleErrors)
 }
 
 export const apiRestoreAsset = (assetId) => {
 	const options = {
-		method: 'POST',
+		method: 'PATCH',
 		mode: 'cors',
 		credentials: 'include',
 		headers: {
 			pragma: 'no-cache',
 			'cache-control': 'no-cache',
-			'content-type': 'application/json; charset=UTF-8'
+			'content-type': 'application/json; charset=UTF-8',
+			'X-CSRFToken': getCSRFToken(),
 		}
 	}
-	return fetch(`/api/asset/restore/${assetId}`, options).then(handleErrors)
+	return fetch(`/api/asset/${assetId}/restore/`, options).then(handleErrors)
 }
 
 // Returns boolean, true if the current user can publish the given widget instance, false otherwise
 export const apiCanBePublishedByCurrentUser = (widgetId) => {
-	return fetchGet('/api/json/widget_publish_perms_verify', ({ body: `data=${formatFetchBody([widgetId])}` }))
+	return fetchGet(`/api/widgets/${widgetId}/publish_perms_verify/`)
+		.then((json) => json['publishPermsValid'])
 }
 
 /** Controller_Api_User */
 
-export const apiGetUserActivity = ({ pageParam = 0 }) => {
-	return fetch(`/api/user/activity?start=${pageParam * 6}`)
-		.then(handleErrors)
+export const apiGetUserPlaySessions = ({pageParam = 1}) => {
+	return fetch(`/api/play-sessions/?include_activity=true&page=${pageParam}`)
+		.then(resp => resp.json())
+		.then(data => data)
 }
 
 export const apiUpdateUserSettings = (settings) => {
-	return fetch('/api/user/settings', {
-		...fetchPOSTOptions({}),
+	return fetch(`/api/users/${settings.user_id}/profile_fields/`, {
+		method: 'PUT',
+		body: JSON.stringify(settings),
 		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
+			'X-CSRFToken': getCSRFToken(),
 			'content-type': 'application/json'
-		},
-		body: JSON.stringify(settings)
+		}
 	})
-		.then(handleErrors)
+	.then(resp => resp.json())
+	.then(res => {
+		return res
+	})
 }
 
 export const apiUpdateUserRoles = (roles) => {
 	return fetch('/api/user/roles', {
-		...fetchPOSTOptions({}),
+		...fetchWriteOptions("POST", {}),
 		headers: {
 			pragma: 'no-cache',
 			'cache-control': 'no-cache',
@@ -444,8 +520,10 @@ export const apiUpdateUserRoles = (roles) => {
 /** Controller_Api_Instance */
 
 export const apiGetQuestionSetHistory = (instId) => {
-	return fetch(`/api/instance/history?inst_id=${instId}`)
-		.then(handleErrors)
+	return fetchGet(`/api/instances/${instId}/question_sets/`)
+	// return fetch(`/api/widget_instances/history/?inst_id=${instId}`)
+	// 	.then(handleErrors)
+	// 	.then(data => data['history'])
 }
 
 // Request access to widget
@@ -581,7 +659,7 @@ export const apiUnDeleteWidget = ({ instId }) => {
 }
 
 export const apiWidgetPromptGenerate = (prompt) => {
-	return fetchGet(`/api/json/widget_prompt_generate/`, { body: `data=${formatFetchBody([prompt])}` })
+	return fetchPost(`/api/json/widget_prompt_generate/`, { body: { prompt } })
 }
 
 /** STORAGE UTILS */

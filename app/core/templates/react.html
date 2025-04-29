@@ -1,7 +1,9 @@
 {% load static %}
+{% load get_type %}
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		{% csrf_token %}
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
 		{{ partials.meta|default:'' }}
@@ -14,14 +16,22 @@
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		{{ css_render|safe }} {{ partials.google_analytics|default:''|safe }}
 
+		{% if fonts %}
+			{% for font in fonts %}
+				<link rel="stylesheet" href="{{ font }}" />
+			{% endfor %}
+		{% endif %}
+
 		{% if css_resources %}
 			{% for css in css_resources %}
 				<link rel="stylesheet" type="text/css" href="{% static css %}">
 			{% endfor %}
 		{% endif %}
+		<link rel="stylesheet" type="text/css" href="{% static 'dist/css/commons.css' %}" />
 
 	</head>
-	<body class="{{ page_type|default:'' }}">
+	<body class="{{ page_type|default:'' }} {% if darkMode %}darkMode{% endif %}">
+
 		<div id="app"></div>
 		<div id="modal"></div>
 		{% if js_resources %}
@@ -33,7 +43,17 @@
 		{% if js_global_variables %}
 			<script>
 				{% for key, value in js_global_variables.items %}
-					var {{key}} = '{{value}}';
+					{% if value|get_type == "NoneType" %}
+						var {{key}} = null;
+					{% elif value|get_type == "str" %}
+						var {{key}} = '{{value}}';
+					{% elif value|get_type == "bool" and value %}
+						var {{key}} = true;
+					{% elif value|get_type == "bool" and not value %}
+						var {{key}} = false;
+					{% else %}
+						var {{key}} = {{value}};
+					{% endif %}
 				{% endfor %}
 			</script>
 		{% endif %}

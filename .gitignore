@@ -11,10 +11,12 @@ build
 nbproject/
 *.pem
 .phpunit.result.cache
+.vscode
 
 # custom config
 .env.local
 .env.local.mysql
+**/.env
 
 # hidden files created by Windows
 Thumbs.db
@@ -88,7 +90,7 @@ public/dist/*
 !public/dist/path.js
 !public/dist/README.md
 
-**/__pycache__/**
+__pycache__
 **/*.log
 app/materia/settings.py
 **/venv
@@ -106,3 +108,6 @@ public/js/
 
 # docker override is now untracked as of v10.3.0
 docker/docker-compose.override.yml
+
+#  sql files that may contian sensitive information
+*.sql

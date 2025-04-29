@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon';
-import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify, apiIsGenerable, apiWidgetPromptGenerate} from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiUserVerify, apiIsGenerable, apiWidgetPromptGenerate} from '../util/api'
 import NoPermission from './no-permission'
 import Alert from './alert'
 import { creator } from './materia-constants';
@@ -28,7 +28,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		dialogType: 'embed_dialog',
 		heartbeatEnabled: true,
 		hasCreatorGuide: false,
-		creatorGuideUrl: window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/creators-guide',
+		creatorGuideUrl: window.location.pathname.replace('create/', '') + 'creators-guide/',
 		showActionBar: true,
 		showRollbackConfirm: false,
 		showGenerationConfirm: false,
@@ -77,8 +77,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		retry: false,
 		onSuccess: (info) => {
 			if (info) {
-				setInstance({ ...instance, widget: info })
-				setCreatorState({...creatorState, canGenerateQset: info.is_generable == "1"})
+				setInstance({ ...instance, widget: info[0] })
+				setCreatorState({...creatorState, canGenerateQset: info[0]['is_generable']})
 			}
 		},
 		onError: (error) => {
@@ -146,7 +146,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 	useQuery({
 		queryKey: 'heartbeat',
-		queryFn: () => apiAuthorVerify(),
+		queryFn: () => apiUserVerify(),
 		staleTime: 30000,
 		refetchInterval: 30000,
 		enabled: creatorState.heartbeatEnabled,
@@ -427,11 +427,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			return false;
 		}
 		let newWidget = {
-			widget_id: widgetId,
+			widgetId: widgetId,
 			name: instanceName,
 			qset: { version, data: qset },
-			is_draft: saveModeRef.current !== 'publish',
-			inst_id: instIdRef.current,
+			isDraft: saveModeRef.current !== 'publish',
+			instId: instIdRef.current,
 		}
 
 		// requested the current qset from the creator to cache for qset history rollback
@@ -470,12 +470,14 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						setSaveWidgetComplete(saveModeRef.current)
 						if (!instIdRef.current) instIdRef.current = inst.id
 						setInstance(currentInstance => ({ ...currentInstance, ...inst }))
-						sendToCreator('onSaveComplete', [
-							inst.name,
-							inst.widget,
-							inst.qset.data,
-							inst.qset.version
-						])
+						apiGetQuestionSet(inst.id).then((qset) => {
+							sendToCreator('onSaveComplete', [
+								inst.name,
+								inst.widget,
+								qset.data,
+								qset.version
+							])
+						}).catch(err => onInitFail(err))
 						break
 				}
 			}
@@ -561,7 +563,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const showQsetHistoryImporter = () => {
-		showEmbedDialog(`${window.BASE_URL}qsets/import/?inst_id=${instance.id}`, 'embed_dialog')
+		showEmbedDialog(`${window.BASE_URL}qsets/history/?inst_id=${instance.id}`, 'embed_dialog')
 	}
 
 	const showQuestionGenerator = () => {
@@ -797,7 +799,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				<a id="returnLink" href={returnLocationUrl}>&larr;Return to {creatorState.returnLocation}</a>
 				{ creatorState.hasCreatorGuide ? <a id="creatorGuideLink" href={creatorState.creatorGuideUrl} target="_blank">Creator's Guide</a> : '' }
 				{ instance.id ? <a id="saveHistoryLink" onClick={showQsetHistoryImporter}>Save History</a> : '' }
-				<a id="importLink" onClick={showQuestionImporter}>Import</a>
 				{ creatorState.canGenerateQset ? <a id="generateLink" onClick={showQuestionGenerator}>Generate</a> : <></> }
 				{ editButtonsRender }
 				<div className="dot"></div>

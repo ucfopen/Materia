@@ -17,7 +17,7 @@ RUN mkdir /var/www/
 RUN mkdir /var/www/html
 
 # Add the wait for it script.
-COPY patjango/dockerfiles/wait_for_it.sh /wait_for_it.sh
+COPY docker/dockerfiles/wait_for_it.sh /wait_for_it.sh
 RUN chmod +x /wait_for_it.sh
 
 COPY /app/ /var/www/html/

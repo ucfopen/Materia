@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useReducer } from 'react'
+import React, {useState, useEffect, useRef, useReducer, useMemo} from 'react'
 import { useQuery } from 'react-query'
 import { v4 as uuidv4 } from 'uuid';
 import { apiGetWidgetInstance, apiGetQuestionSet, apiSessionVerify } from '../util/api'
@@ -85,7 +85,7 @@ const _translateForApiVersion = (instance, qset) => {
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/') || window.location.href.includes('/lti/assignment')
 
-const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=true}) => {
+const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=true}) => {
 
 	const [alert, setAlert] = useState({
 		msg: '',
@@ -110,6 +110,11 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	const savePlayLog = usePlayLogSave()
 	const saveStorage = usePlayStorageDataSave()
+
+	const previewPlayId = useMemo(() => {
+		if (!isPreview) return null
+		return crypto.randomUUID() // Generate a random preview play ID
+	}, [])
 
 	// refs are used instead of state when value updates do not require a component rerender
 	const centerRef = useRef(null)
@@ -290,7 +295,10 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 			if (pendingLogs.play && pendingLogs.play.length > 0) {
 				const args = { playId, logs: pendingLogs.play }
 				if (isPreview) {
+					// TODO clean these up?
 					args['previewInstanceId'] = (inst.id)
+					args['previewPlayId'] = previewPlayId
+					if (isPreview) args['playId'] = previewPlayId
 				}
 				_pushPendingLogs([{ request: args }])
 			}
@@ -328,8 +336,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	// Receives messages from widget player
 	const _onPostMessage = e => {
-		console.log("RECEIVED POST MESSAGE")
-		console.log(e)
 		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
 			const msg = JSON.parse(e.data)
@@ -426,7 +432,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 				setRetryCount(0) // reset on success
 
-				if (result) {
+				if (result?.success) {
 					// this removes all the currently queued logs from the pendingLogs state object, by way of the reducer
 					// leverages React's built-in state management to prevent race conditions with log processing
 					// when a function is passed to useState, the results of the function are passed to each subsequent call of useState
@@ -523,7 +529,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	const _initScoreScreenUrl = () => {
 		let _scoreScreenURL = ''
 			if (isPreview) {
-				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}?previewId=${previewPlayId}`
 			} else if (isEmbedded) {
 				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}/${playId}`
 			} else {

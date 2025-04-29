@@ -62,9 +62,12 @@ const SettingsPage = () => {
 
 	const _submitSettings = () => {
 		mutateUserSettings.mutate({
-			notify: state.notify,
-			useGravatar: state.useGravatar,
-			darkMode: state.darkMode,
+			user_id: currentUser.id,
+			profile_fields: {
+				notify: state.notify,
+				useGravatar: state.useGravatar,
+				darkMode: state.darkMode
+			},
 			successFunc: () => {
 				// immediately apply/revoke darkmode to body tag. This will be automatically applied
 				// on subsequent page views across the application

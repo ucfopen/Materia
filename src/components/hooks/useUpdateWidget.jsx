@@ -22,12 +22,12 @@ export default function useUpdateWidget() {
 				// update successful - insert new values into our local copy of widgetList
 				for (const page of widgetList?.pages) {
 					for (const inst of page?.pagination) {
-						if (inst.id === variables.args[0]) {
-							inst.open_at = parseInt(variables.args[4])
-							inst.close_at = parseInt(variables.args[5])
-							inst.attempts = parseInt(variables.args[6])
-							inst.guest_access = variables.args[7]
-							inst.embedded_only = variables.args[8]
+						if (inst.id === variables.instId) {
+							inst.open_at = parseInt(variables.openAt)
+							inst.close_at = parseInt(variables.closeAt)
+							inst.attempts = parseInt(variables.attempts)
+							inst.guest_access = variables.guestAccess
+							inst.embedded_only = variables.embeddedOnly
 							break
 						}
 					}

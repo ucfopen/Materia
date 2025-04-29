@@ -15,39 +15,118 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from core.views import main as core_views
-from core.views.catalog import CatalogView
-
-from core.views import profile as profile_views
-from core.views import login as login_views
-
-from core.views.scores import ScoresView
-from core.views.widget import *
-
-from django.urls import include, path
 from api.views.users import UsersApi
+from core.views import login as login_views
+from core.views import main as core_views
+from core.views import profile as profile_views
+from core.views.catalog import CatalogView
+from core.views.media import MediaImportView, MediaRender, MediaUpload
+from core.views.my_widgets import MyWidgetsView
+from core.views.scores import ScoresView
+from core.views.widget import (
+    WidgetCreatorView,
+    WidgetDemoView,
+    WidgetDetailView,
+    WidgetGuideView,
+    WidgetPlayView,
+    WidgetPreviewView,
+    WidgetQsetGenerateView,
+    WidgetQsetHistoryView,
+)
 from django.contrib import admin
+from django.urls import include, path, re_path
 
 urlpatterns = [
+    # api router and endpoint registration in api_urls
+    path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("", core_views.index, name="home page"),
     path("help/", core_views.help, name="help"),
-
     # Widgets
     path("widgets/", CatalogView.index, name="widget catalog"),
-    path("widgets/<slug:widget_slug>/", WidgetDetailView.as_view(), name="widget detail"),
-    path("widgets/<slug:widget_slug>/demo", WidgetDemoView.as_view(), name="widget demo"),
-    path("play/<slug:widget_instance_id>/", WidgetPlayView.as_view(), name="widget play"),
-    path("play/<slug:widget_instance_id>/<str:instance_name>/", WidgetPlayView.as_view(), name="widget play"),
-
+    path(
+        "widgets/<slug:widget_slug>/", WidgetDetailView.as_view(), name="widget detail"
+    ),
+    path(
+        "widgets/<slug:widget_slug>/demo", WidgetDemoView.as_view(), name="widget demo"
+    ),
+    re_path(
+        r"^widgets/(?P<widget_slug>[\w-]+)/(?P<guide_type>(creators|players))-guide/$",
+        WidgetGuideView.as_view(),
+        name="widget guide view",
+    ),
+    path(
+        "play/<slug:widget_instance_id>/", WidgetPlayView.as_view(), name="widget play"
+    ),
+    path(
+        "play/<slug:widget_instance_id>/<str:instance_name>/",
+        WidgetPlayView.as_view(),
+        name="widget play",
+    ),
+    path(
+        "preview/<slug:widget_instance_id>/",
+        WidgetPreviewView.as_view(),
+        name="widget preview",
+    ),
+    path(
+        "preview/<slug:widget_instance_id>/<str:instance_name>/",
+        WidgetPreviewView.as_view(),
+        name="widget preview",
+    ),
+    # My Widgets
+    path("my-widgets/", MyWidgetsView.index, name="my widgets"),
+    # Creator
+    path(
+        "widgets/<slug:widget_slug>/create/",
+        WidgetCreatorView.as_view(),
+        name="widget creator",
+    ),
+    path(
+        "widgets/<slug:widget_slug>/create/<str:instance_id>",
+        WidgetCreatorView.as_view(),
+        name="widget creator existing instance",
+    ),
+    path(
+        "preview/<slug:widget_instance_id>/",
+        WidgetPreviewView.as_view(),
+        name="widget preview",
+    ),
+    path(
+        "preview/<slug:widget_instance_id>/<title>/",
+        WidgetPreviewView.as_view(),
+        name="widget preview",
+    ),
+    path("qsets/history/", WidgetQsetHistoryView.as_view(), name="widget qset history"),
+    path(
+        "qsets/generate/", WidgetQsetGenerateView.as_view(), name="widget qset generate"
+    ),
     # Scores
-    path("scores/<slug:widget_instance_id>/<slug:play_id>/", ScoresView.as_view(), name="scores"),
-
-    # API
-    path("api/json/", include("api.urls.json")),
-    path("api/user/activity", UsersApi.activity),
+    path(
+        "scores/preview/<slug:widget_instance_id>/",
+        ScoresView.as_view(is_preview=True),
+        name="preview scores",
+    ),
+    path(
+        "scores/<slug:widget_instance_id>/<slug:play_id>/",
+        ScoresView.as_view(),
+        name="scores",
+    ),
+    # API (TODO: improve API routing, retire api/json)
+    path("api/", include("api.urls.api_urls")),
+    # path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
+    path("settings/", profile_views.settings, name="settings"),
+    path("users/login", login_views.login, name="login"),
     path("login/", login_views.login, name="login"),
     path("admin/", admin.site.urls),
+    path("users/logout/", UsersApi.logout, name="logout"),
+    # Media
+    path("media/import", MediaImportView.index, name="media importer"),
+    # matches media/asset_id, media/asset_id/thumbnail and media/asset_id/large
+    re_path(
+        r"^media/(?P<asset_id>[\w-]+)(?:/(?P<size>thumbnail|large))?/$",
+        MediaRender.index,
+    ),
+    path("media/upload", MediaUpload.index),
 ]
 
 handler404 = "core.views.main.handler404"

@@ -1,5 +1,6 @@
 import logging
 import os
+from shutil import rmtree
 from urllib import request
 
 from django.conf import settings
@@ -20,9 +21,7 @@ class Command(base.BaseCommand):
         parser.add_argument(
             "subcommand", type=str, help="Which subcommand function to run"
         )
-        parser.add_argument(  # this works for now (in regard to above comment)
-            "arguments", nargs="+", type=str
-        )
+        parser.add_argument("arguments", nargs="*", type=str, default=[])
 
     def handle(self, *args, **kwargs):
         subcommand = kwargs["subcommand"]
@@ -33,21 +32,36 @@ class Command(base.BaseCommand):
             logger.info(e)
             logger.exception("")
 
-    def install_from_config(self):
+    def install_from_config(self, *args):
         widgets = settings.WIDGETS
-        for w in widgets:
-            self.install_from_url(w["package"], w["checksum"], w["id"])
+        install_all = len(args) < 1
 
-    def install_from_url(self, package_url, checksum_url, desired_id):
+        for w in widgets:
+            if install_all or str(w["id"]) in list(args):
+                self.install_from_url(w["package"], w["checksum"], w["id"])
+
+    def install_from_url(self, package_url, checksum_url, desired_id=None):
         local_package = self.download_package(package_url)
         local_checksum = self.download_package(checksum_url)
 
         # temporarily hard-code file paths until the process is finished
         valid = self.validate_checksum(local_package, local_checksum)
 
-        self.replace_id = desired_id
+        if desired_id is not None:
+            self.replace_id = desired_id
+
         if valid:
             self.install(local_package)
+
+        # clean up remaining temporary files
+        rmtree(os.path.dirname(local_package))
+        rmtree(os.path.dirname(local_checksum))
+
+    def install_from_url_no_verify(self, package_url, desired_id):
+        local_package = self.download_package(package_url)
+
+        self.replace_id = desired_id
+        self.install(local_package)
 
     def download_package(self, file_url):
         file_name = os.path.basename(file_url)
@@ -129,7 +143,9 @@ class Command(base.BaseCommand):
         # widget_files = self.get_files_from_args(however_we_get_args())
         widget_files = [package_path]
 
-        replace_id = int(self.replace_id)  # this could also possibly come from args
+        replace_id = (
+            int(self.replace_id) if hasattr(self, "replace_id") else 0
+        )  # this could also possibly come from args
         # file_count = len(widget_files)
         # if not file_count:
         # raise Exception(f"No widgets found in {','.join(however_we_get_args())}")

@@ -2,8 +2,9 @@ import uuid
 from datetime import datetime
 from typing import Self
 
+from django.http import HttpRequest
 from django.utils.timezone import make_aware
-
+from django.contrib.auth.models import User
 from core.models import WidgetInstance, LogPlay, DateRange
 from util.scoring.scoring_util import ScoringUtil
 from util.widget.validator import ValidatorUtil
@@ -42,7 +43,7 @@ class SessionPlay:
                 self.data.percent = 0
                 self.data.elapsed = 0
                 self.data.context_id = ''
-                self.data.semester = DateRange.objects.get(pk=5)  # TODO
+                self.data.semester = DateRange.objects.first()  # TODO make it grab the current semester
                 self.is_preview = True
 
         # self.id: str | None = None
@@ -62,11 +63,12 @@ class SessionPlay:
         # TODO: if inst_id is not valid hash, return None (do we need this?)
 
         self.data.created_at = make_aware(datetime.now())
-        self.data.user = None if instance.guest_access else None  # TODO
+        # TODO this feels flimsy, can we be assured the user reference will be valid?
+        self.data.user = None if instance.guest_access else User.objects.get(pk=user_id)
         self.data.instance = instance
         self.data.context_id = context_id
         self.data.is_preview = is_preview
-        self.data.qset = instance.qset
+        self.data.qset = instance.get_latest_qset()
         self.data.environment_data = ''
 
         self.data.auth = ''  # TODO
@@ -116,7 +118,7 @@ class SessionPlay:
 
         if not self.is_preview:
             self._invalidate()
-            semester = DateRange.objects.get(pk=5)  # TODO fix
+            # semester = DateRange.objects.get(pk=5)  # TODO fix
 
             # TODO: caching stuff, look at PHP
 
@@ -128,7 +130,7 @@ class SessionPlay:
             self.data.save()
 
             # Determine the highest score of this user's history
-            score_history = ScoringUtil.get_instance_score_history(self.data.instance, self.data.context_id)  # TODO: this is a 'private' field - maybe figure out a better solution
+            score_history = ScoringUtil.get_instance_score_history(self.data.instance, self.data.context_id)
 
             for score_history_item in score_history:
                 max_percent = max(max_percent, score_history_item.percent)
@@ -137,8 +139,8 @@ class SessionPlay:
         # TODO Event::trigger('score_updated', ... see php
 
     # Ensures that this session play is playable by the current user and updated time elapsed
-    def validate(self) -> bool:
-        if self.data.instance.playable_by_current_user():
+    def validate(self, request: HttpRequest) -> bool:
+        if self.data.instance.playable_by_current_user(request.user):
             if self.data.is_valid:
                 self.update_elapsed()
                 return True
@@ -177,31 +179,11 @@ class SessionPlay:
 
         return False
 
-    # def create_log_play(self, id: str):
-    # log_play = LogPlay(
-    #     id=id,
-    #     instance=self.instance,
-    #     created_at=self.created_at,
-    #     elapsed=0,
-    #     user=self.user,
-    #     is_valid='1',  # TODO use booleans?
-    #     is_complete=False,
-    #     ip='',  # TODO
-    #     qset=self.qset,
-    #     environment_data='',  # TODO
-    #     auth=self.auth,
-    #     referrer_url=self.referrer_url,
-    #     context_id=self.context_id,
-    #     semester=self.semester,
-    #     score=0.0, # TODO: look into these 3
-    #     score_possible=0,
-    #     percent=0,
-    # )
+    # Util function for getting the SessionPlay for that play_Id and running its validate function.
+    @staticmethod
+    def validate_by_play_id(play_id: str, request: HttpRequest) -> bool:
+        session_play = SessionPlay.get_or_none(play_id)
+        if not session_play:
+            return False
 
-    # try:
-    #     log_play.save()
-    #     return True
-    # except Exception as e:
-    #     # TODO logging
-    #     print(e)
-    #     return False
+        return session_play.validate(request)

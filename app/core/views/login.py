@@ -1,10 +1,15 @@
+from django.conf import settings
 from django.shortcuts import render
 
-def login(request):
-    context = {
-        "title": "Login",
-        "js_resources": ["dist/js/login.js"],
-        "css_resources": ["dist/css/login.css"],
-    }
-    return render(request, "react.html", context)
+from util.context_util import ContextUtil
 
+
+def login(request):
+    context = ContextUtil.create(
+        title="Login",
+        js_resources=settings.JS_GROUPS["login"],
+        css_resources=settings.CSS_GROUPS["login"],
+        request=request,
+    )
+
+    return render(request, "react.html", context)
