@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
-import { apiGetInstancesForUser } from '../util/api'
 import UserAdminInstanceAvailable from './user-admin-instance-available'
 import UserAdminInstancePlayed from './user-admin-instance-played'
 import useInstanceList from './hooks/useInstanceList'
 import useGetPlaySessions from './hooks/useGetPlaySessions'
 import UserAdminRoleManager from './user-admin-role-manager'
+import { apiUpdateUser } from '../util/api'
 
 const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 	const queryClient = useQueryClient()
@@ -13,12 +13,31 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 	const instancesOwned = useInstanceList(updatedUser.id)
 	const userLogs = useGetPlaySessions(updatedUser.id, true)
 
+	const [errorText, setErrorText] = useState('')
+	const [successText, setSuccessText] = useState('')
+
 	useEffect(() => {
 		if (selectedUser && updatedUser && selectedUser.id != updatedUser.id) setUpdatedUser({...selectedUser})
 	},[selectedUser])
 
 	const handleChange = (attr, value) => {
 		setUpdatedUser({...updatedUser, [attr]: value})
+	}
+
+	const applyChanges = () => {
+		try {
+			apiUpdateUser({
+				id: updatedUser.id,
+				email: updatedUser.email
+			})
+			.then((res) => {
+				setSuccessText('User updated.')
+			})
+		}
+		catch {
+			setErrorText('User update failed.')
+		}
+
 	}
 
 	const onCopySuccess = (instance) => {
@@ -57,7 +76,6 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 	if (currentUser?.is_super_user) {
 		suRender = <UserAdminRoleManager currentUser={currentUser} selectedUser={selectedUser} />
 	}
-	console.log(updatedUser)
 
 	return (
 		<section className='page inst-info'>
@@ -78,6 +96,8 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 				<h1>{ `${updatedUser.first_name} ${updatedUser.last_name}` }</h1>
 			</div>
 			<div className='overview admin-subsection'>
+				{errorText != '' ? <div className='error'><p>{errorText}</p></div> : <></> }
+				{successText != '' ? <div className='success'><p>{successText}</p></div> : <></> }
 				<span>
 					<label>ID: </label>{ updatedUser.id }
 				</span>
@@ -91,7 +111,12 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 					<label>Username: </label>{ updatedUser.username }
 				</span>
 				<span>
-					<label>Email: </label><input type='text' onChange={(event) => handleChange('email', event.target.value)} value={updatedUser.email}></input>
+					<label>Email: </label>
+					<input type='text' onChange={(event) => handleChange('email', event.target.value)} value={updatedUser.email}></input>
+					<button className='action_button apply'
+						onClick={applyChanges}>
+							<span>Apply</span>
+					</button>
 				</span>
 				<span>
 					<label>Roles: </label> { updatedUser.is_support_user ? 'Support, ' : '' } { updatedUser.is_student ? 'Student' : 'Instructor' }

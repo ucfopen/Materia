@@ -69,9 +69,11 @@ const WidgetListCard = ({widget = null}) => {
 			is_scorable: state.widget.is_scorable,
 			is_playable: state.widget.is_playable,
 			restrict_publish: state.widget.restrict_publish,
-			about: state.widget.meta_data.about,
-			excerpt: state.widget.meta_data.excerpt,
-			demo: state.widget.meta_data.demo,
+            meta_data: {
+                about: state.widget.meta_data.about,
+                excerpt: state.widget.meta_data.excerpt,
+                demo: state.widget.meta_data.demo,
+            }
         }
 
         apiUpdateWidgetEngine(update)
@@ -96,17 +98,17 @@ const WidgetListCard = ({widget = null}) => {
 
     let featuresRender = null
     if (state.widget.meta_data.features) {
-        featuresRender = state.widget.meta_data.features.map((feature, i) => <li key={i}>{ feature }</li>)
+        featuresRender = state.widget.meta_data.features?.map((feature, i) => <li key={i}>{ feature }</li>)
     }
 
     let questionTypes = null
     if (state.widget.meta_data.supported_data) {
-        questionTypes = state.widget.meta_data.supported_data.map((qtype, i) => <li key={i}>{ qtype }</li>)
+        questionTypes = state.widget.meta_data.supported_data?.map((qtype, i) => <li key={i}>{ qtype }</li>)
     }
 
     let exportOptions = null
     if (state.widget.meta_data.playdata_exporters) {
-        exportOptions = state.widget.meta_data.playdata_exporters.map((qtype, i) => <li key={i}>{ qtype }</li>)
+        exportOptions = state.widget.meta_data.playdata_exporters?.map((qtype, i) => <li key={i}>{ qtype }</li>)
     }
 
     return (

@@ -53,8 +53,6 @@ export default function useGetPlaySessions(user, autofetch) {
 	// memoize the instance list since this is a large, expensive query
 	const playSessions = useMemo(() => formatData(data), [data])
 
-	console.log(isFetching)
-
 	useEffect(() => {
 		if (hasNextPage && autofetch) fetchNextPage()
 	},[playSessions])

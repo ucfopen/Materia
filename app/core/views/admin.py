@@ -1,6 +1,9 @@
+import os
+
 from django.conf import settings
 from django.shortcuts import render
 from util.context_util import ContextUtil
+from util.widget.validator import ValidatorUtil
 
 
 def widget(request):
@@ -8,6 +11,11 @@ def widget(request):
         title="Widget Admin",
         js_resources=settings.JS_GROUPS["widget_admin"],
         css_resources=settings.CSS_GROUPS["support"],
+        js_globals={
+            "UPLOAD_ENABLED": ValidatorUtil.validate_bool(
+                os.environ.get("ENABLE_ADMIN_UPLOADER"), False
+            )
+        },
         request=request,
     )
 

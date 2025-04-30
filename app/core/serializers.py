@@ -14,10 +14,12 @@ from core.models import (
     UserSettings,
     Widget,
     WidgetInstance,
+    WidgetMetadata,
     WidgetQset,
 )
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers, status
 from rest_framework.response import Response
@@ -34,7 +36,7 @@ class AssetSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-# User model serializer (outbound)
+# User model serializer
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
     profile_fields = serializers.SerializerMethodField()
@@ -85,7 +87,15 @@ class UserSerializer(serializers.ModelSerializer):
             "is_student",
         ]
 
-        read_only_fields = ["id", "date_joined", "last_login"]
+        read_only_fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "date_joined",
+            "last_login",
+            "is_student",
+        ]
 
 
 # User metadata (profile fields) serializer (inbound)
@@ -121,9 +131,36 @@ class UserMetadataSerializer(serializers.Serializer):
         return data["profile_fields"]
 
 
-# Widget engine model serializer (outbound)
+# widget engine metadata: converts the one-to-many relationship into a dict for ease of use
+# not a full-blown serializer, since metadata is only accessed in the context of a widget engine
+class WidgetMetadataDictField(serializers.Field):
+    def to_representation(self, value):
+        list_items = ["supported_data", "features", "playdata_exporters"]
+        metadata_dict = {}
+        for item in value.all():
+            if item.name in metadata_dict:
+                if not isinstance(metadata_dict[item.name], list):
+                    metadata_dict[item.name] = [metadata_dict[item.name]]
+
+                metadata_dict[item.name].append(item.value)
+
+            else:
+                if item.name in list_items:
+                    metadata_dict[item.name] = [item.value]
+                else:
+                    metadata_dict[item.name] = item.value
+
+        return metadata_dict
+
+    def to_internal_value(self, data):
+        if not isinstance(data, dict):
+            raise serializers.ValidationError("metadata must be a dict!")
+        return data
+
+
+# Widget engine model serializer
 class WidgetSerializer(serializers.ModelSerializer):
-    meta_data = serializers.SerializerMethodField()
+    meta_data = WidgetMetadataDictField(source="metadata", required=False)
     dir = serializers.CharField(read_only=True)
 
     class Meta:
@@ -157,12 +194,10 @@ class WidgetSerializer(serializers.ModelSerializer):
             "dir",
         ]
 
-    def get_meta_data(self, widget):
-        return widget.metadata_clean()
-
     def get_dir(self, widget):
         return f"{widget.id}-{widget.clean_name}{os.sep}"
 
+    @transaction.atomic
     def update(self, widget, validated_data):
         allowed_fields = [
             "clean_name",
@@ -176,14 +211,28 @@ class WidgetSerializer(serializers.ModelSerializer):
             "demo",
         ]
 
+        metadata_dict = validated_data.pop("metadata", None)
+
         for field, value in validated_data.items():
+
             if field not in allowed_fields:
                 raise serializers.ValidationError(
                     f"Field not allowed to be modified: {field}"
                 )
+
+            logger.error(f"\nupdating widget field: {field}\n")
             setattr(widget, field, value)
 
         widget.save()
+
+        # updating metadata requires some additional work
+        # the updates affect WidgetMetadata model instances instead
+        if metadata_dict:
+            existing_metadata = widget.metadata.all()
+
+            for name, value in metadata_dict.items():
+                existing_metadata.filter(name=name).delete()
+                WidgetMetadata.objects.create(widget=widget, name=name, value=value)
 
         return widget
 

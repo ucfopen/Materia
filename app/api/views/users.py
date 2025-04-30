@@ -17,7 +17,6 @@ from django.shortcuts import redirect
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from util.custom_paginations import PageNumberWithTotalPagination
 from util.message_util import MsgBuilder
@@ -54,7 +53,7 @@ class UserViewSet(viewsets.ModelViewSet):
             "put",
             "patch",
         ]:  # only superusers can modify user properties!
-            return [permissions.IsSuperuser()]
+            return [permissions.IsAuthenticated(), IsSuperOrSupportUser()]
         elif (
             self.action == "list"
             and self.request.query_params.get("search") is not None
@@ -162,29 +161,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
         serialized = ObjectPermissionSerializer(access_permissions, many=True)
         return Response(serialized.data)
-
-    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
-    def search(self, request):
-        # Get search query
-        query: str = request.query_params.get("query")
-        if query is None or query.strip() == "":
-            raise ValidationError(detail=["Missing non-empty 'query' parameter"])
-
-        users = (
-            User.objects.filter(
-                Q(username__icontains=query)
-                | Q(first_name__icontains=query)
-                | Q(last_name__icontains=query)
-                | Q(email__icontains=query)
-            )
-            .filter(~Q(id=request.user.id))  # dont include self
-            .order_by("first_name")
-        )  # TODO dont include superusers? php doesnt, but questions why we aren't
-
-        paginator = UserPagination()
-        paginated_queryset = paginator.paginate_queryset(users, request)
-        serializer = self.get_serializer(paginated_queryset, many=True)
-        return paginator.get_paginated_response(serializer.data)
 
 
 # API stuff below this line is not yet converted to DRF #
