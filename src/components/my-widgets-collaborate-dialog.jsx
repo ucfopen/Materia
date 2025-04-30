@@ -106,10 +106,9 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			tempPerms.set(
 				match.id,
 				{
-					accessLevel: 1,
+					accessLevel: access.VISIBLE,
 					expireTime: null,
 					editable: false,
-					shareable: false,
 					can: {
 						view: true,
 						copy: false,
@@ -154,7 +153,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			permsObj.push({
 				user_id: currentUser.id,
 				expiration: currentUserPerms.expireTime,
-				perms: {[currentUserPerms.accessLevel]: !currentUserPerms.remove}
+				perm_level: currentUserPerms.remove ? null : currentUserPerms.accessLevel
 			})
 		}
 		else
@@ -162,9 +161,9 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			// else send a request to update all perms
 			permsObj = Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
 				return {
-					user_id: userId,
+					user: userId,
 					expiration: userPerms.expireTime,
-					perms: {[userPerms.accessLevel]: !userPerms.remove}
+					perm_level: userPerms.remove ? null : userPerms.accessLevel
 				}
 			})
 		}
@@ -223,7 +222,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	// Can't search unless you have full access.
 	let searchContainerRender = null
-	if (myPerms?.shareable || myPerms?.isSupportUser) {
+	if (myPerms?.can?.share || myPerms?.isSupportUser) {
 		let searchResultsRender = null
 		if (debouncedSearchTerm !== '' && state.searchText !== '' && userList.users?.length && userList.users?.length !== 0) {
 			const searchResultElements = userList.users?.map(match =>
@@ -232,7 +231,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					onClick={() => onClickMatch(match)}>
 					<img className='collab-match-avatar' src={match.avatar} alt="user avatar" />
 					<p className={`collab-match-name ${match.is_student ? 'collab-match-student' : ''}`}>
-						{match.first} {match.last}
+						{match.first_name} {match.last_name}
 					</p>
 				</div>
 			)
@@ -275,11 +274,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					return <div key={userId}></div>
 				}
 
-				if (user.id == inst.user_id) {
-					user.is_owner = true;
-				} else {
-					user.is_owner = false;
-				}
+				user.is_owner = user.id === inst.user_id;
 
 				return <CollaborateUserRow
 					key={user.id}
@@ -288,7 +283,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					myPerms={myPerms}
 					isCurrentUser={currentUser.id === user.id}
 					onChange={(userId, perms) => updatePerms(userId, perms)}
-					readOnly={myPerms?.shareable === false}
+					readOnly={myPerms?.can?.share === false}
 				/>
 			})
 

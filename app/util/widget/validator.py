@@ -137,3 +137,11 @@ class ValidatorUtil:
                 return False
 
         return default
+
+    # Mimics PHP's addslashes()
+    @staticmethod
+    def add_slashes(string: str) -> str:
+        result = string.replace("'", "\\'")
+        result = result.replace('"', '\\"')
+        result = result.replace("\\", "\\\\")
+        return result

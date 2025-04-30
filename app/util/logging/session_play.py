@@ -4,6 +4,7 @@ from typing import Self
 
 from core.models import DateRange, LogPlay, WidgetInstance
 from django.contrib.auth.models import User
+from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.utils.timezone import make_aware
 
@@ -225,9 +226,6 @@ class SessionPlay:
         """Reconstruct a preview SessionPlay from session logs."""
         from util.logging.session_logger import SessionLogger
 
-        print("===============DEBUG===================")
-        print("===============DEBUG===================")
-        print("===============DEBUG===================")
         print("===============DEBUGDEMO===================")
         print("===============DEBUGDEMO===================")
         print("===============debugdemo===================")
@@ -237,9 +235,6 @@ class SessionPlay:
         if not preview_logs:
             print("no preview logs")
             return None
-
-        # Clear the logs from the session after fetching
-        # del session[f"previewPlayLogs.{preview_play_id}"]
 
         # Construct a fake LogPlay
         log_play = LogPlay()
@@ -270,10 +265,6 @@ class SessionPlay:
         )
         if self.is_preview and hasattr(self, "_preview_logs"):
             print("WE ARE A PREVIEW")
-            print("WE ARE A PREVIEW")
-            print("WE ARE A PREVIEW")
-            print("WE ARE A PREVIEW")
-            print("WE ARE A PREVIEW")
             return self._preview_logs
         else:
             print("WE ARE NOT A PREVIEW")
@@ -281,19 +272,23 @@ class SessionPlay:
 
             return Log.objects.filter(play_id=self.data.id).order_by("game_time")
 
-    # def get_logs(self):
-    #     print(
-    #         f"self: {self}, self.data: {self.data}, self.is_preview: {self.is_preview} vars: {vars(self)}"
-    #     )
-    #     # if self.is_preview and hasattr(self, "_preview_logs"):
-    #     if self.is_preview:
-    #         print("WE ARE A PREVIEW")
-    #         print(f"self.data: {self.data}")
-    #         # return self.data._preview_logs
-    #         return self._preview_logs
-    #
-    #     else:
-    #         print("WE ARE NOT A PREVIEW")
-    #         from core.models import Log
-    #
-    #         return Log.objects.filter(play_id=self.data.id).order_by("game_time")
+    def get_all_plays_for_instance(
+        instance: WidgetInstance | str,
+        semester: str = "all",
+        year: int = "all",
+    ) -> QuerySet:
+        # Get DateRange object, if specified
+        date = None
+        if semester != "all" and year != "all":
+            date = DateRange.objects.filter(semester=semester, year=year).first()
+
+        # Form main query
+        query = LogPlay.objects.filter(instance=instance)
+
+        # Filter by date
+        if date is not None:
+            query = query.filter(
+                created_at__gt=date.start_at, created_at__lt=date.end_at
+            )
+
+        return query

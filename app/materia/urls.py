@@ -20,8 +20,9 @@ from core.views import login as login_views
 from core.views import main as core_views
 from core.views import profile as profile_views
 from core.views.catalog import CatalogView
+from core.views.media import MediaImportView, MediaRender, MediaUpload
 from core.views.my_widgets import MyWidgetsView
-from core.views.scores import ScoresView
+from core.views.scores import ScoresView, ScoresViewSingle
 from core.views.widget import (
     WidgetCreatorView,
     WidgetDemoView,
@@ -109,6 +110,12 @@ urlpatterns = [
         ScoresView.as_view(),
         name="scores",
     ),
+    path(
+        "scores/single/<slug:widget_instance_id>/<slug:play_id>/",
+        ScoresViewSingle.as_view(),
+        name="single score"
+    ),
+
     # API (TODO: improve API routing, retire api/json)
     path("api/", include("api.urls.api_urls")),
     # path("api/user/activity", UsersApi.activity),
@@ -118,6 +125,14 @@ urlpatterns = [
     path("login/", login_views.login, name="login"),
     path("admin/", admin.site.urls),
     path("users/logout/", UsersApi.logout, name="logout"),
+    # Media
+    path("media/import", MediaImportView.index, name="media importer"),
+    # matches media/asset_id, media/asset_id/thumbnail and media/asset_id/large
+    re_path(
+        r"^media/(?P<asset_id>[\w-]+)(?:/(?P<size>thumbnail|large))?/$",
+        MediaRender.index,
+    ),
+    path("media/upload", MediaUpload.index),
 ]
 
 handler404 = "core.views.main.handler404"

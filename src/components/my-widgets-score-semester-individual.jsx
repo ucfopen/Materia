@@ -6,11 +6,11 @@ import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
 import useDebounce from './hooks/useDebounce'
 import LoadingIcon from './loading-icon'
 
-const showScore = (instId, playId) => window.open(`/scores/single/${playId}/${instId}`)
+const showScore = (instId, playId) => window.open(`/scores/single/${instId}/${playId}/`)
 const _compareScores = (a, b) => { return (parseInt(b.created_at) - parseInt(a.created_at)) }
 
 const timestampToDateDisplay = timestamp => {
-	const d = new Date(parseInt(timestamp, 10) * 1000)
+	const d = new Date(timestamp)
 	return d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
 }
 
@@ -143,12 +143,12 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 		const selectedStudentScores = (
 			<>
 				{/* No user selected */}
-				{!state.selectedUser.userId && (
+				{state.selectedUser.userId === undefined && (
 					<h3 className="centeredText">Select a student to view their scores.</h3>
 				)}
 
 				{/* User selected, display score table */}
-				{state.selectedUser.userId && (
+				{state.selectedUser.userId !== undefined && (
 					<>
 						<h3 id={studentScoresHeaderId}>{`${state.selectedUser.name}'s scores`}</h3>
 						<table aria-labelledby={studentScoresHeaderId}>

@@ -89,7 +89,7 @@ class WidgetPreviewView(TemplateView):
 
         # Check if widget is playable
         if not widget_instance.playable_by_current_user(self.request.user):
-            return _create_draft_not_playable_page()
+            return _create_draft_not_playable_page(request=self.request)
 
         # return _display_widget(instance=widget_instance, is_embedded=False)
         return _create_player_page(
@@ -213,9 +213,14 @@ def _create_player_page(
 
     # Check to see if this widget is playable
     # TODO check status - see php
-    if not is_demo and instance.is_draft:
-        # return _create_draft_not_playable_page(request)
-        return _display_widget(instance, request, is_embedded)
+
+    # TODOmaybe this is not needed
+    # if not is_demo and instance.is_draft:
+    #     # return _create_draft_not_playable_page(request)
+    #     return _display_widget(instance, request, is_embedded)
+    if not is_preview and instance.is_draft:
+        return _create_draft_not_playable_page(request)
+    # if so then uncomment the above
     if not is_demo and not instance.widget.is_playable:
         return _create_widget_retired_page(request, is_embedded)
     if autoplay is False:
@@ -241,6 +246,7 @@ def _display_widget(
             "DEMO_ID": instance.id,
             "WIDGET_WIDTH": instance.widget.width,
             "WIDGET_HEIGHT": instance.widget.height,
+            "MEDIA_URL": settings.URLS["MEDIA_URL"],
         },
         request=request,
     )
@@ -256,6 +262,7 @@ def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
         js_globals={
             "WIDGET_HEIGHT": widget.height,
             "WIDGET_WIDTH": widget.width,
+            "MEDIA_URL": settings.URLS["MEDIA_URL"],
         },
         request=request,
     )

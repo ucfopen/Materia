@@ -76,7 +76,7 @@ const MyWidgetsScores = ({inst, beardMode, setInvalidLogin}) => {
 		contentRender = <div className='error'>{error}</div>
 	}
 	else if (isFetched) {
-		contentRender = <NoScoreContent scorable={parseInt(inst.widget.is_scorable)} isDraft={inst.is_draft} beardMode={beardMode} />
+		contentRender = <NoScoreContent scorable={inst.widget.is_scorable} isDraft={inst.is_draft} beardMode={beardMode} />
 		if (state.hasScores || containsStorage()) {
 			const semesterElements = displayedSemesters.map(semester => (
 				<MyWidgetScoreSemester key={semester.id}

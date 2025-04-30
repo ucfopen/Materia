@@ -13,21 +13,19 @@ import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
 import Modal from './modal'
 import LoadingIcon from './loading-icon'
 
-const convertAvailibilityDates = (startDateInt, endDateInt) => {
+const convertAvailabilityDates = (startDateStr, endDateStr) => {
 	let endDate, endTime, open_at, startTime
-	startDateInt = ~~startDateInt
-	endDateInt = ~~endDateInt
 	endDate = endTime = 0
 	open_at = startTime = 0
 
-	if (endDateInt > 0) {
-		endDate = parseObjectToDateString(endDateInt)
-		endTime = parseTime(endDateInt)
+	if (endDateStr !== null) {
+		endDate = parseObjectToDateString(endDateStr)
+		endTime = parseTime(endDateStr)
 	}
 
-	if (startDateInt > 0) {
-		open_at = parseObjectToDateString(startDateInt)
-		startTime = parseTime(startDateInt)
+	if (startDateStr !== null) {
+		open_at = parseObjectToDateString(startDateStr)
+		startTime = parseTime(startDateStr)
 	}
 
 	return {
@@ -103,11 +101,11 @@ const MyWidgetSelectedInstance = ({
 		// Sets the availability mode
 		let availabilityMode = ''
 
-		if (`${inst.close_at}` === '-1' && `${inst.open_at}` === '-1') {
+		if (inst.close_at === null && inst.open_at === null) {
 			availabilityMode = 'anytime'
-		} else if (`${inst.open_at}` === '-1') {
+		} else if (inst.open_at === null) {
 			availabilityMode = 'open until'
-		} else if (`${inst.close_at}` === '-1') {
+		} else if (inst.close_at === null) {
 			availabilityMode = 'anytime after'
 		} else {
 			availabilityMode = 'from'
@@ -196,7 +194,7 @@ const MyWidgetSelectedInstance = ({
 	}
 
 	const availability = useMemo(() => {
-		return convertAvailibilityDates(inst.open_at, inst.close_at)
+		return convertAvailabilityDates(inst.open_at, inst.close_at)
 	}, [inst.open_at, inst.close_at])
 
 	let deleteDialogRender = null

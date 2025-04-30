@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import DragAndDrop from './drag-and-drop'
 import LoadingIcon from './loading-icon'
-import { apiDeleteAsset, apiGetAssets, apiRestoreAsset } from '../util/api'
+import { apiDeleteAsset, apiGetAssets, apiRestoreAsset, getCSRFToken } from '../util/api'
 import './media.scss'
 
 const sortString = (field, a, b) => a[field].toLowerCase().localeCompare(b[field].toLowerCase())
@@ -74,12 +74,12 @@ const MediaImporter = () => {
 					const creationDate = new Date(asset.created_at * 1000)
 					return {
 						id: asset.id,
-						type: asset.type,
+						type: asset.file_type,
 						name: asset.title.split('.').shift(),
 						timestamp: asset.created_at,
-						thumb: _thumbnailUrl(asset.id, asset.type),
+						thumb: _thumbnailUrl(asset.id, asset.file_type),
 						created: [creationDate.getMonth(), creationDate.getDate(), creationDate.getFullYear()].join('/'),
-						is_deleted: parseInt(asset.is_deleted)
+						is_deleted: parseInt(asset.is_deleted) || asset.is_deleted === true
 					}
 				})
 
@@ -206,8 +206,8 @@ const MediaImporter = () => {
 		}
 	}
 
+	// TODO: make an API util function to handle this?
 	const _upload = (fileData) => {
-
 		const fd = new FormData()
 		fd.append('name', fileData.name)
 		fd.append('Content-Type', fileData.type)
@@ -236,6 +236,7 @@ const MediaImporter = () => {
 		}
 
 		request.open('POST', MEDIA_UPLOAD_URL, true)
+		request.setRequestHeader('X-CSRFToken', getCSRFToken())
 		request.send(fd)
 	}
 

@@ -1,15 +1,11 @@
 import logging
 import os
 import tempfile
+import types
 from datetime import datetime
+from pathlib import Path
 
-from core.models import (
-    PermObjectToUser,
-    Widget,
-    WidgetInstance,
-    WidgetMetadata,
-    WidgetQset,
-)
+from core.models import Widget, WidgetInstance, WidgetMetadata, WidgetQset
 from django.conf import settings
 from django.utils.timezone import make_aware
 from util.unique_id import unique_id
@@ -34,7 +30,7 @@ class WidgetInstaller:
     # Extracts a .wigt file to its proper target destination without using a database connection
     # Useful for Heru build process, pre-packaging servers, or similar activities
     # return bool True or False depending on installation success
-    def extract_package_files(widget_file, widget_id):
+    def extract_package_files(widget_file, widget_id,):
         pass
         # try
         # {
@@ -108,8 +104,6 @@ class WidgetInstaller:
             try:
                 existing_widget = Widget.objects.get(id=replace_id)
                 existing_widget_metadata = existing_widget.metadata_clean()
-                logger.info("okay what the fuck")
-                logger.info(existing_widget_metadata)
                 if "demo" in existing_widget_metadata:
                     existing_demo_inst_id = existing_widget_metadata["demo"]
                     logger.info(f"Existing demo found: {existing_demo_inst_id}")
@@ -165,8 +159,32 @@ class WidgetInstaller:
 
         # loaded = Widget.load_script(playdata_path)
         # $playdata_exporter_names = array_keys(\Materia\Widget::reduce_array_to_functions($loaded));
-        playdata_exporter_names = []
-        manifest_data["meta_data"]["playdata_exporters"] = playdata_exporter_names
+
+        # Grab and load the playdata exporter script
+        script_path = Path(os.path.join(target_dir, Widget.PATHS_PLAYDATA))
+        if script_path.exists():
+            script_text = script_path.read_text()
+
+            # Execute the script to load the class
+            script_globals = types.ModuleType(
+                "temp_exporter_module"
+            )  # Empty module to act as the script's globals
+            exec(
+                script_text, script_globals.__dict__
+            )  # Script will load the class, which we can find in the globals
+
+            # Find the mappings field in the globals, which should map a human-readable name to each function
+            exporter_mappings = getattr(script_globals, "mappings", None)
+            if exporter_mappings is None or not isinstance(exporter_mappings, dict):
+                raise Exception(
+                    "Play data exporter script missing top level 'mappings' dict"
+                )
+
+            manifest_data["meta_data"]["playdata_exporters"] = exporter_mappings.keys()
+        else:
+            manifest_data["meta_data"][
+                "playdata_exporters"
+            ] = []  # no custom playdata exporter methods
 
         return target_dir, manifest_data, clean_name
 
@@ -452,7 +470,9 @@ class WidgetInstaller:
 
             if existing_inst_id:
                 # update the existing instance by adding a new qset
-                widget_instance = WidgetInstance.objects.filter(pk=existing_inst_id).first()
+                widget_instance = WidgetInstance.objects.filter(
+                    pk=existing_inst_id
+                ).first()
                 if widget_instance is None:
                     raise Exception("Could not load existing widget instance")
 
@@ -491,14 +511,6 @@ class WidgetInstaller:
                 except Exception as e:
                     logger.error("Error saving new demo instance:")
                     logger.error(e)
-
-                # make sure nobody owns the demo widget
-                access = PermObjectToUser.objects.filter(
-                    object_id=widget_instance.id,
-                    object_type=PermObjectToUser.ObjectType.INSTANCE,
-                )
-                for a in access:
-                    a.delete()
 
             # TODO: this was originally a static output - may have to change this, maybe not?
             logger.info(f"Demo installed: {widget_instance.id}")
@@ -543,6 +555,10 @@ class WidgetInstaller:
         return json_text
 
     # "uploads" an asset from a widget package
+    # this can probably be more efficient - currently it's copying a file from a temporary location
+    #  to a second temporary location and then copying that second temporaray file to a permanent
+    #  location... ideally, we could just copy the file from the original temporary location and
+    #  be done with it, but this works for now
     def sideload_asset(file):
         import shutil
 

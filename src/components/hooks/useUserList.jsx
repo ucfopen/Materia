@@ -16,7 +16,7 @@ export default function useUserList(query = "") {
 		if (list?.pages) {
             let dataMap = []
             list.pages.forEach(page => {
-                dataMap.push(...page.pagination)
+                dataMap.push(...page.results)
             })
             return dataMap
         }
@@ -24,7 +24,7 @@ export default function useUserList(query = "") {
         return []
 	}
 
-	const getData = ({ pageParam = 0 }) => {
+	const getData = ({ pageParam = 1 }) => {
         return apiSearchUsers(query, pageParam)
 	}
 
@@ -42,7 +42,7 @@ export default function useUserList(query = "") {
 		queryFn: getData,
 		enabled: query.length > 0,
 		getNextPageParam: (lastPage, pages) => {
-			return lastPage.next_page
+			return lastPage.next
 		},
 		refetchOnWindowFocus: false
 	})

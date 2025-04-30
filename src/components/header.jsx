@@ -19,8 +19,11 @@ const Header = ({
 		retry: false
 	})
 	const { data: user, isLoading: userLoading} = useQuery({
-		queryKey: 'user',
-		queryFn: apiGetUser,
+		queryKey: ['user', 'me'],
+		queryFn: ({ queryKey }) => {
+			const [_key, user] = queryKey
+			return apiGetUser(user)
+		},
 		staleTime: Infinity,
 		enabled: !!verified
 	})

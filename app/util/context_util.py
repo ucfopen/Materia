@@ -15,7 +15,6 @@ class ContextUtil:
     ) -> dict:
         # Flesh out the JS globals with some defaults
         processed_js_globals = dict(js_globals if js_globals else {})
-        # TODO make these customizable, prolly through a .env or so
         processed_js_globals["BASE_URL"] = settings.URLS["BASE_URL"]
         processed_js_globals["WIDGET_URL"] = settings.URLS["WIDGET_URL"]
         processed_js_globals["STATIC_CROSSDOMAIN"] = settings.URLS["STATIC_CROSSDOMAIN"]

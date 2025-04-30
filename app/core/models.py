@@ -9,20 +9,56 @@ import base64
 import json
 import logging
 import os
+import types
 from datetime import datetime
+from pathlib import Path
+from typing import Self
 
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.functional import classproperty
+from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
+from util.message_util import Msg, MsgBuilder
 from util.perm_manager import PermManager
+from util.widget.asset.manager import AssetManager
 from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
-# from pprint import pformat
+
+
+class ObjectPermission(models.Model):
+    PERMISSION_VISIBLE = "visible"
+    PERMISSION_FULL = "full"
+    PERMISSION_CHOICES = [
+        (PERMISSION_VISIBLE, "Read-Only"),
+        (PERMISSION_FULL, "Full Access"),
+    ]
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="object_permissions"
+    )
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.CharField(max_length=10, db_collation="utf8_bin")
+    content_object = GenericForeignKey("content_type", "object_id")
+    permission = models.CharField(max_length=20, choices=PERMISSION_CHOICES)
+    expires_at = models.DateTimeField(default=None, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "content_type", "object_id", "permission")
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+            models.Index(fields=["user", "permission"]),
+        ]
 
 
 class Asset(models.Model):
@@ -57,6 +93,8 @@ class Asset(models.Model):
     file_size = models.IntegerField(default=0)
     deleted_at = models.DateTimeField(default=None, null=True)
     is_deleted = models.BooleanField(default=False)
+
+    permissions = GenericRelation(ObjectPermission)
 
     def is_valid(self):
         from util.widget.validator import ValidatorUtil
@@ -93,15 +131,14 @@ class Asset(models.Model):
 
         return asset_id
 
-    # TODO: make this more Django-y
+    # TODO: make this more Django-y?
     def db_store(self, user=None):
-        from core.models import PermObjectToUser
         from django.utils.timezone import make_aware
         from util.widget.validator import ValidatorUtil
 
         if ValidatorUtil.is_valid_hash(self.id) and not bool(self.file_type):
             return False
-        asset_id = Asset.get_unused_id()
+        asset_id = self.id if self.id != "" else Asset.get_unused_id()
         if not bool(asset_id):
             return False
         try:
@@ -109,13 +146,6 @@ class Asset(models.Model):
                 self.id = asset_id
                 self.created_at = make_aware(datetime.now())
                 self.save()
-
-                p = PermObjectToUser()
-                p.object_id = asset_id
-                p.user = user
-                p.perm = PermObjectToUser.Perm.FULL
-                p.object_type = PermObjectToUser.ObjectType.ASSET
-                p.save()
 
             return True
 
@@ -138,10 +168,7 @@ class Asset(models.Model):
                     ad_obj.delete()
                 except AssetData.DoesNotExist:
                     pass
-                for perm in PermObjectToUser.objects.filter(
-                    object_id=self.id, object_type=PermObjectToUser.ObjectType.ASSET
-                ):
-                    perm.delete()
+
             self = Asset()
             return True
 
@@ -152,11 +179,33 @@ class Asset(models.Model):
             logger.error(e)
             return False
 
-    def upload_asset_data(self, source_asset_path):
-        # TODO: come back to this later and allow for DB or S3 bucket media storage
-        from storage.file import FileStorageDriver
+    def render(self, size="original"):
+        return AssetManager.get_asset_storage_driver().render(self, size)
 
-        FileStorageDriver.store(self, source_asset_path, "original")
+    def get_mime_type(self):
+        return Asset.MIME_TYPE_FROM_EXTENSION[self.file_type]
+
+    @classproperty
+    def content_type(cls):
+        return ContentType.objects.get_for_model(cls)
+
+    @staticmethod
+    def handle_uploaded_file(user, uploaded_file):
+        asset = Asset()
+        # ordinarily this would be handled in db_store()
+        # we're pre-setting an ID here so we can fail without writing a DB row if there's a driver problem
+        asset.id = Asset.get_unused_id()
+        asset.file_type = Asset.MIME_TYPE_TO_EXTENSION[uploaded_file.content_type]
+        asset.title = uploaded_file.name
+        asset.file_size = uploaded_file.size
+
+        AssetManager.get_asset_storage_driver().handle_uploaded_file(
+            asset, uploaded_file
+        )
+
+        asset.db_store(user)
+
+        return asset
 
     class Meta:
         db_table = "asset"
@@ -544,7 +593,7 @@ class PermObjectToUser(models.Model):
     object_id = models.CharField(max_length=10, db_collation="utf8_bin")
     user = models.ForeignKey(
         User,
-        related_name="object_permissions",
+        related_name="object_permissions_deprecated",
         on_delete=models.SET_NULL,
         db_column="user_id",
         blank=True,
@@ -608,7 +657,7 @@ class UserExtraAttempts(models.Model):
 
 class Widget(models.Model):
     # update these to the relevant paths when those Python files exist
-    PATHS_PLAYDATA = os.path.join("_exports", "playdata_exporters.php")
+    PATHS_PLAYDATA = os.path.join("_exports", "playdata_exporters.py")
     PATHS_SCOREMOD = os.path.join("_score-modules", "score_module.php")
 
     SCORE_TYPE_CHOICES = [
@@ -646,6 +695,10 @@ class Widget(models.Model):
     restrict_publish = models.BooleanField(default=False)
     creator_guide = models.CharField(max_length=255, default="")
     player_guide = models.CharField(max_length=255, default="")
+
+    @property
+    def dir(self):
+        return f"{self.id}-{self.clean_name}{os.sep}"
 
     def metadata_clean(self):
         meta_raw = self.metadata.all()
@@ -703,6 +756,50 @@ class Widget(models.Model):
     }
     """
 
+    def get_playdata_exporter_methods(
+        self, script_path: str = None
+    ) -> dict[str, types.FunctionType] | Msg:
+        # Check to see if methods are cached already
+        if hasattr(Widget, "playdata_exporter_methods"):
+            return Widget.playdata_exporter_methods
+
+        # Grab and load the playdata exporter script
+        if script_path is None:
+            script_path = Path(self._make_relative_widget_path(self.PATHS_PLAYDATA))
+
+        if not script_path.exists():
+            return {}  # no custom playdata exporter, no custom methods to return
+
+        script_text = script_path.read_text()
+
+        # Execute the script to load the class
+        script_globals = types.ModuleType(
+            "temp_exporter_module"
+        )  # Create empty module to act as the script's globals
+        exec(
+            script_text, script_globals.__dict__
+        )  # Script will load the class, which we can find in the globals
+
+        # Find the mappings field in the globals, which should map a human-readable name to each function
+        exporter_mappings = getattr(script_globals, "mappings", None)
+        if exporter_mappings is None:
+            logger.error(
+                f"Play data exporter for widget '{self.name}' ({self.id}) is invalid!"
+            )
+            logger.error(" - Missing top level dict object named 'mappings'.")
+            return MsgBuilder.failure(
+                msg="Play data exporter script is invalid; missing 'mappings' dict"
+            )
+
+        # Cache these methods for re-use later
+        Widget.playdata_exporter_methods = exporter_mappings
+
+        return exporter_mappings
+
+    def _make_relative_widget_path(self, script: str) -> str:
+        script_path = os.path.join(settings.DIRS["widgets"], self.dir, script)
+        return script_path
+
     class Meta:
         db_table = "widget"
         indexes = [
@@ -748,6 +845,7 @@ class WidgetInstance(models.Model):
         null=True,
         db_column="published_by",
     )
+    permissions = GenericRelation(ObjectPermission)
 
     def create_qset(self, data, version=None):
         qset = WidgetQset(
@@ -854,6 +952,83 @@ class WidgetInstance(models.Model):
     def get_qset_history(self) -> QuerySet["WidgetQset"]:
         qsets = WidgetQset.objects.filter(instance=self).order_by("-created_at")
         return qsets
+
+    def duplicate(
+        self, owner: User, new_name: str, copy_exiting_perms: bool = False
+    ) -> Self:
+        dupe = WidgetInstance.objects.get(pk=self.pk)
+
+        # Set this instance as a duplicate
+        dupe.pk = None
+        dupe._state.adding = True
+
+        # Update name, if not empty
+        if new_name:
+            dupe.name = new_name
+
+        # Set new owner to user requesting the copy
+        dupe.user = owner
+
+        # These fields should default to False for new instances (since the new instance won't have any play history)
+        dupe.is_embedded = False
+        dupe.embedded_only = False
+
+        # Manually update created_at
+        dupe.created_at = make_aware(datetime.now())
+
+        # If original widget is student made, verify that the new user is a student or not.
+        if dupe.is_student_made:
+            can_new_owner_author = PermManager.does_user_have_roles(
+                owner, ["author", "superuser"]
+            )
+            if can_new_owner_author:
+                dupe.is_student_made = False
+
+        # Store instance
+        dupe.save()
+
+        # Create a duplicate qset that points to this instance
+        dupe_qset = self.get_latest_qset()
+        dupe_qset.pk = None
+        dupe_qset._state.adding = True
+        dupe_qset.instance = dupe
+        dupe_qset.save()
+
+        # Copy perms, if requested
+        if copy_exiting_perms:
+            existing_perms = self.permissions.all()
+            for existing_perm in existing_perms:
+                dupe.permissions.create(
+                    user=existing_perm.user,
+                    permission=existing_perm.permission,
+                    expires_at=existing_perm.expires_at,
+                )
+
+        # Otherwise, just give the requesting user FULL perms to this dupe
+        else:
+            dupe.permissions.create(
+                user=owner, permission=ObjectPermission.PERMISSION_FULL, expires_at=None
+            )
+
+        return dupe
+
+    @property
+    def play_url(self):
+        return f"{settings.URLS["BASE_URL"]}play/{self.id}/{slugify(self.name)}/"
+
+    @property
+    def preview_url(self):
+        return f"{settings.URLS["BASE_URL"]}preview/{self.id}/{slugify(self.name)}/"
+
+    @property
+    def embed_url(self):
+        if self.is_draft:
+            return None
+        return f"{settings.URLS["BASE_URL"]}embed/{self.id}/{slugify(self.name)}/"
+
+    @classproperty
+    def content_type(cls):
+        return ContentType.objects.get_for_model(cls)
 
     class Meta:
         db_table = "widget_instance"
