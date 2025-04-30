@@ -9,8 +9,6 @@ from core.permissions import (
     HasFullPermsOrElevated,
     HasFullPermsOrElevatedOrReadOnly,
     HasPermsOrElevatedAccess,
-    HasWidgetInstanceEditAccess,
-    HasWidgetInstanceEditAccessOrReadOnly,
     IsSuperOrSupportUser,
     IsSuperuser,
 )
