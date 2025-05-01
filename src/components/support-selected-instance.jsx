@@ -15,11 +15,13 @@ import Alert from './alert'
 const addZero = i => `${i}`.padStart(2, '0')
 
 const objToDateString = date => {
-	return new Date(date).toLocaleDateString()
+	let dateObj = new Date(date)
+	return `${dateObj.getFullYear()}-${addZero(dateObj.getMonth() + 1)}-${addZero(dateObj.getDate())}`
 }
 
 const objToTimeString = time => {
-	return new Date(time).toLocaleTimeString()
+	let date = new Date(time)
+	return `${addZero(date.getHours())}:${addZero(date.getMinutes())}`
 }
 
 const stringToDateObj = (date, time) => Date.parse(date + 'T' + time) / 1000
@@ -170,10 +172,10 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 				return
 			}
 			else {
-				u.open_at = new Date(`${availableDate} ${availableTime}`).toString()
+				u.open_at = new Date(`${availableDate} ${availableTime}`).toISOString()
 			}
 			setUpdatedInst({...updatedInst,
-				'open_at': new Date(`${availableDate} ${availableTime}`).toString()
+				'open_at': new Date(`${availableDate} ${availableTime}`).toISOString()
 			})
 		}
 		if (!closeDisabled){
@@ -182,10 +184,10 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 				return
 			}
 			else {
-				u.close_at = new Date(`${closeDate} ${closeTime}`).toString()
+				u.close_at = new Date(`${closeDate} ${closeTime}`).toISOString()
 			}
 			setUpdatedInst({...updatedInst,
-				'close_at': new Date(`${closeDate} ${closeTime}`).toString()
+				'close_at': new Date(`${closeDate} ${closeTime}`).toISOString()
 			})
 		}
 
