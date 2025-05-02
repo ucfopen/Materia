@@ -90,10 +90,14 @@ class UserViewSet(viewsets.ModelViewSet):
 
             elif self.request.query_params.get("search"):
                 search = self.request.query_params.get("search")
-                return User.objects.filter(
-                    Q(first_name__icontains=search)
-                    | Q(last_name__icontains=search)
-                    | Q(email__icontains=search)
+                return (
+                    User.objects.filter(
+                        Q(first_name__icontains=search)
+                        | Q(last_name__icontains=search)
+                        | Q(email__icontains=search)
+                    )
+                    .filter(~Q(id=self.request.user.id))
+                    .filter(is_superuser=False)
                 )
             # NOBODY should need a full list of all users - not even superusers
             else:
