@@ -485,13 +485,8 @@ export const apiUploadWidgets = (files) => {
 	return handleRequest(methods.POST, `/api/widgets/upload/`, {}, { headers: { 'X-CSRFToken': getCSRFToken(), }, body: formData })
 }
 
-/**
- * It undeletes a widget instance
- * @param {string} instID
- * @returns {boolean} operation success
- */
 export const apiUnDeleteWidget = ({ instId }) => {
-	return handleRequest(methods.POST, `/api/admin/widget_instance_undelete/${instId}`)
+	return handleRequest(methods.POST, `/api/instances/${instId}/undelete/`)
 }
 
 export const apiWidgetPromptGenerate = (prompt) => {

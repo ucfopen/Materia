@@ -99,7 +99,8 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 			const isEditable = inst.widget.is_editable
 			const othersPerms = new Map()
 			const myPerms = new Map()
-			for(const perm in perms){
+
+			perms.forEach(perm => {
 				
 				if (perm.user == currentUser?.id) {
 					myPerms.set(perm.user, rawPermsToObj(perm, isEditable))
@@ -107,7 +108,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 				else {
 					othersPerms.set(perm.user, rawPermsToObj(perm, isEditable))
 				}
-			}
+			})
 			myPerms.isSupportUser = true
 
 			setAllPerms({myPerms: myPerms, otherUserPerms: othersPerms})
