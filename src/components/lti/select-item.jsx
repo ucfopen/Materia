@@ -13,7 +13,7 @@ const SelectItem = () => {
 	const [progressComplete, setProgressComplete] = useState(false)
 	const [error, setError] = useState("")
 
-	const instanceList = useInstanceList()
+	const instanceList = useInstanceList("me")
 
 	useEffect(() => {
 		if (window.SYSTEM) {

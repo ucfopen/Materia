@@ -8,7 +8,6 @@ from pathlib import Path
 from core.models import Widget, WidgetInstance, WidgetMetadata, WidgetQset
 from django.conf import settings
 from django.utils.timezone import make_aware
-
 from util.unique_id import unique_id
 
 logger = logging.getLogger("django")
@@ -84,10 +83,10 @@ class WidgetInstaller:
             raise Exception(
                 f"Existing widgets found for {clean_name}, not upgrading due to --skip-upgrade option"
             )
-        if num_existing > 0 and replace_id == 0:
-            raise Exception(f"Multiple existing widgets share clean name {clean_name}")
         if num_existing == 1 and not skip_upgrade and replace_id == 0:
             replace_id = matching_widgets[0].id
+        if num_existing > 1 and replace_id == 0:
+            raise Exception(f"Multiple existing widgets share clean name {clean_name}")
 
         params = WidgetInstaller.generate_install_params(manifest_data, widget_file)
         existing_demo_inst_id = None
@@ -112,7 +111,7 @@ class WidgetInstaller:
             except Widget.DoesNotExist:
                 pass
 
-            id = WidgetInstaller.save_params(params)
+            id = WidgetInstaller.save_params(params, replace_id)
             activity.type = LogActivity.TYPE_UPDATE_WIDGET
 
         # add the demo
@@ -167,17 +166,25 @@ class WidgetInstaller:
             script_text = script_path.read_text()
 
             # Execute the script to load the class
-            script_globals = types.ModuleType("temp_exporter_module")  # Empty module to act as the script's globals
-            exec(script_text, script_globals.__dict__)  # Script will load the class, which we can find in the globals
+            script_globals = types.ModuleType(
+                "temp_exporter_module"
+            )  # Empty module to act as the script's globals
+            exec(
+                script_text, script_globals.__dict__
+            )  # Script will load the class, which we can find in the globals
 
             # Find the mappings field in the globals, which should map a human-readable name to each function
             exporter_mappings = getattr(script_globals, "mappings", None)
             if exporter_mappings is None or not isinstance(exporter_mappings, dict):
-                raise Exception("Play data exporter script missing top level 'mappings' dict")
+                raise Exception(
+                    "Play data exporter script missing top level 'mappings' dict"
+                )
 
             manifest_data["meta_data"]["playdata_exporters"] = exporter_mappings.keys()
         else:
-            manifest_data["meta_data"]["playdata_exporters"] = []  # no custom playdata exporter methods
+            manifest_data["meta_data"][
+                "playdata_exporters"
+            ] = []  # no custom playdata exporter methods
 
         return target_dir, manifest_data, clean_name
 
@@ -409,9 +416,10 @@ class WidgetInstaller:
             # update
             widget_obj = Widget.objects.get(id=widget_id)
             # do not overwrite the in_catalog flag for existing widgets
-            del params["in_catalog"]
+            params.pop("in_catalog", True)
             try:
-                widget_obj.update(**params)
+                for key, value in params.items():
+                    setattr(widget_obj, key, value)
                 widget_obj.save()
             # TODO: narrow down which kind(s) of Exception we should expect here
             except Exception as e:

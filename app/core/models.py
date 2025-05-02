@@ -22,12 +22,11 @@ from django.db import models, transaction
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils.text import slugify
 from django.utils.functional import classproperty
+from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
-
-from util.message_util import MsgBuilder, Msg
+from util.message_util import Msg, MsgBuilder
 from util.perm_manager import PermManager
 from util.widget.asset.manager import AssetManager
 from util.widget.validator import ValidatorUtil
@@ -780,7 +779,9 @@ class Widget(models.Model):
     }
     """
 
-    def get_playdata_exporter_methods(self, script_path: str = None) -> dict[str, types.FunctionType] | Msg:
+    def get_playdata_exporter_methods(
+        self, script_path: str = None
+    ) -> dict[str, types.FunctionType] | Msg:
         # Check to see if methods are cached already
         if hasattr(Widget, "playdata_exporter_methods"):
             return Widget.playdata_exporter_methods
@@ -795,15 +796,23 @@ class Widget(models.Model):
         script_text = script_path.read_text()
 
         # Execute the script to load the class
-        script_globals = types.ModuleType("temp_exporter_module")  # Create empty module to act as the script's globals
-        exec(script_text, script_globals.__dict__)  # Script will load the class, which we can find in the globals
+        script_globals = types.ModuleType(
+            "temp_exporter_module"
+        )  # Create empty module to act as the script's globals
+        exec(
+            script_text, script_globals.__dict__
+        )  # Script will load the class, which we can find in the globals
 
         # Find the mappings field in the globals, which should map a human-readable name to each function
         exporter_mappings = getattr(script_globals, "mappings", None)
         if exporter_mappings is None:
-            logger.error(f"Play data exporter for widget '{self.name}' ({self.id}) is invalid!")
+            logger.error(
+                f"Play data exporter for widget '{self.name}' ({self.id}) is invalid!"
+            )
             logger.error(" - Missing top level dict object named 'mappings'.")
-            return MsgBuilder.failure(msg="Play data exporter script is invalid; missing 'mappings' dict")
+            return MsgBuilder.failure(
+                msg="Play data exporter script is invalid; missing 'mappings' dict"
+            )
 
         # Cache these methods for re-use later
         Widget.playdata_exporter_methods = exporter_mappings
@@ -962,7 +971,9 @@ class WidgetInstance(models.Model):
         qsets = WidgetQset.objects.filter(instance=self).order_by("-created_at")
         return qsets
 
-    def duplicate(self, owner: User, new_name: str, copy_exiting_perms: bool = False) -> Self:
+    def duplicate(
+        self, owner: User, new_name: str, copy_exiting_perms: bool = False
+    ) -> Self:
         dupe = WidgetInstance.objects.get(pk=self.pk)
 
         # Set this instance as a duplicate
@@ -985,7 +996,9 @@ class WidgetInstance(models.Model):
 
         # If original widget is student made, verify that the new user is a student or not.
         if dupe.is_student_made:
-            can_new_owner_author = PermManager.does_user_have_roles(owner, ["author", "superuser"])
+            can_new_owner_author = PermManager.does_user_have_roles(
+                owner, ["author", "superuser"]
+            )
             if can_new_owner_author:
                 dupe.is_student_made = False
 
@@ -1012,9 +1025,7 @@ class WidgetInstance(models.Model):
         # Otherwise, just give the requesting user FULL perms to this dupe
         else:
             dupe.permissions.create(
-                user=owner,
-                permission=ObjectPermission.PERMISSION_FULL,
-                expires_at=None
+                user=owner, permission=ObjectPermission.PERMISSION_FULL, expires_at=None
             )
 
         return dupe
@@ -1163,6 +1174,9 @@ class WidgetQset(models.Model):
 
 
 class UserSettings(models.Model):
+
+    DEFAULT_PROFILE_FIELDS = {"useGravatar": False, "darkMode": False}
+
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="profile_settings"
     )
@@ -1173,13 +1187,20 @@ class UserSettings(models.Model):
         self.save()
 
     def get_profile_fields(self):
+        if not self.profile_fields:
+            self.initialize_profile_fields()
         return self.profile_fields
+
+    def initialize_profile_fields(self):
+        self.profile_fields = {**self.DEFAULT_PROFILE_FIELDS}
+        self.save()
 
 
 @receiver(post_save, sender=User)
 def create_user_settings(sender, instance, created, **kwargs):
     if created:
-        UserSettings.objects.create(user=instance)
+        settings = UserSettings.objects.create(user=instance)
+        settings.initialize_profile_fields()
 
 
 @receiver(post_save, sender=User)

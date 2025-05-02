@@ -17,4 +17,7 @@ JS_GROUPS = {
     "settings": [JS_BASEURL + "settings.js"],
     "scores": [JS_BASEURL + "scores.js"],
     "media": [JS_BASEURL + "media.js"],
+    "widget_admin": [JS_BASEURL + "widget-admin.js"],
+    "user_admin": [JS_BASEURL + "user-admin.js"],
+    "instance_admin": [JS_BASEURL + "support.js"],
 }

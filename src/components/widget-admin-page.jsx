@@ -1,4 +1,4 @@
-import { apiGetWidgetsAdmin } from '../util/api'
+import { apiGetWidget } from '../util/api'
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 
@@ -12,7 +12,7 @@ const WidgetAdminPage = () => {
 
 	const { data, isLoading, refetch: refetchWidgets} = useQuery({
 		queryKey: ['widgets'],
-		queryFn: apiGetWidgetsAdmin,
+		queryFn: () => apiGetWidget([], 'all'),
 		staleTime: Infinity,
 		retry: false,
 		onSuccess: (widgetData) => {

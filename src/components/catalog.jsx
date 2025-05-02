@@ -22,8 +22,8 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 			const features = new Set()
 			const accessibility = new Set()
 			widgets.forEach(w => {
-				w.meta_data.features.forEach(f => {features.add(f)})
-				w.meta_data.supported_data.forEach(f => {features.add(f)})
+				w.meta_data.features?.forEach(f => {features.add(f)})
+				w.meta_data.supported_data?.forEach(f => {features.add(f)})
 				if(w.meta_data.hasOwnProperty('accessibility_keyboard')) accessibility.add('Keyboard Accessible')
 				if(w.meta_data.hasOwnProperty('accessibility_reader')) accessibility.add('Screen Reader Accessible')
 			})

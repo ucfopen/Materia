@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query'
-import { apiSaveWidget } from '../../util/api'
+import { apiUpdateWidgetInstance } from '../../util/api'
 
 export default function useUpdateWidget() {
 	const queryClient = useQueryClient()
@@ -8,7 +8,7 @@ export default function useUpdateWidget() {
 
 	// Optimistically updates the cache value on mutate
 	return useMutation(
-		({ args }) => apiSaveWidget(args),
+		apiUpdateWidgetInstance,
 		{
 			onMutate: async formData => {
 				// cancel any in-progress queries and grab the current query cache for widgets
