@@ -415,8 +415,12 @@ export const apiUpdateUserSettings = (settings) => {
 	return handleRequest(methods.PUT, `/api/users/${settings.user_id}/profile_fields/`, settings)
 }
 
+export const apiGetUserRoles = (id) => {
+	return handleRequest(methods.GET, `/api/users/${id}/roles/`)
+}
+
 export const apiUpdateUserRoles = (roles) => {
-	return handleRequest(methods.POST, '/api/user/roles',  roles)
+	return handleRequest(methods.PATCH, `/api/users/${roles.id}/roles/`,  roles)
 }
 
 export const apiUpdateUser = (user) => {

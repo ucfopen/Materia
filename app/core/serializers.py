@@ -131,6 +131,20 @@ class UserMetadataSerializer(serializers.Serializer):
         return data["profile_fields"]
 
 
+class UserRoleSerializer(serializers.Serializer):
+    id = serializers.IntegerField(max_value=None, min_value=0, required=True)
+    student = serializers.BooleanField(required=False)
+    author = serializers.BooleanField(required=False)
+    support_user = serializers.BooleanField(required=False)
+
+    def validate(self, data):
+        if data["student"] == data["author"]:
+            raise serializers.ValidationError(
+                "student and author cannot be the same value."
+            )
+        return data
+
+
 # widget engine metadata: converts the one-to-many relationship into a dict for ease of use
 # not a full-blown serializer, since metadata is only accessed in the context of a widget engine
 class WidgetMetadataDictField(serializers.Field):

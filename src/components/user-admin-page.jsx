@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query'
-import { apiGetUser, apiGetUsers} from '../util/api'
+import { apiGetUser, apiGetUsers, apiGetUserRoles} from '../util/api'
 import React, { useState, useRef, useEffect } from 'react'
 import Header from './header'
 import UserAdminSearch from './user-admin-search'
@@ -27,6 +27,15 @@ const UserAdminPage = () => {
 		queryKey: ['user', userHash],
 		queryFn: () => apiGetUsers([userHash]),
 		enabled: userHash != undefined,
+		placeholderData: undefined,
+		staleTime: Infinity,
+		retry: false
+	})
+
+	const { data: userRoles } = useQuery({
+		queryKey: ['user-roles', selectedUser?.id],
+		queryFn: () => apiGetUserRoles(selectedUser?.id),
+		enabled: !!selectedUser?.id,
 		placeholderData: undefined,
 		staleTime: Infinity,
 		retry: false
@@ -72,7 +81,7 @@ const UserAdminPage = () => {
 	if (error) {
 		errorContent = <div className="error">{error}</div>
 	}
-	if (selectedUser) pageRenderContent = <UserAdminSelected selectedUser={selectedUser} currentUser={currentUser} onReturn={() => setSelectedUser(null)}></UserAdminSelected>
+	if (selectedUser) pageRenderContent = <UserAdminSelected selectedUser={selectedUser} currentUser={currentUser} roles={userRoles} onReturn={() => setSelectedUser(null)}></UserAdminSelected>
 
 	return (
 		<>

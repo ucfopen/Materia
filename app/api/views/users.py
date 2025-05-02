@@ -2,14 +2,15 @@ import json
 import logging
 
 from core.models import ObjectPermission, UserSettings
-from core.permissions import IsSelfOrElevatedAccess, IsSuperOrSupportUser
+from core.permissions import IsSelfOrElevatedAccess, IsSuperOrSupportUser, IsSuperuser
 from core.serializers import (
     ObjectPermissionSerializer,
     UserMetadataSerializer,
+    UserRoleSerializer,
     UserSerializer,
 )
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.http import JsonResponse
@@ -52,8 +53,12 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action in [
             "put",
             "patch",
-        ]:  # only superusers can modify user properties!
+        ]:  # only superusers or support users can modify a limited set of user properties
             return [permissions.IsAuthenticated(), IsSuperOrSupportUser()]
+        elif self.action == "roles":  # only superusers can modify another user's roles
+            return [permissions.IsAuthenticated(), IsSuperuser()]
+        elif self.action in ["perms", "profile_fields"]:
+            return [permissions.IsAuthenticated(), IsSelfOrElevatedAccess()]
         elif (
             self.action == "list"
             and self.request.query_params.get("search") is not None
@@ -115,7 +120,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["put"], permission_classes=[IsSelfOrElevatedAccess])
+    @action(detail=True, methods=["put"])
     def profile_fields(self, request, pk=None):
         user = self.get_object()
         serializer = UserMetadataSerializer(data=request.data)
@@ -144,7 +149,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Get list of objects the user has access to. Requires elevated access for non-self.
-    @action(detail=True, methods=["get"], permission_classes=[IsSelfOrElevatedAccess])
+    @action(detail=True, methods=["get"])
     def perms(self, request, pk):
 
         user = self.get_object()
@@ -165,6 +170,52 @@ class UserViewSet(viewsets.ModelViewSet):
 
         serialized = ObjectPermissionSerializer(access_permissions, many=True)
         return Response(serialized.data)
+
+    @action(detail=True, methods=["get", "patch"])
+    def roles(self, request, pk):
+        serialized = UserRoleSerializer(data=request.data)
+
+        user = User.objects.get(id=pk)
+        if user is None:
+            return ValidationError("Invalid user.")
+
+        if request.method == "GET":
+            author = user.groups.filter(name="basic_author").exists()
+            return Response(
+                {
+                    "student": not author,
+                    "author": author,
+                    "support_user": user.groups.filter(name="support_user").exists(),
+                }
+            )
+
+        elif request.method == "PATCH":
+
+            if serialized.is_valid():
+
+                support_group = Group.objects.get(name="support_user")
+                author_group = Group.objects.get(name="basic_author")
+
+                if serialized.data["support_user"] is True:
+                    user.groups.add(support_group)
+                elif serialized.data["support_user"] is False:
+                    user.groups.remove(support_group)
+
+                if (
+                    serialized.data["author"] is True
+                    or serialized.data["student"] is False
+                ):
+                    user.groups.add(author_group)
+                elif (
+                    serialized.data["author"] is False
+                    or serialized.data["student"] is True
+                ):
+                    user.groups.remove(author_group)
+
+                return Response(serialized.data)
+
+            else:
+                return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # API stuff below this line is not yet converted to DRF #

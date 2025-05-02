@@ -7,14 +7,22 @@ import useGetPlaySessions from './hooks/useGetPlaySessions'
 import UserAdminRoleManager from './user-admin-role-manager'
 import { apiUpdateUser } from '../util/api'
 
-const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
+const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 	const queryClient = useQueryClient()
 	const [updatedUser, setUpdatedUser] = useState({...selectedUser})
 	const instancesOwned = useInstanceList(updatedUser.id)
 	const userLogs = useGetPlaySessions(updatedUser.id, true)
+	const [isSuper, setIsSuper] = useState(false)
 
 	const [errorText, setErrorText] = useState('')
 	const [successText, setSuccessText] = useState('')
+
+	useEffect(() => {
+		if (currentUser) {
+			const userPerms = queryClient.getQueryData('isLoggedIn')
+			if (userPerms?.permLevel && userPerms?.permLevel == 'super_user') setIsSuper(true)
+		}
+	},[currentUser])
 
 	useEffect(() => {
 		if (selectedUser && updatedUser && selectedUser.id != updatedUser.id) setUpdatedUser({...selectedUser})
@@ -73,8 +81,8 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 	}
 
 	let suRender = null
-	if (currentUser?.is_super_user) {
-		suRender = <UserAdminRoleManager currentUser={currentUser} selectedUser={selectedUser} />
+	if (isSuper) {
+		suRender = <UserAdminRoleManager selectedUser={selectedUser} roles={roles} />
 	}
 
 	return (
@@ -119,7 +127,7 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 					</button>
 				</span>
 				<span>
-					<label>Roles: </label> { updatedUser.is_support_user ? 'Support, ' : '' } { updatedUser.is_student ? 'Student' : 'Instructor' }
+					<label>Roles: </label> { roles?.support_user ? 'Support, ' : '' } { roles?.student ? 'Student' : 'Instructor' }
 				</span>
 				<h3>User Settings</h3>
 				<span>
