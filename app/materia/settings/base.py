@@ -8,6 +8,7 @@ from .generation import *  # noqa: F401, F403
 from .js import *  # noqa: F401, F403
 
 # import additional config files
+from .session import *  # noqa: F401, F403
 from .storage import *  # noqa: F401, F403
 from .urls import *  # noqa: F401, F403
 from .widgets import *  # noqa: F401, F403
