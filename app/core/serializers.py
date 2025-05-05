@@ -56,7 +56,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "email", "avatar", "profile_fields", "is_student"]
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "avatar",
+            "profile_fields",
+            "is_student",
+        ]
 
 
 # User metadata (profile fields) serializer (inbound)
@@ -228,12 +236,15 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             widget_qset = super().create(validated_data)
             from core.models import Question
 
-            Question.objects.create(
-                qset=widget_qset,
-                questions_list=base64.b64encode(
-                    json.dumps(questions_list).encode()
-                ).decode("utf-8"),
-            )
+            # Question.objects.create(
+            #     qset=widget_qset,
+            #     questions_list=base64.b64encode(
+            #         json.dumps(questions_list).encode()
+            #     ).decode("utf-8"),
+            # )
+            for q in questions_list:
+                encoded = base64.b64encode(json.dumps(q).encode()).decode("utf-8")
+                Question.objects.create(qset=widget_qset, data=encoded)
 
         return widget_qset
 
@@ -655,15 +666,21 @@ class PromptGenerationRequestSerializer(serializers.Serializer):
 
 # Used for incoming requests to copy a widget instance. Does NOT map to a model.
 class WidgetInstanceCopyRequestSerializer(serializers.Serializer):
-    new_name = serializers.ModelField(model_field=WidgetInstance()._meta.get_field("name"))
+    new_name = serializers.ModelField(
+        model_field=WidgetInstance()._meta.get_field("name")
+    )
     copy_existing_perms = serializers.BooleanField(required=False, default=False)
 
 
 # Used for incoming requests to update perms. Does not map to a model.
 class PermsUpdateRequestItemSerializer(serializers.Serializer):
-    expiration = serializers.DateTimeField(required=False, allow_null=True, default=None)
+    expiration = serializers.DateTimeField(
+        required=False, allow_null=True, default=None
+    )
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    perm_level = serializers.ChoiceField(choices=ObjectPermission.PERMISSION_CHOICES, allow_null=True)
+    perm_level = serializers.ChoiceField(
+        choices=ObjectPermission.PERMISSION_CHOICES, allow_null=True
+    )
 
 
 class PermsUpdateRequestListSerializer(serializers.Serializer):

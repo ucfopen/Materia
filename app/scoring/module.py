@@ -265,17 +265,22 @@ class ScoreModule(ABC):
 
         if self.instance.get_latest_qset():
             widget_qset = self.instance.get_latest_qset()
-            question_row = widget_qset.flattened_questions.first()
-            if not question_row:
-                raise Exception("No question row found")
-                return
+            # question_row = widget_qset.flattened_questions.first()
+            # if not question_row:
+            #     raise Exception("No question row found")
+            #     return
 
             # questions_list = json.loads(
             #     base64.b64decode(widget_qset.questions_list).decode()
             # )
-            questions_list = json.loads(
-                base64.b64decode(question_row.questions_list).decode()
-            )
+            # questions_list = json.loads(
+            #     base64.b64decode(question_row.questions_list).decode()
+            # )
+            questions = widget_qset.flattened_questions.all()
+            questions_list = [
+                json.loads(base64.b64decode(q.data).decode()) for q in questions
+            ]
+
             print(f" Found {len(questions_list)} questions!")
 
             for q in questions_list:
@@ -287,10 +292,10 @@ class ScoreModule(ABC):
             print("self.questions is : ", self.questions)
             self.questions = {q["id"]: q for q in questions_list}
 
-            # print("\nAvailable Questions in self.questions:")
-            # for qid in self.questions.keys():
-            #     print(f" - {qid}")
-            # print("\n")
+            print("\nAvailable Questions in self.questions:")
+            for qid in self.questions.keys():
+                print(f" - {qid}")
+            print("\n")
 
     def get_score_details(self):
         table = []

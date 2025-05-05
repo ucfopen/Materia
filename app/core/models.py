@@ -625,8 +625,8 @@ class Question(models.Model):
         null=True,
         blank=True,
     )
-    # base 64 encoded json list of questions
-    questions_list = models.TextField()
+    # base 64 encoded json question
+    data = models.TextField()
     created_at = models.DateTimeField(default=datetime.now)
 
     class Meta:
