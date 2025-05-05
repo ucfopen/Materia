@@ -151,6 +151,7 @@ class ScoringUtil:
 
         instance = session_play.data.instance
         widget_folder = f"staticfiles/widget/{instance.widget.id}-{instance.widget.clean_name}/_score-modules"
+        script_path = os.path.join(widget_folder, "score_module.py")
 
         ScoreClass = ScoringUtil.load_score_class(script_path, instance)
         if not ScoreClass:
@@ -252,8 +253,10 @@ class ScoringUtil:
 
         widget_folder = f"staticfiles/widget/{instance.widget.id}-{instance.widget.clean_name}/_score-modules"
         script_path = os.path.join(widget_folder, "score_module.py")
+        print(f"Script path: {script_path}")
 
         ScoreClass = ScoringUtil.load_score_class(script_path, instance)
+        print(f"ScoreClass: {ScoreClass}")
         if not ScoreClass:
             raise Exception("No score module found")
 

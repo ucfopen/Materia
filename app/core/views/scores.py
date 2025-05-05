@@ -19,18 +19,12 @@ class ScoresView(TemplateView):
 
     # Note: play_id isn't used on the backend, though the frontend will look for it in the URL
     def get_context_data(self, widget_instance_id, play_id=None):
-        print("WE ARE GETTING CONTREXT DATA")
-        print("WE ARE GETTING CONTREXT DATA")
-        print("WE ARE GETTING CONTREXT DATA")
-        print("WE ARE GETTING CONTREXT DATA")
         is_embedded = self.kwargs.get("is_embedded", False)
         token = self.kwargs.get("token")
 
         # Get widget instance
         instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
-        print(f"INSTANCE: {instance}")
         if not instance:
-            print("WTF NOT FOUND!")
             return HttpResponseNotFound()  # TODO must return context
 
         # Verify user is able to play this widget
@@ -45,6 +39,18 @@ class ScoresView(TemplateView):
                 js_globals={},
                 request=self.request,
             )
+
+        return ContextUtil.create(
+            title="Score Results",
+            js_resources=settings.JS_GROUPS["scores"],
+            css_resources=settings.CSS_GROUPS["scores"],
+            js_globals={
+                "IS_EMBEDDED": self.kwargs.get("is_embedded", False),
+                "IS_PREVIEW": self.is_preview,
+                "LAUNCH_TOKEN": self.kwargs.get("token", None),
+            },
+            request=self.request,
+        )
 
 
 # Allow LTI launches to score screens

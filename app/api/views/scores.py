@@ -112,21 +112,6 @@ class ScoresApi:
             if session_context_id:
                 context_id = session_context_id
 
-        # Get scores and return
-        # raw_scores = ScoringUtil.get_instance_score_history(instance, context_id)
-        # print(f"DEBUG: RAW SCORES IS {raw_scores}")
-        # print(f"DEBUG: RAW SCORES IS {raw_scores}")
-        # print(f"DEBUG: RAW SCORES IS {raw_scores}")
-        # print(f"DEBUG: RAW SCORES IS {raw_scores}")
-        # scores = [
-        #     {
-        #         "id": s["id"],
-        #         "created_at": int(s["created_at"].timestamp()),
-        #         "percent": s["percent"],
-        #     }
-        #     for s in raw_scores
-        # ]
-
         from django.utils.timezone import localtime
 
         if play_data:
@@ -159,12 +144,6 @@ class ScoresApi:
                 "attemptsLeft": attempts_left,
             }
         )
-
-        # print(f"Scores: {scores}")
-        # if not scores:
-        #     return MsgBuilder.expired().as_json_response()
-        #
-        # return JsonResponse(scores)
 
     # WAS widget_instance_play_scores_get
     # Gets play details (from Log table, containing player's answers and actions) for a play_id
@@ -204,23 +183,16 @@ class ScoresApi:
                 return MsgBuilder.expired().as_json_response()
 
             print("PLAY DETAILS: ", play_details)
-            print("PLAY DETAILS: ", play_details)
-            print("PLAY DETAILS: ", play_details)
-            print("PLAY DETAILS: ", play_details)
             return JsonResponse(play_details)
         else:
             # Get real play details
             # Check if session play is valid and user has access
             session_play = SessionPlay.get_or_none(play_id)
-            print("ELSE IN get_play_details SCORES.py in views")
             if not session_play:
                 return HttpResponseNotFound()
             if not session_play.data.instance.playable_by_current_user(request.user):
                 return MsgBuilder.no_login().as_json_response()
 
-            print("session_play: ", session_play)
-            print("session_play: ", session_play)
-            print("session_play: ", session_play)
             print("session_play: ", session_play)
             return JsonResponse(ScoringUtil.get_play_details(session_play))
 
@@ -228,8 +200,6 @@ class ScoresApi:
     @staticmethod
     def score_summary_get(request):
         # Get and validate body params
-        print("WE ARE IN SCORE_SUMMARY_GET")
-        print("WE ARE IN SCORE_SUMMARY_GET")
         print("WE ARE IN SCORE_SUMMARY_GET")
         json_body = json.loads(request.body)
         instance_id = json_body.get("instanceId")
@@ -264,9 +234,5 @@ class ScoresApi:
         summaries = summaries.values()
         summaries = sorted(summaries, key=lambda k: k["id"])
 
-        print("SUMMARIES: ", summaries)
-        print("SUMMARIES: ", summaries)
-        print("SUMMARIES: ", summaries)
-        print("SUMMARIES: ", summaries)
         print("SUMMARIES: ", summaries)
         return JsonResponse({"summaries": summaries})
