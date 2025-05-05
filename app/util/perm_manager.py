@@ -1,12 +1,11 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Type
-
-from django.db import models
-from django.db.models import QuerySet
 
 import logging
+from typing import TYPE_CHECKING, Type
 
 from django.contrib.auth.models import User
+from django.db import models
+from django.db.models import QuerySet
 
 logger = logging.getLogger("django")
 
@@ -37,16 +36,17 @@ class PermManager:
         return user.groups.filter(name__in=roles).exists()
 
     @staticmethod
-    def get_all_objects_of_type_for_user[T: Type[models.Model]](
-            obj: T, user: User | str | int, perms: list[str]
-    ) -> QuerySet[T]:
+    def get_all_objects_of_type_for_user[
+        T: Type[models.Model]
+    ](obj: T, user: User | str | int, perms: list[str]) -> QuerySet[T]:
         if len(perms) <= 0:
             return obj.objects.none()
 
         from core.models import ObjectPermission
-        all_ids = (ObjectPermission.objects
-                   .filter(user=user, content_type=obj.content_type, permission__in=perms)
-                   .values("object_id"))
+
+        all_ids = ObjectPermission.objects.filter(
+            user=user, content_type=obj.content_type, permission__in=perms
+        ).values("object_id")
         return obj.objects.filter(pk__in=all_ids)
 
     @staticmethod
@@ -64,6 +64,8 @@ class PermManager:
     # Sets permissions for every asset linked to an instance
     # If a user already has FULL perms for an asset, changes are ignored
     @staticmethod
-    def set_user_asset_perms_for_instance(user: User, instance: WidgetInstance, perm: str, expires: str = None):
+    def set_user_asset_perms_for_instance(
+        user: User, instance: WidgetInstance, perm: str, expires: str = None
+    ):
         pass
         # TODO this needs to be implemented, probably once we figure out how MapAssetToObject will actually work

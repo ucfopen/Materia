@@ -1,6 +1,5 @@
 from core.models import Asset, ObjectPermission, WidgetInstance
 from rest_framework import filters
-
 from util.perm_manager import PermManager
 
 
@@ -24,7 +23,7 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
             queryset = PermManager.get_all_objects_of_type_for_user(
                 WidgetInstance,
                 user,
-                [ObjectPermission.PERMISSION_FULL, ObjectPermission.PERMISSION_VISIBLE]
+                [ObjectPermission.PERMISSION_FULL, ObjectPermission.PERMISSION_VISIBLE],
             )
             # return queryset.filter(user=user).order_by("-created_at")
         elif user_query is not None:
@@ -36,7 +35,10 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
                 queryset = PermManager.get_all_objects_of_type_for_user(
                     WidgetInstance,
                     user_query,
-                    [ObjectPermission.PERMISSION_FULL, ObjectPermission.PERMISSION_VISIBLE]
+                    [
+                        ObjectPermission.PERMISSION_FULL,
+                        ObjectPermission.PERMISSION_VISIBLE,
+                    ],
                 )
             else:
                 return queryset.none()

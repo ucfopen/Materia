@@ -1,7 +1,7 @@
 # TODO needs more testing w real data, esp with a variety of qsets
 # TODO this also needs to be integrated directly into simple survey. it's here for now for safe keeping
 import io
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZIP_DEFLATED, ZipFile
 
 from core.models import WidgetInstance, WidgetQset
 from util.logging.play_data_exporter import PlayDataExporter
@@ -11,20 +11,24 @@ from util.widget.validator import ValidatorUtil
 
 
 def export_survey_formatting(
-        instance: WidgetInstance, semesters: list[str], is_student: bool
+    instance: WidgetInstance, semesters: list[str], is_student: bool
 ) -> tuple[bytes | Msg, str]:
     headers = ["User ID", "Last Name", "First Name", "Semester", "Game Time (seconds)"]
     csvs = {}  # Contains processed data and rows for the CSV for each qset
 
     for semester in semesters:
         [year, term] = semester.split("-")
-        play_sessions = PlayDataExporter.get_all_plays_for_instance(instance, term, int(year), is_student)
+        play_sessions = PlayDataExporter.get_all_plays_for_instance(
+            instance, term, int(year), is_student
+        )
 
         # Go through each play, and gather all events for that play
         results = {}
         for play in play_sessions:
             results[play.id] = []
-            last, first = (play.user.last_name, play.user.first_name) if play.user else ("", "")
+            last, first = (
+                (play.user.last_name, play.user.first_name) if play.user else ("", "")
+            )
 
             # Go through each log for this play
             play_logs = SessionLogger.get_logs(play.id)
@@ -40,7 +44,7 @@ def export_survey_formatting(
                     "text": play_log.text,
                     "value": play_log.value,
                     "game_time": play_log.game_time,
-                    "created_at": play_log.created_at
+                    "created_at": play_log.created_at,
                 }
                 results[play.id].append(event)
 
@@ -57,7 +61,11 @@ def export_survey_formatting(
 
             # Grab existing processed data for qset, or make a new entry.
             if qset_id not in csvs:
-                cur_csv = {"questions": [], "rows": [], "timestamp": play_logs[0]["created_at"]}
+                cur_csv = {
+                    "questions": [],
+                    "rows": [],
+                    "timestamp": play_logs[0]["created_at"],
+                }
                 csvs[qset_id] = cur_csv
 
                 qset = WidgetQset.objects.filter(id=qset_id).first()
@@ -73,7 +81,9 @@ def export_survey_formatting(
                 ]
                 cur_csv["question_texts"] = []
                 for question in questions:
-                    clean_str = ValidatorUtil.add_slashes(question["questions"][0]["text"])
+                    clean_str = ValidatorUtil.add_slashes(
+                        question["questions"][0]["text"]
+                    )
                     if len(clean_str) > 80:
                         clean_str = clean_str[:80] + "..."
 
@@ -123,12 +133,12 @@ def export_survey_formatting(
             else:
                 date_string = "N/A"
             file_name = f"{instance.name} (created {date_string}).csv"
-            built_csv = PlayDataExporter.build_csv([*headers, *csv["question_texts"]], csv["rows"])
+            built_csv = PlayDataExporter.build_csv(
+                [*headers, *csv["question_texts"]], csv["rows"]
+            )
             zip_file.writestr(file_name, built_csv)
 
     return zip_buffer.getvalue(), "zip"
 
 
-mappings = {
-    "Survey Formatting": export_survey_formatting
-}
+mappings = {"Survey Formatting": export_survey_formatting}

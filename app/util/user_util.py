@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
-
-from util.message_util import MsgBuilder, Msg
+from util.message_util import Msg, MsgBuilder
 from util.perm_manager import PermManager
 
 
@@ -12,9 +11,9 @@ class UserUtil:
     # Otherwise, returns true.
     @staticmethod
     def verify_session(
-            user: User,
-            roles: str | list[str] = None,
-            no_perm_msg: str = "User does not have required roles"
+        user: User,
+        roles: str | list[str] = None,
+        no_perm_msg: str = "User does not have required roles",
     ) -> tuple[bool, Msg | None]:
         # Check if a user is logged in
         if not user.is_authenticated:

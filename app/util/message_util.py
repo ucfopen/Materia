@@ -26,8 +26,13 @@ class MsgType(Enum):
 
 class Msg:
     def __init__(
-            self, title: str, msg: str, msg_type: MsgType = MsgType.GENERAL, severity: MsgSeverity = MsgSeverity.ERROR,
-            halt: bool = False, status: int = 403
+        self,
+        title: str,
+        msg: str,
+        msg_type: MsgType = MsgType.GENERAL,
+        severity: MsgSeverity = MsgSeverity.ERROR,
+        halt: bool = False,
+        status: int = 403,
     ):
         self.msg_type = msg_type
         self.title = title
@@ -37,20 +42,26 @@ class Msg:
         self.status = status
 
     def as_json_response(self) -> JsonResponse:
-        return JsonResponse({
-            "title": self.title,
-            "msg": self.msg,
-            "type": self.severity.value,
-            "halt": self.halt,
-        }, status=self.status)
+        return JsonResponse(
+            {
+                "title": self.title,
+                "msg": self.msg,
+                "type": self.severity.value,
+                "halt": self.halt,
+            },
+            status=self.status,
+        )
 
     def as_drf_response(self) -> Response:
-        return Response({
-            "title": self.title,
-            "msg": self.msg,
-            "type": self.severity.value,
-            "halt": self.halt,
-        }, status=self.status)
+        return Response(
+            {
+                "title": self.title,
+                "msg": self.msg,
+                "type": self.severity.value,
+                "halt": self.halt,
+            },
+            status=self.status,
+        )
 
 
 class MsgBuilder:
@@ -76,7 +87,7 @@ class MsgBuilder:
     @staticmethod
     def student_collab(
         title="Share Not Allowed",
-        msg="Students cannot be added as collaborator to widgets that have guest access disabled"
+        msg="Students cannot be added as collaborator to widgets that have guest access disabled",
     ) -> Msg:
         return Msg(title, msg, MsgType.STUDENT_COLLAB, MsgSeverity.ERROR, False, 401)
 
@@ -84,7 +95,7 @@ class MsgBuilder:
     def failure(
         title: str = "Action Failed",
         msg: str = "The requested action could not be completed",
-        status: int = 403
+        status: int = 403,
     ) -> Msg:
         return Msg(title, msg, MsgType.FAILURE, MsgSeverity.ERROR, False, status)
 
