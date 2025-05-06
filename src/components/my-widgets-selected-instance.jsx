@@ -183,6 +183,10 @@ const MyWidgetSelectedInstance = ({
 		}
 	}
 
+	const scrollToInstances = (evt) => {
+		document.getElementById('instance-list').scrollIntoView({ behavior: 'smooth' })
+	}
+
 	const editClickHandler = () => onEditClick(inst)
 	const collaborateClickHandler = () => showModal(setShowCollab)
 	const copyClickHandler = () => showModal(setShowCopy)
@@ -370,6 +374,7 @@ const MyWidgetSelectedInstance = ({
 		<div className='header'>
 			<h1>{inst.name}</h1>
 		</div>
+			<button id='scroll-to-widget-list' onClick={scrollToInstances}>Widget Selection</button>
 			<div className='overview'>
 			<div className={`icon_container med_${beardMode ? beard : ''} ${beardMode ? 'big_bearded' : ''}`} >
 				<img className='icon'

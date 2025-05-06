@@ -69,7 +69,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	}
 
 	return (
-		<aside className='my-widgets-side-bar'>
+		<aside className='my-widgets-side-bar' id='instance-list'>
 			<div className='top'>
 				<h1>Your Widgets:</h1>
 			</div>

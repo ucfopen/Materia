@@ -1,7 +1,7 @@
 @import 'include.scss';
 
 .my_widgets {
-	display: grid;
+	display: flex;
 	justify-content: center;
 
 	.error {
@@ -15,7 +15,6 @@
 		display: flex;
 		align-items: flex-start;
 		margin: 0 auto 100px auto;
-		width: 970px;
 		overflow-x: visible;
 
 		.container_main-content {
@@ -347,6 +346,41 @@
 			padding: 0 0 0 10px;
 			margin: 0;
 			font-size: 13px;
+		}
+
+		#scroll-to-widget-list {
+			display: none;
+			position: absolute;
+			top: -0.5em;
+			left: 1em;
+			border: none;
+			border-radius: 1em;
+			padding: 0.5em 1em;
+			font-size: 1em;
+			font-weight: 700;
+			color: #fff;
+			background-color: $color-features;
+
+			cursor: pointer;
+
+			&:before {
+				position: relative;
+				display: block;
+				content: '';
+				top: 0.15em;
+				width: 0.5em;
+				height: 0.5em;
+				margin-right: 0.5em;
+				border-width: 0 0 2px 2px;
+				border-style: solid;
+				border-color: #fff;
+				transform: rotate(-45deg);
+			}
+
+			&:hover, &:focus {
+				text-decoration: none;
+				background-color: $color-features-active;
+			}
 		}
 
 		.overview {
@@ -1237,696 +1271,192 @@
 	}
 }
 
-@media (min-width: 780px) and (max-width: 950px) {
-.my_widgets {
-	display: flex;
-	justify-content: center;
-	overflow: hidden;
-	.container {
-		display: flex;
-		flex-wrap: wrap;
-
-		overflow: hidden;
-
-		.widget_list
-			{
-				ul {
-					li {
-						&.title {
-							width: 300%;
-						}
-					}
-				}
-			}
-
-		section.directions {
-
-				position: relative;
-				right: 200px;
-
-			&.unchosen {
-				&:not(.bearded) {
-					background: #ffffff url('/img/kogneato_mywidgets_pointing_down.svg')55% 30%/250px auto no-repeat;
-				}
-
-			}
-
-
-		}
-
-		.container_main-content {
-			box-shadow: none;
-			padding-left: 0%;
-		}
-
-		section.page {
-			display: grid;
-			margin-left: 40%;
-
-
-		}
-
-		aside {
-			overflow: hidden;
-			width: 100%;
-			height: 100%;
-			position: relative;
-			margin: 0;
-
-
-			.search
-			{
-
-				.textbox-background {
-					width: 95%;
-				}
-
-
-			}
-		}
-
-		.page {
-			.overview {
-				display: grid;
-				margin: 0px;
-				width: 100px;
-
-
-			}
-		}
-	}
-
-	.page
-	{
-		.header {
-
-			h1 {
-				display: grid;
-				position: relative;
-				width: 35vh;
-				place-items:center;
-
-			}
-
-		}
-		width: 100%;
-		.overview {
-				.icon_container {
-					padding-left: 50px;
-				}
-		}
-
-		.share-widget-container {
-			width: 80%;
-			right: 90px;
-		}
-
-	}
-}
-
-.scores {
-	position: relative;
-	right: 160px;
-	.student-activity-header {
-		flex-direction: column;
-		border: none;
-		bottom: 26px;
-
-		h2 {
-			text-decoration: underline;
-		}
-		.action_button {
-    		margin-bottom: 20px;
-		}
-	}
-
-	.scoreWrapper {
-		transform: scale(1)
-	}
-}
-
-
-.modal {
-	.collaborate-modal {
-		.user-add {
-			font-size: 13px;
-		}
-	}
-}
-
-.warning-modal {
-	display: grid;
-	width: 100%;
-	.title {
-		margin-left: 26%;
-		margin-bottom: -10px;
-		font-size: 20px;
-	}
-
-	.buttons {
-		margin-left: 25%;
-	}
-    .content {
-		margin: 0;
-    	width: 350px;
-    	display: grid;
-		p
-		{
-			position: relative;
-			left:40%
-		}
-		h3
-		{
-			position:relative;
-			left:47%;
-			margin-bottom: -10px;
-		}
-		ul {
-			width:100%;
-			margin-left:38%;
-		}
-	}
-	.close-button {
-		top: 16px;
-	}
-}
-}
-
-@media (min-width: 580px) and (max-width: 780px) {
-.my_widgets {
-	display: flex;
-	justify-content: center;
-	overflow: hidden;
-	.container {
-		display: flex;
-		flex-wrap: wrap;
-
-		overflow: hidden;
-
-		section.directions {
-
-				position: relative;
-				right: 150px;
-
-			&.unchosen {
-				&:not(.bearded) {
-					background: #ffffff url('/img/kogneato_mywidgets_pointing_down.svg') 50% 30%/250px auto no-repeat;
-				}
-
-			}
-
-
-		}
-
-		.widget_list
-			{
-				ul {
-					li {
-						&.title {
-							width: 300%;
-						}
-					}
-				}
-			}
-
-		.container_main-content {
-			box-shadow: none;
-			padding-left: 0%;
-		}
-
-		section.page {
-			display: grid;
-			margin-left: 20%;
-
-
-		}
-
-		aside {
-			overflow: hidden;
-			width: 100%;
-			height: 100%;
-			position: relative;
-			margin: 0;
-
-			.search
-			{
-
-				.textbox-background {
-					width: 95%;
-				}
-
-
-			}
-
-		}
-
-		.page {
-			.overview {
-				display: grid;
-				margin: 0px;
-				width: 100px;
-
-
-			}
-		}
-	}
-
-	.page
-	{
-		.header {
-
-			h1 {
-				display: grid;
-				width: 35vh;
-				place-items:center;
-			}
-
-		}
-		width: 100%;
-		.overview {
-				.icon_container {
-					padding-left: 50px;
-				}
-		}
-
-		.share-widget-container {
-			width: 60%;
-			
-		}
-
-	}
-}
-
-.scores {
-	position: relative;
-	right: 160px;
-	.student-activity-header {
-		flex-direction: column;
-		bottom: 15px;
-		border: none;
-		margin-left: 10%;
-
-		h2 {
-			text-decoration: underline;
-		}
-
-		.action_button {
-    		margin-bottom: 20px;
-		}
-	}
-	.scoreWrapper {
-		position: relative;
-		left: 10%;
-		transform: scale(.8);
-	}
-}
-
-.modal {
-	.collaborate-modal {
-		.user-add {
-			font-size: 13px;
-		}
-	}
-}
-
-.warning-modal {
-	display: grid;
-	width: 100%;
-	.title {
-		margin-bottom: -10px;
-		margin-left: 20%;
-		font-size: 20px;
-	}
-
-	.buttons {
-		margin-left: 22%;
-	}
-
-    .content {
-		margin: 0;
-    	width: 85%;
-    	display: grid;
-		h3
-		{
-			margin-left: 28%;
-		}
-
-		p {
-			margin-left: 20%;
-		}
-
-		ul {
-			margin-left: 20%;
-			margin-top: 0%;
-		}
-	}
-	.close-button {
-		top: 16px;
-	}
-}
-}
-
-@media (min-width: 370px) and (max-width: 580px) {
-.my_widgets {
-	display: flex;
-	justify-content: center;
-	overflow: hidden;
-	.container {
-		display: flex;
-		flex-wrap: wrap;
-
-		overflow: hidden;
-
-		section.directions {
-			position: relative;
-			right: 150px;
-
-
-
-			&.unchosen {
-				&:not(.bearded) {
-					background: #ffffff url('/img/kogneato_mywidgets_pointing_down.svg') 55% 30%/250px auto no-repeat;
-				}
-
-			}
-
-
-		}
-
-		.widget_list
-			{
-				ul {
-					li {
-						&.title {
-							width: 300%;
-						}
-					}
-				}
-			}
-
-		.container_main-content {
-			box-shadow: none;
-			padding-left: 0%;
-		}
-
-		section.page {
-			display: grid;
-			margin: 25px;
-			// width: 120%;
-
-		}
-
-		aside {
-			overflow: hidden;
-			width: 100%;
-			height: 100%;
-			position: relative;
-			margin: 0;
-
-
-			.search
-			{
-
-				.textbox-background {
-					width: 95%;
-				}
-
-
-			}
-
-		}
-
-		.page {
-			.overview {
-				display: grid;
-				margin: 0px;
-				width: 100px;
-
-
-			}
-		}
-	}
-
-	.page
-	{
-		.header {
-
-			h1 {
-				display: grid;
-				position: relative;
-				width: 35vh;
-				place-items: center;
-			}
-
-		}
-		width: 100%;
-		.overview {
-				.icon_container {
-					padding-left: 50px;
-				}
-		}
-
-		.share-widget-container {
-			width: 55%
-		}
-
-	}
-}
-
-.scores {
-	position: relative;
-	right: 160px;
-	.student-activity-header {
-		flex-direction: column;
-        border-bottom: none;
-
-		h2 {
-			text-decoration: underline;
-		}
-		.action_button {
-    		margin-bottom: 20px;
-		}
-	}
-	.scoreWrapper
-	{
-		transform: scale(.5);
-	}
-}
-
-
-.modal {
-	.collaborate-modal {
-		.user-add {
-			font-size: 13px;
-		}
-	}
-}
-
-.warning-modal {
-	display: grid;
-	width: 100%;
-	.title {
-		margin-bottom: -10px;
-		font-size: 20px;
-		position: relative;
-		left:50px;
-	}
-
-	.buttons {
-		margin-left: 55px;
-	}
-    .content {
-		margin: 0;
-    	width: 350px;
-    	display: grid;
-		position: relative;
-		left: 50px;
-
-		h3
-		{
-			margin-bottom: -10px;
-			position: relative;
-			left: 20px;
-		}
-
-		ul
-		{
-			position: relative;
-			left: -30px;
-		}
-	}
-	.close-button {
-		top: 16px;
-	}
-}
-}
-
-@media (min-width: 180px) and (max-width: 370px) {
+@media (max-width: 950px) {
 	.my_widgets {
-	display: flex;
-	justify-content: center;
-	overflow: hidden;
-	.page {
-		.header {
-			display:grid;
-			color: black;
-			position: relative;
- 			width: 30vh;
-			place-items: center;
-
-		}
-
-		.overview {
-			.controls
-			 {
-				.button-list{
-					position: relative;
-					right: 10%;
-				}
-
-
-				.options {
-					position: relative;
-					right: 8%
-				}
-
-		    }
-		}
-
-		.share-widget-container {
-			width: 48%;
-
-		}
-	}
-
-	.container {
-		display: flex;
-		flex-wrap: wrap;
-		overflow: hidden;
-
-
-
-		.container_main-content {
-			box-shadow: none;
-			padding-left: 0%;
-		}
-		section.directions
-		{
-			h1
-			{
-				position: relative;
-				right: 28%
-			}
-			p {
-				position: relative;
-				right: 28%;
-			}
-
-			&.unchosen {
-				&:not(.bearded) {
-					background: #ffffff url("/img/kogneato_mywidgets_pointing_down.svg") 10% 30%/250px auto no-repeat !important;
-				}
-
-			}
-
-
-
-		}
-
-		section.page {
-			display: grid;
-			margin: 25px;
-
-
-		}
-
-		aside {
-			overflow: hidden;
+		.container {
+			display: flex;
+			flex-direction: column;
 			width: 100%;
-			height: 100%;
-			position: relative;
-			margin: 0;
 
 			.widget_list
-			{
-				ul {
-					li {
-						&.title {
-							width: 300%;
+				{
+					ul {
+						li {
+							&.title {
+								width: 300%;
+							}
 						}
 					}
 				}
+
+			section.directions {
+
+				&.unchosen {
+					
+					min-height: 650px;
+
+					&:not(.bearded) {
+						background: #ffffff url('/img/kogneato_mywidgets_pointing_down.svg')55% 15%/250px auto no-repeat;
+					}
+
+					h1 {
+						margin: 15% 0 0 0;
+					}
+
+				}
 			}
 
-			.search
-			{
+			.container_main-content {
+				width: 100%;
+				box-shadow: none;
+				padding-left: 0%;
+			}
 
-				.textbox-background {
-					width: 90%;
+			section.page {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				width: auto;
+				margin: 0;
+			}
+
+			aside {
+				overflow: hidden;
+				width: 100%;
+				height: 100%;
+				position: relative;
+				margin: 0;
+
+
+				.search
+				{
+
+					.textbox-background {
+						width: 95%;
+					}
+
+
+				}
+			}
+
+			.page {
+
+				#scroll-to-widget-list {
+					display: flex;
 				}
 
+				.header {
+					display: flex;
+					justify-content: center;
+					width: 100%;
+					padding: 2.5em 0 0 0;
+				}
 
-			}
+				.overview {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					width: auto;
 
+					.icon_container {
+						padding: 10px;
+						margin: 0 auto;
+					}
+					
+					.controls {
+						width: auto;
+						height: auto;
 
+						.button-list {
+							width: auto;
+							justify-content: center;
+							padding: 0;
+						}
 
-		}
+						.additional_options {
+							width: 40%;
+							margin: 20px auto 10px auto;
+						}
+					}
+				}
 
-		.page {
-			.overview {
-				display: grid;
-				margin: 0px;
-				width: 100px;
-
-
+				.share-widget-container {
+					width: auto;
+				}
 			}
 		}
 	}
 
 	.scores {
-		.scoreWrapper {
-			position: relative;
-			right: 27%;
-			transform: scale(.45);
+		width: 90%;
+		margin: 15px 5%;
+
+		#no-score-content {
+			width: auto;
+			padding: 10% 0 0 5%;
+		}
+
+		ul.numeric {
+			display: none;
 		}
 	}
+
+
+	.modal {
+		.collaborate-modal {
+			.user-add {
+				font-size: 13px;
+			}
+		}
 	}
+
 	.warning-modal {
+		display: grid;
+		width: 100%;
+		.title {
+			margin-left: 26%;
+			margin-bottom: -10px;
+			font-size: 20px;
+		}
 
-			.title {
-				font-size: 18px;
+		.buttons {
+			margin-left: 25%;
+		}
+		.content {
+			margin: 0;
+			width: 350px;
+			display: grid;
+			p
+			{
 				position: relative;
-				right: 50px;
+				left:40%
 			}
-
-			.buttons {
-				margin: 25px;
+			h3
+			{
+				position:relative;
+				left:47%;
+				margin-bottom: -10px;
 			}
-			.content {
-				margin: 0;
-				width: 350px;
-				position: relative;
-
-
-				h3
-				{
-					margin-bottom: -10px;
-					position: relative;
-					left: 30px;
-					font-size: 17px;
-				}
-
-				ul
-				{
-					position: relative;
-					right: 10px;
-				}
+			ul {
+				width:100%;
+				margin-left:38%;
 			}
-			.close-button {
-				top: 16px;
-			}
+		}
+		.close-button {
+			top: 16px;
+		}
+	}
 }
 
+@media  (max-width: 580px) {
+	.my_widgets .container .page .overview .controls .additional_options {
+		width: 60%;
+	}
 
-
+	.scores {
+		.scoreWrapper {
+			transform-origin: center left;
+			transform: scale(0.8)
+		}
+	}
 }
