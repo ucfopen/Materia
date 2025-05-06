@@ -1,7 +1,6 @@
 import json
 
-from core.models import DateRange, WidgetInstance
-from django.core import serializers
+from core.models import DateRange, LogPlay, WidgetInstance
 from django.http import HttpResponseNotFound, JsonResponse
 
 # from util.scoring.scoring_util import ScoringUtil
@@ -17,6 +16,7 @@ class ScoresApi:
     # Returns all scores (SessionPlays) for the given widget instance recorded by the current user, and attempts
     # remaining in the current context. If no launch token is supplied, the current semester will
     # be used as the current context.
+
     @staticmethod
     def get_for_widget_instance(request):
         # Get body params
@@ -48,11 +48,50 @@ class ScoresApi:
         if not instance.playable_by_current_user(request.user):
             return MsgBuilder.no_login().as_json_response()
 
-        # Get scores and return
-        scores = ScoringUtil.get_instance_score_history(instance, context_id)
+        # log_plays = LogPlay.objects.filter(
+        #     is_complete=True, instance=instance, user=request.user
+        # )
+        log_plays = LogPlay.objects.filter(instance=instance, user=request.user)
+
+        if context_id:
+            log_plays = log_plays.filter(context_id=context_id)
+        if semester:
+            log_plays = log_plays.filter(semester=semester)
+
+        scores = []
+        print("WE ARE ABOUT TO CALL THE FOR LOOP")
+        print(f"how many log_plays: {log_plays.count()}")
+        for play in log_plays.order_by("-created_at"):
+            try:
+                print("IN THE TRY")
+                print(f"play: {play}")
+                from util.logging.session_play import SessionPlay
+
+                sp = SessionPlay()
+                sp.data = play
+                sp.is_preview = False
+
+                play_data = ScoringUtil.get_play_details(sp)
+                print(f"play data: {play_data}")
+                scores.append(
+                    {
+                        "id": str(play.id),
+                        "created_at": int(play.created_at.timestamp()),
+                        "percent": play_data.get("overview", {}).get("score", None),
+                    }
+                )
+
+            except Exception as e:
+                print("EXCEPTION!!!!!!")
+                print(f"Score error for play {play.id}: {e}")
+
+        print(f"scores lets get ral here: {scores}")
         attempts_used = len(
-            ScoringUtil.get_instance_score_history(instance, context_id, semester)
+            ScoringUtil.get_instance_score_history(
+                instance, context_id, semester, user_id=request.user.id
+            )
         )
+        #
         extra = (
             ScoringUtil.get_instance_extra_attempts(instance, context_id, semester)
             if context_id

@@ -1,6 +1,5 @@
 import datetime
 import importlib
-import json
 import math
 from pathlib import Path
 
@@ -24,6 +23,9 @@ class ScoringUtil:
         semester: DateRange = None,
         user_id: int = None,
     ):
+        print(
+            f"getting instance score history: {instance} {context_id} {semester} {user_id}"
+        )
         scores = (
             LogPlay.objects.filter(
                 is_complete=True,
@@ -33,6 +35,8 @@ class ScoringUtil:
             .only("id", "created_at", "percent")
             .order_by("-created_at")
         )
+        print(f"scores in the function is: {scores}")
+        print(f"user_id: {user_id}, context_id: {context_id}, semester: {semester}")
 
         if user_id:
             scores = scores.filter(user=user_id)
@@ -59,23 +63,43 @@ class ScoringUtil:
 
     @staticmethod
     def get_widget_score_distribution(instance: WidgetInstance) -> dict[int, dict]:
-        """selects the number of scres in each bracket, for each esmeter ordered by semester for the given widget sintance.
-        0%-9% would be in bracket 0, 10-19% is in bracket 1, etc. 100% is in bracket 9
+        """selects the number of scres in each bracket, for each esmeter ordered by
+        semester for the given widget sintance.0%-9% would be in bracket 0, 10-19% is
+        in bracket 1, etc. 100% is in bracket 9
         """
-        plays_per_bracket_and_semester = (
-            LogPlay.objects.filter(instance=instance, is_complete=True)
-            .annotate(
-                bracket=Case(When(percent__gte=100, then=99.0), default=F("percent"))
-                / 10
+        # plays_per_bracket_and_semester = (
+        #     LogPlay.objects.filter(instance=instance, is_complete=True)
+        #     .annotate(
+        #         bracket=Case(When(percent__gte=100, then=99.0), default=F("percent"))
+        #         / 10
+        #     )
+        #     .annotate(term_id=F("semester__id"))
+        #     .values("bracket", "term_id")  # Groups by bracket and term id
+        #     .annotate(
+        #         players=Count("*"),
+        #         year=F("semester__year"),
+        #         term=F("semester__semester"),
+        #     )
+        #     # .order_by(-F("semester__start_at")) TODO
+        # )
+
+        from django.db.models import ExpressionWrapper, FloatField, Value
+        from django.db.models.functions import Floor
+
+        plays_per_bracket_and_semester = LogPlay.objects.filter(
+            instance=instance, is_complete=True
+        ).annotate(
+            bracket=Floor(
+                ExpressionWrapper(
+                    Case(
+                        When(percent__gte=100, then=Value(99.0)),
+                        default=F("percent"),
+                        output_field=FloatField(),
+                    )
+                    / 10,
+                    output_field=FloatField(),
+                )
             )
-            .annotate(term_id=F("semester__id"))
-            .values("bracket", "term_id")  # Groups by bracket and term id
-            .annotate(
-                players=Count("*"),
-                year=F("semester__year"),
-                term=F("semester__semester"),
-            )
-            # .order_by(-F("semester__start_at")) TODO
         )
 
         # Process results
@@ -147,7 +171,7 @@ class ScoringUtil:
 
         import os
 
-        from util.logging.session_play import SessionPlay
+        # from util.logging.session_play import SessionPlay
 
         instance = session_play.data.instance
         widget_folder = f"staticfiles/widget/{instance.widget.id}-{instance.widget.clean_name}/_score-modules"
@@ -171,17 +195,13 @@ class ScoringUtil:
             else {"version": None, "data": None}
         )
 
-        import datetime
+        # import datetime
 
         # def json_serial(obj):
         #     if isinstance(obj, datetime.datetime):
         #         return obj.isoformat()  # Converts datetime to "YYYY-MM-DDTHH:MM:SS"
         #     raise TypeError(f"Type {type(obj)} not serializable")
-        import json
-
-        if isinstance(details["qset"], dict):
-            details["qset"].pop("questions_list", None)
-
+        # import json
         # print("\n=== DEBUG: API Response (get_play_details) ===\n")
         # print(json.dumps(details, indent=4, default=json_serial))
 
@@ -189,14 +209,16 @@ class ScoringUtil:
 
     @staticmethod
     def get_preview_play_details(session, widget_instance, preview_play_id):
-        """Same as get_play_details but for previews where they are not stored in database and only are available in session."""
+        """Same as get_play_details but for previews where they are not stored
+        in database and only are available in session."""
 
         import os
-        import types
 
+        # import types
         from util.logging.session_play import SessionPlay
 
-        widget_folder = f"staticfiles/widget/{widget_instance.widget.id}-{widget_instance.widget.clean_name}/_score-modules"
+        widget_folder = f"staticfiles/widget/{widget_instance.widget.id}-{widget_instance.
+                                widget.clean_name}/_score-modules"
         script_path = os.path.join(widget_folder, "score_module.py")
 
         ScoreClass = ScoringUtil.load_score_class(script_path, widget_instance)
@@ -229,8 +251,8 @@ class ScoringUtil:
     ):
         """Attempts to reconstruct guest score from session. Falls back to LogPlay if session is missing."""
         import os
-        import types
 
+        # import types
         from util.logging.session_play import SessionPlay
 
         print(f"Getting guest play details for play_id={play_id}")
@@ -247,7 +269,7 @@ class ScoringUtil:
 
         if not isinstance(session_play, SessionPlay):
             sp = SessionPlay()
-            sp.data = session_play  # session_play is a LogPlay
+            sp.data = session_play
             sp.is_preview = False
             session_play = sp
 
@@ -260,7 +282,7 @@ class ScoringUtil:
         if not ScoreClass:
             raise Exception("No score module found")
 
-        logs = session_play.get_logs()
+        # logs = session_play.get_logs()
         created_at = getattr(session_play.data, "created_at", datetime.datetime.now())
         if not created_at:
             print("DEBUG: No created_at found in session_play.data")
@@ -268,7 +290,6 @@ class ScoringUtil:
             session_play, instance, ScoreClass, created_at
         )
 
-        # do i still need this?
         if session_play.is_preview:
             qset = instance.get_qset_for_play(play_id, True)
         else:
@@ -281,8 +302,5 @@ class ScoringUtil:
             if qset
             else {"version": None, "data": None}
         )
-        if isinstance(details["qset"], dict):
-            details["qset"].pop("questions_list", None)
-        print("details: ", details)
 
         return details

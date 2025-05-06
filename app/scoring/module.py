@@ -25,6 +25,7 @@ class ScoreModule(ABC):
         self.custom_methods = None
         self.questions = []
         self.score_display = {}
+        self.scores = {}
         self._ss_table_title = "responses:"
         self._ss_table_headers = [
             "question score",
@@ -47,6 +48,8 @@ class ScoreModule(ABC):
             return False
         logs = session.get_logs()
         last_time = 0
+        from datetime import datetime
+
         for log in logs:
             # if we are in preview, use dict, in play use model
             game_time = log.game_time if hasattr(log, "game_time") else log["game_time"]
@@ -61,7 +64,7 @@ class ScoreModule(ABC):
                         text=str(log.id) if hasattr(log, "id") else "preview_log",
                         value=str(last_time),
                         game_time=game_time,
-                        created_at=timezone.now(),
+                        created_at=datetime.datetime.now(),
                         play_id=session,
                     )
             last_time = game_time
@@ -83,12 +86,12 @@ class ScoreModule(ABC):
         if not timestamp:
             print("no timestamp")
             if not self.play:
-                self.play = logplay.objects.get(id=self.play_id)
+                self.play = LogPlay.objects.get(id=self.play_id)
 
             # except for previews, check that attempts are not exceeded.
             if self.play_id != -1:
                 semester = Semester.get_current_semester()
-                attempts_used = logplay.objects.filter(
+                attempts_used = LogPlay.objects.filter(
                     instance=self.instance,
                     context_id=self.play.context_id,
                     semester=semester,
@@ -98,9 +101,9 @@ class ScoreModule(ABC):
                     self.instance.attempts != -1
                     and attempts_used >= self.instance.attempts
                 ):
-                    raise exception(
-                        "attempt limit met: you have already met the attempt limit for this widget."
-                    )
+                    from django.core.exceptions import ValidationError
+
+                    raise ValidationError("attempt limit met...")
 
         self.load_questions(timestamp)
 
@@ -109,6 +112,12 @@ class ScoreModule(ABC):
 
         self.process_score_logs()
         self.calculate_score()
+
+        # make play complete
+        if self.play_id != -1 and self.play:
+            self.play.is_complete = True
+            self.play.percent = self.calculated_percent
+            self.play.save()
 
         return True
 
@@ -265,26 +274,16 @@ class ScoreModule(ABC):
 
         if self.instance.get_latest_qset():
             widget_qset = self.instance.get_latest_qset()
-            # question_row = widget_qset.flattened_questions.first()
-            # if not question_row:
-            #     raise Exception("No question row found")
-            #     return
-
-            # questions_list = json.loads(
-            #     base64.b64decode(widget_qset.questions_list).decode()
-            # )
-            # questions_list = json.loads(
-            #     base64.b64decode(question_row.questions_list).decode()
-            # )
             questions = widget_qset.flattened_questions.all()
             questions_list = [
                 json.loads(base64.b64decode(q.data).decode()) for q in questions
             ]
+            print(f"questions_list: {questions_list}")
 
             print(f" Found {len(questions_list)} questions!")
-
             for q in questions_list:
                 print(f" - {q['id']}")
+
             self.questions = questions_list
             print("self.questions length is ", len(self.questions))
             for question in self.questions:
@@ -304,7 +303,6 @@ class ScoreModule(ABC):
             log_type = (
                 log.log_type if hasattr(log, "log_type") else log["type"]
             ).lower()
-            # if log_type in ["question_answered", "SCORE_QUESTION_ANSWERED"]:
             if log_type in [
                 "question_answered",
                 "score_question_answered",

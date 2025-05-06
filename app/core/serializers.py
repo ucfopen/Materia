@@ -174,10 +174,6 @@ class QuestionSetSerializer(serializers.ModelSerializer):
     def apply_ids_to_questions(self, qset, instance=None):
         import uuid
 
-        print(f"WE ARE IN APPLY ID TO QUESTIONS")
-        print(f"WE ARE IN APPLY ID TO QUESTIONS")
-        print(f"WE ARE IN APPLY ID TO QUESTIONS")
-        print(f"WE ARE IN APPLY ID TO QUESTIONS")
         questions_list = []
 
         def _process_item(item):
@@ -187,15 +183,8 @@ class QuestionSetSerializer(serializers.ModelSerializer):
                     item["id"] is None or item["id"] == 0 or item["id"] == ""
                 ):
                     item["id"] = str(uuid.uuid4())
-                # while we are here, to save time we can append questions to a list and retrieve them later saving them to the model
                 print(f"item: {item}")
                 if item.get("materiaType") == "question" or item.get("type") == "QA":
-                    print("DEBUG")
-                    print("DEBUG")
-                    print("DEBUG")
-                    print(f"Appending question: {item}")
-                    print("DEBUG")
-                    print("DEBUG")
                     questions_list.append(item)
 
                 for key, value in item.items():
@@ -211,7 +200,6 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             setattr(instance, "questions", questions_list)
 
         _process_item(qset)
-        print(f"questions_list: {questions_list}")
         return qset, questions_list
 
     def create(self, validated_data):
@@ -232,16 +220,10 @@ class QuestionSetSerializer(serializers.ModelSerializer):
                 "utf-8"
             )
             # no longer save it to widgetQset
-            # validated_data["questions_list"] = question_str
             widget_qset = super().create(validated_data)
             from core.models import Question
 
-            # Question.objects.create(
-            #     qset=widget_qset,
-            #     questions_list=base64.b64encode(
-            #         json.dumps(questions_list).encode()
-            #     ).decode("utf-8"),
-            # )
+            # we store each question as its own row instead of a list now
             for q in questions_list:
                 encoded = base64.b64encode(json.dumps(q).encode()).decode("utf-8")
                 Question.objects.create(qset=widget_qset, data=encoded)
@@ -380,24 +362,6 @@ class LogSubmissionSerializer(serializers.Serializer):
             validated_data["value"] = validated_data.get("value") or ""
 
         return validated_data
-
-    # def validate(self, data):
-    #     if not isinstance(data, list):
-    #         data = [data]
-
-    #         logs = []
-    #         for log in data:
-    #             # TODO what if the log type is actually invalid? Right now it'll return LogType.EMPTY
-    #             log["type"] = SessionLogger.get_log_type(log["type"])
-    #             log["text"] = log.get("text", "")
-    #             log["value"] = log.get("value", "")
-
-    #             logs.append(log)
-    #         print(f"LOGS: {logs}")
-    #         print(f"LOGS: {logs}")
-    #         print(f"LOGS: {logs}")
-    #         print(f"LOGS: {logs}")
-    #         return logs
 
 
 # serializes and validates individual logs for a play (inbound)
