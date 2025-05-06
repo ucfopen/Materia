@@ -66,7 +66,15 @@ class Controller_Users extends Controller
 			->set('page_type', 'login');
 
 		Css::push_group(['login']);
-		Js::push_group(['react', 'login']);
+
+		if (\Config::get('auth.restrict_logins_to_lti_single_sign_on', false) && ! $direct_login)
+		{
+			Js::push_group(['react', 'restricted']);
+		}
+		else
+		{
+			Js::push_group(['react', 'login']);
+		}
 	}
 
 	public function post_login()

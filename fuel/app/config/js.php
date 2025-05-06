@@ -26,6 +26,7 @@ return [
 		'no_permission' => [$webpack.'js/no-permission.js'],
 		'closed'     => [$webpack.'js/closed.js'],
 		'embedded_only' => [$webpack.'js/embedded-only.js'],
+		'restricted' => [$webpack.'js/logins-restricted.js'],
 		'pre_embed'  => [$webpack.'js/pre-embed-placeholder.js'],
 		'help'       => [$webpack.'js/help.js'],
 		'404'        => [$webpack.'js/404.js'],
