@@ -9,6 +9,7 @@ class MateriaLoginMixin(AccessMixin):
     login_message: str = None
     login_error: str = None
     login_global_vars: dict = {}
+    allow_all_by_default: bool = False  # If true, the default initial_login_check will not check if users is auth'd
 
     def get_login_global_vars(self, request) -> dict:
         return self.login_global_vars
@@ -17,6 +18,8 @@ class MateriaLoginMixin(AccessMixin):
     # Can be overridden to require logins only in specific scenarios.
     # Return True is a login is needed
     def initial_login_check(self, request) -> bool:
+        if self.allow_all_by_default:
+            return False
         return not request.user.is_authenticated
 
     def dispatch(self, request, *args, **kwargs):
@@ -50,13 +53,6 @@ class MateriaLoginMixin(AccessMixin):
             "LOGIN_NOTICE": login_message,
         }
         return self.handle_no_permission()
-
-
-# Essentially a 'shortcut' mixin that has no initial login check, so login
-# events are expected to be triggered via exception only
-class MateriaLoginByExceptionMixin(MateriaLoginMixin):
-    def initial_login_check(self, request) -> bool:
-        return False
 
 
 # Special exception that can be called from within the dispatch of a view

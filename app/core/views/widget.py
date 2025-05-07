@@ -3,7 +3,7 @@ import logging
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
 
-from core.mixins import MateriaLoginMixin, MateriaLoginNeeded, MateriaLoginByExceptionMixin
+from core.mixins import MateriaLoginMixin, MateriaLoginNeeded
 from core.models import Widget, WidgetInstance
 from django.conf import settings
 from django.http import HttpRequest, Http404
@@ -36,8 +36,9 @@ class WidgetDetailView(TemplateView):
         )
 
 
-class WidgetDemoView(MateriaLoginByExceptionMixin, TemplateView):
+class WidgetDemoView(MateriaLoginMixin, TemplateView):
     template_name = "react.html"
+    allow_all_by_default = True
 
     def get_context_data(self, widget_slug):
         autoplay = _parse_nullable_bool_string(self.request.GET.get("autoplay", None))
@@ -58,8 +59,9 @@ class WidgetDemoView(MateriaLoginByExceptionMixin, TemplateView):
         )
 
 
-class WidgetPlayView(MateriaLoginByExceptionMixin, TemplateView):
+class WidgetPlayView(MateriaLoginMixin, TemplateView):
     template_name = "react.html"
+    allow_all_by_default = True
 
     def get_context_data(self, widget_instance_id, instance_name=None):
         autoplay = _parse_nullable_bool_string(self.request.GET.get("autoplay", None))

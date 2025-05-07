@@ -11,6 +11,7 @@ from util.logging.session_play import SessionPlay
 class ScoresView(MateriaLoginMixin, TemplateView):
     template_name = 'react.html'
     is_preview = False
+    allow_all_by_default = True
 
     def get(self, request, *args, **kwargs):
         # Get url args
@@ -27,9 +28,7 @@ class ScoresView(MateriaLoginMixin, TemplateView):
 # enabled by launch param ext_outcome_data_values_accepted=url
 class ScoresViewSingle(MateriaLoginMixin, TemplateView):
     template_name = 'react.html'
-
-    def initial_login_check(self, request) -> bool:
-        return False
+    allow_all_by_default = True
 
     def get(self, request, *args, **kwargs):
         # Get url args
