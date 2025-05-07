@@ -1,10 +1,9 @@
 import datetime
 import importlib
-import math
 from pathlib import Path
 
 from core.models import DateRange, LogPlay, UserExtraAttempts, WidgetInstance
-from django.db.models import Avg, Case, Count, F, When
+from django.db.models import Avg, Count, F
 from django.db.models.functions import Round
 
 
@@ -23,9 +22,6 @@ class ScoringUtil:
         semester: DateRange = None,
         user_id: int = None,
     ):
-        print(
-            f"getting instance score history: {instance} {context_id} {semester} {user_id}"
-        )
         scores = (
             LogPlay.objects.filter(
                 is_complete=True,
@@ -35,8 +31,6 @@ class ScoringUtil:
             .only("id", "created_at", "percent")
             .order_by("-created_at")
         )
-        print(f"scores in the function is: {scores}")
-        print(f"user_id: {user_id}, context_id: {context_id}, semester: {semester}")
 
         if user_id:
             scores = scores.filter(user=user_id)
@@ -60,69 +54,6 @@ class ScoringUtil:
         ).first()
 
         return result.extra_attempts if result else 0
-
-    @staticmethod
-    def get_widget_score_distribution(instance: WidgetInstance) -> dict[int, dict]:
-        """selects the number of scres in each bracket, for each esmeter ordered by
-        semester for the given widget sintance.0%-9% would be in bracket 0, 10-19% is
-        in bracket 1, etc. 100% is in bracket 9
-        """
-        # plays_per_bracket_and_semester = (
-        #     LogPlay.objects.filter(instance=instance, is_complete=True)
-        #     .annotate(
-        #         bracket=Case(When(percent__gte=100, then=99.0), default=F("percent"))
-        #         / 10
-        #     )
-        #     .annotate(term_id=F("semester__id"))
-        #     .values("bracket", "term_id")  # Groups by bracket and term id
-        #     .annotate(
-        #         players=Count("*"),
-        #         year=F("semester__year"),
-        #         term=F("semester__semester"),
-        #     )
-        #     # .order_by(-F("semester__start_at")) TODO
-        # )
-
-        from django.db.models import ExpressionWrapper, FloatField, Value
-        from django.db.models.functions import Floor
-
-        plays_per_bracket_and_semester = LogPlay.objects.filter(
-            instance=instance, is_complete=True
-        ).annotate(
-            bracket=Floor(
-                ExpressionWrapper(
-                    Case(
-                        When(percent__gte=100, then=Value(99.0)),
-                        default=F("percent"),
-                        output_field=FloatField(),
-                    )
-                    / 10,
-                    output_field=FloatField(),
-                )
-            )
-        )
-
-        # Process results
-        semesters = {}
-        for plays in plays_per_bracket_and_semester:
-            # Remove any erroneous > 100% scores
-            if plays["bracket"] > 9:
-                continue
-
-            semester_id = plays["term_id"]
-            if semester_id not in semesters:
-                semesters[semester_id] = {
-                    "id": semester_id,
-                    "year": plays["year"],
-                    "term": plays["term"],
-                    "distribution": [0] * 10,
-                }
-
-            semesters[semester_id]["distribution"][math.floor(plays["bracket"])] = (
-                plays["players"]
-            )
-
-        return semesters
 
     @staticmethod
     def get_widget_score_summary(instance: WidgetInstance) -> dict[int, dict]:
@@ -162,7 +93,7 @@ class ScoringUtil:
         score_module = ScoreClass(play_id=play.id, instance=instance, play=session_play)
         score_module.logs = session_play.get_logs()
         score_module.validate_scores(timestamp=created_at)
-        return score_module.get_score_report()
+        return score_module, score_module.get_score_report()
 
     # Get score and play details for a SessionPlay
     @staticmethod
@@ -182,9 +113,26 @@ class ScoringUtil:
             raise Exception("No score module found")
 
         # gets the score report
-        details = ScoringUtil.run_score_module(
+        score_module, details = ScoringUtil.run_score_module(
             session_play, instance, ScoreClass, session_play.data.created_at
         )
+        play = session_play.data
+        play.is_complete = True
+        play.percent = score_module.calculated_percent
+        play.save()
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
 
         qset = instance.get_qset_for_play(session_play.data.id)
         from core.serializers import QuestionSetSerializer
@@ -229,12 +177,17 @@ class ScoringUtil:
         if not session_play:
             raise Exception("Invalid preview play session")
 
-        details = ScoringUtil.run_score_module(
+        score_module, details = ScoringUtil.run_score_module(
             session_play,
             widget_instance,
             ScoreClass,
             session_play.data.created_at,
         )
+        play = session_play.data
+        play.is_complete = True
+        play.percent = score_module.calculated_percent
+        play.save()
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
 
         widget_instance.get_qset(widget_instance.id, session_play.data.created_at)
         details["qset"] = (
@@ -286,9 +239,15 @@ class ScoringUtil:
         created_at = getattr(session_play.data, "created_at", datetime.datetime.now())
         if not created_at:
             print("DEBUG: No created_at found in session_play.data")
-        details = ScoringUtil.run_score_module(
+        score_module, details = ScoringUtil.run_score_module(
             session_play, instance, ScoreClass, created_at
         )
+
+        play = session_play.data
+        play.is_complete = True
+        play.percent = score_module.calculated_percent
+        play.save()
+        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
 
         if session_play.is_preview:
             qset = instance.get_qset_for_play(play_id, True)

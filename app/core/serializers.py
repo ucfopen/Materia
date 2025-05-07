@@ -566,7 +566,9 @@ class ScoreSummarySerializer(serializers.Serializer):
 
                 distribution = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 for i in range(0, 10):
-                    if i == (int(log.score / 10) if int(log.score / 10) < 10 else 9):
+                    if i == (
+                        int(log.percent / 10) if int(log.percent / 10) < 10 else 9
+                    ):
                         distribution[i] = 1
                     else:
                         distribution[i] = 0
@@ -576,32 +578,32 @@ class ScoreSummarySerializer(serializers.Serializer):
                     "term": log.semester.semester,
                     "year": log.created_at.year,
                     "students": 1,
-                    "total": log.score,
+                    "total": log.percent,
                     "distribution": distribution,
                 }
 
             else:
                 summary[semester_key]["students"] += 1
-                summary[semester_key]["total"] += log.score
+                summary[semester_key]["total"] += log.percent
 
-                summary[semester_key][distribution][
-                    int(log.score / 10) if int(log.score / 10) < 10 else 9
+                summary[semester_key]["distribution"][
+                    int(log.percent / 10) if int(log.percent / 10) < 10 else 9
                 ] += 1
 
-            results = []
-            for data in summary.values():
-                results.append(
-                    {
-                        "id": data["id"],
-                        "term": data["term"],
-                        "year": data["year"],
-                        "students": data["students"],
-                        "average": round(data["total"] / data["students"], 2),
-                        "distribution": data["distribution"],
-                    }
-                )
+        results = []
+        for data in summary.values():
+            results.append(
+                {
+                    "id": data["id"],
+                    "term": data["term"],
+                    "year": data["year"],
+                    "students": data["students"],
+                    "average": round(data["total"] / data["students"], 2),
+                    "distribution": data["distribution"],
+                }
+            )
 
-            return sorted(results, key=lambda x: (x["year"], x["term"]))
+        return sorted(results, key=lambda x: (x["year"], x["term"]))
 
 
 # Used for incoming requests for qset generation. Does NOT map to a model.

@@ -6,16 +6,16 @@ from core.serializers import (
     PlayLogUpdateSerializer,
     PlaySessionCreateSerializer,
     PlaySessionSerializer,
-    PlaySessionWithExtrasSerializer,
     PlaySessionStudentViewSerializer,
+    PlaySessionWithExtrasSerializer,
     PlaySessionWithExtraUserInfoSerializer,
 )
 from django.http import JsonResponse
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from util.logging.session_play import SessionPlay
 from util.custom_paginations import PageNumberWithTotalPagination
+from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
 from util.perm_manager import PermManager
 
@@ -42,9 +42,13 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
     # we only need extras (widget name, inst name) when on the profile page
     def get_serializer_class(self):
-        if self.request.query_params.get("inst_id") and PermManager.user_is_student(self.request.user):
+        if self.request.query_params.get("inst_id") and PermManager.user_is_student(
+            self.request.user
+        ):
             return PlaySessionStudentViewSerializer
-        elif self.request.query_params.get("inst_id") and self.request.query_params.get("include_user_info", False):
+        elif self.request.query_params.get("inst_id") and self.request.query_params.get(
+            "include_user_info", False
+        ):
             return PlaySessionWithExtraUserInfoSerializer
         elif self.request.query_params.get("include_activity"):
             return PlaySessionWithExtrasSerializer
@@ -77,12 +81,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         )
         if serializer.is_valid():
             validated = serializer.validated_data
-            print("WHAT IS VALIDATED")
-            print("WHAT IS VALIDATED")
-            print("WHAT IS VALIDATED")
             print(f"validated: {validated}")
-            print("WHAT IS VALIDATED")
-            print("WHAT IS VALIDATED")
             session_play = SessionPlay()
             play_id = session_play.start(validated["instance"], request.user.id)
             print(f"play_id: {play_id}")
@@ -110,7 +109,6 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
                 for log in logs:
                     print(f"DEBUGGGG: Log is equal to {log}")
-                    print(f"DEBUGGGG: Log is equal to {log}")
                     log_model = Log(
                         play_id=pk,
                         log_type=log.get("type"),
@@ -132,16 +130,16 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     preview_play_id = update_serializer.validated_data[
                         "preview_play_id"
                     ]
-                    # request.session[f"previewPlayLogs.{preview_play_id}"] = logs
-                    # request.session.modified = True
-                    #we will combined them not override them
+                    # we will combined them not override them
                     preview_session_key = f"previewPlayLogs.{preview_play_id}"
                     existing_logs = request.session.get(preview_session_key, [])
                     combined_logs = existing_logs + logs
-                    #get rid of duplicates
+                    # get rid of duplicates
                     seen = {}
                     for log in combined_logs:
-                        print(f"KEY: {log.get('queueId')} / {log.get('item_id')} / {log.get('type')}")
+                        print(
+                            f"KEY: {log.get('queueId')} / {log.get('item_id')} / {log.get('type')}"
+                        )
                         key = log.get("queueId") or log.get("item_id"), log.get("type")
                         seen[key] = log
 

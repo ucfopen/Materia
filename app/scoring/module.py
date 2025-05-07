@@ -144,7 +144,6 @@ class ScoreModule(ABC):
             print(f" iteration {i}Processing log of type: {log_type}")
             i += 1
 
-            print("SANITY CHECK")
             if log_type in ["widget_end", "WIDGET_END"]:
                 print("WE GOT WIDGET_END")
                 self.finished = True
@@ -156,7 +155,6 @@ class ScoreModule(ABC):
                 "SCORE_QUESTION_ANSWERED",
                 "score_question_answered",
             ]:
-                print("WE ARE GOING TO CALL HANDLE_LOG_QUESTION_ANSWERED!!!!!!")
                 self.handle_log_question_answered(
                     log
                 )  # THIS should lead to check_answer()
@@ -165,8 +163,6 @@ class ScoreModule(ABC):
                 "SCORE_WIDGET_INTERACTION",
                 "score_widget_interaction",
             ]:
-                print("WE GOT WIDGET INTERACTION OR SCORE WIDGET INTERACTION")
-                print("WE ARE HANDLING WIDGET INTERACTION!!!!!")
                 self.handle_log_widget_interaction(log)
             elif log_type in ["score_participation", "SCORE_PARTICIPATION"]:
                 self.verified_score = (

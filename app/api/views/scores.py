@@ -59,12 +59,9 @@ class ScoresApi:
             log_plays = log_plays.filter(semester=semester)
 
         scores = []
-        print("WE ARE ABOUT TO CALL THE FOR LOOP")
-        print(f"how many log_plays: {log_plays.count()}")
+        # print(f"how many log_plays: {log_plays.count()}")
         for play in log_plays.order_by("-created_at"):
             try:
-                print("IN THE TRY")
-                print(f"play: {play}")
                 from util.logging.session_play import SessionPlay
 
                 sp = SessionPlay()
@@ -85,7 +82,6 @@ class ScoresApi:
                 print("EXCEPTION!!!!!!")
                 print(f"Score error for play {play.id}: {e}")
 
-        print(f"scores lets get ral here: {scores}")
         attempts_used = len(
             ScoringUtil.get_instance_score_history(
                 instance, context_id, semester, user_id=request.user.id
@@ -127,10 +123,6 @@ class ScoresApi:
             return MsgBuilder.no_login().as_json_response()
 
         print("getting instance score history")
-        # scores = ScoringUtil.get_guest_play_details(play_id, instance)
-        # scores = ScoringUtil.get_guest_play_details(
-        #     request.session, instance, play_id, False
-        # )
         play_data = ScoringUtil.get_guest_play_details(
             request.session, instance, play_id, False
         )
@@ -212,9 +204,6 @@ class ScoresApi:
             if not widget_instance:
                 return HttpResponseNotFound()
 
-            # play_details = ScoringUtil.get_preview_play_details(
-            #     request.session, widget_instance, preview_play_id
-            # )
             play_details = ScoringUtil.get_guest_play_details(
                 request.session, widget_instance, preview_play_id, is_preview
             )
@@ -234,44 +223,3 @@ class ScoresApi:
 
             print("session_play: ", session_play)
             return JsonResponse(ScoringUtil.get_play_details(session_play))
-
-    # Gets score distributions (total and by semester) for a widget instance.
-    @staticmethod
-    def score_summary_get(request):
-        # Get and validate body params
-        print("WE ARE IN SCORE_SUMMARY_GET")
-        json_body = json.loads(request.body)
-        instance_id = json_body.get("instanceId")
-        # include_storage_data = json_body.get("includeStorageData", False)
-        if not ValidatorUtil.is_valid_hash(instance_id):
-            return MsgBuilder.invalid_input(msg=str(instance_id)).as_json_response()
-
-        # Get widget instance and verify playable by user
-        instance = WidgetInstance.objects.filter(pk=instance_id).first()
-        if not instance:
-            return HttpResponseNotFound()
-        if not instance.playable_by_current_user(request.user):
-            return MsgBuilder.no_login().as_json_response()
-
-        # Get the score distributions and summaries per semester
-        # TODO: these 2 queries seem to be slow (up to 3sec in php!) - maybe they'll perform faster in
-        #       python, but it seems like we can squash this into 1 (tho rather lengthy) query. these 2
-        #       functions aren't being called anywhere else in PHP, only by this API endpoint.
-        distribution = ScoringUtil.get_widget_score_distribution(instance)
-        summaries = ScoringUtil.get_widget_score_summary(instance)
-
-        # Combine both data
-        for dist_id, data in distribution.items():
-            if dist_id not in summaries:
-                summaries[dist_id] = distribution
-            else:
-                summaries[dist_id]["distribution"] = data["distribution"]
-
-        # TODO: include storage data
-
-        # Transform into just a list of data, rather than a dict. Sort by semester ID.
-        summaries = summaries.values()
-        summaries = sorted(summaries, key=lambda k: k["id"])
-
-        print("SUMMARIES: ", summaries)
-        return JsonResponse({"summaries": summaries})
