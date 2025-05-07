@@ -367,7 +367,7 @@ const MyWidgetsPage = () => {
 		if (!widgetSpecified) {
 			return <section className={`page directions unchosen ${beardMode ? 'bearded' : ''}`}>
 				<h1>Your Widgets</h1>
-				<p>Choose a widget from the list presented.</p>
+				<p>Select one of your widgets to get started.</p>
 			</section>
 		}
 

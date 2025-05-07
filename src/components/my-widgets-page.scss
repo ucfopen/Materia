@@ -1297,7 +1297,7 @@
 					
 					min-height: 650px;
 
-					&:not(.bearded) {
+					&:not(.bearded), &.bearded {
 						background: #ffffff url('/img/kogneato_mywidgets_pointing_down.svg')55% 15%/250px auto no-repeat;
 					}
 
@@ -1455,6 +1455,14 @@
 	.darkMode .my_widgets .container {
 		.container_main-content {
 			box-shadow: none;
+		}
+
+		section.directions {
+			&.unchosen {
+				&:not(.bearded), &.bearded {
+					background: #21232a url('/img/kogneato_mywidgets_pointing_down_dark.svg')55% 15%/250px auto no-repeat;
+				}
+			}
 		}
 
 		.page {

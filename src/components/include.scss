@@ -616,6 +616,14 @@ header {
 		}
 	}
 
+	button#mobile-menu-toggle div {
+		background: #dbdbdb;
+
+		&:before, &:after {
+			background: #dbdbdb;
+		}
+	}
+
 	// Not being used but kept just in case
 	.profile-menu
 	{
