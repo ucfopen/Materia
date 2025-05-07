@@ -1,46 +1,23 @@
 @import 'include.scss';
 
-
-	@media (max-width: 800px) {
-		.container {
-			display: flex;
-			justify-content: center;
-		}
-
-		body {
-			min-width: inherit !important;
-		}
-	}
-
 .user, .settings {
 
-	@media (max-width: 800px) {
-		section.page {
-			margin: 15px 10px 0px 10px !important;
-			width: auto !important;
-		}
-	}
-
-	section.page, aside {
-		/* The background for the sidebar (containing the profile and settings navigation) is styled in the section below using a repeating image */
-		background: #fff;
-		border-radius: 4px;
-		border: #e4e4e4 1px solid;
-		box-shadow: 1px 3px 10px #dcdcdc;
-	}
+	display: flex;
+	justify-content: center;
 
 	section.page {
-		margin: 15px auto 0px auto;
-		top: 0;
-		right: 0;
-		z-index: 100;
-		width: 575px; /*625px*/
-		padding: 10px 60px 30px 145px;
-		background: url('/img/user_page_background.gif') 0 0 repeat-y;
-		background-color: #fff;
+		display: flex;
+		flex-direction: row;
+		align-items: stretch;
+		gap: 2em;
+		margin: 15px 0 0 0;
 		min-height: 400px;
 
 		font-weight: 400;
+
+		border-radius: 4px;
+		border: #e4e4e4 1px solid;
+		box-shadow: 1px 3px 10px #dcdcdc;
 
 		.loading-icon-holder {
 			position: absolute;
@@ -92,66 +69,6 @@
 			justify-content: space-between;
 		}
 
-		.avatar_big {
-			position: absolute;
-			top: 25px;
-			left: 12px;
-			text-align: right;
-			color: #fff;
-			font-size: 10px;
-			line-height: 13px;
-
-
-			img {
-				width: 90px;
-				height: 90px;
-				border-radius: 10px;
-			}
-
-			a:link,
-			a:visited,
-			a:active {
-				color: #fff;
-			}
-
-			a:hover {
-				color: #fff;
-				text-decoration: none;
-			}
-
-			a.external {
-				margin-left: 0.5em;
-			}
-		}
-
-		// TODO remove?
-		.rank {
-			position: absolute;
-			top: 25px;
-			right: 25px;
-
-			font-size: 55px;
-			padding: 0;
-			margin: 0;
-			font-weight: 600;
-			color: #0093e7;
-			line-height: 35px;
-			text-align: right;
-			margin-top: 5px;
-
-			a {
-				display: block;
-				font-size: 13px;
-				color: #969696;
-				text-decoration: underline;
-
-				&:hover {
-					color: #969696;
-					text-decoration: none;
-				}
-			}
-		}
-
 		ul.user_information {
 			padding: 0;
 			font-size: 13px;
@@ -188,7 +105,6 @@
 		}
 
 		.activity {
-			width: 575px;
 			padding: 0;
 
 			.loading-icon-holder {
@@ -265,7 +181,6 @@
 				left: 5px;
 				top: 10px;
 				width: 40px;
-
 				background: #0093e7;
 				color: #fff;
 				border-radius: 3px;
@@ -274,7 +189,6 @@
 				font-weight: 700;
 				text-align: center;
 				overflow: hidden;
-
 				padding-top: 2px;
 				padding-bottom: 4px;
 				height: inherit;
@@ -286,9 +200,7 @@
 				right: 5px;
 				top: 5px;
 				text-align: right;
-
 				color: #a4a4a4;
-
 				font-size: 11px;
 				font-weight: 700;
 			}
@@ -352,46 +264,99 @@
 
 		.main_navigation {
 			display: block;
-			position: absolute;
-			left: 0;
-			top: 175px;
-			width: 83px;
 			margin: 0;
-			padding: 0;
 			list-style-type: none;
 
-			li {
-				a {
-					display: block;
-					width: 83px;
-					text-align: left;
-					padding-left: 20px;
-					font-size: 12px;
-					font-weight: 700;
-					padding-top: 10px;
-					padding-bottom: 10px;
-					padding-right: 30px;
-					color: #333;
+			background-color: #f2f2f2;
+			border-right: solid 1px #dbdbdb;
 
-					&:hover {
-						text-decoration: none;
-					}
+			.avatar_big {
+				margin: 1em 0;
+				text-align: center;
+	
+				img {
+					width: 90px;
+					height: 90px;
+					border-radius: 10px;	
 				}
+	
+				a:link,
+				a:visited,
+				a:active {
+					color: #fff;
+				}
+	
+				a:hover {
+					color: #fff;
+					text-decoration: none;
+				}
+	
+				a.external {
+					margin-left: 0.5em;
+				}
+			}
 
-				&.selected {
+			.settings {
+				z-index: 9999;
+				position: relative;
+
+			}
+
+			ul {
+				margin-top: 1em;
+
+				li {
+					position: relative;
+					padding: 0 1.5em;
+
 					a {
-						margin-left: 0px;
-						background: #fff;
-						border-right: 0;
-						border-left: 0;
+						display: block;
+						text-align: left;
+						padding-left: 1em;
+						font-size: 12px;
+						font-weight: 700;
+						padding-top: 10px;
+						padding-bottom: 10px;
+						padding-right: 30px;
 						color: #333;
-						text-decoration: none;
-
-						&:hover {
+	
+						&:hover, &:focus {
+							color: $color-features-dark;
 							text-decoration: none;
 						}
 					}
+	
+					&.selected_profile, &.selected_settings {
+						position: relative;
+						left: 1px;
+						background-color: #fff;
+						border-right: solid 1px #fff;
+						border-top: solid 1px #dbdbdb;
+						border-bottom: solid 1px #dbdbdb;
+
+						a {
+							margin-left: 0px;
+							color: #333;
+							text-decoration: none;
+	
+							&:hover, &:focus {
+								color: $color-features-dark;
+								text-decoration: none;
+							}
+						}
+					}
 				}
+			}
+		}
+
+		.profile_content, .settings_content {
+			min-width: 600px;
+			padding: 0 2em 1.5em 0;
+
+			header {
+				position: static;
+				height: auto;
+				padding: 1em 0 0 0;
 			}
 		}
 
@@ -419,20 +384,6 @@
 
 			a.external {
 				margin-left: 0.5em;
-			}
-
-			ul {
-				font-size: 14px;
-				list-style-type: none;
-				padding: 0;
-				margin: 0;
-				margin-bottom: 3em;
-
-				li {
-					display: block;
-					margin-bottom: 0.5em;
-				}
-
 			}
 
 			.action_button {
@@ -463,6 +414,27 @@
 					text-transform: none;
 				}
 			}
+
+			.settings_content {
+				ul {
+					font-size: 14px;
+					list-style-type: none;
+					padding: 0;
+					margin: 0;
+					margin-bottom: 3em;
+	
+					li {
+						display: block;
+						margin-bottom: 0.25em;
+					}
+					
+					&.user-icon-select {
+						li {
+							display: flex;
+						}
+					}
+				}
+			}
 		} // end settings
 
 	} // end section.page
@@ -476,14 +448,34 @@
 }
 
 .darkMode .user, .darkMode .settings {
-	section.page, aside {
+
+	section.page {
+
 		background: #21232a;
 		border: #181920 1px solid;
 		box-shadow: 1px 3px 10px #08090c;
-	}
 
-	section.page {
-		background: #21232a url('/img/user_page_background_dark.gif') 0 0 repeat-y;
+		.main_navigation {
+			background-color: #1d1f24;
+			border-right-color: #0e0f12;
+
+			ul li a {
+				&:hover, &:focus {
+					color: $color-features;
+				}
+			}
+
+			li.selected_profile, li.selected_settings {
+				background: #21232a;
+				border-right-color: #21232a;
+				border-top-color: #0e0f12;
+				border-bottom-color: #0e0f12;
+
+				a {
+					color: #fff;
+				}
+			}
+		}
 
 		h2 {
 			border-bottom: solid #dcdcdc .5px;
@@ -497,6 +489,10 @@
 			color: #000;
 		}
 
+		.profile_content header, .settings_content header {
+			background: none;
+		}
+
 		.avatar_big {
 			color: #fff;
 
@@ -508,19 +504,6 @@
 
 			a:hover {
 				color: #fff;
-			}
-		}
-
-		// TODO remove?
-		.rank {
-			color: #61a4e2;
-
-			a {
-				color: #d8d8d8;
-
-				&:hover {
-					color: #d8d8d8;
-				}
 			}
 		}
 
@@ -601,14 +584,14 @@
 
 		.main_navigation {
 			li {
-				a {
-					color: #fff;
+				a
+				{
+					color: #ffffff;
 				}
 
 				&.selected {
 					a {
-						background: #21232a;
-						color: #fff;
+						color: #000000;
 					}
 				}
 			}
@@ -635,3 +618,96 @@
 		} // end settings
 	} // end section.page
 }
+
+
+@media (max-width: 815px) {
+
+	.user, .settings {
+		section.page {
+			flex-direction: column;
+			gap: 0.5em;
+
+			max-width: 850px;
+			width: 90%;
+			margin: 0 auto;
+
+			&.settings ul {
+				margin-bottom: 0;
+			}
+
+			.main_navigation {
+				display: flex;
+				flex-direction: row;
+				border-right: none;
+				border-bottom: solid 1px #dbdbdb;
+
+				.avatar_big {
+					margin: 0.75em 1em 0.6em 1em;
+
+					img {
+						width: 45px;
+						height: 45px;
+					}
+				}
+
+				ul {
+					display: flex;
+					flex-direction: row;
+					align-items: flex-end;
+
+					li {
+						a {
+							font-size: 0.8em;
+							padding: 10px;
+						}
+
+						&.selected_profile, &.selected_settings {
+							left: 0;
+							top: 1px;
+							border-top-left-radius: 0.25em;
+							border-top-right-radius: 0.25em;
+							border-right: solid 1px #dbdbdb;
+							border-top: solid 1px #dbdbdb;
+							border-left: solid 1px #dbdbdb;
+							border-bottom: solid 1px #fff;
+						}
+					}
+				}
+			}
+			.profile_content, .settings_content {
+				min-width: auto;
+				padding: 0 1em 1em 2em;
+			}
+
+			.profile_content {
+				.activity_list .activity_log .status {
+					display: none;
+				}
+			}
+		}
+
+		section.page.settings .settings_content {
+			ul {
+				margin-bottom: 1.5em;
+			}
+		}
+	}
+
+	.darkMode .user, .darkMode .settings {
+		section.page {
+			.main_navigation {
+				border-bottom: solid 1px #0e0f12;
+
+				ul li.selected_profile, ul li.selected_settings {
+					border-bottom-color: #21232a;
+					border-left-color: #0e0f12;
+					border-right-color: #0e0f12;
+					border-top-color: #0e0f12;
+				}
+
+			}
+		}
+	}
+}
+
+

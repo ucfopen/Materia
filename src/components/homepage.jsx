@@ -28,7 +28,6 @@ const Homepage = () => (
 
 		<section className='get_started'>
 		<img src="/img/social-ucf-open.png"/>
-
 			<div className='get_started_content'>
 					<h1 className='subHeader'> Materia is Open Source! </h1>
 			 			<p className='desc'>

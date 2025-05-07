@@ -13,7 +13,7 @@ div#no-score-content, div#not-scorable {
 	padding-top: 25px;
 	padding-left: 40%;
 	margin: 25px auto 0 auto;
-	
+
 	&#no-score-content {
 		background: #fff url('/img/kogneato_no_scores.svg') 10% 30%/250px auto no-repeat;
 	}
@@ -44,5 +44,14 @@ div#no-score-content, div#not-scorable {
 
 	p {
 		color: #fff;
+	}
+}
+
+@media (max-width: 950px) {
+	div#no-score-content, div #not-scorable {
+		height: auto;
+		width: auto;
+		margin: 0 auto;
+		padding: 250px 0 0 0;
 	}
 }
