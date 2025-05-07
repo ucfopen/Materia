@@ -127,18 +127,19 @@ const SettingsPage = () => {
 						<li className="profile">
 							<a href="/profile">Profile</a>
 						</li>
-						<li className="selected settings">
+						<li className="selected_settings">
 							<a href="/settings">Settings</a>
 						</li>
 					</ul>
 				</ul>
 
 				<div className="settings_content">
-					<h2>
+					<header>
 						<span>Settings</span>
-						{`${currentUser.first} ${currentUser.last}`}
-					</h2>
-
+						<h2>
+							{`${currentUser.first} ${currentUser.last}`}
+						</h2>
+					</header>
 					<span>Notifications</span>
 					<ul>
 						<li>
@@ -209,13 +210,12 @@ const SettingsPage = () => {
 							<p className="exp">Note: This does not influence widgets.</p>
 						</li>
 					</ul>
+					<button type="submit" className="action_button" onClick={_submitSettings}>
+					Save
+					</button>
 				</div>
 
 				{errorRender}
-
-				<button type="submit" className="action_button" onClick={_submitSettings}>
-					Save
-				</button>
 			</section>
 		)
 	}

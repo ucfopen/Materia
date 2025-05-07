@@ -164,8 +164,8 @@ const ProfilePage = () => {
 							</li>
 						</ul>
 				</ul>
-				<div className="profile">
-					<div>
+				<div className="profile_content">
+					<header>
 						<div className="profile_status">
 							<span>Profile</span>
 
@@ -187,7 +187,7 @@ const ProfilePage = () => {
 							</span>
 						</div>
 						<h2>{`${currentUser.first} ${currentUser.last}`}</h2>
-					</div>
+					</header>
 
 					<span className="activity_subheader">Activity</span>
 

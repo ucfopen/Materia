@@ -1,47 +1,23 @@
 @import 'include.scss';
 
-
-	@media (max-width: 800px) {
-		.container {
-			display: flex;
-			justify-content: center;
-		}
-
-		body {
-			min-width: inherit !important;
-		}
-	}
-
 .user, .settings {
 
-	@media (max-width: 800px) {
-		section.page {
-			margin: 15px 10px 0px 10px !important;
-			width: auto !important;
-		}
-
-	}
-
-	section.page, aside {
-		/* The background for the sidebar (containing the profile and settings navigation) is styled in the section below using a repeating image */
-		//background: #fff;
-		border-radius: 4px;
-		border: #e4e4e4 1px solid;
-		box-shadow: 1px 3px 10px #dcdcdc;
-	}
+	display: flex;
+	justify-content: center;
 
 	section.page {
-		margin: 15px auto 0px auto;
-		top: 0;
-		right: 0;
-		z-index: 100;
-		width: 575px; /*625px*/
-		padding: 10px 60px 30px 145px;
-		background: url('/img/user_page_background.gif') 0 0 repeat-y;
-		//background-color: #fff;
+		display: flex;
+		flex-direction: row;
+		align-items: stretch;
+		gap: 2em;
+		margin: 15px 0 0 0;
 		min-height: 400px;
 
 		font-weight: 400;
+
+		border-radius: 4px;
+		border: #e4e4e4 1px solid;
+		box-shadow: 1px 3px 10px #dcdcdc;
 
 		.loading-icon-holder {
 			position: absolute;
@@ -93,70 +69,6 @@
 			justify-content: space-between;
 		}
 
-		.avatar_big {
-			position: absolute;
-			top: 25px;
-			left: 12px;
-			text-align: right;
-			color: #fff;
-			font-size: 10px;
-			line-height: 13px;
-
-
-
-			img {
-				width: 90px;
-				height: 90px;
-				border-radius: 10px;
-				position: relative;
-				bottom: 150px;
-
-			}
-
-			a:link,
-			a:visited,
-			a:active {
-				color: #fff;
-			}
-
-			a:hover {
-				color: #fff;
-				text-decoration: none;
-			}
-
-			a.external {
-				margin-left: 0.5em;
-			}
-		}
-
-		// TODO remove?
-		.rank {
-			position: absolute;
-			top: 25px;
-			right: 25px;
-
-			font-size: 55px;
-			padding: 0;
-			margin: 0;
-			font-weight: 600;
-			color: #0093e7;
-			line-height: 35px;
-			text-align: right;
-			margin-top: 5px;
-
-			a {
-				display: block;
-				font-size: 13px;
-				color: #969696;
-				text-decoration: underline;
-
-				&:hover {
-					color: #969696;
-					text-decoration: none;
-				}
-			}
-		}
-
 		ul.user_information {
 			padding: 0;
 			font-size: 13px;
@@ -193,7 +105,6 @@
 		}
 
 		.activity {
-			width: 575px;
 			padding: 0;
 
 			.loading-icon-holder {
@@ -353,52 +264,99 @@
 
 		.main_navigation {
 			display: block;
-			position: absolute;
-			left: 0;
-			top: 175px;
-			width: 83px;
 			margin: 0;
-			padding: 0;
 			list-style-type: none;
+
+			background-color: #f2f2f2;
+			border-right: solid 1px #dbdbdb;
+
+			.avatar_big {
+				margin: 1em 0;
+				text-align: center;
+	
+				img {
+					width: 90px;
+					height: 90px;
+					border-radius: 10px;	
+				}
+	
+				a:link,
+				a:visited,
+				a:active {
+					color: #fff;
+				}
+	
+				a:hover {
+					color: #fff;
+					text-decoration: none;
+				}
+	
+				a.external {
+					margin-left: 0.5em;
+				}
+			}
 
 			.settings {
 				z-index: 9999;
 				position: relative;
 
 			}
-			li {
-				a {
-					display: block;
-					width: 83px;
-					text-align: left;
-					padding-left: 20px;
-					font-size: 12px;
-					font-weight: 700;
-					padding-top: 10px;
-					padding-bottom: 10px;
-					padding-right: 30px;
-					color: #333;
 
+			ul {
+				margin-top: 1em;
 
-					&:hover {
-						text-decoration: none;
-					}
-				}
+				li {
+					position: relative;
+					padding: 0 1.5em;
 
-				&.selected {
 					a {
-						margin-left: 0px;
-						background: #fff;
-						// border-right: 0;
-						// border-left: 0;
+						display: block;
+						text-align: left;
+						padding-left: 1em;
+						font-size: 12px;
+						font-weight: 700;
+						padding-top: 10px;
+						padding-bottom: 10px;
+						padding-right: 30px;
 						color: #333;
-						text-decoration: none;
-
+	
 						&:hover {
+							color: $color-features-dark;
 							text-decoration: none;
 						}
 					}
+	
+					&.selected_profile, &.selected_settings {
+						position: relative;
+						left: 1px;
+						background-color: #fff;
+						border-right: solid 1px #fff;
+						border-top: solid 1px #dbdbdb;
+						border-bottom: solid 1px #dbdbdb;
+
+						a {
+							margin-left: 0px;
+							color: #333;
+							text-decoration: none;
+	
+							&:hover {
+								color: $color-features-dark;
+								text-decoration: none;
+							}
+						}
+					}
 				}
+			}
+		}
+
+		.profile_content, .settings_content {
+			min-width: 600px;
+			padding: 0 2em 1.5em 0;
+
+			header {
+				position: static;
+				height: auto;
+				padding: 1em 0 0 0;
 			}
 		}
 
@@ -426,20 +384,6 @@
 
 			a.external {
 				margin-left: 0.5em;
-			}
-
-			ul {
-				font-size: 14px;
-				list-style-type: none;
-				padding: 0;
-				margin: 0;
-				margin-bottom: 3em;
-
-				li {
-					display: block;
-					margin-bottom: 0.5em;
-				}
-
 			}
 
 			.action_button {
@@ -470,6 +414,22 @@
 					text-transform: none;
 				}
 			}
+
+			.settings_content {
+				ul {
+					font-size: 14px;
+					list-style-type: none;
+					padding: 0;
+					margin: 0;
+					margin-bottom: 3em;
+	
+					li {
+						display: block;
+						margin-bottom: 0.5em;
+					}
+	
+				}
+			}
 		} // end settings
 
 	} // end section.page
@@ -483,16 +443,34 @@
 }
 
 .darkMode .user, .darkMode .settings {
-	section.page, aside {
-		background: #21232a;
-		border: #181920 1px solid;
-		box-shadow: 1px 3px 10px #08090c;
-	}
 
 	section.page {
 
+		background: #21232a;
+		border: #181920 1px solid;
+		box-shadow: 1px 3px 10px #08090c;
 
-		background: #21232a url('/img/user_page_background_dark.gif') 0 0 repeat-y;
+		.main_navigation {
+			background-color: #1d1f24;
+			border-right-color: #0e0f12;
+
+			ul li a {
+				&:hover {
+					color: $color-features;
+				}
+			}
+
+			li.selected_profile, li.selected_settings {
+				background: #21232a;
+				border-right-color: #21232a;
+				border-top-color: #0e0f12;
+				border-bottom-color: #0e0f12;
+
+				a {
+					color: #fff;
+				}
+			}
+		}
 
 		h2 {
 			border-bottom: solid #dcdcdc .5px;
@@ -506,10 +484,12 @@
 			color: #000;
 		}
 
+		.profile_content header, .settings_content header {
+			background: none;
+		}
+
 		.avatar_big {
 			color: #fff;
-
-
 
 			a:link,
 			a:visited,
@@ -519,19 +499,6 @@
 
 			a:hover {
 				color: #fff;
-			}
-		}
-
-		// TODO remove?
-		.rank {
-			color: #61a4e2;
-
-			a {
-				color: #d8d8d8;
-
-				&:hover {
-					color: #d8d8d8;
-				}
 			}
 		}
 
@@ -612,9 +579,6 @@
 
 		.main_navigation {
 			li {
-				// a {
-				// 	color: #fff;
-				// }
 				a
 				{
 					color: #ffffff;
@@ -622,7 +586,6 @@
 
 				&.selected {
 					a {
-						// background: #21232a;
 						color: #000000;
 					}
 				}
@@ -652,540 +615,94 @@
 }
 
 
-	@media (min-width: 780px) and (max-width: 950px) {
-		// .darkMode .user section.page .activity_log .score-link {
-		// 	width: 80%;
+@media (max-width: 815px) {
 
-		// }
+	.user, .settings {
+		section.page {
+			flex-direction: column;
+			gap: 0.5em;
 
-		.darkMode
-		{
-			.user
-			{
-				section.page
-				  {
-					.user_type.staff
-					{
-						position: relative;
-						right: 100%;
-					}
-					h2 {
-						width: 80%;
-					}
-					.activity_log
-					{
-						.score-link
-						{
-							width: 80%;
-						}
-					}
-				  }
-			}
-		}
+			max-width: 850px;
+			width: 90%;
+			margin: 0 auto;
 
-
-
-		}
-
-	@media (min-width: 580px) and (max-width: 780px) {
-		.darkMode
-		{
-			.user
-			{
-				section.page
-				  {
-					.user_type.staff
-					{
-						position: relative;
-						right: 80%;
-					}
-
-
-					h2 {
-						width: 380px;
-					}
-
-
-
-					.activity_log
-					{
-						.date {
-							right:28%
-						}
-						.score-link
-						{
-							width: 64%;
-						}
-					}
-				  }
-			}
-		}
-
-		.user {
-			section.page {
-
-				.main_navigation
-				{
-					li {
-						a {
-							color: #000000;
-						}
-					}
-				}
-
-				.activity_log
-				{
-					.score-link{
-						width: 65%
-					}
-					.date {
-						left: 70%
-					}
-				}
-			}
-		}
-	}
-
-	@media (min-width: 370px) and (max-width: 580px) {
-		.darkMode .user, .darkMode .settings {
-			section.page {
-			background: none;
-
-				h2 {
-					width: 80%;
-				}
-
-
-					.main_navigation
-				{
-
-					background-color: #212020;
-					height: 190px;
-					border-right: 1px solid #191818;
-					border-left: 1px solid #191818 !important;
-					border-top: 1px solid #191818 !important;
-					border-bottom: 1px solid #191818 !important;
-					top: 10px;
-					left: 0%;
-
-
-					.selected_profile
-					{
-							background:none;
-							font-weight: 100;
-							text-decoration: underline rgb(255, 255, 255) 3.5px;
-							border: none;
-							height: 45px;
-
-
-					}
-
-					.activity_log {
-						.score-link {
-							width: 80%;
-						}
-					}
-
-
-					ul  {
-						padding-left: 90px;
-						padding-top: 25px;
-	                    display: flex;
-				        flex-direction: row;
-
-
-					li {
-						a {
-							color: #ffffff;
-						}
-
-						&.selected {
-							a {
-								background:none;
-								 text-decoration: underline rgb(255, 255, 255) 3.5px;
-								border: none;
-								color:white
-							}
-						}
-
-
-
-					}
-
-					}
-
-
-
-
-				}
+			&.settings ul {
+				margin-bottom: 0;
 			}
 
-		}
+			.main_navigation {
+				display: flex;
+				flex-direction: row;
+				border-right: none;
+				border-bottom: solid 1px #dbdbdb;
 
-		  .user, .settings {
 				.avatar_big {
-						img {
-							position: relative;
-							width: 40px !important;
-							height: 40px !important;
-							left: 40%;
-							bottom: 10px !important;
-						}
+					margin: 0.75em 1em 0.6em 1em;
 
+					img {
+						width: 45px;
+						height: 45px;
+					}
 				}
-				section.page {
-					background: none;
-					.activity_log {
-						.date {
-							position: relative;
-							right: 250px;
-							top: 9px;
-						}
-					}
 
-					.main_navigation
-				{
-
-					height: 70px !important;
-					width: 100% !important;
-					left: 9px !important;
-					margin: -10px !important;
-					top: 10px !important;
-
-					background-color: rgb(216, 216, 216);
-					ul  {
-						padding-left: 90px !important;
-						padding-top: 25px !important;
-	                    display: flex;
-				        flex-direction: row;
-
-					}
+				ul {
+					display: flex;
+					flex-direction: row;
+					align-items: flex-end;
 
 					li {
-
 						a {
-							color:#000;
+							font-size: 0.8em;
+							padding: 10px;
 						}
 
-
-						&.selected {
-						a {
-							border: 1px solid #c4c4c4; // Add border to all sides
- 							border-bottom: none;
-							height: 25px;
-							width: 84% !important;
-
-
+						&.selected_profile, &.selected_settings {
+							left: 0;
+							top: 1px;
+							border-top-left-radius: 0.25em;
+							border-top-right-radius: 0.25em;
+							border-right: solid 1px #dbdbdb;
+							border-top: solid 1px #dbdbdb;
+							border-left: solid 1px #dbdbdb;
+							border-bottom: solid 1px #fff;
 						}
-
 					}
-
-				 }
-				}
-				}
-
-				.settings_content {
-
-				width: 180%;
-				position: relative;
-				right: 100px;
-				top: 95px;
-				}
-
-				.action_button {
-					top: 15px;
-					left: 20%;
-				}
- 		 }
-
-		.user {
-			section.page {
-				overflow: hidden;
-				background: none;
-				.show_more_activity {
-					visibility: visible;
-				}
-
-					.main_navigation
-				{
-						background-color: #dcdcdd;
-						height: 90px;
-						border-bottom: none;
-						top: 10px;
-						left: 0%;
-						margin: -10px;
-
-						li {
-							a {
-								color: #030303;
-							}
-
-						}
-
-
-
-					.selected_profile
-					{
-
-							background-color: #ffffff;
-							height: 45px;
-							border: 1px solid #c4c4c4; // Add border to all sides
- 							 border-bottom: none;
-
-					}
-					ul  {
-
-						padding-left: 90px;
-						padding-top: 25px;
-	                    display: flex;
-				        flex-direction: row;
-
-					}
-
-
-
-				}
-
-
-				.avatar_big img
-				{
-					position: relative;
-					width: 40px;
-					height: 40px;
-					left: 40%;
-					bottom: 0px;
-
-
-
-				};
-				.no_logs {
-					width: 25%;
-
-				}
-
-				.profile {
-
-				width: 180%;
-				position: relative;
-				right: 120px;
-				top: 80px;
 				}
 			}
+			.profile_content, .settings_content {
+				min-width: auto;
+				padding: 0 1em 1em 2em;
+			}
 
-
+			.profile_content {
+				.activity_list .activity_log .status {
+					display: none;
+				}
+			}
 		}
 
+		section.page.settings .settings_content {
+			ul {
+				margin-bottom: 1.5em;
+			}
+		}
 	}
 
-	@media (min-width: 180px) and (max-width: 370px) {
+	.darkMode .user, .darkMode .settings {
+		section.page {
+			.main_navigation {
+				border-bottom: solid 1px #0e0f12;
 
-			.darkMode .user, .darkMode .settings {
-			section.page {
-			background: none;
-
-
-					.main_navigation
-				{
-
-					background-color: #212020;
-					height: 190px;
-					border-right: 1px solid #191818;
-					border-left: 1px solid #191818 !important;
-					border-top: 1px solid #191818 !important;
-					border-bottom: 1px solid #191818 !important;
-					top: 10px;
-					left: 0%;
-
-
-					.selected_profile
-					{
-							background:none;
-							font-weight: 100;
-							text-decoration: underline rgb(255, 255, 255) 3.5px;
-							border: none;
-							height: 45px;
-
-
-					}
-
-
-
-					ul  {
-						padding-left: 90px;
-						padding-top: 25px;
-	                    display: flex;
-				        flex-direction: row;
-
-
-					li {
-						a {
-							color: #ffffff;
-						}
-
-						&.selected {
-							a {
-								background:none;
-								 text-decoration: underline rgb(255, 255, 255) 3.5px;
-								border: none;
-								color: white
-							}
-
-						}
-
-
-
-					}
-
-					}
-
-
-
-
+				ul li.selected_profile, ul li.selected_settings {
+					border-bottom-color: #21232a;
+					border-left-color: #0e0f12;
+					border-right-color: #0e0f12;
+					border-top-color: #0e0f12;
 				}
+
 			}
-
 		}
-
-		  .user, .settings {
-				.avatar_big {
-						img {
-							position: relative;
-							width: 40px !important;
-							height: 40px !important;
-							left: 40%;
-							bottom: 10px !important;
-						}
-
-				}
-				section.page {
-					background: none;
-					.activity_log {
-						.date {
-							position: relative;
-							right: 250px;
-							top: 9px;
-						}
-					}
-				}
-					.main_navigation
-				{
-					background-color: rgb(216, 216, 216);
-					ul  {
-						padding-left: 90px !important;
-						padding-top: 25px !important;
-	                    display: flex;
-				        flex-direction: row;
-
-					}
-
-						height: 70px !important;
-						width: 100% !important;
-						left: 9px !important;
-						margin: -10px !important;
-						top: 10px !important;
-					li {
-
-					&.selected {
-						a {
-							  border: 1px solid #c4c4c4; // Add border to all sides
- 							 border-bottom: none;
-							height: 25px;
-							width: 84% !important;
-						}
-
-					}
-				 }
-				}
-
-				.settings_content {
-
-				width: 180%;
-				position: relative;
-				right: 100px;
-				top: 95px;
-				}
-
-				.action_button {
-					top: 15px;
-					right: 12px;
-				}
- 		 }
-
-		.user {
-			section.page {
-				overflow: hidden;
-				background: none;
-
-
-					.main_navigation
-				{
-						background-color: #dcdcdd;
-						height: 90px;
-						border-bottom: none;
-						top: 10px;
-						left: 0%;
-						margin: -10px;
-
-						li {
-							a {
-								color: #000000;
-							}
-
-						}
-
-
-
-					.selected_profile
-					{
-
-							background-color: #ffffff;
-							height: 45px;
-							border: 1px solid #c4c4c4; // Add border to all sides
- 							 border-bottom: none;
-
-					}
-					ul  {
-
-						padding-left: 90px;
-						padding-top: 25px;
-	                    display: flex;
-				        flex-direction: row;
-
-					}
-
-
-
-				}
-
-
-				.avatar_big img
-				{
-					position: relative;
-					width: 40px;
-					height: 40px;
-					left: 40%;
-					bottom: 0px;
-
-
-
-				};
-				.no_logs {
-					width: 25%;
-
-				}
-
-				.profile {
-
-				width: 180%;
-				position: relative;
-				right: 120px;
-				top: 80px;
-				}
-			}
-
-
-		}
-
 	}
+}
 
 
