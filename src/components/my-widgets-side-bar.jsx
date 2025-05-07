@@ -53,7 +53,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 					type='text'
 					value={searchText}
 					onChange={handleSearchInputChange}
-					placeholder='Search Your Widgets'
+					aria-label='Search your widgets'
 				/>
 				<div className='search-icon'>
 					<svg viewBox='0 0 250.313 250.313'>
