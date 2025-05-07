@@ -117,7 +117,7 @@ const Header = ({
 						<a href='/profile' aria-label='Visit your profile page.'>{`${user.first} ${user.last}`}</a>
 						<a onClick={logoutUser}>Logout</a>
 					</div>
-					<a href='/profile'><img src={user.avatar} onClick={showUserOptions}/></a>
+					<a href='/profile' aria-label='User avatar. Click to visit your profile page.'><img src={user.avatar} onClick={showUserOptions}/></a>
 				</>
 			)
 

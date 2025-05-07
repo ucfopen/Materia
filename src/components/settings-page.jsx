@@ -119,16 +119,16 @@ const SettingsPage = () => {
 	if ( !isFetching && currentUser ) {
 		mainContentRender = (
 			<section className="page settings">
-				<ul className="main_navigation">
+				<ul className="main_navigation" role="menu">
 					<div className="avatar_big">
 						<img src={currentUser.avatar} />
 					</div>
 					<ul>
 						<li className="profile">
-							<a href="/profile">Profile</a>
+							<a href="/profile" role="menuitem">Profile</a>
 						</li>
 						<li className="selected_settings">
-							<a href="/settings">Settings</a>
+							<a href="/settings" role="menuitem">Settings</a>
 						</li>
 					</ul>
 				</ul>
@@ -151,7 +151,7 @@ const SettingsPage = () => {
 									checked={state.notify == true}
 									onChange={_updateEmailPref}
 								/>
-								<span className="custom-checkbox"></span>
+								<span className="custom-checkbox" role="checkbox" aria-checked={state.notify == true}></span>
 								Send me an email when a widget has been shared with me.
 							</label>
 							<p className="exp">
@@ -161,7 +161,7 @@ const SettingsPage = () => {
 						</li>
 					</ul>
 					<span>User Icon</span>
-					<ul>
+					<ul className='user-icon-select' role="radiogroup">
 						<li>
 							<label className="radio-wrapper">
 								<input
@@ -171,7 +171,7 @@ const SettingsPage = () => {
 									checked={state.useGravatar == true}
 									onChange={() => _updateIconPref(true)}
 								/>
-								<span className="custom-radio"></span>
+								<span className="custom-radio" role="radio" aria-checked={state.useGravatar == true}></span>
 								Use Gravatar
 							</label>
 							<a className="external tiny" href="https://en.gravatar.com/" target="_blank">
@@ -188,7 +188,7 @@ const SettingsPage = () => {
 									checked={state.useGravatar == false}
 									onChange={() => _updateIconPref(false)}
 								/>
-								<span className="custom-radio"></span>
+								<span className="custom-radio" role="radio" aria-checked={state.useGravatar == false}></span>
 								None
 							</label>
 						</li>
@@ -204,7 +204,7 @@ const SettingsPage = () => {
 									checked={state.darkMode == true}
 									onChange={_updateDarkModePref}
 								/>
-								<span className="custom-checkbox"></span>
+								<span className="custom-checkbox" role="checkbox" aria-checked={state.darkMode == true}></span>
 								Use Dark Mode
 							</label>
 							<p className="exp">Note: This does not influence widgets.</p>

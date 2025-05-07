@@ -150,17 +150,17 @@ const ProfilePage = () => {
 		mainContentRender = (
 			<section className="page user">
 
-					<ul className="main_navigation">
+					<ul className="main_navigation" role="menu">
 						<div className="avatar_big">
 							<img src={currentUser.avatar} />
 					</div>
 
 						<ul>
 							<li className="selected_profile">
-								<a href="/profile">Profile</a>
+								<a href="/profile" role="menuitem">Profile</a>
 							</li>
 							<li className="settings">
-								<a href="/settings">Settings</a>
+								<a href="/settings" role="menuitem">Settings</a>
 							</li>
 						</ul>
 				</ul>
@@ -201,13 +201,13 @@ const ProfilePage = () => {
 					</div>
 
 					{hasNextPage ? (
-						<a className="show_more_activity action_button" onClick={_getMoreLogs}>
+						<button className="show_more_activity action_button" onClick={_getMoreLogs}>
 							{isFetchingNextActivityPage ? (
 								<span className="message_loading">Loading...</span>
 							) : (
 								<span>Show more</span>
 							)}
-						</a>
+						</button>
 					) : (
 						''
 					)}

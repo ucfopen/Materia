@@ -320,7 +320,7 @@
 						padding-right: 30px;
 						color: #333;
 	
-						&:hover {
+						&:hover, &:focus {
 							color: $color-features-dark;
 							text-decoration: none;
 						}
@@ -339,7 +339,7 @@
 							color: #333;
 							text-decoration: none;
 	
-							&:hover {
+							&:hover, &:focus {
 								color: $color-features-dark;
 								text-decoration: none;
 							}
@@ -425,9 +425,14 @@
 	
 					li {
 						display: block;
-						margin-bottom: 0.5em;
+						margin-bottom: 0.25em;
 					}
-	
+					
+					&.user-icon-select {
+						li {
+							display: flex;
+						}
+					}
 				}
 			}
 		} // end settings
@@ -455,7 +460,7 @@
 			border-right-color: #0e0f12;
 
 			ul li a {
-				&:hover {
+				&:hover, &:focus {
 					color: $color-features;
 				}
 			}
