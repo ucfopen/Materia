@@ -119,6 +119,12 @@
 					background: #fff;
 				}
 
+				&:has(.textbox:focus) {
+					.textbox-background {
+						border: solid 1px $color-features;
+					}
+				}
+
 				.loading-message {
 					position: absolute;
 					left: 40px;
@@ -182,6 +188,9 @@
 			// 	// border-top: 1px solid rgba(100, 100, 100, 0.2);
 
 			.widget_list {
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
 				height: calc(100% - 74px); // combined height of top and search sections
 				overflow: auto;
 
@@ -196,32 +205,27 @@
 					margin-right: 5px;
 				}
 
-				.widget {
+				.my-widgets-instance-card {
+					position: relative;
+					transition: background 0.5s;
+
 					cursor: pointer;
 					user-select: none;
 
-					&:hover {
-						// background-color: #ffe0a5;
+					&:nth-child(odd):not(:hover):not(:focus) {
+						background: #fff;
+					}
+
+					&.selected:not(:hover) {
+						background: #86d3ff;
+					}
+
+					&:hover, &:focus {
 						background: #d0eeff;
 					}
 
 					.highlighted {
 						background-color: #ffd800;
-					}
-				}
-
-				.my-widgets-instance-card {
-					position: relative;
-					transition: background 0.5s;
-
-					&:nth-child(odd):not(:hover) {
-						background: #fff;
-					}
-
-					&.selected:not(:hover) {
-						// background: #ffcb68;
-						// color: #fff;
-						background: #86d3ff;
 					}
 
 					&.hidden {
@@ -979,23 +983,21 @@
 			}
 
 			.widget_list {
-				.widget {
-					&:hover {
-						background: #1b304b;
-					}
-
-					.highlighted {
-						background-color: #ffd800;
-					}
-				}
-
 				.my-widgets-instance-card {
-					&:nth-child(odd):not(:hover) {
+					&:nth-child(odd):not(:hover):not(:focus) {
 						background: #21232a;
 					}
 
 					&.selected:not(:hover) {
 						background: #13335b;
+					}
+
+					&:hover, &:focus {
+						background: #1b304b;
+					}
+
+					.highlighted {
+						background-color: #ffd800;
 					}
 
 					&.is_draft ul li.score {
@@ -1384,6 +1386,10 @@
 					width: auto;
 				}
 			}
+
+			aside .search .textbox {
+				width: 70%;
+			}
 		}
 	}
 
@@ -1400,7 +1406,6 @@
 			display: none;
 		}
 	}
-
 
 	.modal {
 		.collaborate-modal {
@@ -1444,6 +1449,22 @@
 		}
 		.close-button {
 			top: 16px;
+		}
+	}
+
+	.darkMode .my_widgets .container {
+		.container_main-content {
+			box-shadow: none;
+		}
+
+		.page {
+			#scroll-to-widget-list {
+				background-color: $color-features-dark;
+
+				&:hover, &:focus {
+					background-color: $color-features;
+				}
+			}
 		}
 	}
 }
