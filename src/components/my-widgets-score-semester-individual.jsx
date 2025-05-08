@@ -143,12 +143,12 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 		const selectedStudentScores = (
 			<>
 				{/* No user selected */}
-				{!state.selectedUser.userId && (
+				{state.selectedUser.userId == undefined && (
 					<h3 className="centeredText">Select a student to view their scores.</h3>
 				)}
 
 				{/* User selected, display score table */}
-				{state.selectedUser.userId && (
+				{state.selectedUser.userId != undefined && (
 					<>
 						<h3 id={studentScoresHeaderId}>{`${state.selectedUser.name}'s scores`}</h3>
 						<table aria-labelledby={studentScoresHeaderId}>
