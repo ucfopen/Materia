@@ -1,37 +1,39 @@
 import logging
 
-from django.http import HttpResponse
-
 from api.filters import UserInstanceFilterBackend
-from core.models import LogPlay, WidgetInstance, WidgetQset, LogActivity
+from core.models import LogActivity, LogPlay, WidgetInstance, WidgetQset
 from core.permissions import (
     CanCreateWidgetInstances,
+    DenyAll,
+    HasFullInstancePermsAndLockOrElevated,
+    HasFullPermsOrElevated,
+    HasFullPermsOrElevatedOrReadOnly,
     HasPermsOrElevatedAccess,
-    IsSuperOrSupportUser, HasFullPermsOrElevated, HasFullPermsOrElevatedOrReadOnly,
-    HasFullInstancePermsAndLockOrElevated, DenyAll,
+    IsSuperOrSupportUser,
 )
 from core.serializers import (
     ObjectPermissionSerializer,
+    PermsUpdateRequestListSerializer,
     PlayIdSerializer,
     QuestionSetSerializer,
     ScoreSummarySerializer,
+    WidgetInstanceCopyRequestSerializer,
     WidgetInstanceSerializer,
-    WidgetInstanceSerializerNoIdentifyingInfo, WidgetInstanceCopyRequestSerializer, PermsUpdateRequestListSerializer,
+    WidgetInstanceSerializerNoIdentifyingInfo,
 )
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-
 from util.logging.play_data_exporter import PlayDataExporter
-from util.message_util import MsgBuilder, Msg
+from util.message_util import Msg, MsgBuilder
 from util.perm_manager import PermManager
 from util.widget.instance.instance_util import WidgetInstanceUtil
 
-# from pprint import pformat
 logger = logging.getLogger("django")
 
 
@@ -70,11 +72,15 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         # must have (any) access to instance or elevated perms
         # TODO: question_sets can't be restricted in this way, but we may want more context-sensitive authorization
-        elif (self.action == "scores"
-              or self.action == "copy"
-              or self.action == "export_playdata"
+        elif (
+            self.action == "scores"
+            or self.action == "copy"
+            or self.action == "export_playdata"
         ):
             permission_classes = [HasPermsOrElevatedAccess]
+
+        elif self.action == "undelete":
+            permission_classes = [IsSuperOrSupportUser]
 
         # any authenticated user can ask what users have what perms on an instance - but only owners can update perms
         elif self.action == "perms":
@@ -171,9 +177,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         instance = self.get_object()
-
-        # Clear all permissions on the object
-        PermManager.clear_all_perms_for_object(instance)
 
         # TODO send event trigger
 
@@ -293,12 +296,14 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                     # Additionally, if this user is a student, give them view access to all assets of this instance
                     # TODO smth abt this doesnt sound right - shouldn't we be giving perms to everyone?
                     #      maybe i just dont understand how asset perms work
-                    PermManager.set_user_asset_perms_for_instance(user, instance, perm_level)
+                    PermManager.set_user_asset_perms_for_instance(
+                        user, instance, perm_level
+                    )
 
                 # Otherwise, update or create that perm
                 instance.permissions.update_or_create(
                     user=user,
-                    defaults={"permission": perm_level, "expires_at": expiration}
+                    defaults={"permission": perm_level, "expires_at": expiration},
                 )
 
                 # TODO send a notification here
@@ -316,7 +321,9 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         request_serializer.is_valid(raise_exception=True)
 
         name = request_serializer.validated_data.get("new_name")
-        copy_existing_perms = request_serializer.validated_data.get("copy_existing_perms")
+        copy_existing_perms = request_serializer.validated_data.get(
+            "copy_existing_perms"
+        )
 
         instance = self.get_object()
         try:
@@ -324,7 +331,9 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         except Exception as e:
             logger.error("Failed to copy widget instance:")
             logger.error(e)
-            return MsgBuilder.failure(msg="Widget instance could not be copied.").as_drf_response()
+            return MsgBuilder.failure(
+                msg="Widget instance could not be copied."
+            ).as_drf_response()
 
         return Response(WidgetInstanceSerializer(duplicate).data)
 
@@ -337,12 +346,16 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         semester_ids = request.query_params.get("semesters", "")
 
         if export_type is None:
-            return MsgBuilder.invalid_input(msg="Missing export_type query parameter").as_drf_response()
+            return MsgBuilder.invalid_input(
+                msg="Missing export_type query parameter"
+            ).as_drf_response()
 
         instance = self.get_object()
         is_student = PermManager.user_is_student(request.user)
 
-        result, file_ext = PlayDataExporter.export(instance, export_type, semester_ids, is_student)
+        result, file_ext = PlayDataExporter.export(
+            instance, export_type, semester_ids, is_student
+        )
         if type(result) is Msg:
             return result.as_drf_response()
 
@@ -355,5 +368,21 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         resp["Content-Type"] = "application/force-download"
         resp["Content-Type"] = "application/octet-stream"
         resp["Content-Type"] = "application/download"
-        resp["Content-Disposition"] = f"attachment; filename=\"export_{instance.name}.{file_ext}\""
+        resp["Content-Disposition"] = (
+            f'attachment; filename="export_{instance.name}.{file_ext}"'
+        )
         return resp
+
+    @action(detail=True, methods=["post"])
+    def undelete(self, request, pk=None):
+        instance = WidgetInstance.objects.get(id=pk)
+        if not instance:
+            return ValidationError("Must provide a valid instance ID.")
+
+        if not instance.is_deleted:
+            return ValidationError("Instance is not deleted.")
+
+        instance.is_deleted = False
+        instance.save()
+
+        return Response({"success": True})

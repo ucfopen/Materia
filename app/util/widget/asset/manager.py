@@ -91,9 +91,10 @@ class AssetManager:
             total_used = total_used + asset.file_size
         return total_used
 
-    def get_asset_storage_driver():
-        driver_module_name = f"storage.{settings.MEDIA_DRIVER}"
-        driver_class_name = settings.DRIVER_SETTINGS[settings.MEDIA_DRIVER]["class"]
+    def get_asset_storage_driver(driver=None):
+        target_driver = driver if driver else settings.MEDIA_DRIVER
+        driver_module_name = f"storage.{target_driver}"
+        driver_class_name = settings.DRIVER_SETTINGS[target_driver]["class"]
 
         driver_module = importlib.import_module(driver_module_name)
         driver_class = getattr(driver_module, driver_class_name)

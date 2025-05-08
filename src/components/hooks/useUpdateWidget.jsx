@@ -1,26 +1,30 @@
 import { useMutation, useQueryClient } from 'react-query'
-import { apiSaveWidget } from '../../util/api'
+import { apiUpdateWidgetInstance } from '../../util/api'
 
-export default function useUpdateWidget() {
+export default function useUpdateWidget(user) {
 	const queryClient = useQueryClient()
 
 	let widgetList = null
 
 	// Optimistically updates the cache value on mutate
 	return useMutation(
-		({ args }) => apiSaveWidget(args),
+		apiUpdateWidgetInstance,
 		{
 			onMutate: async formData => {
 				// cancel any in-progress queries and grab the current query cache for widgets
-				await queryClient.cancelQueries('widgets')
-				widgetList = queryClient.getQueryData('widgets')
+				await queryClient.cancelQueries(['instances', user])
+				widgetList = queryClient.getQueryData(['instances', user])
 
 				// widgetList is passed to onSuccess or onError depending on resolution of mutation function
 				return { ...widgetList }
 			},
 			onSuccess: (updatedInst, variables) => {
 				// update successful - insert new values into our local copy of widgetList
+				console.log("1 ")
+				console.log(widgetList)
 				for (const page of widgetList?.pages) {
+					console.log("2")
+					console.log(page)
 					for (const inst of page?.results) {
 						if (inst.id === variables.instId) {
 							inst.open_at = parseInt(variables.openAt)
@@ -33,7 +37,7 @@ export default function useUpdateWidget() {
 					}
 				}
 				// update query cache for widgets. This does NOT invalidate the cache, forcing a re-fetch!!
-				queryClient.setQueryData('widgets', previous => {
+				queryClient.setQueryData(['instances', user], previous => {
 					return {
 						...widgetList,
 						modified: Math.floor(Date.now() / 1000)

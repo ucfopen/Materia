@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework.views import exception_handler
 
 from util.message_util import Msg
@@ -8,7 +9,12 @@ def materia_exception_handler(exc, context):
 
     # Wrap the DRF error in a Msg object for easier front-end parsing
     if response is not None:
-        msg = Msg(title=exc.detail, msg=response.data, halt=True, status=response.status_code)
+        if isinstance(exc, Http404):
+            title = "Not Found"
+        else:
+            title = exc.detail if hasattr(exc, "detail") else "Unknown Error"
+
+        msg = Msg(title=title, msg=response.data, halt=True, status=response.status_code)
         response = msg.as_json_response()
 
     return response

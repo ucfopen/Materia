@@ -8,12 +8,12 @@ const DetailFeatureList = ({title, widgetData, type={SUPPORTED_DATA}}) => {
 	const activeTab = useMemo(() => {
 		switch(type){
 			case SUPPORTED_DATA:
-				return (widgetData.supported_data.map((data, index) => {
+				return (widgetData.supported_data?.map((data, index) => {
 					return (<DetailFeature data={data} index={index} key={index}/>)
 				}))
 
 			case FEATURES:
-				return (widgetData.features.map((data, index) => {
+				return (widgetData.features?.map((data, index) => {
 					return (<DetailFeature data={data} index={index} key={index}/>)
 				}))
 

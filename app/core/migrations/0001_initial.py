@@ -9,6 +9,8 @@
 # This will create all necessary Django boilerplate auth/admin/contenttypes tables and skip this file,
 #  allowing subsequent migrations which modify old tables to be Django compliant to run
 
+import core.models
+
 from django.db import migrations, models
 
 
@@ -58,7 +60,10 @@ class Migration(migrations.Migration):
                 ("bytes", models.IntegerField()),
                 ("hash", models.CharField(max_length=255)),
                 ("created_at", models.IntegerField()),
-                ("data", models.TextField()),
+                (
+                    "data",
+                    core.models.LongBlobField(),
+                ),
             ],
             options={"db_table": "asset_data"},
         ),

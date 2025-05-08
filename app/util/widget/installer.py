@@ -12,8 +12,6 @@ from core.models import Widget, WidgetInstance, WidgetMetadata, WidgetQset
 from django.conf import settings
 from django.utils.timezone import make_aware
 
-from util.unique_id import unique_id
-
 logger = logging.getLogger("django")
 
 
@@ -83,10 +81,10 @@ class WidgetInstaller:
                     f"Existing widgets found for {clean_name}, not upgrading due to --skip-upgrade option"
                 )
 
-        if num_existing > 0 and replace_id == 0:
-            raise Exception(f"Multiple existing widgets share clean name {clean_name}")
         if num_existing == 1 and not skip_upgrade and replace_id == 0:
             replace_id = matching_widgets[0].id
+        if num_existing > 1 and replace_id == 0:
+            raise Exception(f"Multiple existing widgets share clean name {clean_name}")
 
         params = WidgetInstaller.generate_install_params(manifest_data, widget_file)
         existing_demo_inst_id = None
@@ -111,7 +109,7 @@ class WidgetInstaller:
             except Widget.DoesNotExist:
                 pass
 
-            id = WidgetInstaller.save_params(params)
+            id = WidgetInstaller.save_params(params, replace_id)
             activity.type = LogActivity.TYPE_UPDATE_WIDGET
 
         # add the demo
@@ -155,17 +153,25 @@ class WidgetInstaller:
             script_text = script_path.read_text()
 
             # Execute the script to load the class
-            script_globals = types.ModuleType("temp_exporter_module")  # Empty module to act as the script's globals
-            exec(script_text, script_globals.__dict__)  # Script will load the class, which we can find in the globals
+            script_globals = types.ModuleType(
+                "temp_exporter_module"
+            )  # Empty module to act as the script's globals
+            exec(
+                script_text, script_globals.__dict__
+            )  # Script will load the class, which we can find in the globals
 
             # Find the mappings field in the globals, which should map a human-readable name to each function
             exporter_mappings = getattr(script_globals, "mappings", None)
             if exporter_mappings is None or not isinstance(exporter_mappings, dict):
-                raise Exception("Play data exporter script missing top level 'mappings' dict")
+                raise Exception(
+                    "Play data exporter script missing top level 'mappings' dict"
+                )
 
             manifest_data["meta_data"]["playdata_exporters"] = exporter_mappings.keys()
         else:
-            manifest_data["meta_data"]["playdata_exporters"] = []  # no custom playdata exporter methods
+            manifest_data["meta_data"][
+                "playdata_exporters"
+            ] = []  # no custom playdata exporter methods
 
         return target_dir, manifest_data, clean_name
 
@@ -365,6 +371,16 @@ class WidgetInstaller:
             "api_version": int(manifest_data["general"]["api_version"]),
             "package_hash": package_hash,
             "score_module": manifest_data["score"]["score_module"],
+            "is_generable": (
+                bool(manifest_data["general"]["is_generable"])
+                if "is_generable" in manifest_data["general"]
+                else False
+            ),
+            "uses_prompt_generation": (
+                bool(manifest_data["general"]["uses_prompt_generation"])
+                if "uses_prompt_generation" in manifest_data["general"]
+                else False
+            ),
             "creator": (
                 manifest_data["files"]["creator"]
                 if "creator" in manifest_data["files"]
@@ -399,9 +415,10 @@ class WidgetInstaller:
             # update
             widget_obj = Widget.objects.get(id=widget_id)
             # do not overwrite the in_catalog flag for existing widgets
-            del params["in_catalog"]
+            params.pop("in_catalog", True)
             try:
-                widget_obj.update(**params)
+                for key, value in params.items():
+                    setattr(widget_obj, key, value)
                 widget_obj.save()
             # TODO: narrow down which kind(s) of Exception we should expect here
             except Exception as e:
@@ -537,30 +554,15 @@ class WidgetInstaller:
         return json_text
 
     # "uploads" an asset from a widget package
-    # this can probably be more efficient - currently it's copying a file from a temporary location
-    #  to a second temporary location and then copying that second temporaray file to a permanent
-    #  location... ideally, we could just copy the file from the original temporary location and
-    #  be done with it, but this works for now
     def sideload_asset(file):
-        import shutil
-
         from util.widget.asset.manager import AssetManager
 
         try:
-            # copy asset to wherever files would normally be uploaded
-            mock_upload_file_path = os.path.join(
-                settings.DIRS["media_uploads"], unique_id("sideload_")
-            )
-            logger.info(f"Copying asset {file} to {mock_upload_file_path}")
-            shutil.copyfile(file, mock_upload_file_path)
-
-            # process the upload
-            # get the file information... somehow?
-            upload_info = os.stat(mock_upload_file_path)
+            upload_info = os.stat(file)
             asset = AssetManager.new_asset_from_file(
                 f"Demo asset {os.path.basename(file)}",
                 upload_info,
-                mock_upload_file_path,
+                file,
             )
             return asset
 

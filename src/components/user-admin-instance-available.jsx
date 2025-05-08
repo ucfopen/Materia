@@ -52,7 +52,7 @@ const UserAdminInstanceAvailable = ({instance, index, onCopySuccess, currentUser
 					</div>
 					<div>
 						<span>
-							<label>Created:</label> { `${new Date(instance.created_at * 1000).toLocaleDateString()} (${instance.created_at})` }
+							<label>Created:</label> { `${new Date(instance.created_at).toLocaleDateString()}` }
 						</span>
 					</div>
 					<div>
@@ -87,12 +87,12 @@ const UserAdminInstanceAvailable = ({instance, index, onCopySuccess, currentUser
 					</div>
 					<div>
 						<span>
-							<label>Open Time:</label> { instance.open_at < 0 ? 'Forever' : `${new Date(instance.open_at*1000).toLocaleString()} (${instance.open_at})` }
+							<label>Open Time:</label> { !instance.open_at ? 'Forever' : `${new Date(instance.open_at).toLocaleString()}` }
 						</span>
 					</div>
 					<div>
 						<span>
-							<label>Close Time:</label> { instance.close_at < 0 ? 'Never' : `${new Date(instance.close_at*1000).toLocaleString()} (${instance.close_at})` }
+							<label>Close Time:</label> { !instance.close_at ? 'Never' : `${new Date(instance.close_at).toLocaleString()}` }
 						</span>
 					</div>
 					<div>

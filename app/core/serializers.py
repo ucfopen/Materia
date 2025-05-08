@@ -4,6 +4,7 @@ import json
 
 # debug logging
 import logging
+import os
 
 from core.models import (
     Asset,
@@ -13,17 +14,16 @@ from core.models import (
     UserSettings,
     Widget,
     WidgetInstance,
+    WidgetMetadata,
     WidgetQset,
 )
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
 from util.logging.session_logger import SessionLogger
 from util.perm_manager import PermManager
-
-# from pprint import pformat
-
 
 logger = logging.getLogger("django")
 
@@ -35,7 +35,7 @@ class AssetSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-# User model serializer (outbound)
+# User model serializer
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
     profile_fields = serializers.SerializerMethodField()
@@ -43,6 +43,24 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_is_student(self, user):
         return PermManager.user_is_student(user)
+
+    # remove sensitive information when requesting with non-privileged access
+    def get_fields(self):
+        fields = super().get_fields()
+        elevated = self.context.get("elevated_access")
+
+        if not elevated:
+            for field in [
+                "username",
+                "email",
+                "profile_fields",
+                "date_joined",
+                "last_login",
+            ]:
+                if fields[field]:
+                    fields.pop(field)
+
+        return fields
 
     def get_avatar(self, user):
         clean_email = user.email.strip().lower().encode("utf-8")
@@ -55,7 +73,28 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "email", "avatar", "profile_fields", "is_student"]
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "avatar",
+            "profile_fields",
+            "date_joined",
+            "last_login",
+            "is_student",
+        ]
+
+        read_only_fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "date_joined",
+            "last_login",
+            "is_student",
+        ]
 
 
 # User metadata (profile fields) serializer (inbound)
@@ -91,9 +130,50 @@ class UserMetadataSerializer(serializers.Serializer):
         return data["profile_fields"]
 
 
-# Widget engine model serializer (outbound)
+class UserRoleSerializer(serializers.Serializer):
+    id = serializers.IntegerField(max_value=None, min_value=0, required=True)
+    student = serializers.BooleanField(required=False)
+    author = serializers.BooleanField(required=False)
+    support_user = serializers.BooleanField(required=False)
+
+    def validate(self, data):
+        if data["student"] == data["author"]:
+            raise serializers.ValidationError(
+                "student and author cannot be the same value."
+            )
+        return data
+
+
+# widget engine metadata: converts the one-to-many relationship into a dict for ease of use
+# not a full-blown serializer, since metadata is only accessed in the context of a widget engine
+class WidgetMetadataDictField(serializers.Field):
+    def to_representation(self, value):
+        list_items = ["supported_data", "features", "playdata_exporters"]
+        metadata_dict = {}
+        for item in value.all():
+            if item.name in metadata_dict:
+                if not isinstance(metadata_dict[item.name], list):
+                    metadata_dict[item.name] = [metadata_dict[item.name]]
+
+                metadata_dict[item.name].append(item.value)
+
+            else:
+                if item.name in list_items:
+                    metadata_dict[item.name] = [item.value]
+                else:
+                    metadata_dict[item.name] = item.value
+
+        return metadata_dict
+
+    def to_internal_value(self, data):
+        if not isinstance(data, dict):
+            raise serializers.ValidationError("metadata must be a dict!")
+        return data
+
+
+# Widget engine model serializer
 class WidgetSerializer(serializers.ModelSerializer):
-    meta_data = serializers.SerializerMethodField()
+    meta_data = WidgetMetadataDictField(source="metadata", required=False)
     dir = serializers.CharField(read_only=True)
 
     class Meta:
@@ -127,8 +207,47 @@ class WidgetSerializer(serializers.ModelSerializer):
             "dir",
         ]
 
-    def get_meta_data(self, widget):
-        return widget.metadata_clean()
+    def get_dir(self, widget):
+        return f"{widget.id}-{widget.clean_name}{os.sep}"
+
+    @transaction.atomic
+    def update(self, widget, validated_data):
+        allowed_fields = [
+            "clean_name",
+            "in_catalog",
+            "is_editable",
+            "is_scorable",
+            "is_playable",
+            "restrict_publish",
+            "about",
+            "excerpt",
+            "demo",
+        ]
+
+        metadata_dict = validated_data.pop("metadata", None)
+
+        for field, value in validated_data.items():
+
+            if field not in allowed_fields:
+                raise serializers.ValidationError(
+                    f"Field not allowed to be modified: {field}"
+                )
+
+            logger.error(f"\nupdating widget field: {field}\n")
+            setattr(widget, field, value)
+
+        widget.save()
+
+        # updating metadata requires some additional work
+        # the updates affect WidgetMetadata model instances instead
+        if metadata_dict:
+            existing_metadata = widget.metadata.all()
+
+            for name, value in metadata_dict.items():
+                existing_metadata.filter(name=name).delete()
+                WidgetMetadata.objects.create(widget=widget, name=name, value=value)
+
+        return widget
 
 
 class Base64JSONField(serializers.Field):
@@ -260,6 +379,13 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "play_url",
             "embed_url",
             "qset",
+        ]
+        read_only_fields = [
+            "id",
+            "user_id",
+            "is_student_made",
+            "widget",
+            "widget_id",
         ]
 
 
@@ -433,6 +559,7 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
 
     inst_name = serializers.CharField(source="instance.name", read_only=True)
     widget_name = serializers.CharField(source="instance.widget.name", read_only=True)
+    widget_icon = serializers.SerializerMethodField()
 
     class Meta:
         model = LogPlay
@@ -455,7 +582,11 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
             "created_at",
             "inst_name",
             "widget_name",
+            "widget_icon",
         ]
+
+    def get_widget_icon(self, play):
+        return f"{play.instance.widget.id}-{play.instance.widget.clean_name}{os.sep}"
 
 
 # play session model; do not include user_id
@@ -602,15 +733,21 @@ class PromptGenerationRequestSerializer(serializers.Serializer):
 
 # Used for incoming requests to copy a widget instance. Does NOT map to a model.
 class WidgetInstanceCopyRequestSerializer(serializers.Serializer):
-    new_name = serializers.ModelField(model_field=WidgetInstance()._meta.get_field("name"))
+    new_name = serializers.ModelField(
+        model_field=WidgetInstance()._meta.get_field("name")
+    )
     copy_existing_perms = serializers.BooleanField(required=False, default=False)
 
 
 # Used for incoming requests to update perms. Does not map to a model.
 class PermsUpdateRequestItemSerializer(serializers.Serializer):
-    expiration = serializers.DateTimeField(required=False, allow_null=True, default=None)
+    expiration = serializers.DateTimeField(
+        required=False, allow_null=True, default=None
+    )
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    perm_level = serializers.ChoiceField(choices=ObjectPermission.PERMISSION_CHOICES, allow_null=True)
+    perm_level = serializers.ChoiceField(
+        choices=ObjectPermission.PERMISSION_CHOICES, allow_null=True
+    )
 
 
 class PermsUpdateRequestListSerializer(serializers.Serializer):
@@ -618,6 +755,10 @@ class PermsUpdateRequestListSerializer(serializers.Serializer):
 
 
 class ObjectPermissionSerializer(serializers.ModelSerializer):
+    content_type = serializers.SerializerMethodField()
+
+    def get_content_type(self, obj):
+        return obj.content_type.model
 
     # TODO content_type is returning an integer value, it should give us the actual content type name?
     class Meta:
