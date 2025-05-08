@@ -20,11 +20,7 @@ export default function useUpdateWidget(user) {
 			},
 			onSuccess: (updatedInst, variables) => {
 				// update successful - insert new values into our local copy of widgetList
-				console.log("1 ")
-				console.log(widgetList)
 				for (const page of widgetList?.pages) {
-					console.log("2")
-					console.log(page)
 					for (const inst of page?.results) {
 						if (inst.id === variables.instId) {
 							inst.open_at = parseInt(variables.openAt)

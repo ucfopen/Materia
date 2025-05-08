@@ -139,28 +139,13 @@ export const apiDeleteWidget = ({ instId }) => {
 }
 
 export const apiSaveWidget = (_params) => {
-	if (_params.instId != null) {
-		// limit args to the following params
-		const body = {
-			name: _params?.name ?? undefined,
-			qset: _params?.qset ?? undefined,
-			is_draft: _params?.isDraft ?? undefined,
-			open_at: _params?.openAt,
-			close_at: _params?.closeAt,
-			attempts: _params?.attempts ?? undefined,
-			guest_access: _params?.guestAccess ?? undefined,
-			embedded_only: _params?.embeddedOnly ?? undefined,
-		}
-		return handleRequest(methods.PATCH, `/api/instances/${_params.instId}/`, { ...body })
-	} else {
-		const body = {
-			widget_id: parseInt(_params.widgetId),
-			name: _params.name,
-			qset: _params.qset,
-			is_draft: _params.isDraft,
-		}
-		return handleRequest(methods.POST, '/api/instances/', { ...body })
+	const body = {
+		widget_id: parseInt(_params.widgetId),
+		name: _params.name,
+		qset: _params.qset,
+		is_draft: _params.isDraft,
 	}
+	return handleRequest(methods.POST, '/api/instances/', { ...body })
 }
 
 export const apiGetUser = (user = 'me') => {
@@ -226,7 +211,18 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
  * @returns {object} updated instance
  */
 export const apiUpdateWidgetInstance = ({ args }) => {
-	return handleRequest(methods.PATCH, `/api/instances/${args.instId}/`, args)
+	// limit args to the following params
+	const body = {
+		name: args?.name ?? undefined,
+		qset: args?.qset ?? undefined,
+		is_draft: args?.isDraft ?? undefined,
+		open_at: args?.openAt,
+		close_at: args?.closeAt,
+		attempts: args?.attempts ?? undefined,
+		guest_access: args?.guestAccess ?? undefined,
+		embedded_only: args?.embeddedOnly ?? undefined,
+	}
+	return handleRequest(methods.PATCH, `/api/instances/${args.instId}/`, body)
 }
 
 export const apiGetWidgetLock = (id = null) => {
