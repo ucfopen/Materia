@@ -120,19 +120,6 @@ class ScoringUtil:
         play.is_complete = True
         play.percent = score_module.calculated_percent
         play.save()
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
 
         qset = instance.get_qset_for_play(session_play.data.id)
         from core.serializers import QuestionSetSerializer
