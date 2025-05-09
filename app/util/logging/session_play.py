@@ -101,10 +101,6 @@ class SessionPlay:
         result = self._save_new_play()
         if not result:
             print("BOOOOOOO")
-            print("BOOOOOOO")
-            print("BOOOOOOO")
-            print("BOOOOOOO")
-            print("BOOOOOOO")
             # TODO logging
             return None
 
@@ -183,21 +179,12 @@ class SessionPlay:
         for i in range(1, 25):  # TODO: make max attempts a config variable
             log_id = str(uuid.uuid4())
             print(f"Log id is {log_id}")
-            print(f"Log id is {log_id}")
             if len(LogPlay.objects.filter(pk=log_id)) == 0:
-                print("IN THE IFFF")
-                print("IN THE IFFF")
-                print("IN THE IFFF")
                 # Good ID found, create log play object
                 self.data.id = log_id
                 print(f"self.data is : {self.data.is_valid}")
-                print(f"self.data is : {self.data.is_valid}")
-                print(f"self.data is : {self.data.is_valid}")
                 try:
                     self.data.save()
-                    print("SUCESSSS")
-                    print("SUCESSSS")
-                    print("SUCESSSS")
                     print("SUCESSSS")
                     return True
                 except Exception as e:
@@ -205,9 +192,7 @@ class SessionPlay:
                     return False
             else:
                 # TODO: log messages warning collision detects. check php
-                print("IN THE ELSE")
-                print("IN THE ELSE")
-                print("IN THE ELSE")
+                print("WARNING: Collision detected")
                 pass
 
         return False
@@ -224,11 +209,8 @@ class SessionPlay:
     @staticmethod
     def get_preview_play(session, preview_play_id):
         """Reconstruct a preview SessionPlay from session logs."""
-        from util.logging.session_logger import SessionLogger
 
         print("===============DEBUGDEMO===================")
-        print("===============DEBUGDEMO===================")
-        print("===============debugdemo===================")
         preview_logs = session.get(f"previewPlayLogs.{preview_play_id}")
         # this only prints my one log instead of the the three that should be in it.
         print(f"preview_logs: {preview_logs}")
