@@ -1087,12 +1087,6 @@ class WidgetQset(models.Model):
     def set_data(self, data_dict):
         self.data = self.encode_data(data_dict)
 
-    def get_questions(self):
-        decoded_questions_list = json.loads(
-            base64.b64decode(self.questions_list).decode()
-        )
-        return decoded_questions_list
-
     class Meta:
         db_table = "widget_qset"
         indexes = [
