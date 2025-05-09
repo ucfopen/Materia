@@ -117,9 +117,10 @@ class ScoringUtil:
             session_play, instance, ScoreClass, session_play.data.created_at
         )
         play = session_play.data
-        play.is_complete = True
         play.percent = score_module.calculated_percent
-        play.save()
+        if not session_play.is_preview:
+            play.is_complete = True
+            play.save()
 
         qset = instance.get_qset_for_play(session_play.data.id)
         from core.serializers import QuestionSetSerializer
@@ -171,9 +172,12 @@ class ScoringUtil:
             session_play.data.created_at,
         )
         play = session_play.data
-        play.is_complete = True
         play.percent = score_module.calculated_percent
-        play.save()
+        # dont save the play if its a preview
+        if not session_play.is_preview:
+            play.is_complete = True
+            play.save()
+
         print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
 
         widget_instance.get_qset(widget_instance.id, session_play.data.created_at)
@@ -229,11 +233,12 @@ class ScoringUtil:
         score_module, details = ScoringUtil.run_score_module(
             session_play, instance, ScoreClass, created_at
         )
-
         play = session_play.data
-        play.is_complete = True
         play.percent = score_module.calculated_percent
-        play.save()
+        if not session_play.is_preview:
+            play.is_complete = True
+            play.save()
+
         print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
 
         if session_play.is_preview:
