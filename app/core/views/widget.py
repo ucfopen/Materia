@@ -78,12 +78,6 @@ class WidgetPreviewView(TemplateView):
 
         # Get widget instance
         widget_instance = WidgetInstance.objects.get(pk=widget_instance_id)
-        print(
-            f"widget instance: {widget_instance}, boolean: {widget_instance.playable_by_current_user(self.request.user)}"
-        )
-        print(
-            f"widget instance: {widget_instance}, boolean: {widget_instance.playable_by_current_user(self.request.user)}"
-        )
         if not widget_instance:
             return HttpResponseNotFound()
 
@@ -214,13 +208,8 @@ def _create_player_page(
     # Check to see if this widget is playable
     # TODO check status - see php
 
-    # TODOmaybe this is not needed
-    # if not is_demo and instance.is_draft:
-    #     # return _create_draft_not_playable_page(request)
-    #     return _display_widget(instance, request, is_embedded)
     if not is_preview and instance.is_draft:
         return _create_draft_not_playable_page(request)
-    # if so then uncomment the above
     if not is_demo and not instance.widget.is_playable:
         return _create_widget_retired_page(request, is_embedded)
     if autoplay is False:
