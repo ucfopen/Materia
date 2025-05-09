@@ -113,12 +113,6 @@ class ScoreModule(ABC):
         self.process_score_logs()
         self.calculate_score()
 
-        # make play complete
-        if self.play_id != -1 and self.play:
-            self.play.is_complete = True
-            self.play.percent = self.calculated_percent
-            self.play.save()
-
         return True
 
     def process_score_logs(self):
@@ -285,6 +279,7 @@ class ScoreModule(ABC):
             for question in self.questions:
                 print("ID is ", question["id"])
             print("self.questions is : ", self.questions)
+            # turn self.questions into a dict
             self.questions = {q["id"]: q for q in questions_list}
 
             print("\nAvailable Questions in self.questions:")
@@ -347,7 +342,7 @@ class ScoreModule(ABC):
         text = log.text if hasattr(log, "text") else log["text"]
         for answer in answers:
             if text == answer["text"]:
-                feedback = answer["options"].get("feedback", "")
+                feedback = answer.get("options", {}).get("feedback", "")
                 if feedback:
                     return feedback
         return None
