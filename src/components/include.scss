@@ -598,6 +598,9 @@ header {
 }
 
 .darkMode header {
+
+	background: #1d1f25;
+
 	&.logged_in {
 		background: #1d1f25 url(/img/header_border_alt.png) 0% 100% repeat-x;
 	}
@@ -996,28 +999,6 @@ h1.logo {
 	a {
 		background: url('/img/materia-logo-default-darkmode.svg') 0% 0% no-repeat;
 		background-size: 80px auto;
-	}
-}
-
-@media only screen and (min-device-pixel-ratio: 2),
-	only screen and (-webkit-min-device-pixel-ratio: 2) {
-	h1.logo a {
-		background: url('/img/materia-logo-default-lightmode.svg') 50% 100% no-repeat;
-		background-size: 80px auto;
-	}
-
-	header {
-		background: #fff;
-		background-size: 12px 6px;
-	}
-	.darkMode h1.logo a {
-		background: url('/img/materia-logo-default-darkmode.svg') 50% 100% no-repeat;
-		background-size: 80px auto;
-	}
-
-	.darkMode header {
-		background: #1d1f25;
-		background-size: 12px 6px;
 	}
 }
 
