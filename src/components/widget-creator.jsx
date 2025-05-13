@@ -108,23 +108,25 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 	// load question set (qset) for given instance id
 	// requires: instance.id state property to be set (widget instance query is settled)
-	const { isLoading: qSetIsLoading, data: qset } = useQuery({
+	const qsetQuery = useQuery({
 		queryKey: ['qset', instIdRef.current],
 		queryFn: () => apiGetQuestionSet(instIdRef.current),
 		staleTime: Infinity,
-		placeholderData: null,
 		enabled: !!instIdRef.current, // requires instance state object to be prepopulated
-		retry: false,
-		onSuccess: (data) => {
-			if (data) {
-				setCreatorState({...creatorState, invalid: false})
-				setInstance({ ...instance, qset: data })
-			}
-		},
-		onError: (error) => {
-			onInitFail(error)
-		}
+		retry: false
 	})
+
+	useEffect(() => {
+		if ( !qsetQuery.isLoading && qsetQuery.data != null ) {
+			if (qsetQuery.isSuccess && qsetQuery.data != undefined) {
+				setCreatorState({...creatorState, invalid: false})
+				setInstance({ ...instance, qset: qsetQuery.data })
+			} else {
+				onInitFail(qsetQuery.error)
+			}
+		}
+
+	},[qsetQuery.isLoading])
 
 	// verify user can publish a given instance
 	// requires: instance.widget is set (value is determined by widget type and user perms)
@@ -168,11 +170,16 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryKey: ['widget-lock', instance.id],
 		queryFn: () => apiGetWidgetLock(instance.id),
 		enabled: !!instance.id,
-		staleTime: Infinity,
+		staleTime: 2 * (60 * 1000),//2mins
+		cacheTime: 3 * (60 * 1000),
+		refetchInterval: 2 * (60 * 1000),
+		refetchIntervalInBackground: true,
 		retry: false,
 		onSuccess: (success) => {
 			if (!success) {
-				onInitFail('Someone else is editing this widget, you will be able to edit after they finish.')
+				onInitFail({
+					message: 'locked',
+				});
 			}
 		},
 		onError: (error) => {
@@ -719,6 +726,17 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			setCreatorState({
 				...creatorState,
 				invalid: true
+			})
+		} else if (err.message == "locked") {
+			setCreatorState({
+				...creatorState,
+				invalid: true
+			})
+			setAlertDialog({ enabled: true,
+				title: 'Widget Locked',
+				message:'This widget is locked and cannot be modified until another collaborator is finished editing the widget. Please check again after a couple of minutes when the other collaborator has finished editing.',
+				fatal: true,
+				enableLoginButton: false
 			})
 		} else {
 			setAlertDialog(

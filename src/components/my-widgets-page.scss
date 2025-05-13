@@ -15,7 +15,6 @@
 		display: flex;
 		align-items: flex-start;
 		margin: 0 auto 100px auto;
-		// width: 970px;
 		overflow-x: visible;
 
 		.container_main-content {
@@ -120,6 +119,12 @@
 					background: #fff;
 				}
 
+				&:has(.textbox:focus) {
+					.textbox-background {
+						border: solid 1px $color-features;
+					}
+				}
+
 				.loading-message {
 					position: absolute;
 					left: 40px;
@@ -183,6 +188,9 @@
 			// 	// border-top: 1px solid rgba(100, 100, 100, 0.2);
 
 			.widget_list {
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
 				height: calc(100% - 74px); // combined height of top and search sections
 				overflow: auto;
 
@@ -197,32 +205,27 @@
 					margin-right: 5px;
 				}
 
-				.widget {
+				.my-widgets-instance-card {
+					position: relative;
+					transition: background 0.5s;
+
 					cursor: pointer;
 					user-select: none;
 
-					&:hover {
-						// background-color: #ffe0a5;
+					&:nth-child(odd):not(:hover):not(:focus) {
+						background: #fff;
+					}
+
+					&.selected:not(:hover) {
+						background: #86d3ff;
+					}
+
+					&:hover, &:focus {
 						background: #d0eeff;
 					}
 
 					.highlighted {
 						background-color: #ffd800;
-					}
-				}
-
-				.my-widgets-instance-card {
-					position: relative;
-					transition: background 0.5s;
-
-					&:nth-child(odd):not(:hover) {
-						background: #fff;
-					}
-
-					&.selected:not(:hover) {
-						// background: #ffcb68;
-						// color: #fff;
-						background: #86d3ff;
 					}
 
 					&.hidden {
@@ -347,6 +350,41 @@
 			padding: 0 0 0 10px;
 			margin: 0;
 			font-size: 13px;
+		}
+
+		#scroll-to-widget-list {
+			display: none;
+			position: absolute;
+			top: -0.5em;
+			left: 1em;
+			border: none;
+			border-radius: 1em;
+			padding: 0.5em 1em;
+			font-size: 1em;
+			font-weight: 700;
+			color: #fff;
+			background-color: $color-features;
+
+			cursor: pointer;
+
+			&:before {
+				position: relative;
+				display: block;
+				content: '';
+				top: 0.15em;
+				width: 0.5em;
+				height: 0.5em;
+				margin-right: 0.5em;
+				border-width: 0 0 2px 2px;
+				border-style: solid;
+				border-color: #fff;
+				transform: rotate(-45deg);
+			}
+
+			&:hover, &:focus {
+				text-decoration: none;
+				background-color: $color-features-active;
+			}
 		}
 
 		.overview {
@@ -712,22 +750,25 @@
 			.share-widget-options-first {
 				padding-left: 10px;
 				border-left: 8px solid rgba(239, 129, 82, 0.5);
+
 			}
 
 			.share-widget-options-second {
 				padding-left: 10px;
 				border-left: 8px solid rgba(117, 191, 91, 0.5);
+
 			}
 
 			.share-widget-options-third {
 				padding-left: 10px;
 				border-left: 8px solid rgba(93, 163, 203, 0.5);
+
 			}
 
 			.view-more {
 				margin-top: 20px;
 			}
-				//
+
 				// #first-share-widget-option {
 				// 	border-left: 8px solid #EF8152;
 				// }
@@ -798,21 +839,20 @@
 				}
 
 				&:disabled {
+					border: solid 1px $gray;
+					border-radius: 2px;
+					background: $light-gray;
+
 					cursor: default;
 					user-select: none;
 				}
 			}
 
-			.draft {
-				padding-bottom: 46px;
+			&.draft {
 				cursor: default;
 
-				opacity: 0.5;
+				opacity: 0.75;
 				user-select: none;
-
-				p {
-					display: none;
-				}
 			}
 
 			.embed-options {
@@ -860,7 +900,7 @@
 
 		border-bottom: 1px #0093e7 solid;
 		color: #0093e7;
-		
+
 		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
@@ -942,23 +982,21 @@
 			}
 
 			.widget_list {
-				.widget {
-					&:hover {
-						background: #1b304b;
-					}
-
-					.highlighted {
-						background-color: #ffd800;
-					}
-				}
-
 				.my-widgets-instance-card {
-					&:nth-child(odd):not(:hover) {
+					&:nth-child(odd):not(:hover):not(:focus) {
 						background: #21232a;
 					}
 
 					&.selected:not(:hover) {
 						background: #13335b;
+					}
+
+					&:hover, &:focus {
+						background: #1b304b;
+					}
+
+					.highlighted {
+						background-color: #ffd800;
 					}
 
 					&.is_draft ul li.score {
@@ -1162,6 +1200,7 @@
 		}
 
 		.share-widget-container {
+			
 			.share-widget-options-first {
 				border-left: 8px solid rgba(239, 129, 82, 0.5);
 			}
@@ -1231,5 +1270,217 @@
 	a {
 		margin-top: auto;
 		width: fit-content;
+	}
+}
+
+@media (max-width: 950px) {
+	.my_widgets {
+		.container {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+
+			.widget_list
+				{
+					ul {
+						li {
+							&.title {
+								width: 300%;
+							}
+						}
+					}
+				}
+
+			section.directions {
+
+				&.unchosen {
+					
+					min-height: 650px;
+
+					&:not(.bearded), &.bearded {
+						background: #ffffff url('/img/kogneato_mywidgets_pointing_down.svg')55% 15%/250px auto no-repeat;
+					}
+
+					h1 {
+						margin: 15% 0 0 0;
+					}
+
+				}
+			}
+
+			.container_main-content {
+				width: 100%;
+				box-shadow: none;
+				padding-left: 0%;
+			}
+
+			section.page {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				width: auto;
+				margin: 0;
+			}
+
+			aside {
+				overflow: hidden;
+				width: 100%;
+				height: 100%;
+				position: relative;
+				margin: 0;
+
+
+				.search
+				{
+
+					.textbox-background {
+						width: 95%;
+					}
+
+
+				}
+			}
+
+			.page {
+
+				#scroll-to-widget-list {
+					display: flex;
+				}
+
+				.header {
+					display: flex;
+					justify-content: center;
+					width: 100%;
+					padding: 2.5em 0 0 0;
+				}
+
+				.overview {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					width: auto;
+
+					.icon_container {
+						padding: 10px;
+						margin: 0 auto;
+					}
+					
+					.controls {
+						width: auto;
+						height: auto;
+
+						.button-list {
+							width: auto;
+							justify-content: center;
+							padding: 0;
+						}
+
+						.additional_options {
+							width: 40%;
+							margin: 20px auto 10px auto;
+						}
+					}
+				}
+
+				.share-widget-container {
+					width: auto;
+				}
+			}
+
+			aside .search .textbox {
+				width: 70%;
+			}
+		}
+	}
+
+	.scores {
+		width: 90%;
+		margin: 15px 5%;
+
+		ul.numeric {
+			display: none;
+		}
+	}
+
+	.modal {
+		.collaborate-modal {
+			.user-add {
+				font-size: 13px;
+			}
+		}
+	}
+
+	.warning-modal {
+		display: grid;
+		width: 100%;
+		.title {
+			margin-left: 26%;
+			margin-bottom: -10px;
+			font-size: 20px;
+		}
+
+		.buttons {
+			margin-left: 25%;
+		}
+		.content {
+			margin: 0;
+			width: 350px;
+			display: grid;
+			p
+			{
+				position: relative;
+				left:40%
+			}
+			h3
+			{
+				position:relative;
+				left:47%;
+				margin-bottom: -10px;
+			}
+			ul {
+				width:100%;
+				margin-left:38%;
+			}
+		}
+		.close-button {
+			top: 16px;
+		}
+	}
+
+	.darkMode .my_widgets .container {
+		.container_main-content {
+			box-shadow: none;
+		}
+
+		section.directions {
+			&.unchosen {
+				&:not(.bearded), &.bearded {
+					background: #21232a url('/img/kogneato_mywidgets_pointing_down_dark.svg')55% 15%/250px auto no-repeat;
+				}
+			}
+		}
+
+		.page {
+			#scroll-to-widget-list {
+				background-color: $color-features-dark;
+
+				&:hover, &:focus {
+					background-color: $color-features;
+				}
+			}
+		}
+	}
+}
+
+@media  (max-width: 580px) {
+	.my_widgets .container .page .overview .controls .additional_options {
+		width: 60%;
+	}
+
+	.scores {
+		.scoreWrapper {
+			transform-origin: center left;
+			transform: scale(0.8)
+		}
 	}
 }

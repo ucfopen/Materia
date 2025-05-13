@@ -53,6 +53,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 					type='text'
 					value={searchText}
 					onChange={handleSearchInputChange}
+					aria-label='Search your widgets'
 				/>
 				<div className='search-icon'>
 					<svg viewBox='0 0 250.313 250.313'>
@@ -69,12 +70,12 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	}
 
 	return (
-		<aside className='my-widgets-side-bar'>
+		<aside className='my-widgets-side-bar' id='instance-list'>
 			<div className='top'>
 				<h1>Your Widgets:</h1>
 			</div>
 			{searchBoxRender}
-			<div className='widget_list' data-container='widget-list'>
+			<div className='widget_list' data-container='widget-list' role='tablist'>
 				{widgetInstanceElementsRender}
 			</div>
 		</aside>

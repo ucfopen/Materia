@@ -183,6 +183,10 @@ const MyWidgetSelectedInstance = ({
 		}
 	}
 
+	const scrollToInstances = (evt) => {
+		document.getElementById('instance-list').scrollIntoView({ behavior: 'smooth' })
+	}
+
 	const editClickHandler = () => onEditClick(inst)
 	const collaborateClickHandler = () => showModal(setShowCollab)
 	const copyClickHandler = () => showModal(setShowCopy)
@@ -366,10 +370,12 @@ const MyWidgetSelectedInstance = ({
 		mainContentRender = <LoadingIcon/>
 	} else {
 		mainContentRender = <>
+		<div className='widget-info'>
 		<div className='header'>
-			<h1>{inst.name}</h1>
+			<h1 aria-live='polite'>{inst.name}</h1>
 		</div>
-		<div className='overview'>
+			<button id='scroll-to-widget-list' onClick={scrollToInstances}>Widget Selection</button>
+			<div className='overview'>
 			<div className={`icon_container med_${beardMode ? beard : ''} ${beardMode ? 'big_bearded' : ''}`} >
 				<img className='icon'
 					src={iconUrl(`${window.location.origin}/widget/`, inst.widget.dir, 275)}
@@ -384,6 +390,7 @@ const MyWidgetSelectedInstance = ({
 						<a id='preview_button'
 							className={`action-button green ${ !inst.widget.is_playable ? 'disabled' : '' }`}
 							target='_blank'
+							role="button"
 							href={inst.preview_url}>
 							<svg className='preview-svg' viewBox='-40 32 155 70' width='125'>
 								<path d='M 108 44 H 11 a 30 30 90 1 0 0 45 H 108 C 110 89 111 88 111 86 V 47 C 111 45 110 44 108 44'
@@ -397,22 +404,30 @@ const MyWidgetSelectedInstance = ({
 					</li>
 					<li>
 						<a id='edit_button'
+							tabIndex="0"
+							role="button"
 							className={`action-button aux_button ${state.perms.editable ? '' : 'disabled'} `}
+							disabled={state.perms.editable}
 							onClick={editClickHandler}>
 							<span className='pencil'></span>
 							Edit Widget
 						</a>
 					</li>
 				</ul>
-				<ul className='options'>
+				<ul className='options' role='menu'>
 					<li className='share'>
 						<div className={`link ${state.perms.stale || permsFetching ? 'disabled' : ''}`}
+							role='menuitem'
+							tabIndex="0"
 							onClick={collaborateClickHandler}>
 							{collabLabel}
 						</div>
 					</li>
 					<li className={`copy ${state.can.copy ? '' : 'disabled'}`}>
 						<div className={`link ${state.can.copy ? '' : 'disabled'}`}
+							role='menuitem'
+							aria-disabled={!state.can.copy}
+							tabIndex="0"
 							id='copy_widget_link'
 							onClick={copyClickHandler}>
 							Make a Copy
@@ -420,6 +435,9 @@ const MyWidgetSelectedInstance = ({
 					</li>
 					<li className={`delete ${state.can.delete ? '' : 'disabled'}`}>
 						<div className={`link ${state.can.delete ? '' : 'disabled'}`}
+							role='menuitem'
+							aria-disabled={!state.can.delete}
+							tabIndex="0"
 							id='delete_widget_link'
 							onClick={deleteClickHandler}>
 							Delete
@@ -458,13 +476,16 @@ const MyWidgetSelectedInstance = ({
 					</dl>
 					<a id='edit-availability-button'
 						role='button'
+						tabIndex="0"
 						className={!state.can.share || inst.is_draft ? 'disabled' : ''}
 						disabled={!state.can.share || inst.is_draft}
+						aria-disabled={!state.can.share || inst.is_draft}
 						onClick={onPopup}>
 						{inst.is_draft ? 'Publish to Edit Settings' : 'Edit Settings'}
 					</a>
 				</div>
 			</div>
+				</div>
 
 			<div className={`share-widget-container closed ${inst.is_draft ? 'draft' : ''}`}>
 				<h3>
@@ -481,11 +502,15 @@ const MyWidgetSelectedInstance = ({
 					<p>
 						Provides a snippet of HTML to embed your widget directly in a webpage. Widgets
 						embedded in such a way do not synchronize scores or other data.
-						<span
-							className='show-embed link'
-							onClick={toggleShowEmbed}>
-							&nbsp;Show the embed code
-						</span>.
+						{
+							! inst.is_draft ?
+							<span
+								className='show-embed link'
+								onClick={toggleShowEmbed}>
+								&nbsp;Show the embed code.
+							</span>
+							: ' Publish your widget to access the embed code.'
+						}
 					</p>
 
 				{ embedInfoRender }
@@ -499,7 +524,7 @@ const MyWidgetSelectedInstance = ({
 							type='text'
 							readOnly
 							disabled={inst.is_draft}
-							value={state.playUrl}
+							value={inst.is_draft ? 'Play URL only available for published widgets.' : state.playUrl}
 						/>
 					</div>
 				</div>
@@ -521,7 +546,7 @@ const MyWidgetSelectedInstance = ({
 
 
 	return (
-		<section className='page'>
+		<section className='page' role='tabpanel'>
 			{mainContentRender}
 		</section>
 	)

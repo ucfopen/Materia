@@ -307,7 +307,7 @@ header {
 	}
 
 	a {
-		color: #0093e7; 
+		color: #0093e7;
 		text-decoration: none;
 
 		&:hover {
@@ -527,13 +527,13 @@ header {
 		height: 16px;
 		margin: 0 0.5em 0 0;
 		padding: 0;
-	
+
 		background-color: #fff;
 		border: 2px solid #7e7e7e;
 		border-radius: 4px;
-		
+
 		transition: all 0.3s;
-	
+
 		&:after {
 			content: '✓';
 			position: absolute;
@@ -575,13 +575,13 @@ header {
 		height: 16px;
 		margin: 0 0.5em 0 0;
 		padding: 0;
-	
+
 		background-color: #fff;
 		border: 2px solid #7e7e7e;
 		border-radius: 50%;
-		
+
 		transition: all 0.3s;
-	
+
 		&:after {
 			content: '';
 			position: absolute;
@@ -598,6 +598,9 @@ header {
 }
 
 .darkMode header {
+
+	background: #1d1f25;
+
 	&.logged_in {
 		background: #1d1f25 url(/img/header_border_alt.png) 0% 100% repeat-x;
 	}
@@ -613,6 +616,14 @@ header {
 	{
 		a {
 			color: $color-text-light-gray;
+		}
+	}
+
+	button#mobile-menu-toggle div {
+		background: #dbdbdb;
+
+		&:before, &:after {
+			background: #dbdbdb;
 		}
 	}
 
@@ -991,28 +1002,6 @@ h1.logo {
 	}
 }
 
-@media only screen and (min-device-pixel-ratio: 2),
-	only screen and (-webkit-min-device-pixel-ratio: 2) {
-	h1.logo a {
-		background: url('/img/materia-logo-default-lightmode.svg') 50% 100% no-repeat;
-		background-size: 80px auto;
-	}
-
-	header {
-		background: #fff;
-		background-size: 12px 6px;
-	}
-	.darkMode h1.logo a {
-		background: url('/img/materia-logo-default-darkmode.svg') 50% 100% no-repeat;
-		background-size: 80px auto;
-	}
-
-	.darkMode header {
-		background: #1d1f25;
-		background-size: 12px 6px;
-	}
-}
-
 .action_button {
 	padding: 7px 23px 8px 23px;
 	background-color: #ffd439;
@@ -1092,7 +1081,7 @@ h1.logo {
 	}
 }
 
-.darkMode .page, .widget {
+.darkMode .page, .darkMode .widget {
 	.alert-wrapper {
 		background: rgba(0,0,0,0.66);
 

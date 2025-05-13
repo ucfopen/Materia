@@ -6,9 +6,9 @@ class Auth_Login_LtiAuth extends Auth_Login_Materiaauth
 {
 	static public function restrict_logins($bypass=false)
 	{
-		// allow admin logins or do nothing if normal logins aren't restricted
-		if ($bypass || ! \Config::get('auth.restrict_logins_to_lti_single_sign_on', true)) return;
-
-		throw new \HttpNotFoundException();
+		// this method can be extended to limit logins
+		// the prior restrict_logins_to_lti_single_sign_on configuration check that was present here has been moved:
+		// the user and widget controllers perform the config check and serve different js based on whether the condition is met.
+		return;
 	}
 }
