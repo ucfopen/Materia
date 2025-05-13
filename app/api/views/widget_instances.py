@@ -34,7 +34,6 @@ from util.message_util import Msg, MsgBuilder
 from util.perm_manager import PermManager
 from util.widget.instance.instance_util import WidgetInstanceUtil
 
-# from pprint import pformat
 logger = logging.getLogger("django")
 
 
@@ -79,6 +78,9 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             or self.action == "export_playdata"
         ):
             permission_classes = [HasPermsOrElevatedAccess]
+
+        elif self.action == "undelete":
+            permission_classes = [IsSuperOrSupportUser]
 
         # any authenticated user can ask what users have what perms on an instance - but only owners can update perms
         elif self.action == "perms":
@@ -171,9 +173,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         instance = self.get_object()
-
-        # Clear all permissions on the object
-        PermManager.clear_all_perms_for_object(instance)
 
         # TODO send event trigger
 
@@ -378,3 +377,17 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             f'attachment; filename="export_{instance.name}.{file_ext}"'
         )
         return resp
+
+    @action(detail=True, methods=["post"])
+    def undelete(self, request, pk=None):
+        instance = WidgetInstance.objects.get(id=pk)
+        if not instance:
+            return ValidationError("Must provide a valid instance ID.")
+
+        if not instance.is_deleted:
+            return ValidationError("Instance is not deleted.")
+
+        instance.is_deleted = False
+        instance.save()
+
+        return Response({"success": True})

@@ -75,6 +75,9 @@ module.exports = {
 	],
 	resolve: {
 		extensions: ['.js', '.jsx'],
+		alias: {
+			'@': [path.resolve(__dirname, 'theme'), path.resolve(__dirname, 'src')]
+		},
 	},
 	optimization: {
 		splitChunks: {

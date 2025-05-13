@@ -70,7 +70,7 @@ const WidgetInstall = ({refetchWidgets}) => {
     } else {
         uploadRender = <>
             <p>Widget uploader is <em>disabled</em>.</p>
-            <p>To enable, alter the "enable_admin_uploader" configuration option in config/materia.php.</p>
+            <p>To enable, add the ENABLE_ADMIN_UPLOADER flag to your server configuration.</p>
             { herokuWarning }
         </>
     }

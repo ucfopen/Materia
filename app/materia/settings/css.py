@@ -21,4 +21,6 @@ CSS_GROUPS = {
     "settings": [CSS_BASEURL + "settings.css"],
     "scores": [CSS_BASEURL + "scores.css"],
     "media": [CSS_BASEURL + "media.css"],
+    "support": [CSS_BASEURL + "support.css"],
+    "user_admin": [CSS_BASEURL + "user-admin.css"],
 }

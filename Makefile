@@ -76,6 +76,12 @@ clean-volumes:  ## Stops and removes existing all existing containers and volume
 	@echo "${YELLOW}Stopping running containers and purging existing volumes${RESET}"
 	$(DOCKER_COMPOSE) down -v
 
+clean-volumes-image:  ## Stops and removes all existing containers and volumes and removes the app container's local Docker image
+	@echo "${YELLOW}Stopping running containers and purging existing volumes${RESET}"
+	$(DOCKER_COMPOSE) down -v
+	@echo "${YELLOW}Removing app container image${RESET}"
+	@docker rmi materia-django-python
+
 #================================================================================
 # Managing the Docker environment (e.g. starting, stopping, deleting containers)
 #================================================================================
@@ -157,6 +163,9 @@ shell: ## Run a Python shell in the Django context
 
 manage: ## Run Django management command. Example: make manage command="showmigrations"
 	@$(DOCKER_COMPOSE) run --rm python python manage.py $(command)
+
+restart: ## Restarts the application without forcing containers to be restarted
+	@$(MAKE) run-docker-command DOCKER_COMMAND="touch /var/www/html/materia.wsgi"
 
 .PHONY: help
 help:

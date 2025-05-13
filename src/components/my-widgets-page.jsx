@@ -46,7 +46,7 @@ const MyWidgetsPage = () => {
 		enableLoginButton: false
 	})
 
-	const instanceList = useInstanceList()
+	const instanceList = useInstanceList("me")
 	const [invalidLogin, setInvalidLogin] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
 

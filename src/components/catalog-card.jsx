@@ -30,11 +30,11 @@ const CatalogCard = ({
 		</div>
 	}
 
-	const supportedDataRender = meta_data.supported_data.map(supported =>
+	const supportedDataRender = meta_data.supported_data?.map(supported =>
 		<li className={`${activeFilters.includes(supported) ? 'selected' : ''}`} key={supported}>{supported}</li>
 	)
 
-	const featuresRender = meta_data.features.map(filter =>
+	const featuresRender = meta_data.features?.map(filter =>
 		<li className={`${activeFilters.includes(filter) ? 'selected' : ''}`} title={filter} key={filter}>{filter}</li>
 	)
 

@@ -122,3 +122,74 @@ class FileAssetStorageDriver:
         img.save(resized_asset_path, format=new_file_format)
 
         return resized_asset_path
+
+    def migrate_to(driver, cleanup_delete=False):
+        from core.models import Asset
+
+        if driver == "s3":
+            from .s3 import S3AssetStorageDriver
+
+            s3_client = S3AssetStorageDriver.get_s3(True)
+            for asset_filename in os.listdir(settings.DIRS["media"]):
+                # this will always be there, ignore it
+                if asset_filename == "uploads":
+                    continue
+
+                asset_id, size = asset_filename.split("_")
+                asset_full_path = FileAssetStorageDriver.get_local_file_path(
+                    asset_id, size
+                )
+
+                try:
+                    asset_obj = Asset.objects.get(id=asset_id)
+                    s3_client.upload_file(
+                        Filename=asset_full_path,
+                        Bucket=settings.DRIVER_SETTINGS["s3"]["bucket"],
+                        Key=S3AssetStorageDriver.get_key_name(asset_id, size),
+                        ExtraArgs={"ContentType": asset_obj.get_mime_type()},
+                    )
+                    if cleanup_delete:
+                        os.remove(asset_full_path)
+                except Asset.DoesNotExist:
+                    logger.error(
+                        f"File {asset_filename} has no corresponding Asset object"
+                    )
+                    continue
+
+        elif driver == "db":
+            from .db import DBAssetStorageDriver
+
+            for asset_filename in os.listdir(settings.DIRS["media"]):
+                # this will always be there, ignore it
+                if asset_filename == "uploads":
+                    continue
+
+                asset_id, size = asset_filename.split("_")
+
+                # DB only stores originals, ignore others
+                if size != "original":
+                    # Unless we're getting rid of everything as we go
+                    # Delete the file so it's not lingering after the original is migrated
+                    if cleanup_delete:
+                        extra_asset_path = FileAssetStorageDriver.get_local_file_path(
+                            asset_id, size
+                        )
+                        os.remove(extra_asset_path)
+                    else:
+                        continue
+                try:
+                    asset_obj = Asset.objects.get(id=asset_id)
+                    asset_full_path = FileAssetStorageDriver.get_local_file_path(
+                        asset_id, "original"
+                    )
+
+                    DBAssetStorageDriver.store(asset_obj, asset_full_path, "original")
+                    if cleanup_delete:
+                        os.remove(asset_full_path)
+                except Asset.DoesNotExist:
+                    logger.error(
+                        f"File {asset_filename} has no corresponding Asset object"
+                    )
+                    continue
+        else:
+            raise Exception("File Driver: Invalid driver option selected for migration")

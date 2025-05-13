@@ -243,7 +243,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 			_onLoadFail('Unable to get widget info.')
 		}
 		else if (inst && qset) {
-			const fullscreen = inst.widget.meta_data.features.find((f) => f.toLowerCase() === 'fullscreen')
+			const fullscreen = inst.widget.meta_data.features?.find((f) => f.toLowerCase() === 'fullscreen')
 			let enginePath
 
 			if (!isPreview && playId === null) {

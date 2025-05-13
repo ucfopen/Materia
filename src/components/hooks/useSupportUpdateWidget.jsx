@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from 'react-query'
-import { apiSaveWidget } from '../../util/api'
+import { apiUpdateWidgetInstance } from '../../util/api'
 
 export default function useSupportUpdateWidget() {
 	const queryClient = useQueryClient()
 
 	// Optimistically updates the cache value on mutate
 	return useMutation(
-		({ args }) => apiSaveWidget(args),
+		apiUpdateWidgetInstance,
 		{
 			onSuccess: (data, variables) => {
 				// Refresh widgets
@@ -18,10 +18,9 @@ export default function useSupportUpdateWidget() {
 
 				variables.successFunc()
 			},
-			onError: (err, variables, context) => {
+			onError: (error, variables, context) => {
 				queryClient.setQueryData('widgets', context.previousValue)
-
-				variables.errorFunc(err)
+				variables.errorFunc()
 			}
 		}
 	)

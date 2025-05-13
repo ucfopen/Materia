@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetUser, apiSearchInstances} from '../util/api'
+import { apiGetUser, apiGetWidgetInstance} from '../util/api'
 import SupportSearch from './support-search'
 import SupportSelectedInstance from './support-selected-instance'
 import Header from './header'
@@ -26,7 +26,7 @@ const SupportPage = () => {
 
 	const { data: instFromHash } = useQuery({
 		queryKey: ['search-widgets', widgetHash],
-		queryFn: () => apiSearchInstances(widgetHash),
+		queryFn: () => apiGetWidgetInstance(widgetHash),
 		enabled: widgetHash != undefined && widgetHash != selectedInstance?.id,
 		staleTime: Infinity,
 		retry: false,
@@ -51,8 +51,8 @@ const SupportPage = () => {
 
 
 	useEffect(() => {
-		if (instFromHash && instFromHash.pagination && instFromHash.pagination.length > 0) {
-			setSelectedInstance(instFromHash.pagination[0])
+		if (instFromHash) {
+			setSelectedInstance(instFromHash)
 		}
 	},[instFromHash])
 

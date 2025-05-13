@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useQuery, useInfiniteQuery } from 'react-query'
 import LoadingIcon from './loading-icon'
 import {apiGetUser, apiGetUserPlaySessions} from '../util/api'
+import useGetPlaySessions from './hooks/useGetPlaySessions'
 import Header from './header'
 import './profile-page.scss'
 import Alert from './alert'
@@ -14,8 +15,8 @@ const ProfilePage = () => {
 		fatal: false,
 		enableLoginButton: false
 	})
-	const [activityPage, setActivityPage] = useState(1)
 	const [activityData, setActivityData] = useState([])
+	let userActivity =  useGetPlaySessions("me", false)
 
 	const mounted = useRef(false)
 	const { data: currentUser, isFetching} = useQuery({
@@ -37,44 +38,9 @@ const ProfilePage = () => {
 		}
 	})
 
-	const {
-		data: userActivity,
-		isFetching: isFetchingActivity,
-		isFetchingNextPage: isFetchingNextActivityPage,
-		hasNextPage,
-		fetchNextPage: fetchNextActivityPage
-		} = useInfiniteQuery({
-			queryKey: 'user-activity',
-			queryFn: apiGetUserPlaySessions,
-			getNextPageParam: (lastPage, pages) => {
-				return lastPage.next != null ? activityPage : undefined
-			},
-			staleTime: Infinity,
-			onError: (err => {
-				// @TODO ensure error catching corresponds to message payload from server
-				if (err.message == "Invalid Login") {
-					setAlertDialog({
-						enabled: true,
-						message: 'You must be logged in to view your profile.',
-						title: 'Login Required',
-						fatal: true,
-						enableLoginButton: true
-					})
-				}
-			})
-	})
-
 	useEffect(() => {
-		if (mounted.current && ! isFetching && ! isFetchingNextActivityPage) {
-			fetchNextActivityPage()
-		}
-	}, [activityPage])
-
-	// @TODO widget_name and inst_name are not present in log records
-	// @TODO make this more robust?
-	useEffect(() => {
-		if (userActivity?.pages) {
-			const newActivity = userActivity.pages[0].results.map((log) => {
+		if (userActivity?.plays) {
+			const newActivity = userActivity.plays.map((log) => {
 				return {
 					is_complete: log.is_complete,
 					link: _getLink(log),
@@ -86,9 +52,9 @@ const ProfilePage = () => {
 					play_id: log.id
 				}
 			})
-			setActivityData(data => [...data, ...newActivity])
+			setActivityData(data => [...newActivity])
 		}
-	},[userActivity, userActivity?.pages])
+	},[userActivity?.plays.length])
 
 	useEffect(() => {
 		mounted.current = true
@@ -113,7 +79,7 @@ const ProfilePage = () => {
 	}
 
 	const _getMoreLogs = () => {
-		setActivityPage(previous => previous + 1)
+		if (userActivity?.hasNextPage) userActivity.fetchNextPage()
 	}
 
 	let noActivityRender = <p className='no_logs'>You don't have any activity! Once you play a widget, your score history will appear here.</p>
@@ -146,7 +112,7 @@ const ProfilePage = () => {
 	}
 
 	let mainContentRender = <section className='page'><div className='loading-icon-holder'><LoadingIcon /></div></section>
-	if ( !isFetching && !isFetchingActivity && currentUser) {
+	if ( !isFetching && !userActivity?.isFetching && currentUser) {
 		mainContentRender =
 			<section className="page user">
 
@@ -170,20 +136,20 @@ const ProfilePage = () => {
 							</span>
 						</div>
 						<h2>
-						{`${currentUser.first} ${currentUser.last}`}
+						{`${currentUser.first_name} ${currentUser.last_name}`}
 						</h2>
 					</div>
 
 				<span className="activity_subheader">Activity</span>
 
 				<div className='activity'>
-					<div className={`loading-icon-holder ${isFetchingActivity ? 'loading' : ''}`}><LoadingIcon /></div>
+					<div className={`loading-icon-holder ${userActivity?.isFetching ? 'loading' : ''}`}><LoadingIcon /></div>
 					<ul className='activity_list'>
 						{activityData.length ? activityContentRender : noActivityRender}
 					</ul>
 				</div>
 
-				{ hasNextPage ? <a className="show_more_activity action_button" onClick={_getMoreLogs}>{ isFetchingNextActivityPage ? <span className='message_loading'>Loading...</span> : <span>Show more</span>}</a> : '' }
+				{ userActivity?.hasNextPage ? <a className="show_more_activity action_button" onClick={_getMoreLogs}>{ userActivity.isFetching ? <span className='message_loading'>Loading...</span> : <span>Show more</span>}</a> : '' }
 
 			</section>
 	}

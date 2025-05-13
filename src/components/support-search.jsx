@@ -9,7 +9,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 	const [error, setError] = useState('')
 	const [showDeleted, setShowDeleted] = useState(false)
 	const debouncedSearchTerm = useDebounce(searchText, 500)
-	const instanceList = useSearchInstances(debouncedSearchTerm)
+	const instanceList = useSearchInstances(debouncedSearchTerm, showDeleted)
 
 	useEffect(() => {
 		if (instanceList.error) {

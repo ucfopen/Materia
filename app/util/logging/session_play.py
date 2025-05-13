@@ -12,6 +12,14 @@ from django.utils.timezone import make_aware
 from scoring.manager import ScoringUtil
 from util.widget.validator import ValidatorUtil
 
+# <<<<<<< HEAD
+
+
+# =======
+# from util.scoring.scoring_util import ScoringUtil
+# from util.widget.validator import ValidatorUtil
+
+# >>>>>>> django-working
 # This class should be how the app interacts with play sessions. It's capable of both real play sessions and preview
 # play sessions, and contains to a few util functions to help. All play session data is stored under self.data.
 # Analogous to MateriaPHP's Session_Play class
@@ -42,9 +50,15 @@ class SessionPlay:
                 self.data.user = None  # TODO
                 self.data.ip = ""  # TODO
                 self.data.is_complete = False
+                # <<<<<<< HEAD
                 self.data.score = 1
                 self.data.percent = 1
                 self.data.elapsed = 1
+                # =======
+                #                 self.data.score = 0
+                #                 self.data.percent = 0
+                #                 self.data.elapsed = 0
+                # >>>>>>> django-working
                 self.data.context_id = ""
                 self.data.semester = (
                     DateRange.objects.first()
@@ -66,7 +80,11 @@ class SessionPlay:
     def start(
         self,
         instance: WidgetInstance,
+        # <<<<<<< HEAD
         user_id: int = 1,
+        # =======
+        #         user_id: int = 0,
+        # >>>>>>> django-working
         context_id: str = "",
         is_preview: bool = False,
     ) -> str | None:
@@ -85,8 +103,13 @@ class SessionPlay:
         self.data.referrer_url = ""
 
         self.data.ip = ""  # TODO
+        # <<<<<<< HEAD
         self.data.elapsed = 1
         self.data.is_valid = True  # TODO
+        # =======
+        #         self.data.elapsed = 0
+        #         self.data.is_valid = "1"  # TODO
+        # >>>>>>> django-working
         self.data.is_complete = False
         self.data.score = 1.0  # TODO
         self.data.score_possible = 1  # TODO
@@ -94,7 +117,10 @@ class SessionPlay:
 
         # TODO handle is_preview
 
-        self.data.semester = DateRange.objects.get(pk=5)  # TODO
+        current_time = make_aware(datetime.now())
+        self.data.semester = DateRange.objects.get(
+            start_at__lte=current_time, end_at__gt=current_time
+        )
 
         # TODO clear play logs summary cache
 
@@ -176,7 +202,11 @@ class SessionPlay:
     def _save_new_play(self) -> bool:
         # Generate a valid id
         log_id = ""
+        # <<<<<<< HEAD
         for i in range(1, 25):  # TODO: make max attempts a config variable
+            # =======
+            #         for i in range(0, 25):  # TODO: make max attempts a config variable
+            # >>>>>>> django-working
             log_id = str(uuid.uuid4())
             print(f"Log id is {log_id}")
             if len(LogPlay.objects.filter(pk=log_id)) == 0:
@@ -265,7 +295,7 @@ class SessionPlay:
             date = DateRange.objects.filter(semester=semester, year=year).first()
 
         # Form main query
-        query = LogPlay.objects.filter(instance=instance)
+        query = LogPlay.objects.filter(instance=instance).order_by("-created_at")
 
         # Filter by date
         if date is not None:

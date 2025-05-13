@@ -8,6 +8,7 @@ from core.serializers import AssetSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from util.message_util import MsgBuilder
 
@@ -17,7 +18,7 @@ logger = logging.getLogger("django")
 class AssetViewSet(viewsets.ModelViewSet):
     queryset = Asset.objects.all()
     serializer_class = AssetSerializer
-    permission_classes = [HasPermsOrElevatedAccess]
+    permission_classes = [IsAuthenticated, HasPermsOrElevatedAccess]
 
     filter_backends = [AssetFilterBackend, DjangoFilterBackend]
 
