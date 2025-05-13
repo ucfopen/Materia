@@ -637,6 +637,7 @@ class Question(models.Model):
     # base 64 encoded json question
     data = models.TextField()
     created_at = models.DateTimeField(default=datetime.now)
+    type = models.CharField(max_length=50, default="QA")
 
     class Meta:
         db_table = "question"
