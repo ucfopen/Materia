@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0022_readd_qset_to_question'),
+        ("core", "0023_readd_qset_to_question"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='question',
-            old_name='questions_list',
-            new_name='data',
+            model_name="question",
+            old_name="questions_list",
+            new_name="data",
         ),
     ]
