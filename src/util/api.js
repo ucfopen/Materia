@@ -344,19 +344,8 @@ export const apiGetStorageData = instId => {
 }
 
 export const apiCreatePlaySession = ({ widgetId }) => {
-// <<<<<<< HEAD
-	console.log('apiCreatePlaySession', widgetId)
-	return fetch('/api/play-sessions/', {
-		method: 'POST',
-		body: JSON.stringify({ instanceId: widgetId }),
-		headers: {
-			'content-type': 'application/json',
-			'X-CSRFToken': getCSRFToken(),
-		}
-// =======
-// 	return handleRequest(methods.POST, '/api/play-sessions/', {
-// 		instanceId: widgetId,
-// >>>>>>> django-working
+	return handleRequest(methods.POST, '/api/play-sessions/', {
+		instanceId: widgetId,
 	})
 }
 
@@ -376,13 +365,7 @@ export const apiGenerateQset = ({instId, widgetId, topic, includeImages, numQues
 }
 
 export const apiSessionVerify = (play_id) => {
-// <<<<<<< HEAD
-	console.log('apiSessionVerify', play_id)
-	return fetch(`/api/play-sessions/${play_id}/verify/`)
-	.then(resp => resp.json())
-// =======
-// 	return handleRequest(methods.GET, `/api/play-sessions/${play_id}/verify/`)
-// >>>>>>> django-working
+	return handleRequest(methods.GET, `/api/play-sessions/${play_id}/verify/`)
 	.then(data => {
 		return data.valid
 	})
@@ -394,21 +377,7 @@ export const apiSavePlayStorage = ({ play_id, logs }) => {
 }
 
 export const apiSavePlayLogs = ({ request }) => {
-// <<<<<<< HEAD
-	const playId = request.playId ?? request.previewPlayId;
-	console.log('apiSavePlayLogs', request.playId, request.previewPlayId)
-	return fetch(`/api/play-sessions/${playId}/`, {
-		method: 'PUT',
-		body: JSON.stringify(request),
-		headers: {
-			'X-CSRFToken': getCSRFToken(),
-			'content-type': 'application/json'
-		}
-	})
-	.then(handleErrors)
-// =======
-// 	return handleRequest(methods.PUT, `/api/play-sessions/${request.playId}/`, { request })
-// >>>>>>> django-working
+	return handleRequest(methods.PUT, `/api/play-sessions/${request.playId}/`, { request })
 }
 
 export const apiGetQuestionsByType = (arrayOfQuestionIds, questionTypes) => {
@@ -438,16 +407,8 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 
 /** Controller_Api_User */
 
-// <<<<<<< HEAD
-export const apiGetUserPlaySessions = ({pageParam = 1}) => {
-	console.log('apiGetUserPlaySessions', pageParam)
-	return fetch(`/api/play-sessions/?include_activity=true&page=${pageParam}`)
-		.then(resp => resp.json())
-		.then(data => data)
-// =======
-// export const apiGetUserPlaySessions = (user, pageParam = 1) => {
-// 	return handleRequest('GET', `/api/play-sessions/?user=${user}&include_activity=true&page=${pageParam}`)
-// >>>>>>> django-working
+export const apiGetUserPlaySessions = (user, pageParam = 1) => {
+	return handleRequest('GET', `/api/play-sessions/?user=${user}&include_activity=true&page=${pageParam}`)
 }
 
 export const apiUpdateUserSettings = (settings) => {
