@@ -4,7 +4,6 @@ from django.http import (
     Http404,
     HttpRequest,
     HttpResponseBadRequest,
-    HttpResponseForbidden,
     HttpResponseNotFound,
     HttpResponseRedirect,
 )
@@ -17,21 +16,16 @@ class ScoresView(TemplateView):
     template_name = "react.html"
     is_preview = False
 
-    # Note: play_id isn't used on the backend, though the frontend will look for it in the URL
-    def get_context_data(self, widget_instance_id, play_id=None):
-        is_embedded = self.kwargs.get("is_embedded", False)
-        token = self.kwargs.get("token")
+    def get(self, request, *args, **kwargs):
+        widget_instance_id = kwargs.get("widget_instance_id")
+        token = kwargs.get("token")
+        is_embedded = kwargs.get("is_embedded", False)
 
-        # Get widget instance
         instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
         if not instance:
-            return HttpResponseNotFound()  # TODO must return context
+            return HttpResponseNotFound()
 
-        # Verify user is able to play this widget
         if not instance.playable_by_current_user(self.request.user):
-            # TODO:
-            # Session::set_flash('notice', 'Please log in to view your scores.');
-            # Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
             return ContextUtil.create(
                 title="Invalid",
                 js_resources=[],
@@ -40,17 +34,19 @@ class ScoresView(TemplateView):
                 request=self.request,
             )
 
-        return ContextUtil.create(
+        context = ContextUtil.create(
             title="Score Results",
             js_resources=settings.JS_GROUPS["scores"],
             css_resources=settings.CSS_GROUPS["scores"],
             js_globals={
-                "IS_EMBEDDED": self.kwargs.get("is_embedded", False),
+                "IS_EMBEDDED": is_embedded,
                 "IS_PREVIEW": self.is_preview,
-                "LAUNCH_TOKEN": self.kwargs.get("token", None),
+                "LAUNCH_TOKEN": token,
             },
             request=self.request,
         )
+
+        return self.render_to_response(context)
 
 
 # Allow LTI launches to score screens

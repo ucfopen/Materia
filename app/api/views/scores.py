@@ -79,7 +79,6 @@ class ScoresApi:
                 )
 
             except Exception as e:
-                print("EXCEPTION!!!!!!")
                 print(f"Score error for play {play.id}: {e}")
 
         attempts_used = len(
