@@ -9,12 +9,6 @@ from core.models import Widget, WidgetInstance, WidgetMetadata, WidgetQset
 from django.conf import settings
 from django.utils.timezone import make_aware
 
-# <<<<<<< HEAD
-# from util.unique_id import unique_id
-
-# =======
-# >>>>>>> django-working
-
 logger = logging.getLogger("django")
 
 

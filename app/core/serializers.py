@@ -76,30 +76,24 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id",
-            # <<<<<<< HEAD
-            # =======
-            #             "username",
-            # >>>>>>> django-working
+            "username",
             "first_name",
             "last_name",
             "email",
             "avatar",
             "profile_fields",
-            # <<<<<<< HEAD
-            # =======
-            #             "date_joined",
-            #             "last_login",
-            #             "is_student",
-            #         ]
-            #
-            #         read_only_fields = [
-            #             "id",
-            #             "username",
-            #             "first_name",
-            #             "last_name",
-            #             "date_joined",
-            #             "last_login",
-            # >>>>>>> django-working
+            "date_joined",
+            "last_login",
+            "is_student",
+        ]
+
+        read_only_fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "date_joined",
+            "last_login",
             "is_student",
         ]
 
