@@ -20,4 +20,8 @@ JS_GROUPS = {
     "widget_admin": [JS_BASEURL + "widget-admin.js"],
     "user_admin": [JS_BASEURL + "user-admin.js"],
     "instance_admin": [JS_BASEURL + "support.js"],
+    "no-permission": [JS_BASEURL + "no-permission.js"],
+    "no-attempts": [JS_BASEURL + "no-attempts.js"],
+    "pre-embed": [JS_BASEURL + "pre-embed-placeholder.js"],
+    "embedded-only": [JS_BASEURL + "embedded-only.js"],
 }

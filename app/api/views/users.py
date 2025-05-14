@@ -125,7 +125,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         serializer = UserMetadataSerializer(data=request.data)
 
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             validated = serializer.validated_data
 
             user_profile, _ = UserSettings.objects.get_or_create(user=user)
@@ -145,8 +145,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(
                 {"success": True, "profile_fields": user_profile.profile_fields}
             )
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Get list of objects the user has access to. Requires elevated access for non-self.
     @action(detail=True, methods=["get"])

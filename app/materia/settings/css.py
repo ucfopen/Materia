@@ -23,4 +23,6 @@ CSS_GROUPS = {
     "media": [CSS_BASEURL + "media.css"],
     "support": [CSS_BASEURL + "support.css"],
     "user_admin": [CSS_BASEURL + "user-admin.css"],
+    "no-permission": [CSS_BASEURL + "no-permission.css"],
+    "pre-embed": [CSS_BASEURL + "pre-embed-placeholder.css"],
 }

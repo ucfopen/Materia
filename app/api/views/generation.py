@@ -1,6 +1,5 @@
 import re
 
-from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,8 +21,7 @@ class GenerateQsetView(APIView):
 
         # Get request data
         request_serializer = QsetGenerationRequestSerializer(data=request.data)
-        if not request_serializer.is_valid():
-            return Response(request_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        request_serializer.is_valid(raise_exception=True)
 
         widget_instance = request_serializer.validated_data.get("instance", None)
         widget = request_serializer.validated_data["widget"]
@@ -33,7 +31,7 @@ class GenerateQsetView(APIView):
 
         # Verify widget instance is playable (only if a valid instance id is provided)
         if widget_instance and not widget_instance.playable_by_current_user(request.user):
-            return MsgBuilder.no_login().as_drf_response()
+            return MsgBuilder.no_login(request=request).as_drf_response()
 
         # Verify widget has generation enabled
         if not widget.is_generable:
@@ -80,8 +78,7 @@ class GenerateFromPromptView(APIView):
 
         # Get request data
         request_serializer = PromptGenerationRequestSerializer(data=request.data)
-        if not request_serializer.is_valid():
-            return Response(request_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        request_serializer.is_valid(raise_exception=True)
 
         prompt = request_serializer.validated_data["prompt"]
 

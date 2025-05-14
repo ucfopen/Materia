@@ -29,7 +29,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
             return widgets
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
+        if self.action in ["list", "retrieve", "publish_perms_verify"]:
             return [permissions.AllowAny()]
         return [IsSuperuser()]
 

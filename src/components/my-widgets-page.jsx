@@ -52,7 +52,7 @@ const MyWidgetsPage = () => {
 
 	const [beardMode, setBeardMode] = useState(!!localBeard ? localBeard === 'true' : false)
 	const validCode = useKonamiCode()
-	const deleteWidget = useDeleteWidget()
+	const deleteWidget = useDeleteWidget('me')
 
 	const { data: user } = useQuery({
 		queryKey: ['user', 'me'],
@@ -123,7 +123,7 @@ const MyWidgetsPage = () => {
 			permUsers.forEach(other => {
 				othersPerms.set(other.user, rawPermsToObj(other, isEditable))
 			})
-			
+
 			setState(state => ({...state, myPerms: rawPermsToObj(ownPerms[0], isEditable), otherUserPerms: othersPerms}))
 		}
 		else if (state.selectedInst && permUsers) {
