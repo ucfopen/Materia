@@ -12,12 +12,14 @@ import os
 import types
 from datetime import datetime
 from pathlib import Path
+from smtplib import SMTPException
 from typing import Self
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.mail import send_mail
 from django.db import models, transaction
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
@@ -26,8 +28,10 @@ from django.utils.functional import classproperty
 from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
+
 from util.message_util import Msg, MsgBuilder
 from util.perm_manager import PermManager
+from util.user_util import UserUtil
 from util.widget.asset.manager import AssetManager
 from util.widget.validator import ValidatorUtil
 
@@ -564,6 +568,95 @@ class Notification(models.Model):
     avatar = models.CharField(max_length=511)
     updated_at = models.DateTimeField(default=datetime.now, null=True)
     action = models.CharField(max_length=255)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Send email, if not sent already
+        self.send_email()
+
+    @classmethod
+    def create_instance_notification(
+            cls, from_user: User, to_user: User, instance: "WidgetInstance", mode: str, new_perm: str = None
+    ) -> Self:
+        # Create some strings that will be used later
+        user_link = f"{from_user.first_name} {from_user.last_name} ({from_user.username})"
+        widget_name = instance.name
+        widget_type = instance.widget.name
+        widget_link = (f"<a href='{settings.URLS["BASE_URL"]}my-widgets#{instance.id}' target='_blank'>"
+                       f"{widget_name}</a>")
+
+        # Create permission string
+        match new_perm:
+            case ObjectPermission.PERMISSION_FULL:
+                perm_string = "Full"
+            case ObjectPermission.PERMISSION_VISIBLE:
+                perm_string = "View Scores"
+            case _:
+                perm_string = "Unknown"
+
+        # Create message
+        match mode:
+            case "disabled":
+                content = f"{user_link} is no longer sharing '{widget_name}' with you."
+            case "changed":
+                content = (f"{user_link} changed your access to widget '{widget_link}'.<br/>"
+                           f"You now have {perm_string} access.")
+            case "expired":
+                content = f"Your access to '{widget_name} has automatically expired."
+            case "deleted":
+                content = f"{user_link} deleted {widget_type} widget '{widget_name}'."
+            case "access_request":
+                content = (f"{user_link} is requesting access to your widget '{widget_link}'.<br/>"
+                           f"The widget is currently being used within a course in your LMS.")
+            case _:
+                return
+
+        # Create notification object
+        notification = cls.objects.create(
+            from_id=from_user,
+            to_id=to_user,
+            item_type=WidgetInstance.content_type.id,
+            item_id=instance.id,
+            is_email_sent=False,
+            avatar=UserUtil.get_avatar_url(from_user),
+            subject=content,
+        )
+
+        return notification
+
+    def send_email(self, force_resend: bool = False) -> bool:
+
+        # Check if emails are enabled
+        if not settings.SEND_EMAILS:
+            return False
+
+        # Check if sent already
+        if self.is_email_sent and not force_resend:
+            return False
+
+        # Check if recipient has emails enabled
+        user_settings = UserSettings.objects.filter(user=self.to_id).first()
+        if user_settings is not None:
+            notify = user_settings.get_profile_fields().get("notify", False)
+            if not notify:
+                return False
+
+        try:
+            send_mail(
+                subject=f"{settings.NAME} Notification",
+                message=self.subject,
+                html_message=self.subject,
+                from_email=f"\"{self.from_id.first_name} {self.from_id.last_name}\" <{settings.SYSTEM_EMAIL}>",
+                recipient_list=[self.to_id.email],
+            )
+            self.is_email_sent = True
+            self.save()
+            return True
+        except SMTPException as e:
+            logger.error("Failed to send email. Exception follows:")
+            logger.error(e)
+            return False
 
     class Meta:
         db_table = "notification"

@@ -127,3 +127,19 @@ class HasFullInstancePermsAndLockOrElevated(permissions.BasePermission):
                 user=request.user,
                 permission=ObjectPermission.PERMISSION_FULL,
             ).exists()
+
+
+class OwnsNotificationOrElevated(permissions.BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        if PermManager.is_superuser_or_elevated(request.user):
+            return True
+        if obj.to_id.id == user.id:
+            return True
+        return False

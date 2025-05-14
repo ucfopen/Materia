@@ -1,7 +1,7 @@
 import logging
 
 from api.filters import UserInstanceFilterBackend
-from core.models import LogActivity, LogPlay, WidgetInstance, WidgetQset
+from core.models import LogActivity, LogPlay, WidgetInstance, WidgetQset, Notification
 from core.permissions import (
     CanCreateWidgetInstances,
     DenyAll,
@@ -299,13 +299,18 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                         user, instance, perm_level
                     )
 
+                # Check if perm is about to be created or updated
+                will_update_or_create = not instance.permissions.filter(user=user, permission=perm_level).exists()
+
                 # Otherwise, update or create that perm
                 instance.permissions.update_or_create(
                     user=user,
                     defaults={"permission": perm_level, "expires_at": expiration},
                 )
 
-                # TODO send a notification here
+                # Send notification
+                if will_update_or_create and user is not request.user:  # do not send notifications to self
+                    Notification.create_instance_notification(request.user, user, instance, "changed", perm_level)
 
             # If there was a refusal, return a message
             if len(refusals) > 0:

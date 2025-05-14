@@ -1,5 +1,4 @@
 import base64
-import hashlib
 import json
 
 # debug logging
@@ -25,6 +24,7 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 from util.logging.session_logger import SessionLogger
 from util.perm_manager import PermManager
+from util.user_util import UserUtil
 
 logger = logging.getLogger("django")
 
@@ -64,9 +64,7 @@ class UserSerializer(serializers.ModelSerializer):
         return fields
 
     def get_avatar(self, user):
-        clean_email = user.email.strip().lower().encode("utf-8")
-        hash_email = hashlib.md5(clean_email).hexdigest()
-        return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
+        return UserUtil.get_avatar_url(user)
 
     def get_profile_fields(self, user):
         user_profile, _ = UserSettings.objects.get_or_create(user=user)

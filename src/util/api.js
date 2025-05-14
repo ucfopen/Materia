@@ -58,17 +58,17 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 			} catch (e) {
 				throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
 			}
-		
+
 			// Create a rich error object with all available info
 			const error = new Error(
 				errorData.message || errorData.title || `HTTP error ${response.status}`
 			)
-			
+
 			// Add extra properties to the error
 			error.status = response.status
 			error.statusText = response.statusText
 			error.data = errorData
-			
+
 			throw error
 		}
 
@@ -188,8 +188,12 @@ export const apiGetNotifications = () => {
 	return handleRequest(methods.GET, '/api/notifications/')
 }
 
-export const apiDeleteNotification = (data) => {
-	return handleRequest(methods.POST, '/api/notifications/delete/', { body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` })
+export const apiDeleteNotification = ({ notifId, deleteAll }) => {
+	if (deleteAll) {
+		return handleRequest(methods.DELETE, `/api/notifications/delete_all/`)
+	} else {
+		return handleRequest(methods.DELETE, `/api/notifications/${notifId}/`)
+	}
 }
 
 export const apiSearchUsers = (input = '', page_number = 1) => {
@@ -354,7 +358,7 @@ export const apiGetQuestionSet = (instanceId, playId = null) => {
 }
 
 export const apiGenerateQset = ({instId, widgetId, topic, includeImages, numQuestions, buildOffExisting}) => {
-	return handleRequest(methods.POST, '/api/generate/qset/', ({ 
+	return handleRequest(methods.POST, '/api/generate/qset/', ({
 		instance_id: instId,
 		widget_id: widgetId,
 		topic,
