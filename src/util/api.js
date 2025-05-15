@@ -377,7 +377,7 @@ export const apiSavePlayStorage = ({ play_id, logs }) => {
 }
 
 export const apiSavePlayLogs = ({ request }) => {
-	return handleRequest(methods.PUT, `/api/play-sessions/${request.playId}/`, { request })
+	return handleRequest(methods.PUT, `/api/play-sessions/${request.playId}/`, { ...request })
 }
 
 export const apiGetQuestionsByType = (arrayOfQuestionIds, questionTypes) => {

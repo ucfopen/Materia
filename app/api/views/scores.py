@@ -1,12 +1,13 @@
 import json
 
-from core.models import DateRange, LogPlay, WidgetInstance
+from core.models import LogPlay, WidgetInstance
 from django.http import HttpResponseNotFound, JsonResponse
 
 # from util.scoring.scoring_util import ScoringUtil
 from scoring.manager import ScoringUtil
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
+from util.semester import Semester
 from util.widget.validator import ValidatorUtil
 
 
@@ -39,7 +40,9 @@ class ScoresApi:
             if session_context_id:
                 context_id = session_context_id
 
-        semester = DateRange.objects.get(pk=5)  # TODO
+        # semester = DateRange.objects.get(pk=5)  # TODO
+        semester = Semester.get_current_semester()
+        print(f"semester: {semester}")
 
         # Get instance and validate user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
@@ -129,7 +132,9 @@ class ScoresApi:
         if not play_data:
             return MsgBuilder.expired().as_json_response()
 
-        semester = DateRange.objects.get(pk=5)  # TODO
+        # semester = DateRange.objects.get(pk=5)  # TODO
+        semester = Semester.get_current_semester()
+        print(f"semester: {semester}")
         token = json_body.get("token")
         # Grab context ID
         context_id = None
