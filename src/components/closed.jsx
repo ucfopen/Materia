@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import Header from './header'
 import Summary from './widget-summary'
 import './login-page.scss'
@@ -11,7 +11,9 @@ const Closed = () => {
 		instName: '',
 		widgetName: '',
 		summary: '',
-		description: ''
+		description: '',
+		start: '',
+		end: ''
 	})
 
 	const waitForWindow = async () => {
@@ -20,7 +22,9 @@ const Closed = () => {
 		&& !window.hasOwnProperty('WIDGET_NAME')
 		&& !window.hasOwnProperty('ICON_DIR')
 		&& !window.hasOwnProperty('SUMMARY')
-		&& !window.hasOwnProperty('DESC')) {
+		&& !window.hasOwnProperty('DESC')
+		&& !window.hasOwnProperty('START')
+		&& !window.hasOwnProperty('END')) {
 			await new Promise(resolve => setTimeout(resolve, 500))
 		}
 	}
@@ -33,10 +37,39 @@ const Closed = () => {
 				instName: window.NAME,
 				widgetName: window.WIDGET_NAME,
 				summary: window.SUMMARY,
-				description: window.DESC
+				description: window.DESC,
+				start: window.START,
+				end: window.END,
 			})
 		})
 	},[])
+
+	// Format datetimes to local date/time strings
+	const [hydratedSummary, hydratedDescription] = useMemo(() => {
+		// Process given datetimes
+		const startDatetime = new Date(state.start)
+		const endDatetime = new Date(state.end)
+
+		// Format datetimes
+		const startDate = startDatetime.toLocaleDateString('en-US', { dateStyle: 'short' })
+		const startTime = startDatetime.toLocaleTimeString('en-US', { timeStyle: 'short' })
+		const endDate = endDatetime.toLocaleDateString('en-US', { dateStyle: 'short' })
+		const endTime = endDatetime.toLocaleTimeString('en-US', { timeStyle: 'short' })
+
+		const summary = state.summary
+			.replace("{start_date}", startDate)
+			.replace("{start_time}", startTime)
+			.replace("{end_date}", endDate)
+			.replace("{end_time}", endTime)
+
+		const description = state.description
+			.replace("{start_date}", startDate)
+			.replace("{start_time}", startTime)
+			.replace("{end_date}", endDate)
+			.replace("{end_time}", endTime)
+
+		return [summary, description]
+	}, [state.summary, state.description, state.start, state.end])
 
 	return (
 		<>
@@ -44,8 +77,8 @@ const Closed = () => {
 			<div className="container">
 				<section className="page">
 					<Summary />
-					<h3>{ state.summary }</h3>
-					<p>{ state.description }</p>
+					<h3>{ hydratedSummary }</h3>
+					<p>{ hydratedDescription }</p>
 					<EmbedFooter/>
 				</section>
 			</div>

@@ -44,7 +44,7 @@ class ScoresApi:
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user(request.user):
-            return MsgBuilder.no_login().as_json_response()
+            return MsgBuilder.no_login(request=request).as_json_response()
 
         # Get scores and return
         scores = ScoringUtil.get_instance_score_history(instance, context_id)
@@ -82,7 +82,7 @@ class ScoresApi:
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user(request.user):
-            return MsgBuilder.no_login().as_json_response()
+            return MsgBuilder.no_login(request=request).as_json_response()
 
         scores = ScoringUtil.get_guest_instance_score_history(instance, play_id)
         # TODO: better serializing
@@ -109,8 +109,8 @@ class ScoresApi:
             if preview_play_id is None:
                 return MsgBuilder.invalid_input(msg="Missing preview play ID").as_json_response()
             # Check if preview is valid and user has access
-            if False:  # TODO: \Service_User::verify_session() !== true
-                return MsgBuilder.no_login().as_json_response()
+            if not request.user.is_authenticated:
+                return MsgBuilder.no_login(request=request).as_json_response()
 
             # Get widget instance and play details
             widget_instance = WidgetInstance.objects.filter(pk=preview_inst_id).first()
@@ -131,7 +131,7 @@ class ScoresApi:
             if not session_play:
                 return HttpResponseNotFound()
             if not session_play.data.instance.playable_by_current_user(request.user):
-                return MsgBuilder.no_login().as_json_response()
+                return MsgBuilder.no_login(request=request).as_json_response()
 
             return JsonResponse(ScoringUtil.get_play_details(session_play))
 
@@ -150,7 +150,7 @@ class ScoresApi:
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user(request.user):
-            return MsgBuilder.no_login().as_json_response()
+            return MsgBuilder.no_login(request=request).as_json_response()
 
         # Get the score distributions and summaries per semester
         # TODO: these 2 queries seem to be slow (up to 3sec in php!) - maybe they'll perform faster in

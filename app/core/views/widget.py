@@ -1,12 +1,15 @@
 import logging
 
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.exceptions import BadRequest
+
+from core.mixins import MateriaLoginMixin, MateriaLoginNeeded
 from core.models import Widget, WidgetInstance
 from django.conf import settings
-from django.http import HttpRequest, HttpResponseNotFound
+from django.http import HttpRequest, Http404
 from django.views.generic import TemplateView
 from util.context_util import ContextUtil
-
-# from util.logging.session_play import SessionPlay
+from util.perm_manager import PermManager
 
 
 logger = logging.getLogger("django")
@@ -16,70 +19,73 @@ class WidgetDetailView(TemplateView):
     template_name = "react.html"
 
     def get_context_data(self, widget_slug):
+        widget = Widget.objects.filter(pk=_get_id_from_slug(widget_slug)).first()
+        if widget is None:
+            raise Http404
+
         return ContextUtil.create(
-            title="Materia Widget Catalog",
+            title="Widget Details",
             js_resources=settings.JS_GROUPS["detail"],
             css_resources=settings.CSS_GROUPS["detail"],
+            js_globals={
+                "NO_AUTHOR": PermManager.does_user_have_roles(self.request.user, "no_author"),
+                "WIDGET_HEIGHT": widget.height,
+            },
+            page_type="widget",
             request=self.request,
         )
 
 
-class WidgetDemoView(TemplateView):
+class WidgetDemoView(MateriaLoginMixin, TemplateView):
     template_name = "react.html"
+    allow_all_by_default = True
 
     def get_context_data(self, widget_slug):
-        autoplay = self.kwargs.get("autoplay", None)
+        autoplay = _parse_nullable_bool_string(self.request.GET.get("autoplay", None))
 
         # Get demo widget instance
         widget = Widget.objects.get(pk=_get_id_from_slug(widget_slug))
-        demo_id = widget.metadata_clean()["demo"]
-        demo_instance = WidgetInstance.objects.get(pk=demo_id)
+        demo_id = widget.metadata_clean().get("demo")
+        demo_instance = WidgetInstance.objects.filter(pk=demo_id).first()
         if not demo_instance:
-            return (
-                HttpResponseNotFound()
-            )  # TODO: change this into a more valid code or an error message
+            raise Http404("Could not find widget demo instance")
 
         return _create_player_page(
             demo_instance,
             self.request,
-            is_demo=False,
+            is_demo=True,
             autoplay=autoplay,
             is_preview=False,
         )
 
 
-class WidgetPlayView(TemplateView):
+class WidgetPlayView(MateriaLoginMixin, TemplateView):
     template_name = "react.html"
+    allow_all_by_default = True
 
     def get_context_data(self, widget_instance_id, instance_name=None):
-        autoplay = self.kwargs.get("autoplay", None)
+        autoplay = _parse_nullable_bool_string(self.request.GET.get("autoplay", None))
 
         # Get widget instance
-        instance = WidgetInstance.objects.get(pk=widget_instance_id)
-        if not instance:
-            return (
-                HttpResponseNotFound()
-            )  # TODO: change this into a more valid code or an error message
+        instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
+        if instance is None:
+            raise Http404("Could not find widget instance")
 
         return _create_player_page(
             instance, self.request, is_demo=False, autoplay=autoplay, is_preview=False
         )
 
 
-class WidgetPreviewView(TemplateView):
+class WidgetPreviewView(MateriaLoginMixin, TemplateView):
     template_name = "react.html"
+    login_title = "Login to preview this widget"
+    login_message = "Login to preview this widget"
 
     def get_context_data(self, widget_instance_id, instance_name=None):
-        # Verify user session
-        # TODO  if (\Service_User::verify_session() !== true)
-        # 		{
-        # 			$this->build_widget_login('Login to preview this widget', $instId);
-        # 		}
-
         # Get widget instance
         widget_instance = WidgetInstance.objects.get(pk=widget_instance_id)
         if not widget_instance:
-            return HttpResponseNotFound()
+            raise Http404("Could not find widget instance")
 
         # Check if widget is playable
         if not widget_instance.playable_by_current_user(self.request.user):
@@ -91,27 +97,20 @@ class WidgetPreviewView(TemplateView):
         )
 
 
-class WidgetCreatorView(TemplateView):
+class WidgetCreatorView(MateriaLoginMixin, PermissionRequiredMixin, TemplateView):
     template_name = "react.html"
+    login_message = "Please log in to create this widget."
+    permission_denied_message = "You do not have permission to create widgets."
+
+    def has_permission(self):
+        return not PermManager.does_user_have_roles(self.request.user, 'no_author')
 
     def get_context_data(self, widget_slug, instance_id=None):
-        # Check if player user session is valid
-        # TODO if (\Service_User::verify_session() !== true)
-        # {
-        # 	Session::set('redirect_url', URI::current());
-        # 	Session::set_flash('notice', 'Please log in to create this widget.');
-        # 	Response::redirect(Router::get('login').'?redirect='.URI::current());
-        # }
-
-        # Check for author permissions
-        # TODO if (\Materia\Perm_Manager::does_user_have_role(['no_author'])) throw new HttpNotFoundException;
-
         # Create the widget instance
         widget = Widget.objects.filter(pk=_get_id_from_slug(widget_slug)).first()
         if not widget:
-            return HttpResponseNotFound()
+            raise Http404("Could not find widget instance")
 
-        # TODO View::set_global('me', Model_User::find_current());
         return _create_editor_page("Create Widget", widget, self.request)
 
 
@@ -122,11 +121,10 @@ class WidgetGuideView(TemplateView):
         # Get widget
         widget = Widget.objects.filter(pk=_get_id_from_slug(widget_slug)).first()
         if widget is None:
-            return HttpResponseNotFound()
+            raise Http404("Could not find widget instance")
 
         # Build page title
         title = widget.name
-        guide = ""
         match guide_type:
             case "creators":
                 title += " Creator's Guide"
@@ -135,7 +133,7 @@ class WidgetGuideView(TemplateView):
                 title += " Player's Guide"
                 guide = widget.player_guide
             case _:
-                return HttpResponseNotFound()
+                raise BadRequest(f"Known guide type '{guide_type}'")
 
         return ContextUtil.create(
             title=title,
@@ -158,11 +156,10 @@ class WidgetGuideView(TemplateView):
         )
 
 
-class WidgetQsetHistoryView(TemplateView):
+class WidgetQsetHistoryView(MateriaLoginMixin, TemplateView):
     template_name = "react.html"
 
     def get_context_data(self):
-        # TODO if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
         return ContextUtil.create(
             title="Qset Catalog",
             page_type="import",
@@ -172,11 +169,10 @@ class WidgetQsetHistoryView(TemplateView):
         )
 
 
-class WidgetQsetGenerateView(TemplateView):
+class WidgetQsetGenerateView(MateriaLoginMixin, TemplateView):
     template_name = "react.html"
 
     def get_context_data(self):
-        # TODO if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
         return ContextUtil.create(
             title="Qset Generation",
             page_type="generate",
@@ -198,24 +194,34 @@ def _create_player_page(
     is_embedded: bool = False,
     autoplay: bool | None = None,
 ):
-    # Create context id (?)
     # TODO call the LtiEvents/on_before_play_start_event() function. Seems to relate to LTI stuffs
+    # context_id = None  # TODO ^
+
+    # Check if embed only widget
+    if not is_embedded and instance.embedded_only:
+        return _create_embedded_only_page(request, instance)
 
     # Check to see if login is required
     if not instance.playable_by_current_user(request.user):
-        return _create_widget_login_page(instance, request, is_embedded, is_preview)
+        raise MateriaLoginNeeded(login_global_vars=_create_widget_login_vars(
+            instance, request, is_embedded, is_preview
+        ))
 
     # Check to see if this widget is playable
-    # TODO check status - see php
+    login_messages = _generate_widget_login_messages(instance)
+
+    if not login_messages["is_open"]:
+        return _create_widget_not_open_page(instance, request, login_messages, is_embedded)
     if not is_preview and instance.is_draft:
         return _create_draft_not_playable_page(request)
     if not is_demo and not instance.widget.is_playable:
         return _create_widget_retired_page(request, is_embedded)
-    if autoplay is False:
-        # TODO
-        pass
+    if not login_messages["has_attempts"]:
+        return _create_no_attempts_page(request, instance, is_embedded)
+    if autoplay is not None and autoplay is False:
+        return _create_pre_embed_placeholder_page(request, instance)
 
-    # NOTE: play session creation originally occured here, in the view
+    # NOTE: play session creation originally occurred here, in the view
     # sessions are now always instantiated from the API
     # Create and return player page context
     return _display_widget(instance, request, is_embedded)
@@ -256,56 +262,59 @@ def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
     )
 
 
-def _create_widget_login_page(
+# Used for creating the 'not open' page for widgets if it is closed
+def _create_widget_not_open_page(
+    instance: WidgetInstance,
+    request: HttpRequest,
+    login_messages: dict,
+    is_embedded: bool = False,
+):
+    js_globals = {
+        "NAME": instance.name,
+        "WIDGET_NAME": instance.widget.name,
+        "ICON_DIR": settings.URLS["WIDGET_URL"] + instance.widget.dir,
+        "IS_EMBEDDED": is_embedded,
+        "SUMMARY": login_messages["summary"],
+        "DESC": login_messages["desc"],
+        "START": login_messages["start"],
+        "END": login_messages["end"]
+    }
+
+    return ContextUtil.create(
+        title="Widget Unavailable",
+        js_resources=settings.JS_GROUPS["closed"],
+        css_resources=settings.CSS_GROUPS["login"],
+        js_globals=js_globals,
+        request=request,
+    )
+
+
+def _create_widget_login_vars(
     instance: WidgetInstance,
     request: HttpRequest,
     is_embedded: bool = False,
     is_preview: bool = False,
-):
-    # TODO Do some session redirect stuffs
-
-    login_messages = _generate_widget_login_messages(instance)
-
-    js_resources = []
-    css_resources = []
+) -> dict:
     js_globals = {
         "NAME": instance.name,
         "WIDGET_NAME": instance.widget.name,
-        "ICON_DIR": "",  # TODO
+        "ICON_DIR": settings.URLS["WIDGET_URL"] + instance.widget.dir,
+        "IS_EMBEDDED": is_embedded,
+        "ACTION_LOGIN": settings.LOGIN_URL,
+        "ACTION_REDIRECT": request.get_full_path(),
+        "LOGIN_USER": settings.VERBAGE["USERNAME"],
+        "LOGIN_PW": settings.VERBAGE["PASSWORD"],
+        "CONTEXT": "widget",
+        "IS_PREVIEW": is_preview
     }
 
-    if login_messages["is_open"]:
-        title = "Login"
-        js_resources.append(settings.JS_GROUPS["login"])
-        css_resources.append(settings.CSS_GROUPS["login"])
+    # Condense login links into a string with delimiters
+    link_items = []
+    for link in settings.LOGIN_LINKS:
+        link_items.append(f"{link["href"]}***{link["title"]}")
+    js_globals["LOGIN_LINKS"] = "@@@".join(link_items)
 
-        js_globals["IS_EMBEDDED"] = is_embedded
-        js_globals["ACTION_LOGIN"] = ""  # TODO fix these empty strings
-        js_globals["ACTION_REDIRECT"] = ""
-        js_globals["LOGIN_USER"] = ""
-        js_globals["LOGIN_PW"] = ""
-        js_globals["CONTEXT"] = "widget"
-        js_globals["IS_PREVIEW"] = is_preview
-
-        # Condense login links into a string with delimiters
-        # TODO
-        js_globals["LOGIN_LINKS"] = ""
-    else:
-        title = "Widget Unavailable"
-        js_resources.append(settings.JS_GROUPS["closed"])
-        css_resources.append(settings.JS_GROUPS["closed"])
-
-        js_globals["IS_EMBEDDED"] = str(is_embedded)
-        js_globals["SUMMARY"] = login_messages["summary"]
-        js_globals["DESC"] = login_messages["desc"]
-
-    return ContextUtil.create(
-        title=title,
-        js_resources=js_resources,
-        css_resources=css_resources,
-        js_globals=js_globals,
-        request=request,
-    )
+    return js_globals
 
 
 def _create_draft_not_playable_page(request: HttpRequest):
@@ -329,24 +338,89 @@ def _create_widget_retired_page(request: HttpRequest, is_embedded: bool = False)
     )
 
 
-def _create_no_permission_page(request: HttpRequest):
-    # TODO $this->_disable_browser_cache = true;
+def _create_no_attempts_page(request: HttpRequest, instance: WidgetInstance, is_embedded):
+    # TODO _disable_browser_cache = true
+
     return ContextUtil.create(
-        title="Permission Denied",
-        js_resources="dist/js/no-permission.js",
-        css_resources="dist/css/no-permission.js",
+        title="Widget Unavailable",
+        page_type="login",
+        js_globals={
+            "ATTEMPTS": instance.attempts,
+            "WIDGET_ID": instance.id,
+            "IS_EMBEDDED": is_embedded,
+            "NAME": instance.name,
+            "ICON_DIR": settings.URLS["WIDGET_URL"] + instance.widget.dir,
+        },
+        js_resources=settings.JS_GROUPS["no-attempts"],
+        css_resources=settings.CSS_GROUPS["login"],
+        request=request,
+    )
+
+
+def _create_pre_embed_placeholder_page(request: HttpRequest, instance: WidgetInstance):
+    # TODO _disable_browser_cache = true
+
+    return ContextUtil.create(
+        title=f"{instance.name} {instance.widget.name}",
+        page_type="widget",
+        js_globals={
+            "INST_ID": instance.id,
+            "CONTEXT": "play" if "play/" in request.get_full_path() else "embed",
+            "NAME": instance.name,
+            "ICON_DIR": settings.URLS["WIDGET_URL"] + instance.widget.dir,
+        },
+        js_resources=settings.JS_GROUPS["pre-embed"],
+        css_resources=settings.CSS_GROUPS["pre-embed"],
+        request=request,
+    )
+
+
+def _create_embedded_only_page(request: HttpRequest, instance: WidgetInstance):
+    # TODO 'before_embedded_only' event trigger occurred here
+
+    return ContextUtil.create(
+        title="Widget Unavailable",
+        page_type="login",
+        js_globals={
+            "NAME": instance.name,
+            "ICON_DIR": settings.URLS["WIDGET_URL"] + instance.widget.dir,
+        },
+        js_resources=settings.JS_GROUPS["embedded-only"],
+        css_resources=settings.CSS_GROUPS["login"],
         request=request,
     )
 
 
 # Utils functions
 def _generate_widget_login_messages(instance: WidgetInstance) -> dict:
-    # TODO: get status stuffs
+    instance_status = instance.status()
+
+    # Build actual summary/desc messages for user.
+    # Leave datetimes to be filled in by frontend (this allows them to display in their own timezone)
+    if instance_status["is_closed"]:
+        summary = "Closed on {end_date}"
+        desc = "This widget closed on {end_date} at {end_time} and cannot be accessed."
+    elif instance_status["is_open"] and instance_status["will_close"]:
+        summary = "Available until {end_date} at {end_time}"
+        desc = ""
+    elif instance_status["will_open"] and not instance_status["will_close"]:
+        summary = "Available after {start_date} at {start_time}"
+        desc = "This widget cannot be accessed at this time. Please return on or after {start_date} at {start_time}."
+    elif instance_status["will_open"] and instance_status["will_close"]:
+        summary = "Available from {start_date} at {start_time} until {end_date} at {end_time}"
+        desc = ("This widget cannot be accessed at this time. Please return between {start_date} at {start_time} and "
+                + "{end_date} at {end_time}")
+    else:
+        summary = "Unknown error"
+        desc = "Unknown error"
 
     return {
-        "summary": "TODO Fill in this summary",
-        "desc": "TODO Fill in this desc",
-        "is_open": False,  # TODO
+        "summary": summary,
+        "desc": desc,
+        "start": instance.open_at.isoformat() if instance.open_at is not None else None,
+        "end": instance.close_at.isoformat() if instance.close_at is not None else None,
+        "is_open": instance_status["is_open"],
+        "has_attempts": instance_status["has_attempts"],
     }
 
 
@@ -362,3 +436,12 @@ def _get_id_from_slug(widget_slug: str) -> int | None:
         f"Failed to get id from widget slug, likely an invalid slug: '{widget_slug}'"
     )
     return None
+
+
+def _parse_nullable_bool_string(string: str | None) -> bool | None:
+    if string == "true":
+        return True
+    elif string == "false":
+        return False
+    else:
+        return None

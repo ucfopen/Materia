@@ -6,7 +6,7 @@ from django.db.models import QuerySet
 
 import logging
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 
 logger = logging.getLogger("django")
 
@@ -24,7 +24,11 @@ class PermManager:
 
     # Returns True if user has at least one of the roles specified
     @staticmethod
-    def does_user_have_roles(user: User, roles: str | list[str]) -> bool:
+    def does_user_have_roles(user: User | AnonymousUser, roles: str | list[str]) -> bool:
+        # Check if user is not logged in
+        if not user or isinstance(user, AnonymousUser) or not user.is_authenticated:
+            return False
+
         # Convert to list if single string passed in
         if type(roles) is str:
             roles = [roles]

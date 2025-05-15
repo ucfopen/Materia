@@ -23,7 +23,7 @@ from core.serializers import (
 )
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
@@ -167,6 +167,10 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 )
             serializer.validated_data["attempts"] = -1
 
+        # If is no longer a draft, add current user as publisher
+        if instance.published_by is None and not is_draft:
+            serializer.validated_data["published_by"] = self.request.user
+
         # TODO create session_activities for each updated field? see original PHP code
         # TODO bundle below with above TODO when implemented
         # If user is a student and they're not the owner, they can't do anything
@@ -230,7 +234,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         elif play_id is not None:
             play_id_serializer = PlayIdSerializer(data=play_id)
-            if play_id_serializer.is_valid():
+            if play_id_serializer.is_valid(raise_exception=True):
                 qset = instance.get_qset_for_play(play_id)
                 serializer = QuestionSetSerializer(qset)
                 return Response(serializer.data)
@@ -288,10 +292,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         elif request.method == "PUT":
             # Verify request data
             request_serializer = PermsUpdateRequestListSerializer(data=request.data)
-            if not request_serializer.is_valid():
-                return Response(
-                    request_serializer.errors, status=status.HTTP_400_BAD_REQUEST
-                )
+            request_serializer.is_valid(raise_exception=True)
 
             # Go through each perm request and process it
             refusals = []
@@ -346,10 +347,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["put"])
     def copy(self, request, pk=None):
         request_serializer = WidgetInstanceCopyRequestSerializer(data=request.data)
-        if not request_serializer.is_valid():
-            return Response(
-                request_serializer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
+        request_serializer.is_valid(raise_exception=True)
 
         name = request_serializer.validated_data.get("new_name")
         copy_existing_perms = request_serializer.validated_data.get(
@@ -380,9 +378,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             return MsgBuilder.invalid_input(
                 msg="Missing export_type query parameter"
             ).as_drf_response()
-
-        # TODO original code required user to have FULL perms, not just edit perms. come back around to this
-        #      once we have object level perms done
 
         instance = self.get_object()
         is_student = PermManager.user_is_student(request.user)

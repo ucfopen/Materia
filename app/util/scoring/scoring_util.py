@@ -2,7 +2,7 @@ import json
 import math
 
 from django.contrib.sessions.backends.base import SessionBase
-from django.db.models import Case, When, F, Count, Avg
+from django.db.models import Case, When, F, Count, Avg, QuerySet
 from django.db.models.functions import Round
 
 from core.models import WidgetInstance, DateRange, LogPlay, UserExtraAttempts
@@ -12,9 +12,9 @@ from core.models import WidgetInstance, DateRange, LogPlay, UserExtraAttempts
 class ScoringUtil:
     @staticmethod
     def get_instance_score_history(
-            instance: WidgetInstance, context_id: str | None = None,
+            instance: WidgetInstance, context_id: str = None,
             semester: DateRange | None = None
-    ):
+    ) -> QuerySet[LogPlay]:
         # TODO select only id, created_at, percent - see php
         scores = LogPlay.objects.filter(
             is_complete=True,
@@ -30,10 +30,9 @@ class ScoringUtil:
         return scores
 
     @staticmethod
-    def get_instance_extra_attempts(instance: WidgetInstance, context_id: str, semester: DateRange):
-        # TODO select only extra_attempts - see php
+    def get_instance_extra_attempts(instance: WidgetInstance, context_id: str, semester: DateRange) -> int:
         result = UserExtraAttempts.objects.filter(
-            instance=instance,
+            inst_id=instance.id,
             context_id=context_id,
             semester=semester.id,  # TODO: model calls for id and not foreign key
             # TODO: user_id =
