@@ -217,6 +217,15 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             value_2=instance.widget.id,
         )
 
+        # Send notifications
+        for shared_user_perm in instance.permissions.all():
+            Notification.create_instance_notification(
+                from_user=self.request.user,
+                to_user=shared_user_perm.user,
+                instance=instance,
+                mode="deleted"
+            )
+
     # /api/instances/<inst id>/question_sets/
     # ?latest=true GET param for only the latest qset
     # ?play_id=<play id> GET param to grant access
@@ -289,6 +298,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             permissions = instance.permissions.all()
             serialized = ObjectPermissionSerializer(permissions, many=True)
             return Response(serialized.data)
+
         elif request.method == "PUT":
             # Verify request data
             request_serializer = PermsUpdateRequestListSerializer(data=request.data)
@@ -309,6 +319,13 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 # If perm_level is null, delete the perm entry
                 if perm_level is None:
                     instance.permissions.filter(user=user).delete()
+                    # Send deletion notif
+                    Notification.create_instance_notification(
+                        from_user=self.request.user,
+                        to_user=user,
+                        instance=instance,
+                        mode="disabled"
+                    )
                     continue
 
                 # If this user is a student, make sure we can only give them perms if this instance is in guest mode
@@ -327,7 +344,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 # Check if perm is about to be created or updated
                 will_update_or_create = not instance.permissions.filter(user=user, permission=perm_level).exists()
 
-                # Otherwise, update or create that perm
+                # Update or create that perm
                 instance.permissions.update_or_create(
                     user=user,
                     defaults={"permission": perm_level, "expires_at": expiration},

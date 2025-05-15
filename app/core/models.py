@@ -609,7 +609,7 @@ class Notification(models.Model):
                 content = (f"{user_link} changed your access to widget '{widget_link}'.<br/>"
                            f"You now have {perm_string} access.")
             case "expired":
-                content = f"Your access to '{widget_name} has automatically expired."
+                content = f"Your access to '{widget_name}' has automatically expired."
             case "deleted":
                 content = f"{user_link} deleted {widget_type} widget '{widget_name}'."
             case "access_request":
