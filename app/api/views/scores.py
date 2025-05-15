@@ -7,7 +7,7 @@ from django.http import HttpResponseNotFound, JsonResponse
 from scoring.manager import ScoringUtil
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
-from util.semester import Semester
+from util.semester_util import SemesterUtil
 from util.widget.validator import ValidatorUtil
 
 
@@ -41,7 +41,7 @@ class ScoresApi:
                 context_id = session_context_id
 
         # semester = DateRange.objects.get(pk=5)  # TODO
-        semester = Semester.get_current_semester()
+        semester = SemesterUtil.get_current_semester()
         print(f"semester: {semester}")
 
         # Get instance and validate user
@@ -133,7 +133,7 @@ class ScoresApi:
             return MsgBuilder.expired().as_json_response()
 
         # semester = DateRange.objects.get(pk=5)  # TODO
-        semester = Semester.get_current_semester()
+        semester = SemesterUtil.get_current_semester()
         print(f"semester: {semester}")
         token = json_body.get("token")
         # Grab context ID

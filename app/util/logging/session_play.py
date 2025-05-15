@@ -10,6 +10,7 @@ from django.utils.timezone import make_aware
 
 # from util.scoring.scoring_util import ScoringUtil
 from scoring.manager import ScoringUtil
+from util.semester_util import SemesterUtil
 from util.widget.validator import ValidatorUtil
 
 # This class should be how the app interacts with play sessions. It's capable of both real play sessions and preview
@@ -46,9 +47,10 @@ class SessionPlay:
                 self.data.percent = 1
                 self.data.elapsed = 1
                 self.data.context_id = ""
-                self.data.semester = (
-                    DateRange.objects.first()
-                )  # TODO make it grab the current semester
+                # self.data.semester = (
+                #     DateRange.objects.first()
+                # )  # TODO make it grab the current semester
+                self.data.semester = SemesterUtil.get_current_semester()
                 self.is_preview = True
 
         # self.id: str | None = None

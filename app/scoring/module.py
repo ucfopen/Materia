@@ -6,7 +6,7 @@ from core.models import LogPlay, WidgetInstance
 from django.utils.timezone import now
 from util.logging.session_logger import SessionLogger
 from util.logging.session_play import SessionPlay
-from util.semester import Semester
+from util.semester_util import SemesterUtil
 
 
 class ScoreModule(ABC):
@@ -90,7 +90,7 @@ class ScoreModule(ABC):
 
             # except for previews, check that attempts are not exceeded.
             if self.play_id != -1:
-                semester = Semester.get_current_semester()
+                semester = SemesterUtil.get_current_semester()
                 attempts_used = LogPlay.objects.filter(
                     instance=self.instance,
                     context_id=self.play.context_id,
