@@ -168,6 +168,30 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             serializer.validated_data["attempts"] = -1
 
         # TODO create session_activities for each updated field? see original PHP code
+        # TODO bundle below with above TODO when implemented
+        # If user is a student and they're not the owner, they can't do anything
+        # If user is a student and they're the owner, they're allowed to set it to guest access (but cant take it out)
+        # If not a student, they can do whatever
+        if (instance.user == self.request.user and guest_access) or not PermManager.user_is_student(self.request.user):
+            # TODO make session activity here
+
+            # Remove permissions from students when instance is no longer in guest mode
+            if serializer.validated_data.get("guest_access") is False:
+                for shared_user_perm in instance.permissions.all():
+                    # Make sure shared user is student
+                    if not PermManager.user_is_student(shared_user_perm.user) or shared_user_perm.user == instance.user:
+                        continue
+
+                    # Remove perm
+                    shared_user_perm.delete()
+
+                    # Send notif
+                    Notification.create_instance_notification(
+                        from_user=self.request.user,
+                        to_user=shared_user_perm.user,
+                        instance=instance,
+                        mode="disabled"
+                    )
 
         serializer.save()
 

@@ -569,8 +569,13 @@ class Notification(models.Model):
     updated_at = models.DateTimeField(default=datetime.now, null=True)
     action = models.CharField(max_length=255)
 
+    permissions = GenericRelation(ObjectPermission)
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+
+        # Create/update ownership permission
+        self.permissions.update_or_create(user=self.to_id, permission=ObjectPermission.PERMISSION_FULL)
 
         # Send email, if not sent already
         self.send_email()
@@ -626,7 +631,6 @@ class Notification(models.Model):
         return notification
 
     def send_email(self, force_resend: bool = False) -> bool:
-
         # Check if emails are enabled
         if not settings.SEND_EMAILS:
             return False

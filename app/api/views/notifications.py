@@ -2,14 +2,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from core.models import Notification
-from core.permissions import OwnsNotificationOrElevated
+from core.permissions import HasFullPermsOrElevated
 from core.serializers import NotificationsSerializer
 from rest_framework import viewsets, status
 
 
 class NotificationsViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationsSerializer
-    permission_classes = [OwnsNotificationOrElevated]
+    permission_classes = [HasFullPermsOrElevated]
     queryset = Notification.objects.none()
 
     def get_queryset(self):
