@@ -584,7 +584,11 @@ class Notification(models.Model):
     @classmethod
     def create_instance_notification(
             cls, from_user: User, to_user: User, instance: "WidgetInstance", mode: str, new_perm: str = None
-    ) -> Self:
+    ) -> Self | None:
+        # Dont send notifs to self
+        if from_user == to_user:
+            return None
+
         # Create some strings that will be used later
         user_link = f"{from_user.first_name} {from_user.last_name} ({from_user.username})"
         widget_name = instance.name

@@ -351,7 +351,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 )
 
                 # Send notification
-                if will_update_or_create and user is not request.user:  # do not send notifications to self
+                if will_update_or_create:
                     Notification.create_instance_notification(request.user, user, instance, "changed", perm_level)
 
             # If there was a refusal, return a message
