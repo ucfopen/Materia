@@ -300,37 +300,36 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 			const scoresByUser = new Map()
 			results.results.forEach(log => {
 				let scoresForUser
-				if (log.user_id === null || log.user_id === undefined) log.user_id = 0
 
-				if (!scoresByUser.has(log.user_id)) {
+				const userId = log.user_id ?? 0
+				const isGuest = userId === 0
 
-					// initialize user
-					const first = log.user?.first_name ?? null
-					const last = log.user?.last_name ?? null
-					const name = first === null || last == null ? 'All Guests' : `${first} ${last}`
+				const first = log.user?.first_name?.trim() || ""
+				const last = log.user?.last_name?.trim() || ""
+				const name = isGuest
+					? 'All Guests'
+					: (first || last ? `${first} ${last}`.trim() : `User ${userId}`)
+
+				if (!scoresByUser.has(userId)) {
 					scoresForUser = {
-						userId: log.user_id,
+						userId,
 						name,
 						searchableName: name.toLowerCase(),
 						scores: []
 					}
-
-					scoresByUser.set(log.user_id, scoresForUser)
-
+					scoresByUser.set(userId, scoresForUser)
 				} else {
-					// already initialized
-					scoresForUser = scoresByUser.get(log.user_id)
+					scoresForUser = scoresByUser.get(userId)
 				}
 
-				// append to scores
 				scoresForUser.scores.push({
 					elapsed: parseInt(log.elapsed, 10) + 's',
 					playId: log.id,
 					score: log.is_complete === true ? Math.round(parseFloat(log.percent)) + '%' : '---',
 					created_at: log.created_at
 				})
-
 			})
+
 
 			const logs = Array.from(scoresByUser, ([name, value]) => value)
 			const data = { 'total_num_pages': results.total_pages, pagination: logs }

@@ -47,14 +47,16 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
     # we only need extras (widget name, inst name) when on the profile page
     def get_serializer_class(self):
-        if self.request.query_params.get("inst_id") and PermManager.user_is_student(
+        if (
+            self.request.query_params.get("inst_id")
+            and self.request.query_params.get("include_user_info", "").lower() == "true"
+        ):
+            return PlaySessionWithExtraUserInfoSerializer
+
+        elif self.request.query_params.get("inst_id") and PermManager.user_is_student(
             self.request.user
         ):
             return PlaySessionStudentViewSerializer
-        elif self.request.query_params.get("inst_id") and self.request.query_params.get(
-            "include_user_info", False
-        ):
-            return PlaySessionWithExtraUserInfoSerializer
         elif (
             self.request.query_params.get("include_activity", "false").lower() == "true"
         ):
