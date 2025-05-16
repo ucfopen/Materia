@@ -76,7 +76,15 @@ class SessionPlay:
 
         self.data.created_at = make_aware(datetime.now())
         # TODO this feels flimsy, can we be assured the user reference will be valid?
-        self.data.user = None if instance.guest_access else User.objects.get(pk=user_id)
+        # self.data.user = None if instance.guest_access else User.objects.get(pk=user_id)
+        if user_id is not None:
+            try:
+                self.data.user = User.objects.get(pk=user_id)
+            except User.DoesNotExist:
+                self.data.user = None
+        else:
+            self.data.user = None
+
         self.data.instance = instance
         self.data.context_id = context_id
         self.data.is_preview = is_preview

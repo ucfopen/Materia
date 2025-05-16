@@ -41,9 +41,11 @@ const ProfilePage = () => {
 	useEffect(() => {
 		if (userActivity?.plays) {
 			const newActivity = userActivity.plays.map((log) => {
-				return {
+				// return {
+				const activity = {
 					is_complete: log.is_complete,
-					link: _getLink(log),
+					inst_id: log.instance,
+					// link: _getLink(log),
 					status: _getStatus(log),
 					widget: log.widget_name,
 					title: log.inst_name,
@@ -51,6 +53,8 @@ const ProfilePage = () => {
 					score: _getScore(log),
 					play_id: log.id
 				}
+					activity.link = _getLink(activity)
+					return activity
 			})
 			setActivityData(data => [...newActivity])
 		}
@@ -62,15 +66,16 @@ const ProfilePage = () => {
 	}, [])
 
 	const _getLink = (activity) => {
-		return activity.is_complete === '1' ? `/scores/${activity.inst_id}#play-${activity.play_id}` : '#'
+		// return activity.is_complete === true ? `/scores/${activity.inst_id}#play-${activity.play_id}` : '#'
+		return activity.is_complete ? `/scores/single/${activity.inst_id}/${activity.play_id}`: '#'
 	}
 
 	const _getScore = (activity) => {
-		return activity.is_complete === '1' ? Math.round(parseFloat(activity.percent)) : '--'
+		return activity.is_complete === true ? Math.round(parseFloat(activity.percent)) : '--'
 	}
 
 	const _getStatus = (activity) => {
-		return activity.is_complete === '1' ? '' : 'No Score Recorded'
+		return activity.is_complete === true ? '' : 'No Score Recorded'
 	}
 
 	const _getDate = (activity) => {

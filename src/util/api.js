@@ -326,7 +326,7 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 				scoresForUser.scores.push({
 					elapsed: parseInt(log.elapsed, 10) + 's',
 					playId: log.id,
-					score: log.is_complete === '1' ? Math.round(parseFloat(log.percent)) + '%' : '---',
+					score: log.is_complete === true ? Math.round(parseFloat(log.percent)) + '%' : '---',
 					created_at: log.created_at
 				})
 
