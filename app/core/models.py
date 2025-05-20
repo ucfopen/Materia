@@ -699,6 +699,10 @@ class Widget(models.Model):
         ("SERVER-CLIENT", "widget is partially scored in both server and client"),
     ]
 
+    UPDATE_METHODS = [
+        ("github", "Update via a Github releases API URL")
+    ]
+
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255, default="")
     created_at = models.DateTimeField(default=datetime.now)
@@ -728,6 +732,10 @@ class Widget(models.Model):
     restrict_publish = models.BooleanField(default=False)
     creator_guide = models.CharField(max_length=255, default="")
     player_guide = models.CharField(max_length=255, default="")
+
+    version = models.CharField(max_length=255, default="")
+    update_method = models.CharField(max_length=255, choices=UPDATE_METHODS, default=None, null=True)
+    update_url = models.CharField(max_length=255, default=None, null=True)
 
     @property
     def dir(self):

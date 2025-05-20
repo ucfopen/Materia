@@ -61,7 +61,7 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 
 			// Create a rich error object with all available info
 			const error = new Error(
-				errorData.message || errorData.title || `HTTP error ${response.status}`
+				errorData.msg || errorData.title || `HTTP error ${response.status}`
 			)
 
 			// Add extra properties to the error
@@ -491,6 +491,14 @@ export const apiUnDeleteWidget = ({ instId }) => {
 
 export const apiWidgetPromptGenerate = (prompt) => {
 	return handleRequest(methods.POST, `/api/json/widget_prompt_generate/`,  prompt)
+}
+
+export const apiCheckWidgetForUpdate = (widgetId) => {
+	return handleRequest(methods.GET, `/api/widgets/${widgetId}/check_update/`)
+}
+
+export const apiInstallWidgetUpdate = (widgetId) => {
+	return handleRequest(methods.GET, `/api/widgets/${widgetId}/update_to_latest_version/`)
 }
 
 /** STORAGE UTILS */

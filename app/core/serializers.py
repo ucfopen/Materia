@@ -181,6 +181,7 @@ class WidgetSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "version",
             "created_at",
             "height",
             "width",

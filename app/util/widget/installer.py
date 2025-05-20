@@ -1,16 +1,22 @@
 import logging
+import math
 import os
 import sys
 import tempfile
 import types
 from datetime import datetime
+from json import JSONDecodeError
 from pathlib import Path
 
+import urllib3
 from django.core.management import color_style
+from urllib3.exceptions import MaxRetryError
 
 from core.models import Widget, WidgetInstance, WidgetMetadata, WidgetQset
 from django.conf import settings
 from django.utils.timezone import make_aware
+
+from util.message_util import Msg, MsgBuilder
 
 logger = logging.getLogger("django")
 
@@ -349,6 +355,7 @@ class WidgetInstaller:
 
         return {
             "name": manifest_data["general"]["name"],
+            "version": manifest_data["general"].get("version", ""),
             "created_at": make_aware(datetime.now()),
             "flash_version": manifest_data["files"]["flash_version"],
             "height": manifest_data["general"]["height"],
@@ -371,6 +378,8 @@ class WidgetInstaller:
             "api_version": int(manifest_data["general"]["api_version"]),
             "package_hash": package_hash,
             "score_module": manifest_data["score"]["score_module"],
+            "update_url": manifest_data.get("updates", {}).get("url"),
+            "update_method": manifest_data.get("updates", {}).get("method"),
             "is_generable": (
                 bool(manifest_data["general"]["is_generable"])
                 if "is_generable" in manifest_data["general"]
@@ -597,3 +606,83 @@ class WidgetInstaller:
             shutil.rmtree(target_dir)
         shutil.copytree(source_path, target_dir)
         logger.info(f"Widget files deployed: {widget_dir}")
+
+    @staticmethod
+    def get_latest_version_for(widget_id: int) -> tuple[str, str, str] | Msg:
+        # Grab widget
+        widget = Widget.objects.filter(id=widget_id).first()
+        if widget is None:
+            return MsgBuilder.not_found(msg=f"Widget with ID {widget_id} not found")
+
+        # Grab required widget update metadata
+
+        # Check metadata
+        if widget.update_url is None:
+            return MsgBuilder.failure(msg=f"Widget {widget_id} '{widget.name}' does not have a update URL set.")
+
+        if widget.update_method is None:
+            return MsgBuilder.failure(msg=f"Widget {widget_id} '{widget.name}' does not have a update method set.")
+
+        if widget.update_method not in (x[0] for x in Widget.UPDATE_METHODS):
+            return MsgBuilder.failure(msg=f"Widget {widget_id} '{widget.name}' requests a update method of "
+                                          f"'{widget.update_method}', which is not supported.")
+
+        # Ping update server for latest update
+        try:
+            resp = urllib3.request("GET", widget.update_url, timeout=10)
+            if math.floor(resp.status) != 200:  # Check status
+                return MsgBuilder.failure(msg=f"Update server returned with status {resp.status}.")
+            json = resp.json()  # Decode JSON
+        except MaxRetryError:
+            return MsgBuilder.failure(msg="Connection to the update server has timed out.")
+        except JSONDecodeError:
+            return MsgBuilder.failure(msg="Unable to decode JSON response returned from update server.")
+        except Exception:
+            return MsgBuilder.failure(msg="Unable to update due to an error connecting to the update server.")
+
+        # Process returned JSON
+        match widget.update_method:
+            case "github":
+                new_ver, wigt_url, checksum_url = WidgetInstaller._process_github_update(json)
+            case _:
+                return MsgBuilder.failure(msg="Unsupported update method")
+
+        # Check if update is needed/possible
+        if new_ver is None or wigt_url is None or checksum_url is None:
+            if isinstance(new_ver, Msg):
+                return new_ver
+            return MsgBuilder.failure(msg="Unknown Error")
+
+        return new_ver, wigt_url, checksum_url
+
+    @staticmethod
+    def needs_update(widget_id: int, latest_available_version: str) -> bool:
+        update_available = True
+        cur_ver_row = WidgetMetadata.objects.filter(widget=widget_id, name="version").first()
+        if cur_ver_row is not None:
+            cur_ver = cur_ver_row.value
+            if latest_available_version <= cur_ver:
+                update_available = False
+
+        return update_available
+
+    @staticmethod
+    def _process_github_update(json: list[dict]) -> tuple[str, str, str] | Msg:
+        if len(json) == 0:
+            return MsgBuilder.failure(msg="Github returned no releases for this widget.")
+
+        latest = json[-1]
+        version = latest["tag_name"]
+        wigt_url = None
+        checksum_url = None
+
+        for asset in latest["assets"]:
+            if asset["name"].endswith("build-info.yml"):
+                checksum_url = asset["browser_download_url"]
+            elif asset["name"].endswith(".wigt"):
+                wigt_url = asset["browser_download_url"]
+
+        if wigt_url is None or checksum_url is None:
+            return MsgBuilder.failure(msg=f"A release was found ({version}), but the required assets were not found.")
+
+        return version, wigt_url, checksum_url

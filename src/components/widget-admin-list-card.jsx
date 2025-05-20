@@ -1,5 +1,6 @@
-import { apiUpdateWidgetEngine } from '../util/api'
-import React, { useState, useEffect } from 'react'
+import {apiCheckWidgetForUpdate, apiInstallWidgetUpdate, apiUpdateWidgetEngine} from '../util/api'
+import React, {useState, useEffect, useMemo} from 'react'
+import {useMutation, useQuery} from "react-query";
 
 const WidgetListCard = ({widget = null}) => {
     const [state, setState] = useState({
@@ -9,6 +10,23 @@ const WidgetListCard = ({widget = null}) => {
         },
         errorMessage: '',
         success: false
+    })
+
+    const [updaterState, setUpdaterState] = useState("check")  // check | update
+
+    // Check if widget update is available on load
+    const updateCheckQuery = useQuery({
+        queryKey: ["widget-update-check", state.widget?.id],
+        queryFn: () => apiCheckWidgetForUpdate(state.widget?.id),
+        enabled: state.widget.expanded && !!state.widget?.id,
+        retry: false,
+        staleTime: Infinity,
+    })
+
+    const updateMutation = useMutation({
+        mutationFn: () => apiInstallWidgetUpdate(state.widget?.id),
+        onMutate: () => setUpdaterState("update"),
+        onSuccess: () => setState({ ...state, widget: { ...state.widget, version: updateCheckQuery.data["new_version"]}})
     })
 
     // Set state after uploading new widget
@@ -111,6 +129,47 @@ const WidgetListCard = ({widget = null}) => {
         exportOptions = state.widget.meta_data.playdata_exporters?.map((qtype, i) => <li key={i}>{ qtype }</li>)
     }
 
+    const updaterRender = useMemo(() => {
+        switch (updaterState) {
+            case 'check':
+                if (updateCheckQuery.isLoading) return 'Checking for update...'
+                else if (updateCheckQuery.isSuccess) {
+                    if (updateCheckQuery.data['update_available']) {
+                        return (
+                            <>
+                                <b>{`Update available (${updateCheckQuery.data['new_version']})`}</b>
+                                <button
+                                  style={{ marginLeft: '0.25rem' }}
+                                  onClick={() => updateMutation.mutate()}
+                                >
+                                    Update now
+                                </button>
+                            </>
+                        )
+                    } else {
+                        return 'Up to date'
+                    }
+                }
+                else if (updateCheckQuery.isError) {
+                    return `Update check failed: ${updateCheckQuery.error.message}`
+                }
+                else return 'Unknown error occurred'
+            case 'update':
+                if (updateMutation.isLoading) {
+                    return 'Updating...'
+                }
+                else if (updateMutation.isSuccess) {
+                    return `Updated to ${updateCheckQuery.data['new_version']}!`
+                }
+                else if (updateMutation.isError) {
+                    return `An error occurred while updating: ${updateMutation.error.message}`
+                }
+                else return 'Unknown error occurred'
+            default:
+                return null
+        }
+    })
+
     return (
         <li key={state.widget.id}>
             <div className="clickable widget-title" onClick={handleWidgetClick}>
@@ -126,17 +185,29 @@ const WidgetListCard = ({widget = null}) => {
                 <div className='info-holder'>
                     <div>
                         <span>
-                            <label>ID:</label>{ state.widget.id }
+                            <label>ID:</label>{state.widget.id}
                         </span>
                     </div>
                     <div>
                         <span>
-                            <label>Installed:</label>{ new Date(state.widget.created_at).toLocaleString() }
+                            <label>Version:</label>
+                            {state.widget.version.trim() ? state.widget.version : 'Unknown'}
+                        </span>
+                    </div>
+                    <div>
+                        <span style={{ display: 'flex', alignItems: 'center', minHeight: '1.5rem' }}>
+                            <label>Update:</label>
+                            {updaterRender}
                         </span>
                     </div>
                     <div>
                         <span>
-                            <label>Dimensions:</label>{ state.widget.width }w x { state.widget.height }h
+                            <label>Installed:</label>{new Date(state.widget.created_at).toLocaleString()}
+                        </span>
+                    </div>
+                    <div>
+                        <span>
+                            <label>Dimensions:</label>{state.widget.width}w x {state.widget.height}h
                         </span>
                     </div>
                     <div>
@@ -147,35 +218,35 @@ const WidgetListCard = ({widget = null}) => {
                             <div>
                                 <label className="normal">
                                     <input type="checkbox" checked={state.widget.in_catalog}
-                                    onChange={toggleInCatalog}/>
+                                           onChange={toggleInCatalog}/>
                                     In Catalog
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
                                     <input type="checkbox" checked={state.widget.is_editable}
-                                    onChange={toggleIsEditable}/>
+                                           onChange={toggleIsEditable}/>
                                     Is Editable
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
                                     <input type="checkbox" checked={state.widget.is_playable}
-                                    onChange={toggleIsPlayable}/>
+                                           onChange={toggleIsPlayable}/>
                                     Is Playable
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
                                     <input type="checkbox" checked={state.widget.is_scorable}
-                                    onChange={toggleIsScoreable}/>
+                                           onChange={toggleIsScoreable}/>
                                     Is Scorable
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
                                     <input type="checkbox" checked={state.widget.restrict_publish}
-                                    onChange={toggleRestrictPublish}/>
+                                           onChange={toggleRestrictPublish}/>
                                     Restrict Publish
                                 </label>
                             </div>
@@ -185,18 +256,21 @@ const WidgetListCard = ({widget = null}) => {
                         <span>
                             <label htmlFor="demo">Demo:</label>
                             <input value={state.widget.meta_data.demo}
-                            onChange={handleDemoChange} type='text' id="demo"/>
+                                   onChange={handleDemoChange} type='text' id="demo"/>
                         </span>
                     </div>
                     <div>
                         <span className="long">
                             <label htmlFor="about">About:</label>
-                            <textarea id="about" value={state.widget.meta_data.about} onChange={handleAboutChange}></textarea>
+                            <textarea id="about" value={state.widget.meta_data.about}
+                                      onChange={handleAboutChange}></textarea>
                         </span>
                     </div>
                     <div>
                         <span className="long">
-                            <label htmlFor="excerpt">Excerpt:</label><textarea id="excerpt" value={state.widget.meta_data.excerpt} onChange={handleExcerptChange}></textarea>
+                            <label htmlFor="excerpt">Excerpt:</label><textarea id="excerpt"
+                                                                               value={state.widget.meta_data.excerpt}
+                                                                               onChange={handleExcerptChange}></textarea>
                         </span>
                     </div>
                     <div>
@@ -205,7 +279,7 @@ const WidgetListCard = ({widget = null}) => {
                         </span>
                         <span>
                             <ul>
-                                { featuresRender }
+                                {featuresRender}
                             </ul>
                         </span>
                     </div>
@@ -217,7 +291,7 @@ const WidgetListCard = ({widget = null}) => {
                         </span>
                         <span>
                             <ul>
-                                { questionTypes }
+                                {questionTypes}
                             </ul>
                         </span>
                     </div>
@@ -229,7 +303,7 @@ const WidgetListCard = ({widget = null}) => {
                         </span>
                         <span>
                             <ul>
-                                { exportOptions }
+                                {exportOptions}
                             </ul>
                         </span>
                     </div>

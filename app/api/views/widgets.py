@@ -1,6 +1,8 @@
 import logging
 import os
+import traceback
 
+from core.management.commands import widget
 from core.models import Widget
 from core.permissions import IsSuperuser
 from core.serializers import WidgetSerializer
@@ -8,6 +10,8 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+
+from util.message_util import Msg, MsgBuilder
 from util.widget.installer import WidgetInstaller
 
 logger = logging.getLogger("django")
@@ -66,3 +70,45 @@ class WidgetViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Checks if there is an update available for the widget
+    @action(detail=True, methods=["get"])
+    def check_update(self, request, pk):
+        # Grab latest available version
+        result = WidgetInstaller.get_latest_version_for(pk)
+        if isinstance(result, Msg):
+            return result.as_drf_response()
+        new_ver, _, _ = result
+
+        # Check if the latest available version is newer than what's currently installed
+        update_available = WidgetInstaller.needs_update(pk, new_ver)
+
+        # Return
+        if update_available:
+            return Response({"update_available": True, "new_version": new_ver})
+        else:
+            return Response({"update_available": False})
+
+    # Installs the latest version of the widget available
+    @action(detail=True, methods=["get"])
+    def update_to_latest_version(self, request, pk):
+        # Get latest version
+        result = WidgetInstaller.get_latest_version_for(pk)
+        if isinstance(result, Msg):
+            return result.as_drf_response()
+        new_ver, wigt_link, checksum_link = result
+
+        # Check if update is even needed
+        update_available = WidgetInstaller.needs_update(pk, new_ver)
+        if not update_available:
+            return MsgBuilder.failure(msg="Widget already up to date").as_drf_response()
+
+        # We are good to update - start the process
+        widget_command = widget.Command()
+        try:
+            widget_command.install_from_url(wigt_link, checksum_link, pk)
+        except Exception as e:
+            print(traceback.format_exc())
+            return MsgBuilder.failure(msg=str(e)).as_drf_response()
+
+        return Response({"success": True})

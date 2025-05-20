@@ -5,6 +5,7 @@ from urllib import request
 
 from django.conf import settings
 from django.core.management import base
+
 from util.widget.installer import WidgetInstaller
 
 logger = logging.getLogger("django")
