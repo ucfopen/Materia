@@ -2,7 +2,7 @@ import logging
 from pprint import pformat
 
 from api.filters import LogPlayFilterBackend
-from core.models import Log, LogPlay
+from core.models import Log, LogPlay, WidgetInstance
 from core.serializers import (
     PlayLogUpdateSerializer,
     PlaySessionCreateSerializer,
@@ -45,23 +45,58 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
     queryset = LogPlay.objects.all()
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        # check guest access
+        inst_id = request.query_params.get("inst_id")
+        include_user_info = request.query_params.get("include_user_info", "").lower()
+
+        if inst_id and include_user_info == "true":
+            instance = WidgetInstance.objects.filter(pk=inst_id).first()
+            if instance and instance.guest_access:
+                for log in queryset:
+                    log.user = None
+                    log.user_id = None
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     # we only need extras (widget name, inst name) when on the profile page
     def get_serializer_class(self):
-        if (
-            self.request.query_params.get("inst_id")
-            and self.request.query_params.get("include_user_info", "").lower() == "true"
-        ):
-            return PlaySessionWithExtraUserInfoSerializer
+        inst_id = self.request.query_params.get("inst_id")
+        include_user_info = self.request.query_params.get(
+            "include_user_info", ""
+        ).lower()
+        include_activity = self.request.query_params.get(
+            "include_activity", "false"
+        ).lower()
 
-        elif self.request.query_params.get("inst_id") and PermManager.user_is_student(
-            self.request.user
-        ):
+        if inst_id and include_user_info == "true":
+
+            instance = WidgetInstance.objects.filter(pk=inst_id).first()
+
+            if instance and instance.guest_access:
+                print("Widget is in guest mode, hiding user info")
+                return PlaySessionSerializer  # Don't expose user info
+            else:
+                print("Widget is NOT in guest mode, showing user info")
+                return PlaySessionWithExtraUserInfoSerializer
+
+        elif inst_id and PermManager.user_is_student(self.request.user):
+            print("Student view (no extra user info)")
             return PlaySessionStudentViewSerializer
-        elif (
-            self.request.query_params.get("include_activity", "false").lower() == "true"
-        ):
+
+        elif include_activity == "true":
+            print("Activity view")
             return PlaySessionWithExtrasSerializer
+
         else:
+            print("Default fallback")
             return PlaySessionSerializer
 
     def create(self, request):
