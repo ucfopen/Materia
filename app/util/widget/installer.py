@@ -658,11 +658,9 @@ class WidgetInstaller:
     @staticmethod
     def needs_update(widget_id: int, latest_available_version: str) -> bool:
         update_available = True
-        cur_ver_row = WidgetMetadata.objects.filter(widget=widget_id, name="version").first()
-        if cur_ver_row is not None:
-            cur_ver = cur_ver_row.value
-            if latest_available_version <= cur_ver:
-                update_available = False
+        widget = Widget.objects.filter(id=widget_id).first()
+        if widget is not None and latest_available_version <= widget.version:
+            update_available = False
 
         return update_available
 

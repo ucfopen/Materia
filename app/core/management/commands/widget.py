@@ -6,6 +6,8 @@ from urllib import request
 from django.conf import settings
 from django.core.management import base
 
+from core.models import Widget
+from util.message_util import Msg
 from util.widget.installer import WidgetInstaller
 
 logger = logging.getLogger("django")
@@ -159,3 +161,40 @@ class Command(base.BaseCommand):
         for file in widget_files:
             skip_upgrade = False  # get this from the CLI options somehow?
             WidgetInstaller.extract_package_and_install(file, skip_upgrade, replace_id)
+
+    def update(self, widget_id):
+        # Get current version
+        widget = Widget.objects.filter(id=widget_id).first()
+        if widget is None:
+            logger.error(f"Widget with ID '{widget_id}' does not exist")
+            logger.error("Unable to update.")
+            return
+
+        # Get latest version available
+        logger.warning("Getting latest available version...")
+        result = WidgetInstaller.get_latest_version_for(widget_id)
+        if isinstance(result, Msg):
+            logger.error(result.msg)
+            logger.error("Unable to update.")
+            return
+        new_ver, wigt_url, checksum_url = result
+
+        logger.info(f"Currently installed version: {widget.version}")
+        logger.info(f"Latest available version: {new_ver}")
+
+        # Check if an update is even needed
+        update_needed = WidgetInstaller.needs_update(widget_id, new_ver)
+        if not update_needed:
+            logger.warning("\nThis widget is already up to date. Do you want to continue the update anyway?")
+            result = input("y/n: ")
+            while result.lower() != "y" and result.lower() != "n":
+                logger.warning("Please enter either 'y' for yes, or 'n' for no.")
+                result = input("y/n: ")
+            if result.lower() == "n":
+                logger.warning("Update aborted.")
+                return
+
+        logger.info("\nInstalling update...\n")
+        self.install_from_url(wigt_url, checksum_url, widget_id)
+
+        logger.info("\nUpdate complete!")
