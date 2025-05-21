@@ -77,7 +77,7 @@ const attemptsToIndex = (attempts) => {
 const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, onEdit, setInvalidLogin }) => {
 	const [state, setState] = useState(initState())
 	const mounted = useRef(false)
-	const mutateWidget = useUpdateWidget()
+	const mutateWidget = useUpdateWidget('me')
 	const { data: userData, isError: isUserDataErrored, error: userDataError } = useQuery({
 		queryKey: ['user-verify-user', inst.id],
 		queryFn: apiUserVerify,
@@ -250,9 +250,6 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 		if (errMsg.length === 0) {
 			let args = {
 				instId: form.inst_id,
-				name: undefined,
-				qset: null,
-				isDraft: null,
 				openAt: form.open_at,
 				closeAt: form.close_at,
 				attempts: form.attempts,

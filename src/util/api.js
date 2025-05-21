@@ -46,6 +46,7 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 				...fetchWriteOptions(method, {body: data}),
 				...options
 			}
+			console.log("doing this thing for settings here")
 			console.log(add_options)
 			response = await fetch(url, add_options)
 		}
@@ -73,6 +74,9 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 		}
 
 		try {
+			if(response.status === 204){
+				return null
+			}
 			const data = await response.json()
 			return data
 		} catch (e) {
@@ -139,6 +143,7 @@ export const apiDeleteWidget = ({ instId }) => {
 }
 
 export const apiSaveWidget = (_params) => {
+	console.log("apiSaveWidget called with:", _params)
 	if (_params.instId != null) {
 		// limit args to the following params
 		const body = {
@@ -226,7 +231,18 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
  * @returns {object} updated instance
  */
 export const apiUpdateWidgetInstance = ({ args }) => {
-	return handleRequest(methods.PATCH, `/api/instances/${args.id}/`, args)
+	const body = {
+		name: args?.name,
+		qset: args?.qset,
+		is_draft: args?.isDraft,
+		open_at: args?.openAt,
+		close_at: args?.closeAt,
+		attempts: args?.attempts,
+		guest_access: args?.guestAccess,
+		embedded_only: args?.embeddedOnly,
+	}
+
+	return handleRequest(methods.PATCH, `/api/instances/${args.instId}/`, body)
 }
 
 export const apiGetWidgetLock = (id = null) => {
@@ -411,6 +427,7 @@ export const apiGetUserPlaySessions = (user, pageParam = 1) => {
 }
 
 export const apiUpdateUserSettings = (settings) => {
+	console.log('update user settings', settings)
 	return handleRequest(methods.PUT, `/api/users/${settings.user_id}/profile_fields/`, settings)
 }
 
