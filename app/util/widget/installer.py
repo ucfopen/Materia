@@ -2,6 +2,7 @@ import base64
 import json
 import logging
 import os
+import sys
 import tempfile
 import types
 from datetime import datetime
@@ -10,6 +11,7 @@ from pathlib import Path
 from core.models import Question, Widget, WidgetInstance, WidgetMetadata, WidgetQset
 from core.serializers import QuestionSetSerializer
 from django.conf import settings
+from django.core.management import color_style
 from django.utils.timezone import make_aware
 
 logger = logging.getLogger("django")
@@ -17,6 +19,7 @@ logger = logging.getLogger("django")
 
 class WidgetInstaller:
 
+    @staticmethod
     def get_temp_dir():
         temporary_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir())
 
@@ -52,6 +55,7 @@ class WidgetInstaller:
         # if (isset($dir)) static::cleanup($dir);
         # return $success;
 
+    @staticmethod
     def extract_package_and_install(widget_file, skip_upgrade=False, replace_id=0):
         from core.models import LogActivity
 
@@ -70,24 +74,32 @@ class WidgetInstaller:
         num_existing = len(matching_widgets)
 
         if skip_upgrade and num_existing > 0:
-            # TODO: see if it's possible to recreate this block
-            # pretty much just produces special contextual output if this is running in a terminal
-            # if (\Fuel::$is_cli)
-            # {
-            #     \Cli::write("Multiple Existing widgets found with name $clean_name", 'red');
-            #     foreach ($matching_widgets as $i => $matching_widget)
-            #     {
-            #         \Cli::write("==> ID:{$matching_widget['id']} ({$matching_widget['name']})", 'green');
-            #     }
-            #     \Cli::write('Run install again with "--replace-id=ID" option', 'yellow');
-            #     return false;
-            # }
-            # else
+            arg = sys.argv[0]
+            if arg is not None and arg.endswith(
+                "manage.py"
+            ):  # Running from manage.py, print out extra info
+                print(
+                    color_style().ERROR(
+                        f"Multiple existing widgets found with the name '{clean_name}':"
+                    )
+                )
+                for matching_widget in matching_widgets:
+                    print(
+                        color_style().ERROR(
+                            f" ==> ID:{matching_widget.id} ({matching_widget.name})"
+                        )
+                    )
+                print(
+                    color_style().WARNING(
+                        "Run install again with --replace-id=ID option"
+                    )
+                )
+                return False
+            else:
+                raise Exception(
+                    f"Existing widgets found for {clean_name}, not upgrading due to --skip-upgrade option"
+                )
 
-            # this would normally run in the 'else' of the block above
-            raise Exception(
-                f"Existing widgets found for {clean_name}, not upgrading due to --skip-upgrade option"
-            )
         if num_existing == 1 and not skip_upgrade and replace_id == 0:
             replace_id = matching_widgets[0].id
         if num_existing > 1 and replace_id == 0:
@@ -147,6 +159,7 @@ class WidgetInstaller:
 
     # Unzip a .wigt file into a temp directory, validate it, and extract manifest data
     # return array
+    @staticmethod
     def unzip_and_read_manifest(widget_file):
         from core.models import Widget
 
@@ -154,18 +167,6 @@ class WidgetInstaller:
         manifest_data = WidgetInstaller.validate_widget(target_dir)
 
         clean_name = Widget.make_clean_name(manifest_data["general"]["name"])
-
-        # TODO: figure out how to parse all of the play data exporter function options
-        #  and add their names to the existing metadata
-        # in the PHP version, the Widget::load_script function would basically make the
-        #  class/methods/etc. in the play data exporter PHP file available in this scope
-        #  so that they could be parsed
-
-        # load the play data exporter script to add its method names to the metadata
-        # playdata_path = os.path.join(target_dir, Widget.PATHS_PLAYDATA)
-
-        # loaded = Widget.load_script(playdata_path)
-        # $playdata_exporter_names = array_keys(\Materia\Widget::reduce_array_to_functions($loaded));
 
         # Grab and load the playdata exporter script
         script_path = Path(os.path.join(target_dir, Widget.PATHS_PLAYDATA))
@@ -195,6 +196,7 @@ class WidgetInstaller:
 
         return target_dir, manifest_data, clean_name
 
+    @staticmethod
     def unzip_to_tmp(file):
         from zipfile import ZipFile
 
@@ -219,6 +221,7 @@ class WidgetInstaller:
 
     # checks to make sure the widget contains the required data.
     # throws with the reason if not.
+    @staticmethod
     def validate_widget(dir):
         # 1. Do we have a manifest yaml file?
         manifest_data = WidgetInstaller.get_manifest_data(dir)

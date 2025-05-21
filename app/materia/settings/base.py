@@ -12,6 +12,7 @@ from .session import *  # noqa: F401, F403
 from .storage import *  # noqa: F401, F403
 from .urls import *  # noqa: F401, F403
 from .widgets import *  # noqa: F401, F403
+from .verbage import *  # noqa: F401, F403
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -60,7 +61,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
     ],
-    "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
+    "EXCEPTION_HANDLER": "core.exception_handlers.materia_exception_handler",
 }
 
 MIDDLEWARE = [

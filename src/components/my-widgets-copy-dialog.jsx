@@ -7,7 +7,7 @@ const MyWidgetsCopyDialog = ({inst, name, onClose, onCopySuccess, onCopyError}) 
 	const [newTitle, setNewTitle] = useState(`${name} (Copy)`)
 	const [copyPermissions, setCopyPermissions] = useState(false)
 	const [errorText, setErrorText] = useState('')
-	const copyWidget = useCopyWidget()
+	const copyWidget = useCopyWidget('me')
 
 	const handleTitleChange = e => setNewTitle(e.target.value)
 	const handleOwnerAccessChange = e => setCopyPermissions(e.target.checked)

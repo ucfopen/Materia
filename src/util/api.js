@@ -143,7 +143,6 @@ export const apiDeleteWidget = ({ instId }) => {
 }
 
 export const apiSaveWidget = (_params) => {
-	console.log("apiSaveWidget called with:", _params)
 	if (_params.instId != null) {
 		// limit args to the following params
 		const body = {
@@ -166,6 +165,7 @@ export const apiSaveWidget = (_params) => {
 		}
 		return handleRequest(methods.POST, '/api/instances/', { ...body })
 	}
+	return handleRequest(methods.POST, '/api/instances/', { ...body })
 }
 
 export const apiGetUser = (user = 'me') => {
@@ -231,17 +231,17 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
  * @returns {object} updated instance
  */
 export const apiUpdateWidgetInstance = ({ args }) => {
+	// limit args to the following params
 	const body = {
-		name: args?.name,
-		qset: args?.qset,
-		is_draft: args?.isDraft,
+		name: args?.name ?? undefined,
+		qset: args?.qset ?? undefined,
+		is_draft: args?.isDraft ?? undefined,
 		open_at: args?.openAt,
 		close_at: args?.closeAt,
-		attempts: args?.attempts,
-		guest_access: args?.guestAccess,
-		embedded_only: args?.embeddedOnly,
+		attempts: args?.attempts ?? undefined,
+		guest_access: args?.guestAccess ?? undefined,
+		embedded_only: args?.embeddedOnly ?? undefined,
 	}
-
 	return handleRequest(methods.PATCH, `/api/instances/${args.instId}/`, body)
 }
 

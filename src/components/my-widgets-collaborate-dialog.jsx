@@ -174,7 +174,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			successFunc: (data) => {
 				if (mounted.current) {
 					if (delCurrUser) {
-						queryClient.invalidateQueries('widgets')
+						queryClient.invalidateQueries(['instances', currentUser])
 					}
 					queryClient.invalidateQueries('search-widgets')
 					queryClient.invalidateQueries(['user-perms', inst.id])

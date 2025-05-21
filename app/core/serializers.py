@@ -21,8 +21,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils.text import slugify
-from rest_framework import serializers, status
-from rest_framework.response import Response
+from rest_framework import serializers
 from util.logging.session_logger import SessionLogger
 from util.perm_manager import PermManager
 
@@ -505,9 +504,7 @@ class PlayLogUpdateSerializer(serializers.Serializer):
                     )
 
             logs = LogSubmissionSerializer(data=data["logs"], many=True)
-            print(f"0LOGS IN PlayLOG_UPDATE_SERIALIZER {logs}")
-            print(f"0LOGS IN PlayLOG_UPDATE_SERIALIZER {logs}")
-            print(f"0LOGS IN PlayLOG_UPDATE_SERIALIZER {logs}")
+            print(f"LOGS IN PlayLOG_UPDATE_SERIALIZER {logs}")
             if logs.is_valid():
                 return {
                     "logs": logs.validated_data,
@@ -518,8 +515,6 @@ class PlayLogUpdateSerializer(serializers.Serializer):
                         str(preview_play_id) if preview_play_id else None
                     ),
                 }
-            else:
-                return Response(logs.errors, status=status.HTTP_400_BAD_REQUEST)
 
         except LogPlay.DoesNotExist:
             raise serializers.ValidationError(

@@ -39,6 +39,7 @@ from core.views.widget import (
 from django.contrib import admin
 from django.urls import include, path, re_path
 
+
 urlpatterns = [
     # api router and endpoint registration in api_urls
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
@@ -118,7 +119,7 @@ urlpatterns = [
         ScoresViewSingle.as_view(),
         name="single score",
     ),
-    # API (TODO: improve API routing, retire api/json)
+    # API
     path("api/", include("api.urls.api_urls")),
     # path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
@@ -140,5 +141,6 @@ urlpatterns = [
     path("media/upload", MediaUpload.index),
 ]
 
+handler403 = "core.views.exception_handlers.forbidden"
 handler404 = "core.views.main.handler404"
 handler500 = "core.views.main.handler500"
