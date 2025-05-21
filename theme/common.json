@@ -3,5 +3,9 @@
   "supportPhoneNumber": "SUPPORT NUMBER HERE",
   "supportWebsite": "SUPPORT SITE HERE",
   "accessibilityEmail": "ACCESSIBILITY EMAIL HERE",
-  "accessibilityReportLink": "ACCESSIBILITY ISSUE REPORT URL HERE"
+  "accessibilityReportLink": "ACCESSIBILITY ISSUE REPORT URL HERE",
+  "loginUsernameText": "Materia Username",
+  "loginPasswordText": "Password",
+  "loginHelpText": "For login support, contact our help desk",
+  "loginHelpLink": "/help"
 }

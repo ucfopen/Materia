@@ -493,6 +493,10 @@ export const apiWidgetPromptGenerate = (prompt) => {
 	return handleRequest(methods.POST, `/api/json/widget_prompt_generate/`,  prompt)
 }
 
+export const apiLoginDirect = ( username, password ) => {
+	return handleRequest(methods.POST, `/api/user/login/`, { username, password })
+}
+
 /** STORAGE UTILS */
 
 // Persist to wherever using the super-secret object

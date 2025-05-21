@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { apiLoginDirect } from '../util/api'
+
 import Header from './header'
 import Summary from './widget-summary'
-import './login-page.scss'
+import LoginSubtitle from 'MateriaText/login/login-subtitle.mdx'
 import EmbedFooter from './widget-embed-footer'
 
-const LoginPage = () => {
+import Common from 'MateriaCommon'
+import './login-page.scss'
 
-	const mounted = useRef(false)
+const LoginPage = () => {
 	const [state, setState] = useState({
-		loginUser: '',
-		loginPw: '',
 		actionLogin: '',
 		actionRedirect: '/profile/',
 		bypass: false,
@@ -19,15 +20,41 @@ const LoginPage = () => {
 		context: 'login',
 	})
 
-	useEffect(() => {
-		const storedUsername = localStorage.getItem('username') || ''
-		const storedRedirect = sessionStorage.getItem('redirect') || '/profile/'
+	const waitForWindow = async () => {
+		while(!window.hasOwnProperty('ACTION_LOGIN')
+		&& !window.hasOwnProperty('ACTION_REDIRECT')
+		&& !window.hasOwnProperty('BYPASS')
+		&& !window.hasOwnProperty('LOGIN_LINKS')
+		&& !window.hasOwnProperty('CONTEXT')) {
+			await new Promise(resolve => setTimeout(resolve, 500))
+		}
+	}
 
-		setState(prevState => ({
-			...prevState,
-			loginUser: storedUsername,
-			actionRedirect: storedRedirect,
-		}))
+	useEffect(() => {
+		waitForWindow()
+		.then(() => {
+			let links = decodeURIComponent(window.LOGIN_LINKS).split('@@@').map((link, index) => {
+				let vals = link.split('***')
+				return <li key={index}><a href={`${vals[0]}`}>{`${vals[1]?.replace('+',' ')}`}</a></li>
+			})
+
+			let actionRedirect = window.location.search && window.location.search.split("?next=").length > 1 ? window.location.search.split("?next=")[1] : ''
+			actionRedirect += (window.location.hash ? window.location.hash : '')
+
+			setState({
+				actionLogin: window.ACTION_LOGIN,
+				actionRedirect: actionRedirect.length > 0 ? actionRedirect : window.ACTION_REDIRECT,
+				is_embedded: window.EMBEDDED != undefined ? window.EMBEDDED : false,
+				bypass: window.BYPASS,
+				context: window.CONTEXT,
+				instName: window.NAME != undefined ? window.INST_NAME : null,
+				widgetName: window.WIDGET_NAME != undefined ? window.WIDGET_NAME : null,
+				isPreview: window.IS_PREVIEW != undefined ? window.IS_PREVIEW : null,
+				loginLinks: links,
+				errContent: window.ERR_LOGIN ?? null,
+				noticeContent: window.NOTICE_LOGIN ?? null
+			})
+		})
 	}, [])
 
 
@@ -36,60 +63,34 @@ const LoginPage = () => {
 		detailContent =
 		<div className="login_context detail">
 			<h2 className="context-header">Log In to Your Account</h2>
-			<span className="subtitle">{`Using your ${state.loginUser} and ${state.loginPw} to access your Widgets.`}</span>
+			<LoginSubtitle />
 		</div>
 	} else if (state.context && state.context == 'widget') {
 		detailContent =
 		<div className="login_context detail">
 			<h2 className="context-header">Log in to play this widget</h2>
-			<span className="subtitle">{`Using your ${state.loginUser} and ${state.loginPw} to access your Widgets.`}</span>
+			<LoginSubtitle />
 		</div>
 	}
 
-	const getCSRFToken = () => {
-		const cookies = document.cookie.split(';')
-		for(let cookie of cookies) {
-			if(cookie.startsWith('csrftoken=')) {
-				return cookie.split('=')[1]
-			}
-		}
-		return ''
-	}
-
-	const handleLogin = async (e) => {
+	const handleLogin = (e) => {
 		e.preventDefault()
-		// TODO: move to api util?
 		const username = document.getElementById('username').value
 		const password = document.getElementById('password').value
-		const csrfToken = getCSRFToken()
-		const response = await fetch('/api/user/login/', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': csrfToken,
-			},
-			// body: JSON.stringify({
-			// 	username: state.loginUser,
-			// 	password: state.loginPw,
-			// }),
-			body: JSON.stringify({ username, password }),
-		})
 
-		const data = await response.json()
-		if (response.ok) {
-			localStorage.setItem('username', state.loginUser)
-
-			// Redirect based on next param
-			// TODO this prolly needs to be expanded upon in relation to LTI events, etc. but django by default
-			// 			uses 'next' for redirecting after logins, and expects the front-end to handle the redirect
+		apiLoginDirect(username, password).then((res) => {
 			const params = new URLSearchParams(window.location.search)
 			window.location.href = params.get('next') ?? '/profile/'
-		} else {
+		}).catch((e) => {
+			let errorMsg = 'Authentication failed due to an error.'
+			if (e.data?.isAuthenticated == false) {
+				errorMsg = 'Invalid login.'
+			}
 			setState(prevState => ({
 				...prevState,
-				errContent: data.error,
+				errContent: errorMsg,
 			}))
-		}
+		})
 	}
 
 	const handleInputChange = (e) => {
@@ -100,6 +101,16 @@ const LoginPage = () => {
 		}))
 	}
 
+	let errContent = null
+	if ( !!state.errContent) {
+		errContent = <div role="alert" className="login-error">{state.errContent}</div>
+	}
+
+	let noticeContent = null
+	if ( !!state.noticeContent) {
+		noticeContent = <div role="alert" className="login-notice">{state.noticeContent}</div>
+	}
+
 	return (
 		<>
 			{ state.is_embedded ? '' : <Header /> }
@@ -108,16 +119,16 @@ const LoginPage = () => {
 					{ state.context && state.context == 'widget' ? <Summary /> : ''}
 					{ detailContent }
 
+					{ errContent }
+					{ noticeContent }
 					<div id="form">
-						{ state.errContent }
-						{ state.noticeContent }
 						<form onSubmit={handleLogin} className='form-content'>
 							<ul>
 								<li>
-									<input type="text" name="username" id="username" placeholder={state.loginUser} tabIndex="1" autoComplete="username" onChange={handleInputChange}/>
+									<input type="text" name="username" id="username" placeholder={Common.loginUsernameText} tabIndex="1" autoComplete="username" onChange={handleInputChange}/>
 								</li>
 								<li>
-									<input type="password" name="password" id="password" placeholder={state.loginPw} tabIndex="2" autoComplete="current-password" onChange={handleInputChange}/>
+									<input type="password" name="password" id="password" placeholder={Common.loginPasswordText} tabIndex="2" autoComplete="current-password" onChange={handleInputChange}/>
 								</li>
 								<li className="submit_button">
 									<button type="submit" tabIndex="3" className="action_button">Login</button>

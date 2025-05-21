@@ -5,3 +5,20 @@ span.subtitle {
 	font-size: .7em;
 	font-weight: 400;
 }
+
+div.login-error {
+	margin: 0.5em 0;
+	padding: 0.5em 0;
+	background: #ffd7d7;
+	color: $color-red;
+	font-weight: 700;
+}
+
+div.login-notice {
+	margin: 0.5em 0;
+	padding: 0.5em 0;
+	background: $color-features-dark;
+	color: #fff;
+	font-weight: 700;
+}
+

@@ -1,16 +1,14 @@
 import logging
 
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.core.exceptions import BadRequest
-
 from core.mixins import MateriaLoginMixin, MateriaLoginNeeded
 from core.models import Widget, WidgetInstance
 from django.conf import settings
-from django.http import HttpRequest, Http404
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.exceptions import BadRequest
+from django.http import Http404, HttpRequest
 from django.views.generic import TemplateView
 from util.context_util import ContextUtil
 from util.perm_manager import PermManager
-
 
 logger = logging.getLogger("django")
 
@@ -28,7 +26,9 @@ class WidgetDetailView(TemplateView):
             js_resources=settings.JS_GROUPS["detail"],
             css_resources=settings.CSS_GROUPS["detail"],
             js_globals={
-                "NO_AUTHOR": PermManager.does_user_have_roles(self.request.user, "no_author"),
+                "NO_AUTHOR": PermManager.does_user_have_roles(
+                    self.request.user, "no_author"
+                ),
                 "WIDGET_HEIGHT": widget.height,
             },
             page_type="widget",
@@ -103,7 +103,7 @@ class WidgetCreatorView(MateriaLoginMixin, PermissionRequiredMixin, TemplateView
     permission_denied_message = "You do not have permission to create widgets."
 
     def has_permission(self):
-        return not PermManager.does_user_have_roles(self.request.user, 'no_author')
+        return not PermManager.does_user_have_roles(self.request.user, "no_author")
 
     def get_context_data(self, widget_slug, instance_id=None):
         # Create the widget instance
@@ -203,15 +203,19 @@ def _create_player_page(
 
     # Check to see if login is required
     if not instance.playable_by_current_user(request.user):
-        raise MateriaLoginNeeded(login_global_vars=_create_widget_login_vars(
-            instance, request, is_embedded, is_preview
-        ))
+        raise MateriaLoginNeeded(
+            login_global_vars=_create_widget_login_vars(
+                instance, request, is_embedded, is_preview
+            )
+        )
 
     # Check to see if this widget is playable
     login_messages = _generate_widget_login_messages(instance)
 
     if not login_messages["is_open"]:
-        return _create_widget_not_open_page(instance, request, login_messages, is_embedded)
+        return _create_widget_not_open_page(
+            instance, request, login_messages, is_embedded
+        )
     if not is_preview and instance.is_draft:
         return _create_draft_not_playable_page(request)
     if not is_demo and not instance.widget.is_playable:
@@ -277,7 +281,7 @@ def _create_widget_not_open_page(
         "SUMMARY": login_messages["summary"],
         "DESC": login_messages["desc"],
         "START": login_messages["start"],
-        "END": login_messages["end"]
+        "END": login_messages["end"],
     }
 
     return ContextUtil.create(
@@ -302,10 +306,8 @@ def _create_widget_login_vars(
         "IS_EMBEDDED": is_embedded,
         "ACTION_LOGIN": settings.LOGIN_URL,
         "ACTION_REDIRECT": request.get_full_path(),
-        "LOGIN_USER": settings.VERBAGE["USERNAME"],
-        "LOGIN_PW": settings.VERBAGE["PASSWORD"],
         "CONTEXT": "widget",
-        "IS_PREVIEW": is_preview
+        "IS_PREVIEW": is_preview,
     }
 
     # Condense login links into a string with delimiters
@@ -338,7 +340,9 @@ def _create_widget_retired_page(request: HttpRequest, is_embedded: bool = False)
     )
 
 
-def _create_no_attempts_page(request: HttpRequest, instance: WidgetInstance, is_embedded):
+def _create_no_attempts_page(
+    request: HttpRequest, instance: WidgetInstance, is_embedded
+):
     # TODO _disable_browser_cache = true
 
     return ContextUtil.create(
@@ -407,9 +411,13 @@ def _generate_widget_login_messages(instance: WidgetInstance) -> dict:
         summary = "Available after {start_date} at {start_time}"
         desc = "This widget cannot be accessed at this time. Please return on or after {start_date} at {start_time}."
     elif instance_status["will_open"] and instance_status["will_close"]:
-        summary = "Available from {start_date} at {start_time} until {end_date} at {end_time}"
-        desc = ("This widget cannot be accessed at this time. Please return between {start_date} at {start_time} and "
-                + "{end_date} at {end_time}")
+        summary = (
+            "Available from {start_date} at {start_time} until {end_date} at {end_time}"
+        )
+        desc = (
+            "This widget cannot be accessed at this time. Please return between {start_date} at {start_time} and "
+            + "{end_date} at {end_time}"
+        )
     else:
         summary = "Unknown error"
         desc = "Unknown error"
