@@ -47,7 +47,7 @@ class ScoringUtil:
     ):
         # TODO select only extra_attempts - see php
         result = UserExtraAttempts.objects.filter(
-            instance=instance,
+            inst_id=instance.id,
             context_id=context_id,
             semester=semester.id,  # TODO: model calls for id and not foreign key
             # TODO: user_id =

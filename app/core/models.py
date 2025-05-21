@@ -863,7 +863,7 @@ class WidgetInstance(models.Model):
         return f"{self.id}-{self.clean_name}{os.sep}"
 
     def status(self, context: str = None):
-        from util.scoring.scoring_util import ScoringUtil  # avoid cyclic import
+        from scoring.manager import ScoringUtil  # avoid cyclic import
         from util.semester_util import SemesterUtil
 
         semester = SemesterUtil.get_current_semester()
@@ -871,9 +871,9 @@ class WidgetInstance(models.Model):
         now = timezone.now()
         start = self.open_at
         end = self.close_at
-        attempts_used = ScoringUtil.get_instance_score_history(
-            self, context, semester
-        ).count()
+        attempts_used = len(
+            ScoringUtil.get_instance_score_history(self, context, semester)
+        )
 
         # Check to see if any extra attempts have been provided to the user. Decrement attempts_used if so.
         extra_attempts = ScoringUtil.get_instance_extra_attempts(

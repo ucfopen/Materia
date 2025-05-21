@@ -2,8 +2,6 @@ import json
 
 from core.models import LogPlay, WidgetInstance
 from django.http import HttpResponseNotFound, JsonResponse
-
-# from util.scoring.scoring_util import ScoringUtil
 from scoring.manager import ScoringUtil
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
