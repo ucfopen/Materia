@@ -39,7 +39,7 @@ const LoginPage = () => {
 			setState({
 				actionLogin: window.ACTION_LOGIN,
 				actionRedirect: actionRedirect.length > 0 ? actionRedirect : window.ACTION_REDIRECT,
-				is_embedded: window.EMBEDDED != undefined ? window.EMBEDDED : false,
+				is_embedded: window.IS_EMBEDDED ?? false,
 				bypass: window.BYPASS,
 				context: window.CONTEXT,
 				instName: window.NAME != undefined ? window.INST_NAME : null,
