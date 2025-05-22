@@ -2,7 +2,7 @@
 @import './include.scss';
 
 span.subtitle {
-	font-size: .7em;
+	font-size: .8em;
 	font-weight: 400;
 }
 
@@ -20,5 +20,11 @@ div.login-notice {
 	background: $color-features-dark;
 	color: #fff;
 	font-weight: 700;
+}
+
+div.login-support {
+	font-size: 0.8em;
+	font-weight: 400;
+	color: $color-background-dark-gray;
 }
 

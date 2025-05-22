@@ -4,6 +4,7 @@ import { apiLoginDirect } from '../util/api'
 import Header from './header'
 import Summary from './widget-summary'
 import LoginSubtitle from 'MateriaText/login/login-subtitle.mdx'
+import LoginHelp from 'MateriaText/login/login-help.mdx'
 import EmbedFooter from './widget-embed-footer'
 
 import Common from 'MateriaCommon'
@@ -134,12 +135,7 @@ const LoginPage = () => {
 									<button type="submit" tabIndex="3" className="action_button">Login</button>
 								</li>
 							</ul>
-							{ state.bypass ?
-								<ul className="help_links">
-									{ state.loginLinks }
-									<li><a href="/help">Help</a></li>
-								</ul>
-							: '' }
+							{ state.context != 'widget' ? <LoginHelp /> : '' }
 						</form>
 					</div>
 					{ state.context && state.context == 'widget' ? <EmbedFooter /> : ''}
