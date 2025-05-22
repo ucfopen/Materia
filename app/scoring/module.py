@@ -76,15 +76,12 @@ class ScoreModule(ABC):
         `calculated_percent`, which are eventually written to the database
         by the api. validates the individual question scores are valid.
         """
-        # print(f"DEBUG: Before process_score_logs, self.logs has {len(self.logs)} logs")
         session = SessionPlay.get_or_none(str(self.play_id))
         if not session:
             print("no session")
-            # TODO, make it work for previews? make it by session not from db?
-            # return False
+            # continues to get from DB i think
 
         if not timestamp:
-            print("no timestamp")
             if not self.play:
                 self.play = LogPlay.objects.get(id=self.play_id)
 
@@ -118,31 +115,23 @@ class ScoreModule(ABC):
     def process_score_logs(self):
         """Processes logs to determine score"""
 
-        print(
-            f"\n=== Processing Logs: Found {len(self.logs)} logs in {self.__class__.__name__} ===\n"
-        )
-
         if len(self.logs) == 0:
             print("No logs found! No questions were answered.")
-            return
+            from util.message_builder import MsgBuilder
 
-        i = 0
+            raise MsgBuilder.invalid_input(
+                title="No Answers Found",
+                msg="No logs were found. Please answer at least one question before submitting.",
+            ).as_drf_response()
+
         for log in self.logs:
-            if isinstance(log, list):
-                print("LOG IS LIST")
-            # log_type = log.log_type if hasattr(log, "log_type") else log["type"]
             log_type = (
                 log.log_type if hasattr(log, "log_type") else log["type"]
             ).lower()
 
-            print(f" iteration {i}Processing log of type: {log_type}")
-            i += 1
-
             if log_type in ["widget_end", "WIDGET_END"]:
-                print("WE GOT WIDGET_END")
                 self.finished = True
             elif log_type in ["final_score_from_client", "FINAL_SCORE_FROM_CLIENT"]:
-                print("WE GOT FINAL SCORE FROM CLIENT")
                 self.handle_log_client_final_score(log)
             elif log_type in [
                 "question_answered",
@@ -188,11 +177,9 @@ class ScoreModule(ABC):
 
     def calculate_score(self):
         """calculate final score percentage"""
-        print(f"global_mod: {self.global_modifiers}")
         global_mod = sum(self.global_modifiers)
 
         # sum up all the scores
-        print(f"self.scores.values is {self.scores.values()}")
         self.verified_score = sum(self.scores.values())
 
         if self.total_questions > 0:
@@ -205,20 +192,15 @@ class ScoreModule(ABC):
         # Clamp between 0 and 100
         self.calculated_percent = max(0, min(self.calculated_percent, 100))
 
-        print(f"[DEBUG] Final Score: {self.calculated_percent}")
-
     def get_score_report(self) -> object:
         """returns a report of the calculated score"""
         self.score_display["overview"] = self.get_score_overview()
         self.score_display["details"] = self.get_score_details()
-        print(f"SCORE DISPLAY: {self.score_display}")
         return self.score_display
 
     def get_score_overview(self):
         complete = False
         # TODO: mark it complete for previews, i guess they should have play_id's of negative one.
-        print(f"self.play_id is {self.play_id}")
-        # if self.play_id == "-1":
         if self.play_id:
             complete = True
         else:
@@ -259,7 +241,6 @@ class ScoreModule(ABC):
 
         # if not self.instance.qset.data:
         if not self.instance.get_latest_qset():
-            print("No qset data found, fetching it now...")
             self.instance.get_qset(timestamp)
 
         if self.instance.get_latest_qset():
@@ -268,29 +249,14 @@ class ScoreModule(ABC):
             questions_list = [
                 json.loads(base64.b64decode(q.data).decode()) for q in questions
             ]
-            print(f"questions_list: {questions_list}")
-
-            print(f" Found {len(questions_list)} questions!")
-            for q in questions_list:
-                print(f" - {q['id']}")
 
             self.questions = questions_list
-            print("self.questions length is ", len(self.questions))
-            for question in self.questions:
-                print("ID is ", question["id"])
-            print("self.questions is : ", self.questions)
             # turn self.questions into a dict
             self.questions = {q["id"]: q for q in questions_list}
-
-            print("\nAvailable Questions in self.questions:")
-            for qid in self.questions.keys():
-                print(f" - {qid}")
-            print("\n")
 
     def get_score_details(self):
         table = []
         for log in self.logs:
-            print(f"LOG: {log}")
             log_type = (
                 log.log_type if hasattr(log, "log_type") else log["type"]
             ).lower()

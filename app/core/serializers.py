@@ -293,7 +293,6 @@ class QuestionSetSerializer(serializers.ModelSerializer):
                     item["id"] is None or item["id"] == 0 or item["id"] == ""
                 ):
                     item["id"] = str(uuid.uuid4())
-                print(f"item: {item}")
                 if item.get("materiaType") == "question" or item.get("type") == "QA":
                     questions_list.append(item)
 
@@ -504,7 +503,6 @@ class PlayLogUpdateSerializer(serializers.Serializer):
                     )
 
             logs = LogSubmissionSerializer(data=data["logs"], many=True)
-            print(f"LOGS IN PlayLOG_UPDATE_SERIALIZER {logs}")
             if logs.is_valid():
                 return {
                     "logs": logs.validated_data,

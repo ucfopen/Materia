@@ -113,7 +113,6 @@ class SessionPlay:
 
         result = self._save_new_play()
         if not result:
-            print("BOOOOOOO")
             # TODO logging
             return None
 
@@ -191,21 +190,17 @@ class SessionPlay:
         log_id = ""
         for i in range(1, 25):  # TODO: make max attempts a config variable
             log_id = str(uuid.uuid4())
-            print(f"Log id is {log_id}")
             if len(LogPlay.objects.filter(pk=log_id)) == 0:
                 # Good ID found, create log play object
                 self.data.id = log_id
-                print(f"self.data is : {self.data.is_valid}")
                 try:
                     self.data.save()
-                    print("SUCESSSS")
                     return True
                 except Exception as e:
                     print(e)  # TODO: better logging
                     return False
             else:
                 # TODO: log messages warning collision detects. check php
-                print("WARNING: Collision detected")
                 pass
 
         return False
@@ -223,17 +218,13 @@ class SessionPlay:
     def get_preview_play(session, preview_play_id):
         """Reconstruct a preview SessionPlay from session logs."""
 
-        print("===============DEBUGDEMO===================")
         preview_logs = session.get(f"previewPlayLogs.{preview_play_id}")
         # this only prints my one log instead of the the three that should be in it.
-        print(f"preview_logs: {preview_logs}")
         if not preview_logs:
-            print("no preview logs")
             return None
 
         # Construct a fake LogPlay
         log_play = LogPlay()
-        print(f"log_play: {log_play}")
         log_play.id = preview_play_id
         log_play.created_at = make_aware(datetime.now())
         log_play.is_complete = False
@@ -243,26 +234,18 @@ class SessionPlay:
         log_play.elapsed = 1
         log_play.context_id = ""
         log_play.semester = DateRange.objects.first()
-        print(f"log_play: {log_play}")
 
         session_play = SessionPlay()
-        print(f"session_play: {session_play}")
         session_play.data = log_play
         session_play.is_preview = True
         session_play._preview_logs = preview_logs
-        print(f"session_play: {session_play}")
 
         return session_play
 
     def get_logs(self):
-        print(
-            f"self: {self}, self.data: {self.data}, self.is_preview: {self.is_preview} vars: {vars(self)}"
-        )
         if self.is_preview and hasattr(self, "_preview_logs"):
-            print("WE ARE A PREVIEW")
             return self._preview_logs
         else:
-            print("WE ARE NOT A PREVIEW")
             from core.models import Log
 
             return Log.objects.filter(play_id=self.data.id).order_by("game_time")

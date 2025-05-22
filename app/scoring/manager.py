@@ -178,8 +178,6 @@ class ScoringUtil:
             play.is_complete = True
             play.save()
 
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
-
         widget_instance.get_qset(widget_instance.id, session_play.data.created_at)
         details["qset"] = (
             widget_instance.qset.as_json()
@@ -199,16 +197,12 @@ class ScoringUtil:
         # import types
         from util.logging.session_play import SessionPlay
 
-        print(f"Getting guest play details for play_id={play_id}")
-
         session_play = SessionPlay.get_preview_play(session, play_id)
 
         if not session_play:
-            print("Preview play not found in session. Trying DB LogPlay...")
             session_play = LogPlay.objects.filter(pk=play_id, instance=instance).first()
 
         if not session_play:
-            print("Still not found. Giving up.")
             return None
 
         if not isinstance(session_play, SessionPlay):
@@ -219,10 +213,8 @@ class ScoringUtil:
 
         widget_folder = f"staticfiles/widget/{instance.widget.id}-{instance.widget.clean_name}/_score-modules"
         script_path = os.path.join(widget_folder, "score_module.py")
-        print(f"Script path: {script_path}")
 
         ScoreClass = ScoringUtil.load_score_class(script_path, instance)
-        print(f"ScoreClass: {ScoreClass}")
         if not ScoreClass:
             raise Exception("No score module found")
 
@@ -238,8 +230,6 @@ class ScoringUtil:
         if not session_play.is_preview:
             play.is_complete = True
             play.save()
-
-        print(f"[DEBUG] Marked play {play.id} as complete with percent {play.percent}")
 
         if session_play.is_preview:
             qset = instance.get_qset_for_play(play_id, True)

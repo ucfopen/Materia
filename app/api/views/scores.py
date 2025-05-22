@@ -40,7 +40,6 @@ class ScoresApi:
 
         # semester = DateRange.objects.get(pk=5)  # TODO
         semester = SemesterUtil.get_current_semester()
-        print(f"semester: {semester}")
 
         # Get instance and validate user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
@@ -60,7 +59,6 @@ class ScoresApi:
             log_plays = log_plays.filter(semester=semester)
 
         scores = []
-        # print(f"how many log_plays: {log_plays.count()}")
         for play in log_plays.order_by("-created_at"):
             try:
                 from util.logging.session_play import SessionPlay
@@ -70,7 +68,6 @@ class ScoresApi:
                 sp.is_preview = False
 
                 play_data = ScoringUtil.get_play_details(sp)
-                print(f"play data: {play_data}")
                 scores.append(
                     {
                         "id": str(play.id),
@@ -80,7 +77,7 @@ class ScoresApi:
                 )
 
             except Exception as e:
-                print(f"Score error for play {play.id}: {e}")
+                print(e)
 
         attempts_used = len(
             ScoringUtil.get_instance_score_history(
@@ -110,7 +107,6 @@ class ScoresApi:
         json_body = json.loads(request.body)
         instance_id = json_body.get("instanceId")
         play_id = json_body.get("playId")
-        print(f"play_id: {play_id}, instance_id: {instance_id}, json_body: {json_body}")
 
         if not instance_id or not ValidatorUtil.is_valid_hash(instance_id):
             return MsgBuilder.invalid_input(msg=str(instance_id)).as_json_response()
@@ -122,7 +118,6 @@ class ScoresApi:
         if not instance.playable_by_current_user(request.user):
             return MsgBuilder.no_login(request=request).as_json_response()
 
-        print("getting instance score history")
         play_data = ScoringUtil.get_guest_play_details(
             request.session, instance, play_id, False
         )
@@ -132,7 +127,6 @@ class ScoresApi:
 
         # semester = DateRange.objects.get(pk=5)  # TODO
         semester = SemesterUtil.get_current_semester()
-        print(f"semester: {semester}")
         token = json_body.get("token")
         # Grab context ID
         context_id = None
@@ -158,7 +152,6 @@ class ScoresApi:
                 }
             ]
         else:
-            print("DEBUG: OUR SCORES ARE NULL :(((((")
             scores = []
 
         attempts_used = len(
@@ -182,7 +175,6 @@ class ScoresApi:
     # Gets play details (from Log table, containing player's answers and actions) for a play_id
     @staticmethod
     def get_play_details(request):
-        print("IN GET PLAY DETAILS API/VIEWS/score.py beg")
         # Get body params
         json_body = json.loads(request.body)
         play_id = json_body.get("playId")
@@ -212,7 +204,6 @@ class ScoresApi:
             if not play_details:
                 return MsgBuilder.expired().as_json_response()
 
-            print("PLAY DETAILS: ", play_details)
             return JsonResponse(play_details)
         else:
             # Get real play details
@@ -223,7 +214,6 @@ class ScoresApi:
             if not session_play.data.instance.playable_by_current_user(request.user):
                 return MsgBuilder.no_login(request=request).as_json_response()
 
-            print("session_play: ", session_play)
             return JsonResponse(ScoringUtil.get_play_details(session_play))
 
     # Gets score distributions (total and by semester) for a widget instance.

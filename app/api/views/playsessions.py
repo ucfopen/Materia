@@ -81,22 +81,19 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             instance = WidgetInstance.objects.filter(pk=inst_id).first()
 
             if instance and instance.guest_access:
-                print("Widget is in guest mode, hiding user info")
+                # print("Widget is in guest mode, hiding user info")
                 return PlaySessionSerializer  # Don't expose user info
             else:
-                print("Widget is NOT in guest mode, showing user info")
+                # print("Widget is NOT in guest mode, showing user info")
                 return PlaySessionWithExtraUserInfoSerializer
 
         elif inst_id and PermManager.user_is_student(self.request.user):
-            print("Student view (no extra user info)")
             return PlaySessionStudentViewSerializer
 
         elif include_activity == "true":
-            print("Activity view")
             return PlaySessionWithExtrasSerializer
 
         else:
-            print("Default fallback")
             return PlaySessionSerializer
 
     def create(self, request):
@@ -105,10 +102,8 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         )
         if serializer.is_valid(raise_exception=True):
             validated = serializer.validated_data
-            print(f"validated: {validated}")
             session_play = SessionPlay()
             play_id = session_play.start(validated["instance"], request.user.id)
-            print(f"play_id: {play_id}")
             return JsonResponse({"playId": play_id})
 
     def update(self, request, pk=None):
@@ -130,7 +125,6 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     logs = logs[0]
 
                 for log in logs:
-                    print(f"DEBUGGGG: Log is equal to {log}")
                     log_model = Log(
                         play_id=pk,
                         log_type=log.get("type"),
@@ -159,9 +153,6 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     # get rid of duplicates
                     seen = {}
                     for log in combined_logs:
-                        print(
-                            f"KEY: {log.get('queueId')} / {log.get('item_id')} / {log.get('type')}"
-                        )
                         key = log.get("queueId") or log.get("item_id"), log.get("type")
                         seen[key] = log
 

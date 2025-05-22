@@ -917,14 +917,12 @@ class WidgetInstance(models.Model):
 
     def get_qset_for_play(self, play_id=None, is_preview=False):
         if play_id and not is_preview:
-            print(f"play id: {play_id}")
             play = LogPlay.objects.get(id=play_id)  # this will fail if we are a preview
             return (
                 self.qsets.filter(created_at__lte=play.created_at)
                 .order_by("-created_at")
                 .first()
             )
-        print("we are a preview: ", is_preview)
         return self.get_latest_qset()
 
     def playable_by_current_user(self, user: User | AnonymousUser):
