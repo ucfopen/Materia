@@ -15,18 +15,16 @@ const LoginPage = () => {
 		actionLogin: '',
 		actionRedirect: '/profile/',
 		bypass: false,
-		loginLinks: '',
 		errContent: '',
 		noticeContent: '',
 		context: 'login',
 	})
 
 	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('ACTION_LOGIN')
-		&& !window.hasOwnProperty('ACTION_REDIRECT')
-		&& !window.hasOwnProperty('BYPASS')
-		&& !window.hasOwnProperty('LOGIN_LINKS')
-		&& !window.hasOwnProperty('CONTEXT')) {
+		// window properties on the login page are highly variable, WFW can only watch for the default ones ones
+		while(!window.hasOwnProperty('BASE_URL')
+		&& !window.hasOwnProperty('WIDGET_URL')
+		&& !window.hasOwnProperty('STATIC_CROSSDOMAIN')) {
 			await new Promise(resolve => setTimeout(resolve, 500))
 		}
 	}
@@ -34,10 +32,6 @@ const LoginPage = () => {
 	useEffect(() => {
 		waitForWindow()
 		.then(() => {
-			let links = decodeURIComponent(window.LOGIN_LINKS).split('@@@').map((link, index) => {
-				let vals = link.split('***')
-				return <li key={index}><a href={`${vals[0]}`}>{`${vals[1]?.replace('+',' ')}`}</a></li>
-			})
 
 			let actionRedirect = window.location.search && window.location.search.split("?next=").length > 1 ? window.location.search.split("?next=")[1] : ''
 			actionRedirect += (window.location.hash ? window.location.hash : '')
@@ -51,8 +45,7 @@ const LoginPage = () => {
 				instName: window.NAME != undefined ? window.INST_NAME : null,
 				widgetName: window.WIDGET_NAME != undefined ? window.WIDGET_NAME : null,
 				isPreview: window.IS_PREVIEW != undefined ? window.IS_PREVIEW : null,
-				loginLinks: links,
-				errContent: window.ERR_LOGIN ?? null,
+				errContent: window.ERR_LOGIN ? window.ERR_LOGIN : null,
 				noticeContent: window.NOTICE_LOGIN ?? null
 			})
 		})

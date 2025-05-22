@@ -1,3 +1,6 @@
+import re
+
+from core.models import WidgetInstance
 from django.conf import settings
 from django.shortcuts import render
 from util.context_util import ContextUtil
@@ -11,12 +14,48 @@ def login(request):
 
     # Dump in all extra login global vars
     login_global_vars = request.session.get("login_global_vars", {}) or {}
-    for k, v in login_global_vars.items():
-        js_globals[k] = v
 
-    # Clear all login session vars
-    request.session["login_title"] = None
-    request.session["login_global_vars"] = None
+    if login_global_vars:
+
+        for k, v in login_global_vars.items():
+            js_globals[k] = v
+
+        # Clear all login session vars
+        request.session["login_title"] = None
+        request.session["login_global_vars"] = None
+
+    # in cases where login global vars are no longer in session
+    # we pull inst info from next param
+    else:
+        next = request.GET.get("next", None)
+
+        if next:
+            match = re.search(r"/(play|embed){1}/([A-Za-z0-9]{5})/", next)
+            if match:
+                method = match.group(1)
+                inst_id = match.group(2)
+                try:
+                    inst = WidgetInstance.objects.get(pk=inst_id)
+                    if inst:
+                        js_globals.update(
+                            {
+                                "NAME": inst.name,
+                                "WIDGET_NAME": inst.widget.name,
+                                "ICON_DIR": settings.URLS["WIDGET_URL"]
+                                + inst.widget.dir,
+                                "IS_EMBEDDED": method == "embed",
+                                "ACTION_LOGIN": settings.LOGIN_URL,
+                                "ACTION_REDIRECT": next,
+                                "CONTEXT": "widget",
+                                "IS_PREVIEW": False,
+                            }
+                        )
+                except WidgetInstance.DoesNotExist:
+                    js_globals.update(
+                        {
+                            "ERR_LOGIN": "The widget you are trying to access does not exist.",
+                        }
+                    )
 
     context = ContextUtil.create(
         title=title,

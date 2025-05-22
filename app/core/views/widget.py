@@ -310,12 +310,6 @@ def _create_widget_login_vars(
         "IS_PREVIEW": is_preview,
     }
 
-    # Condense login links into a string with delimiters
-    link_items = []
-    for link in settings.LOGIN_LINKS:
-        link_items.append(f"{link["href"]}***{link["title"]}")
-    js_globals["LOGIN_LINKS"] = "@@@".join(link_items)
-
     return js_globals
 
 

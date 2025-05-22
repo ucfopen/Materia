@@ -39,7 +39,6 @@ from core.views.widget import (
 from django.contrib import admin
 from django.urls import include, path, re_path
 
-
 urlpatterns = [
     # api router and endpoint registration in api_urls
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
@@ -65,6 +64,16 @@ urlpatterns = [
         "play/<slug:widget_instance_id>/<str:instance_name>/",
         WidgetPlayView.as_view(),
         name="widget play",
+    ),
+    path(
+        "embed/<slug:widget_instance_id>/",
+        WidgetPlayView.as_view(),
+        name="widget embed",
+    ),
+    path(
+        "embed/<slug:widget_instance_id>/<str:instance_name>/",
+        WidgetPlayView.as_view(),
+        name="widget embed",
     ),
     path(
         "preview/<slug:widget_instance_id>/",
