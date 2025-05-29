@@ -2,7 +2,7 @@ import base64
 import json
 from abc import ABC, abstractmethod
 
-from core.models import LogPlay, WidgetInstance
+from core.models import LogPlay, WidgetInstance, WidgetQset
 from django.utils.timezone import now
 from util.logging.session_logger import SessionLogger
 from util.logging.session_play import SessionPlay
@@ -236,23 +236,42 @@ class ScoreModule(ABC):
         )
         return overview_items
 
-    def load_questions(self, timestamp=False) -> None:
-        """Loads questions associated with the widget instance"""
+    def load_questions(self, timestamp=False):
+        self.questions = {}
 
-        # if not self.instance.qset.data:
-        if not self.instance.get_latest_qset():
-            self.instance.get_qset(timestamp)
+        widget_qset = self.instance.get_latest_qset()
+        if not widget_qset:
+            print("[load_questions] No widget_qset found!")
+            return
 
-        if self.instance.get_latest_qset():
-            widget_qset = self.instance.get_latest_qset()
-            questions = widget_qset.flattened_questions.all()
-            questions_list = [
-                json.loads(base64.b64decode(q.data).decode()) for q in questions
-            ]
+        try:
+            decoded_data = WidgetQset.decode_data(widget_qset.data)
+            raw_items = decoded_data.get("items", [])
 
-            self.questions = questions_list
-            # turn self.questions into a dict
-            self.questions = {q["id"]: q for q in questions_list}
+            def normalize_and_store(item):
+                qid = item.get("id")
+                if qid:
+                    item["materiaType"] = item.get("materiaType", "question")
+                    self.questions[qid] = item
+
+            def walk_items(items):
+                for item in items:
+                    if isinstance(item, dict):
+                        # if this is a question(normal)
+                        if "questions" in item and "answers" in item:
+                            normalize_and_store(item)
+                        # if it's a category or container(enigma)
+                        elif "items" in item and isinstance(item["items"], list):
+                            walk_items(item["items"])
+
+            walk_items(raw_items)
+
+            print(
+                f"[load_questions] Loaded {len(self.questions)} question(s): {list(self.questions.keys())}"
+            )
+
+        except Exception as e:
+            print(f"[load_questions] Failed to decode or parse questions: {e}")
 
     def get_score_details(self):
         table = []
