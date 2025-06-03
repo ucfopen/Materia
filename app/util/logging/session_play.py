@@ -136,8 +136,9 @@ class SessionPlay:
         self.data.save()
 
     def set_complete(self, score, possible, percent):
-        # Ensure percent can never exceed 101%
-        percent = 101 if percent > 100 else percent
+        # Ensure percent can never exceed 100%
+        # TODO DO NOT GO 101
+        percent = 100 if percent > 100 else percent
 
         max_percent = percent
 
