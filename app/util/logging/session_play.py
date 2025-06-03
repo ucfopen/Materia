@@ -244,11 +244,18 @@ class SessionPlay:
         return session_play
 
     def get_logs(self):
-        if self.is_preview and hasattr(self, "_preview_logs"):
-            return self._preview_logs
-        else:
-            from core.models import Log
+        from core.models import Log
 
+        def from_json(cls, data):
+            """Create a dummy Log object from preview log dict."""
+            obj = cls()
+            for key, value in data.items():
+                setattr(obj, key, value)
+            return obj
+
+        if self.is_preview and hasattr(self, "_preview_logs"):
+            return [Log.from_json(log) for log in self._preview_logs]
+        else:
             return Log.objects.filter(play_id=self.data.id).order_by("game_time")
 
     def get_all_plays_for_instance(
