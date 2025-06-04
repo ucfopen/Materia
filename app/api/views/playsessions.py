@@ -71,21 +71,17 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     # we only need extras (widget name, inst name) when on the profile page
     def get_serializer_class(self):
         inst_id = self.request.query_params.get("inst_id")
-        # include_user_info = self.request.query_params.get(
-        #     "include_user_info", ""
-        # ).lower()
         include_user_info = parse_bool(
             self.request.query_params.get("include_user_info")
         )
-        # include_activity = self.request.query_params.get(
-        #     "include_activity", "false"
-        # ).lower()
         include_activity = parse_bool(self.request.query_params.get("include_activity"))
 
         if inst_id and include_user_info:
 
-            instance = WidgetInstance.objects.filter(pk=inst_id).first()
-
+            try:
+                instance = WidgetInstance.objects.get(pk=inst_id)
+            except WidgetInstance.DoesNotExist:
+                logger.error(f"WidgetInstance {inst_id} does not exist")
             if instance and instance.guest_access:
                 # print("Widget is in guest mode, hiding user info")
                 return PlaySessionSerializer  # Don't expose user info
@@ -155,15 +151,18 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     # we will combined them not override them
                     preview_session_key = f"previewPlayLogs.{preview_play_id}"
                     existing_logs = request.session.get(preview_session_key, [])
-                    combined_logs = existing_logs + logs
-                    # get rid of duplicates
-                    seen = {}
-                    for log in combined_logs:
-                        key = log.get("queueId") or log.get("item_id"), log.get("type")
-                        seen[key] = log
-
-                    request.session[preview_session_key] = list(seen.values())
+                    request.session[preview_session_key] = existing_logs + logs
                     request.session.modified = True
+
+                    # combined_logs = existing_logs + logs
+                    # # get rid of duplicates
+                    # seen = {}
+                    # for log in combined_logs:
+                    #     key = log.get("queueId") or log.get("item_id"), log.get("type")
+                    #     seen[key] = log
+                    #
+                    # request.session[preview_session_key] = list(seen.values())
+                    # request.session.modified = True
 
                 return Response({"status": status.HTTP_200_OK, "success": True})
 
