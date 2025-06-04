@@ -17,6 +17,7 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from util.custom_paginations import PageNumberWithTotalPagination
+from util.http_util import parse_bool
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
 from util.perm_manager import PermManager
@@ -49,9 +50,10 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         # check guest access
         inst_id = request.query_params.get("inst_id")
-        include_user_info = request.query_params.get("include_user_info", "").lower()
+        # include_user_info = request.query_params.get("include_user_info", "false").lower() == "true"
+        include_user_info = parse_bool(request.query_params.get("include_user_info"))
 
-        if inst_id and include_user_info == "true":
+        if inst_id and include_user_info:
             instance = WidgetInstance.objects.filter(pk=inst_id).first()
             if instance and instance.guest_access:
                 for log in queryset:
@@ -69,14 +71,18 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     # we only need extras (widget name, inst name) when on the profile page
     def get_serializer_class(self):
         inst_id = self.request.query_params.get("inst_id")
-        include_user_info = self.request.query_params.get(
-            "include_user_info", ""
-        ).lower()
-        include_activity = self.request.query_params.get(
-            "include_activity", "false"
-        ).lower()
+        # include_user_info = self.request.query_params.get(
+        #     "include_user_info", ""
+        # ).lower()
+        include_user_info = parse_bool(
+            self.request.query_params.get("include_user_info")
+        )
+        # include_activity = self.request.query_params.get(
+        #     "include_activity", "false"
+        # ).lower()
+        include_activity = parse_bool(self.request.query_params.get("include_activity"))
 
-        if inst_id and include_user_info == "true":
+        if inst_id and include_user_info:
 
             instance = WidgetInstance.objects.filter(pk=inst_id).first()
 
@@ -90,7 +96,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         elif inst_id and PermManager.user_is_student(self.request.user):
             return PlaySessionStudentViewSerializer
 
-        elif include_activity == "true":
+        elif include_activity:
             return PlaySessionWithExtrasSerializer
 
         else:
