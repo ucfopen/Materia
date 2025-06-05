@@ -53,18 +53,6 @@ class SessionPlay:
                 self.data.semester = SemesterUtil.get_current_semester()
                 self.is_preview = True
 
-        # self.id: str | None = None
-        # self.created_at: datetime | None = None
-        # self.user: User | None = None
-        # self.instance: WidgetInstance | None = None
-        # self.context_id: str | None = None
-        # self.is_preview: bool | None = None
-        # self.qset: WidgetQset | None = None
-        # self.environment_data: dict | None = None
-        # self.auth: str | None = None
-        # self.referrer_url: str | None = None
-        # self.semester: DateRange | None = None
-
     def start(
         self,
         instance: WidgetInstance,
@@ -244,18 +232,11 @@ class SessionPlay:
         return session_play
 
     def get_logs(self):
-        from core.models import Log
-
-        def from_json(cls, data):
-            """Create a dummy Log object from preview log dict."""
-            obj = cls()
-            for key, value in data.items():
-                setattr(obj, key, value)
-            return obj
-
         if self.is_preview and hasattr(self, "_preview_logs"):
-            return [Log.from_json(log) for log in self._preview_logs]
+            return self._preview_logs
         else:
+            from core.models import Log
+
             return Log.objects.filter(play_id=self.data.id).order_by("game_time")
 
     def get_all_plays_for_instance(
