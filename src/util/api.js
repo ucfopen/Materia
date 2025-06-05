@@ -46,8 +46,6 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 				...fetchWriteOptions(method, {body: data}),
 				...options
 			}
-			console.log("doing this thing for settings here")
-			console.log(add_options)
 			response = await fetch(url, add_options)
 		}
 
@@ -427,7 +425,6 @@ export const apiGetUserPlaySessions = (user, pageParam = 1) => {
 }
 
 export const apiUpdateUserSettings = (settings) => {
-	console.log('update user settings', settings)
 	return handleRequest(methods.PUT, `/api/users/${settings.user_id}/profile_fields/`, settings)
 }
 
