@@ -43,9 +43,9 @@ class SessionPlay:
                 self.data.user = None  # TODO
                 self.data.ip = ""  # TODO
                 self.data.is_complete = False
-                self.data.score = 1
-                self.data.percent = 1
-                self.data.elapsed = 1
+                self.data.score = 0
+                self.data.percent = 0
+                self.data.elapsed = 0
                 self.data.context_id = ""
                 # self.data.semester = (
                 #     DateRange.objects.first()
