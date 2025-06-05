@@ -1,5 +1,5 @@
-import base64
-import json
+# import base64
+# import json
 from abc import ABC, abstractmethod
 
 from core.models import LogPlay, WidgetInstance, WidgetQset
@@ -76,10 +76,14 @@ class ScoreModule(ABC):
         `calculated_percent`, which are eventually written to the database
         by the api. validates the individual question scores are valid.
         """
+        import logging
+
+        logger = logging.getLogger("django")
+
         session = SessionPlay.get_or_none(str(self.play_id))
         if not session:
-            print("no session")
-            # continues to get from DB i think
+            # goes down to session.get_logs() and gets constructed preview logs
+            logger.warning("Session not found(in database) We must be in preview mode")
 
         if not timestamp:
             if not self.play:

@@ -50,7 +50,6 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         # check guest access
         inst_id = request.query_params.get("inst_id")
-        # include_user_info = request.query_params.get("include_user_info", "false").lower() == "true"
         include_user_info = parse_bool(request.query_params.get("include_user_info"))
 
         if inst_id and include_user_info:
@@ -122,7 +121,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 is_preview = update_serializer.validated_data["is_preview"]
                 logs = update_serializer.validated_data["logs"]
 
-                # using many=True in serializer returns a double-nested list. Manually flatten if required.
+                # using many=True in serializer returns a double-nested list
                 if isinstance(logs, list) and logs[0] and isinstance(logs[0], list):
                     logs = logs[0]
 
@@ -153,16 +152,6 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     existing_logs = request.session.get(preview_session_key, [])
                     request.session[preview_session_key] = existing_logs + logs
                     request.session.modified = True
-
-                    # combined_logs = existing_logs + logs
-                    # # get rid of duplicates
-                    # seen = {}
-                    # for log in combined_logs:
-                    #     key = log.get("queueId") or log.get("item_id"), log.get("type")
-                    #     seen[key] = log
-                    #
-                    # request.session[preview_session_key] = list(seen.values())
-                    # request.session.modified = True
 
                 return Response({"status": status.HTTP_200_OK, "success": True})
 

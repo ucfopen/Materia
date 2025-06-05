@@ -64,8 +64,7 @@ class SessionLogger:
 
         return log
 
-    # Create an array of logs and store their references in the current session as preview logs
-    # Because they are preview logs, they will not be saved to the DB
+    # # NOTE: currently unused. session logs for previews are written directly in views/play_sessions.py
     @staticmethod
     def save_preview_logs(
         session: SessionBase,

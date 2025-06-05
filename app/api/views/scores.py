@@ -38,19 +38,28 @@ class ScoresApi:
             if session_context_id:
                 context_id = session_context_id
 
-        # semester = DateRange.objects.get(pk=5)  # TODO
         semester = SemesterUtil.get_current_semester()
 
         # Get instance and validate user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
-        if not instance.playable_by_current_user(request.user):
-            return MsgBuilder.no_login(request=request).as_json_response()
 
-        # log_plays = LogPlay.objects.filter(
-        #     is_complete=True, instance=instance, user=request.user
-        # )
+        from django.conf import settings
+        from django.shortcuts import render
+
+        if not instance.playable_by_current_user(request.user):
+            # return MsgBuilder.no_login(request=request).as_json_response()
+            from util.context_util import ContextUtil
+
+            context = ContextUtil.create(
+                request=request,
+                title="Forbidden",
+                js_resources=settings.JS_GROUPS["no-permission"],
+                css_resources=settings.CSS_GROUPS["no-permission"],
+            )
+            return render(request, "react.html", context)
+
         log_plays = LogPlay.objects.filter(instance=instance, user=request.user)
 
         if context_id:
