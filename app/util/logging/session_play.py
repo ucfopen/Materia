@@ -56,7 +56,7 @@ class SessionPlay:
     def start(
         self,
         instance: WidgetInstance,
-        user_id: int = 1,
+        user_id: int = None,
         context_id: str = "",
         is_preview: bool = False,
     ) -> str | None:
