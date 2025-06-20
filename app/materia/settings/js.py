@@ -24,4 +24,7 @@ JS_GROUPS = {
     "no-attempts": [JS_BASEURL + "no-attempts.js"],
     "pre-embed": [JS_BASEURL + "pre-embed-placeholder.js"],
     "embedded-only": [JS_BASEURL + "embedded-only.js"],
+    "post-login": [JS_BASEURL + "lti-post-login.js"],
+    "select-item": [JS_BASEURL + "lti-select-item.js"],
+    "open-preview": [JS_BASEURL + "lti-open-preview.js"],
 }

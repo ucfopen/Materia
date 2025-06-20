@@ -6,13 +6,14 @@ from pathlib import Path
 from .css import *  # noqa: F401, F403
 from .generation import *  # noqa: F401, F403
 from .js import *  # noqa: F401, F403
+from .lti import *  # noqa: F401, F403
 
 # import additional config files
 from .session import *  # noqa: F401, F403
 from .storage import *  # noqa: F401, F403
 from .urls import *  # noqa: F401, F403
-from .widgets import *  # noqa: F401, F403
 from .verbage import *  # noqa: F401, F403
+from .widgets import *  # noqa: F401, F403
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -55,6 +56,8 @@ INSTALLED_APPS = [
     "rest_framework",
     # apps
     "core",
+    "lti_tool",
+    "lti",
 ]
 
 REST_FRAMEWORK = {
@@ -74,6 +77,7 @@ MIDDLEWARE = [
     # "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "lti_tool.middleware.LtiLaunchMiddleware",
 ]
 
 ROOT_URLCONF = "materia.urls"

@@ -38,7 +38,7 @@ from core.views.widget import (
 )
 from django.contrib import admin
 from django.urls import include, path, re_path
-
+from lti.urls import urlpatterns as lti_urlpatterns
 
 urlpatterns = [
     # api router and endpoint registration in api_urls
@@ -140,6 +140,8 @@ urlpatterns = [
     ),
     path("media/upload", MediaUpload.index),
 ]
+
+urlpatterns.extend(lti_urlpatterns)
 
 handler403 = "core.views.exception_handlers.forbidden"
 handler404 = "core.views.main.handler404"
