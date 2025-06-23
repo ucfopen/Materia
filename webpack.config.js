@@ -50,6 +50,7 @@ module.exports = {
 		},
 		webSocketServer: false
 	},
+	devtool: 'eval-cheap-source-map', 
 	entry,
 	output: {
 		path: path.join(__dirname, 'public/dist/'),
