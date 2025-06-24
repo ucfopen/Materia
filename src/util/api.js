@@ -7,7 +7,7 @@ import { error } from 'jquery'
 export const getCSRFToken = () => {
 	const cookies = document.cookie.split(';')
 	for(let cookie of cookies) {
-		if(cookie.startsWith('csrftoken=')) {
+		if(cookie.trim().startsWith('csrftoken=')) {
 			return cookie.split('=')[1]
 		}
 	}

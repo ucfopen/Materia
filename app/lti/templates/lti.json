@@ -9,12 +9,20 @@
           "platform": "canvas.instructure.com",
           "placements": [
             {
+              "enabled": true,
               "default": "disabled",
               "windowTarget": "_blank",
               "placement": "course_navigation",
               "message_type": "LtiResourceLinkRequest",
               "target_link_uri": "{{ app_hostname }}/ltilaunch/"
-            }
+            },
+            {
+              "text":"Materia Widget",
+              "enabled":true,
+              "placement":"assignment_selection",
+              "message_type":"LtiDeepLinkingRequest",
+              "target_link_uri": "{{ app_hostname }}/ltilaunch/"
+           }
           ]
         },
         "privacy_level": "public"
