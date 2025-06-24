@@ -29,11 +29,11 @@ class ScoresView(MateriaLoginMixin, TemplateView):
 
         if not instance.playable_by_current_user(self.request.user):
             return ContextUtil.create(
-                title="Invalid",
-                js_resources=[],
-                css_resources=[],
+                request=request,
+                title="Forbidden",
+                js_resources=settings.JS_GROUPS["no-permission"],
+                css_resources=settings.CSS_GROUPS["no-permission"],
                 js_globals={},
-                request=self.request,
             )
 
         context = ContextUtil.create(

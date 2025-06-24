@@ -17,10 +17,10 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from util.custom_paginations import PageNumberWithTotalPagination
-from util.http_util import parse_bool
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
 from util.perm_manager import PermManager
+from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
 
@@ -50,7 +50,9 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         # check guest access
         inst_id = request.query_params.get("inst_id")
-        include_user_info = parse_bool(request.query_params.get("include_user_info"))
+        include_user_info = ValidatorUtil.validate_bool(
+            request.query_params.get("include_user_info"), default=False
+        )
 
         if inst_id and include_user_info:
             instance = WidgetInstance.objects.filter(pk=inst_id).first()
@@ -70,20 +72,28 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     # we only need extras (widget name, inst name) when on the profile page
     def get_serializer_class(self):
         inst_id = self.request.query_params.get("inst_id")
-        include_user_info = parse_bool(
-            self.request.query_params.get("include_user_info")
+        include_user_info = ValidatorUtil.validate_bool(
+            self.request.query_params.get("include_user_info"), default=False
         )
-        include_activity = parse_bool(self.request.query_params.get("include_activity"))
+        include_activity = ValidatorUtil.validate_bool(
+            self.request.query_params.get("include_activity"), default=False
+        )
 
         if inst_id and include_user_info:
-
             try:
                 instance = WidgetInstance.objects.get(pk=inst_id)
             except WidgetInstance.DoesNotExist:
-                logger.error(f"WidgetInstance {inst_id} does not exist")
+                # logger.error(f"WidgetInstance {inst_id} does not exist")
+                # perhaps we should retunr the default seralizer instead
+                logger.warning(
+                    f"[get_serializer_class] WidgetInstance '{inst_id}' not found. "
+                    f"Falling back to PlaySessionSerializer."
+                )
+                # PR TODO: Rework the method entirely to filter by method first(after this gets merged in)
+                return PlaySessionSerializer
             if instance and instance.guest_access:
                 # print("Widget is in guest mode, hiding user info")
-                return PlaySessionSerializer  # Don't expose user info
+                return PlaySessionSerializer
             else:
                 # print("Widget is NOT in guest mode, showing user info")
                 return PlaySessionWithExtraUserInfoSerializer
@@ -105,7 +115,18 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             validated = serializer.validated_data
             session_play = SessionPlay()
             play_id = session_play.start(validated["instance"], request.user.id)
-            return JsonResponse({"playId": play_id})
+            # this is where the desired error handling from session_play gets handled
+            if not play_id:
+                logger.warning(
+                    f"[Playsessions] Failed to start SessionPlay for instance"
+                    f"{validated["instance"].id} and user {request.user.id}"
+                )
+                return MsgBuilder.failure(
+                    "Failed to Create Play Session",
+                    "There was an error starting your play session. Please try again.",
+                ).as_drf_response(status=400)
+
+        return JsonResponse({"playId": play_id})
 
     def update(self, request, pk=None):
         if not pk:
@@ -122,7 +143,11 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 logs = update_serializer.validated_data["logs"]
 
                 # using many=True in serializer returns a double-nested list
-                if isinstance(logs, list) and logs[0] and isinstance(logs[0], list):
+                if (
+                    isinstance(logs, list)
+                    and len(logs) > 0
+                    and isinstance(logs[0], list)
+                ):
                     logs = logs[0]
 
                 for log in logs:

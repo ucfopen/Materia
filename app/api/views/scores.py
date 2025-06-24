@@ -1,12 +1,17 @@
 import json
+import logging
+import traceback
 
 from core.models import LogPlay, WidgetInstance
 from django.http import HttpResponseNotFound, JsonResponse
+from rest_framework.response import Response
 from scoring.manager import ScoringUtil
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
 from util.semester_util import SemesterUtil
 from util.widget.validator import ValidatorUtil
+
+logger = logging.getLogger(__name__)
 
 
 class ScoresApi:
@@ -45,20 +50,8 @@ class ScoresApi:
         if not instance:
             return HttpResponseNotFound()
 
-        from django.conf import settings
-        from django.shortcuts import render
-
         if not instance.playable_by_current_user(request.user):
-            # return MsgBuilder.no_login(request=request).as_json_response()
-            from util.context_util import ContextUtil
-
-            context = ContextUtil.create(
-                request=request,
-                title="Forbidden",
-                js_resources=settings.JS_GROUPS["no-permission"],
-                css_resources=settings.CSS_GROUPS["no-permission"],
-            )
-            return render(request, "react.html", context)
+            return MsgBuilder.no_permission().as_json_response()
 
         log_plays = LogPlay.objects.filter(instance=instance, user=request.user)
 
@@ -68,6 +61,7 @@ class ScoresApi:
             log_plays = log_plays.filter(semester=semester)
 
         scores = []
+        errors = []
         for play in log_plays.order_by("-created_at"):
             try:
                 from util.logging.session_play import SessionPlay
@@ -77,6 +71,7 @@ class ScoresApi:
                 sp.is_preview = False
 
                 play_data = ScoringUtil.get_play_details(sp)
+
                 scores.append(
                     {
                         "id": str(play.id),
@@ -86,28 +81,20 @@ class ScoresApi:
                 )
 
             except Exception as e:
-                print(e)
+                tbString = traceback.format_exc()
+                logger.warning(
+                    f"[get_for_widget_instance] Failed to process LogPlay ID {play.id}: {e}\n{tbString}"
+                )
+                errors.append(str(play.id))
 
-        attempts_used = len(
-            ScoringUtil.get_instance_score_history(
-                instance, context_id, semester, user_id=request.user.id
-            )
-        )
-        #
-        extra = (
-            ScoringUtil.get_instance_extra_attempts(instance, context_id, semester)
-            if context_id
-            else 0
-        )
+        if errors:
+            return MsgBuilder.partial_success(
+                title="Some Sessions Failed",
+                msg=f"{len(errors)} sessions could not be processed.",
+                data={"processed": scores, "failed_ids": errors},
+            ).as_drf_response(status=207)
 
-        attempts_left = instance.attempts - attempts_used + extra
-
-        return JsonResponse(
-            {
-                "scores": scores,
-                "attemptsLeft": attempts_left,
-            }
-        )
+        return Response(scores)
 
     # WAS guest_widget_instance_scores_get
     @staticmethod
