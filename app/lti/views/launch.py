@@ -4,6 +4,9 @@ from django.shortcuts import redirect
 from lti.services import LTiAuthService
 from lti_tool.views import LtiLaunchBaseView
 
+# from pprint import pformat
+
+
 logger = logging.getLogger("django")
 
 
@@ -24,9 +27,13 @@ class ApplicationLaunchView(LtiLaunchBaseView):
         launch_data = lti_launch.get_launch_data()
         auth = LTiAuthService.authenticate(request, launch_data)
 
-        if not auth:
+        if auth is None:
             logger.error("launch login invalid")
             return redirect("/404")
+
+        # store the launch ID in session - we'll need to grab this
+        # in the subsequent request that does not have access to the original launch
+        request.session["lti-launch-id"] = lti_launch.get_launch_id()
 
         return redirect("/lti/picker/")
 

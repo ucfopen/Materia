@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
+import { getCSRFToken } from '../../util/api'
 import useInstanceList from '../hooks/useInstanceList'
-import LoadingIcon from '../loading-icon';
+import LoadingIcon from '../loading-icon'
 
 const SelectItem = () => {
 	const [strHeader, setStrHeader] = useState('Select a Widget:');
@@ -78,12 +79,30 @@ const SelectItem = () => {
 			}
 
 			if (!!window.RETURN_URL) {
-				// add a ? or & depending on window.RETURN_URL already containing query params
-				const separator = window.RETURN_URL.includes('?') ? '&' : '?'
-				// encode the url
-				const url = encodeURI(selectedInstance.embed_url)
-				// redirect the client to the return url with our new variables
-				window.location = `${window.RETURN_URL}${separator}embed_type=basic_lti&url=${url}`
+				// Create a form element that will be submitted to RETURN_URL
+				const form = document.createElement('form')
+				form.method = 'POST'
+				form.action = window.RETURN_URL
+
+				// Create an input for the instance
+				const input = document.createElement('input')
+				input.type = 'hidden'
+				input.name = 'instance'
+				input.value = selectedInstance.embed_url
+
+				// Add the input to the form
+				form.appendChild(input)
+
+				const csrf = document.createElement('input')
+				csrf.type = 'hidden'
+				csrf.name = 'csrfmiddlewaretoken'
+				csrf.value = getCSRFToken()
+				form.appendChild(csrf)
+
+				// Add the form to the document, submit it, then remove it
+				document.body.appendChild(form)
+				form.submit()
+				document.body.removeChild(form)
 			}
 		}
 		// Start progress bar

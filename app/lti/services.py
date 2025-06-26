@@ -47,7 +47,7 @@ class LTiAuthService:
 
         if not auth_data["email"] or not auth_data["login_id"]:
             logger.error("LTI auth: critical auth data (email or login id) missing")
-            return False
+            return None
 
         try:
             user, created = User.objects.get_or_create(
@@ -78,9 +78,9 @@ class LTiAuthService:
 
             login(request, user)
 
-            return True
+            return user
 
         except Exception as e:
             logger.error(f"LTI auth: exception!\n{pformat(e)}\n")
             logout(request)
-            return False
+            return None

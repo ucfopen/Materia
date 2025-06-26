@@ -22,6 +22,9 @@ def picker(request):
         title="Profile",
         js_resources=django_settings.JS_GROUPS["select-item"],
         css_resources=django_settings.CSS_GROUPS["lti"],
+        js_globals={
+            "RETURN_URL": f"{django_settings.URLS["BASE_URL"]}lti/deep_link_selection/",
+        },
         request=request,
     )
 
