@@ -92,7 +92,7 @@ class ScoresApi:
                 title="Some Sessions Failed",
                 msg=f"{len(errors)} sessions could not be processed.",
                 data={"processed": scores, "failed_ids": errors},
-            ).as_drf_response(status=207)
+            ).as_drf_response(status=206)
 
         return Response(scores)
 
