@@ -285,7 +285,16 @@ class QuestionSetSerializer(serializers.ModelSerializer):
         import uuid
 
         questions_list = []
-        question_types = {"QA", "MC", "question"}
+
+        def is_question(item):
+            return (
+                isinstance(item, dict)
+                and item.get("id")
+                and isinstance(item.get("questions"), list)
+                and isinstance(item.get("answers"), list)
+                and len(item.get("questions")) > 0
+                and len(item.get("answers")) > 0
+            )
 
         def _process_item(item):
 
@@ -294,11 +303,8 @@ class QuestionSetSerializer(serializers.ModelSerializer):
                     item["id"] is None or item["id"] == 0 or item["id"] == ""
                 ):
                     item["id"] = str(uuid.uuid4())
-                # some old widgets check by type instead of materiaType
-                if (
-                    item.get("materiaType") in question_types
-                    or item.get("type") in question_types
-                ):
+
+                if is_question(item):
                     questions_list.append(item)
 
                 for key, value in item.items():

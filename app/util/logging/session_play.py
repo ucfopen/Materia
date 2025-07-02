@@ -1,5 +1,4 @@
 import logging
-import uuid
 from datetime import datetime
 from typing import Self
 
@@ -33,7 +32,6 @@ class SessionPlay:
     def __init__(self, play_id: str | None = None):
         self.data: LogPlay = LogPlay()
         self.is_preview = False
-        self.hash_generation_attempts = 24  # default fallback if not overwritten
 
         # ID was provided, load in LogPlay for DB (or fake one if its a preview)
         if play_id:
@@ -94,17 +92,10 @@ class SessionPlay:
         self.data.semester = DateRange.objects.get(
             start_at__lte=current_time, end_at__gt=current_time
         )
-
-        self.hash_generation_attempts = (
-            instance.attempts if instance.attempts > 0 else 24
-        )
-
         # TODO clear play logs summary cache
 
-        result = self._save_new_play()
-        if not result:
-            # TODO logging
-            return None
+        if not self.is_preview:
+            self.data.save()
 
         # TODO set user is playing, session logger, etc
         return self.data.id
@@ -170,29 +161,6 @@ class SessionPlay:
         # real play: mark it as invalid like php
         self.data.is_valid = False
         self.data.save()
-
-    def _save_new_play(self) -> bool:
-        # attempt x times to look for a good id, and then create a play object if successful
-        log_id = ""
-        for attempt in range(self.hash_generation_attempts):
-            log_id = str(uuid.uuid4())
-            if len(LogPlay.objects.filter(pk=log_id)) == 0:
-                self.data.id = log_id
-                try:
-                    self.data.save()
-                    return True
-                except Exception as e:
-                    # error is properly handled in playsessions.py with msg builder and drf
-                    logger.exception(
-                        f"[Attempt {attempt + 1}] Failed to save LogPlay with ID {log_id}: {e}"
-                    )
-                    break
-            else:
-                logger.warning(
-                    f"[Attempt {attempt + 1}] UUID collision detected for LogPlay ID {log_id}. Retrying..."
-                )
-
-        return False
 
     # Util function for getting the SessionPlay for that play_Id and running its validate function.
     @staticmethod
