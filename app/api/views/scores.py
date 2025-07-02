@@ -94,7 +94,25 @@ class ScoresApi:
                 data={"processed": scores, "failed_ids": errors},
             ).as_drf_response(status=206)
 
-        return Response(scores)
+        # compute and add attemptsLeft
+        attempts_used = len(
+            ScoringUtil.get_instance_score_history(
+                instance, context_id, semester, user_id=request.user.id
+            )
+        )
+        extra = (
+            ScoringUtil.get_instance_extra_attempts(instance, context_id, semester)
+            if context_id
+            else 0
+        )
+        attempts_left = instance.attempts - attempts_used + extra
+
+        return Response(
+            {
+                "scores": scores,
+                "attemptsLeft": attempts_left,
+            }
+        )
 
     # WAS guest_widget_instance_scores_get
     @staticmethod
