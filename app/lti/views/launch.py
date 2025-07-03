@@ -1,7 +1,7 @@
 import logging
 
 from django.shortcuts import redirect
-from lti.services import LTiAuthService
+from lti.services import LTIAuthService, LTILaunchService
 from lti_tool.views import LtiLaunchBaseView
 
 # from pprint import pformat
@@ -14,18 +14,19 @@ class ApplicationLaunchView(LtiLaunchBaseView):
     def handle_resource_launch(self, request, lti_launch):
         launch_data = lti_launch.get_launch_data()
 
-        auth = LTiAuthService.authenticate(request, launch_data)
+        auth = LTIAuthService.authenticate(request, launch_data)
 
         if not auth:
             logger.error("launch login invalid")
             return redirect("/404")
 
-        return redirect("/lti/post_login/")
+        destination = LTILaunchService.get_launch_redirect(launch_data)
+        return redirect(destination)
 
     def handle_deep_linking_launch(self, request, lti_launch):
 
         launch_data = lti_launch.get_launch_data()
-        auth = LTiAuthService.authenticate(request, launch_data)
+        auth = LTIAuthService.authenticate(request, launch_data)
 
         if auth is None:
             logger.error("launch login invalid")

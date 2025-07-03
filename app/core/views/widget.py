@@ -1,16 +1,18 @@
+import json
 import logging
 
+from core.mixins import MateriaLoginMixin, MateriaLoginNeeded
+from core.models import ObjectPermission, Widget, WidgetInstance
+from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
-
-from core.mixins import MateriaLoginMixin, MateriaLoginNeeded
-from core.models import Widget, WidgetInstance
-from django.conf import settings
-from django.http import HttpRequest, Http404
+from django.http import Http404, HttpRequest
+from django.shortcuts import render
 from django.views.generic import TemplateView
+from lti.mixins import LtiLaunchMixin
+from lti.services import LTIAuthService, LTILaunchService
 from util.context_util import ContextUtil
 from util.perm_manager import PermManager
-
 
 logger = logging.getLogger("django")
 
@@ -28,7 +30,9 @@ class WidgetDetailView(TemplateView):
             js_resources=settings.JS_GROUPS["detail"],
             css_resources=settings.CSS_GROUPS["detail"],
             js_globals={
-                "NO_AUTHOR": PermManager.does_user_have_roles(self.request.user, "no_author"),
+                "NO_AUTHOR": PermManager.does_user_have_roles(
+                    self.request.user, "no_author"
+                ),
                 "WIDGET_HEIGHT": widget.height,
             },
             page_type="widget",
@@ -59,9 +63,33 @@ class WidgetDemoView(MateriaLoginMixin, TemplateView):
         )
 
 
-class WidgetPlayView(MateriaLoginMixin, TemplateView):
+class WidgetPlayView(LtiLaunchMixin, MateriaLoginMixin, TemplateView):
     template_name = "react.html"
     allow_all_by_default = True
+
+    # overrides the baseline LTILaunchMixin's launch success method
+    def on_lti_launch_success(self, request):
+        inst_id = self.kwargs.get("widget_instance_id")
+        instance = WidgetInstance.objects.filter(pk=inst_id).first()
+        launch = self.request.lti_launch
+
+        if instance is None:
+            context = _create_lti_error_page(request, "error_unknown_assignment")
+
+        if LTIAuthService.is_user_author(launch.get_launch_data()):
+            if instance.guest_access:
+                context = _create_lti_error_page(
+                    request,
+                    "error_lti_guest_mode",
+                )
+            else:
+                LTILaunchService.register_association(request, launch)
+                context = _create_lti_success_page(request, instance)
+
+        if context:
+            return render(request, "react.html", context)
+
+        return None
 
     def get_context_data(self, widget_instance_id, instance_name=None):
         autoplay = _parse_nullable_bool_string(self.request.GET.get("autoplay", None))
@@ -103,7 +131,7 @@ class WidgetCreatorView(MateriaLoginMixin, PermissionRequiredMixin, TemplateView
     permission_denied_message = "You do not have permission to create widgets."
 
     def has_permission(self):
-        return not PermManager.does_user_have_roles(self.request.user, 'no_author')
+        return not PermManager.does_user_have_roles(self.request.user, "no_author")
 
     def get_context_data(self, widget_slug, instance_id=None):
         # Create the widget instance
@@ -203,15 +231,19 @@ def _create_player_page(
 
     # Check to see if login is required
     if not instance.playable_by_current_user(request.user):
-        raise MateriaLoginNeeded(login_global_vars=_create_widget_login_vars(
-            instance, request, is_embedded, is_preview
-        ))
+        raise MateriaLoginNeeded(
+            login_global_vars=_create_widget_login_vars(
+                instance, request, is_embedded, is_preview
+            )
+        )
 
     # Check to see if this widget is playable
     login_messages = _generate_widget_login_messages(instance)
 
     if not login_messages["is_open"]:
-        return _create_widget_not_open_page(instance, request, login_messages, is_embedded)
+        return _create_widget_not_open_page(
+            instance, request, login_messages, is_embedded
+        )
     if not is_preview and instance.is_draft:
         return _create_draft_not_playable_page(request)
     if not is_demo and not instance.widget.is_playable:
@@ -277,7 +309,7 @@ def _create_widget_not_open_page(
         "SUMMARY": login_messages["summary"],
         "DESC": login_messages["desc"],
         "START": login_messages["start"],
-        "END": login_messages["end"]
+        "END": login_messages["end"],
     }
 
     return ContextUtil.create(
@@ -305,7 +337,7 @@ def _create_widget_login_vars(
         "LOGIN_USER": settings.VERBAGE["USERNAME"],
         "LOGIN_PW": settings.VERBAGE["PASSWORD"],
         "CONTEXT": "widget",
-        "IS_PREVIEW": is_preview
+        "IS_PREVIEW": is_preview,
     }
 
     # Condense login links into a string with delimiters
@@ -338,7 +370,9 @@ def _create_widget_retired_page(request: HttpRequest, is_embedded: bool = False)
     )
 
 
-def _create_no_attempts_page(request: HttpRequest, instance: WidgetInstance, is_embedded):
+def _create_no_attempts_page(
+    request: HttpRequest, instance: WidgetInstance, is_embedded
+):
     # TODO _disable_browser_cache = true
 
     return ContextUtil.create(
@@ -391,6 +425,48 @@ def _create_embedded_only_page(request: HttpRequest, instance: WidgetInstance):
     )
 
 
+def _create_lti_error_page(request: HttpRequest, error_type: str):
+
+    return ContextUtil.create(
+        title="Widget Embed Error",
+        page_type="lti-error",
+        js_globals={
+            "TITLE": "There was a problem with this embedded content.",
+            "ERROR_TYPE": error_type,
+        },
+        js_resources=settings.JS_GROUPS["lti-error"],
+        css_resources=settings.CSS_GROUPS["lti"],
+        request=request,
+    )
+
+
+def _create_lti_success_page(request: HttpRequest, instance: WidgetInstance):
+    is_owner = instance.editable_by_current_user(request.user)
+    owner_list = instance.permissions.filter(
+        permission=ObjectPermission.PERMISSION_FULL
+    )
+    owner_details = [
+        {"id": perm.user.id, "first": perm.user.first_name, "last": perm.user.last_name}
+        for perm in owner_list
+    ]
+
+    return ContextUtil.create(
+        title="Widget Connected Successfully",
+        page_type="preview",
+        js_globals={
+            "ICON_DIR": settings.URLS["WIDGET_URL"] + instance.widget.dir,
+            "PREVIEW_URL": f"/preview/{instance.id}",
+            "PREVIEW_EMBED_URL": f"/preview-embed/{instance.id}",
+            "CURRENT_USER_OWNS": is_owner,
+            "OWNER_LIST": json.dumps(owner_details),
+            "USER_ID": request.user.id,
+        },
+        js_resources=settings.JS_GROUPS["open-preview"],
+        css_resources=settings.CSS_GROUPS["lti"],
+        request=request,
+    )
+
+
 # Utils functions
 def _generate_widget_login_messages(instance: WidgetInstance) -> dict:
     instance_status = instance.status()
@@ -407,9 +483,13 @@ def _generate_widget_login_messages(instance: WidgetInstance) -> dict:
         summary = "Available after {start_date} at {start_time}"
         desc = "This widget cannot be accessed at this time. Please return on or after {start_date} at {start_time}."
     elif instance_status["will_open"] and instance_status["will_close"]:
-        summary = "Available from {start_date} at {start_time} until {end_date} at {end_time}"
-        desc = ("This widget cannot be accessed at this time. Please return between {start_date} at {start_time} and "
-                + "{end_date} at {end_time}")
+        summary = (
+            "Available from {start_date} at {start_time} until {end_date} at {end_time}"
+        )
+        desc = (
+            "This widget cannot be accessed at this time. Please return between {start_date} at {start_time} and "
+            + "{end_date} at {end_time}"
+        )
     else:
         summary = "Unknown error"
         desc = "Unknown error"

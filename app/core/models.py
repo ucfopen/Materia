@@ -15,10 +15,10 @@ from pathlib import Path
 from typing import Self
 
 from django.conf import settings
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.db import models, transaction, DatabaseError
+from django.db import DatabaseError, models, transaction
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -887,15 +887,20 @@ class WidgetInstance(models.Model):
     def status(self, context: str = None):
         from util.scoring.scoring_util import ScoringUtil  # avoid cyclic import
         from util.semester_util import SemesterUtil
+
         semester = SemesterUtil.get_current_semester()
 
         now = timezone.now()
         start = self.open_at
         end = self.close_at
-        attempts_used = ScoringUtil.get_instance_score_history(self, context, semester).count()
+        attempts_used = ScoringUtil.get_instance_score_history(
+            self, context, semester
+        ).count()
 
         # Check to see if any extra attempts have been provided to the user. Decrement attempts_used if so.
-        extra_attempts = ScoringUtil.get_instance_extra_attempts(self, context, semester)
+        extra_attempts = ScoringUtil.get_instance_extra_attempts(
+            self, context, semester
+        )
         attempts_used -= extra_attempts
 
         has_attempts = self.attempts == -1 or attempts_used < self.attempts
@@ -905,7 +910,9 @@ class WidgetInstance(models.Model):
         always_open = not does_open and not does_close
         will_open = does_open and start > now
         will_close = does_close and end > now
-        is_open = always_open or ((not does_open or start < now) and (will_close or not does_close))
+        is_open = always_open or (
+            (not does_open or start < now) and (will_close or not does_close)
+        )
         is_closed = not always_open and (does_close and end < now)
 
         return {
@@ -943,6 +950,11 @@ class WidgetInstance(models.Model):
     def playable_by_current_user(self, user: User | AnonymousUser):
         return self.guest_access or user.is_authenticated
 
+    def editable_by_current_user(self, user: User | AnonymousUser):
+        return self.permissions.filter(
+            user=user, permission=ObjectPermission.PERMISSION_FULL
+        ).exists()
+
     def save(self, *args, **kwargs):
         # No user or permissions checks are checked here.
         # It is up to the endpoint itself to enforce permissions, etc.
@@ -953,7 +965,10 @@ class WidgetInstance(models.Model):
         # ADDING A NEW INSTANCE
         if is_new:
             from util.widget.instance.hash import WidgetInstanceHash
-            tries = 3  # try this many times to generate an instance ID to avoid collisions
+
+            tries = (
+                3  # try this many times to generate an instance ID to avoid collisions
+            )
             while not success:
                 tries = tries - 1
                 if tries < 0:
