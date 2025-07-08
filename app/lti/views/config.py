@@ -2,6 +2,7 @@ import json
 import os
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from lti_tool.models import LtiRegistration
@@ -12,7 +13,7 @@ from lti_tool.models import LtiRegistration
 def lti_config(request):
 
     # TODO these values should come from settings.URLS instead of directly from env
-    domain = urlparse(os.environ.get("TOOL_URL", "localhost")).netloc or "localhost"
+    domain = urlparse(settings.LTI_URL_CONFIGS["tool_url"]).netloc or "localhost"
     canvas_domain = os.environ.get("CANVAS_DOMAIN")
 
     try:
@@ -31,7 +32,9 @@ def lti_config(request):
     json_template = render_to_string(
         "lti.json",
         {
-            "app_hostname": os.environ.get("TOOL_URL", "localhost"),
+            "app_hostname": settings.LTI_URL_CONFIGS["tool_url"] or "localhost",
+            "platform": settings.LTI_URL_CONFIGS["platform_iss"]
+            or "https://canvas.instructure.com",
             "app_domain": domain,
             "registration_uuid": registration_uuid,
         },

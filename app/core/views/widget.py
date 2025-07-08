@@ -454,6 +454,7 @@ def _create_lti_success_page(request: HttpRequest, instance: WidgetInstance):
         title="Widget Connected Successfully",
         page_type="preview",
         js_globals={
+            "INST_ID": instance.id,
             "ICON_DIR": settings.URLS["WIDGET_URL"] + instance.widget.dir,
             "PREVIEW_URL": f"/preview/{instance.id}",
             "PREVIEW_EMBED_URL": f"/preview-embed/{instance.id}",

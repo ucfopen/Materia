@@ -4,14 +4,14 @@ import { apiGetWidgetInstance, apiRequestAccess } from '../../util/api'
 import { iconUrl as getIconUrl } from '../../util/icon-url'
 
 const SelectItem = () => {
-	const nameArr = window.location.pathname.split('/')
-	const instID = nameArr[nameArr.length - 1]
 	const [iconUrl, setIconUrl] = useState('')
 	const [userOwnsInstance, setUserOwnsInstance] = useState(false)
 	const [previewEmbedUrl, setPreviewEmbedUrl] = useState('')
 	const [requestSuccess, setRequestSuccess] = useState(null)
 	const [requestSuccessID, setRequestSuccessID] = useState(null)
 	const [instanceOwners, setOwnerList] = useState([])
+
+	const instID = window.INST_ID
 
 	const { data: instance } = useQuery({
 		queryKey: 'instance',
