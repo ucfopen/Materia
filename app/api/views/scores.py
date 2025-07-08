@@ -4,7 +4,6 @@ import traceback
 
 from core.models import LogPlay, WidgetInstance
 from django.http import HttpResponseNotFound, JsonResponse
-from rest_framework.response import Response
 from scoring.manager import ScoringUtil
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
@@ -107,7 +106,9 @@ class ScoresApi:
         )
         attempts_left = instance.attempts - attempts_used + extra
 
-        return Response(
+        # changing this to drf Response() makes it break ;( やばい！
+        # TODO convert this to DRF and make it work
+        return JsonResponse(
             {
                 "scores": scores,
                 "attemptsLeft": attempts_left,

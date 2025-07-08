@@ -1,4 +1,5 @@
 import logging
+import uuid
 from datetime import datetime
 from typing import Self
 
@@ -93,6 +94,11 @@ class SessionPlay:
             start_at__lte=current_time, end_at__gt=current_time
         )
         # TODO clear play logs summary cache
+
+        # for whatever reason play ID's are not generated reliably
+        # TODO find out why this happens?
+        if not self.data.id:
+            self.data.id = str(uuid.uuid4())
 
         if not self.is_preview:
             self.data.save()

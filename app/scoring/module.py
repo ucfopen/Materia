@@ -121,12 +121,8 @@ class ScoreModule(ABC):
 
         if len(self.logs) == 0:
             print("No logs found! No questions were answered.")
-            from util.message_builder import MsgBuilder
-
-            raise MsgBuilder.invalid_input(
-                title="No Answers Found",
-                msg="No logs were found. Please answer at least one question before submitting.",
-            ).as_drf_response()
+            # set the complete to false so it can render Incomplete Attempt
+            self.finished = False
 
         for log in self.logs:
             log_type = (
@@ -203,16 +199,18 @@ class ScoreModule(ABC):
         return self.score_display
 
     def get_score_overview(self):
-        complete = False
-        # TODO: mark it complete for previews, i guess they should have play_id's of negative one.
-        if self.play_id:
-            complete = True
-        else:
-            print(f"self.play: {self.play} and self.play.data: {self.play.data}")
-            complete = bool(self.play.data.is_complete) if self.play else False
+        # acutaly let self.finished control if the thing is complete instead of true now
+
+        # # TODO: mark it complete for previews, i guess they should have play_id's of negative one.
+        # if self.play_id:
+        #     # complete = True
+        #     pass
+        # else:
+        #     print(f"self.play: {self.play} and self.play.data: {self.play.data}")
+        #     complete = bool(self.play.data.is_complete) if self.play else False
 
         return {
-            "complete": complete,
+            "complete": self.finished,
             "score": self.calculated_percent,
             "table": self.get_overview_items(),
             "referrer_url": (

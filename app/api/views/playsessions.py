@@ -115,6 +115,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             validated = serializer.validated_data
             session_play = SessionPlay()
             play_id = session_play.start(validated["instance"], request.user.id)
+
             # this is where the desired error handling from session_play gets handled
             if not play_id:
                 logger.warning(
@@ -124,7 +125,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 return MsgBuilder.failure(
                     "Failed to Create Play Session",
                     "There was an error starting your play session. Please try again.",
-                ).as_drf_response(status=400)
+                ).as_drf_response()
 
         return JsonResponse({"playId": play_id})
 
