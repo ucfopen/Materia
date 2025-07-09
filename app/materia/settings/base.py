@@ -82,7 +82,7 @@ MIDDLEWARE = [
     # "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    "lti.middleware.ExtendedLtiLaunchMiddleware",
+    "lti_tool.middleware.LtiLaunchMiddleware",
 ]
 
 ROOT_URLCONF = "materia.urls"

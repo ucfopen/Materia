@@ -18,6 +18,8 @@ logger = logging.getLogger("django")
 # (Most of this abstracted via django-lti and pylti1p3 underneath)
 def lti_deep_link_selection(request):
     selection = request.POST.get("instance")
+    title = request.POST.get("name", "Materia Widget Activity")
+
     if not selection:
         # TODO this should probably redirect to a dedicated "LTI failure" view
         return redirect("/404")
@@ -33,7 +35,7 @@ def lti_deep_link_selection(request):
     cached_launch = get_launch_from_request(request, cached_launch_id)
 
     resource = DeepLinkResource()
-    resource.set_url(selection).set_title("My Resource")
+    resource.set_url(selection).set_title(title)
 
     response = cached_launch.deep_link_response([resource])
 

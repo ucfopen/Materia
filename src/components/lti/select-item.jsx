@@ -79,25 +79,33 @@ const SelectItem = () => {
 			}
 
 			if (!!window.RETURN_URL) {
+
+				const createFormItem = (name, value) => {
+					const input = document.createElement('input')
+					input.type = 'hidden'
+					input.name = name
+					input.value = value
+
+					return input
+				}
+
 				// Create a form element that will be submitted to RETURN_URL
 				const form = document.createElement('form')
 				form.method = 'POST'
 				form.action = window.RETURN_URL
+				
+				// append embed url to form
+				// @TODO update with 1.3 launch URL?
+				const inputUrl = createFormItem('instance', selectedInstance.embed_url)
+				form.appendChild(inputUrl)
 
-				// Create an input for the instance
-				const input = document.createElement('input')
-				input.type = 'hidden'
-				input.name = 'instance'
-				input.value = selectedInstance.embed_url
-
-				// Add the input to the form
-				form.appendChild(input)
-
-				const csrf = document.createElement('input')
-				csrf.type = 'hidden'
-				csrf.name = 'csrfmiddlewaretoken'
-				csrf.value = getCSRFToken()
-				form.appendChild(csrf)
+				// append resource name to form
+				const inputName = createFormItem('name', `${selectedInstance.name} Materia Widget`)
+				form.appendChild(inputName)
+				
+				// append CSRF token to form
+				const inputCsrf = createFormItem('csrfmiddlewaretoken', getCSRFToken())
+				form.appendChild(inputCsrf)
 
 				// Add the form to the document, submit it, then remove it
 				document.body.appendChild(form)

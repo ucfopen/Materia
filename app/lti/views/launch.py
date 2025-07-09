@@ -24,7 +24,6 @@ class ApplicationLaunchView(LtiLaunchBaseView):
         return redirect(destination)
 
     def handle_deep_linking_launch(self, request, lti_launch):
-
         launch_data = lti_launch.get_launch_data()
         auth = LTIAuthService.authenticate(request, launch_data)
 
