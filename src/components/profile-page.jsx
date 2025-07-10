@@ -41,9 +41,11 @@ const ProfilePage = () => {
 	useEffect(() => {
 		if (userActivity?.plays) {
 			const newActivity = userActivity.plays.map((log) => {
-				return {
+				// return {
+				const activity = {
 					is_complete: log.is_complete,
-					link: _getLink(log),
+					inst_id: log.instance,
+					link: _getLink(log.is_complete, log.instance, log.id),
 					status: _getStatus(log),
 					widget: log.widget_name,
 					title: log.inst_name,
@@ -51,6 +53,7 @@ const ProfilePage = () => {
 					score: _getScore(log),
 					play_id: log.id
 				}
+					return activity
 			})
 			setActivityData(data => [...newActivity])
 		}
@@ -61,16 +64,17 @@ const ProfilePage = () => {
 		return () => (mounted.current = false)
 	}, [])
 
-	const _getLink = (activity) => {
-		return activity.is_complete === '1' ? `/scores/${activity.inst_id}#play-${activity.play_id}` : '#'
+	const _getLink = (is_complete, inst_id, play_id) => {
+		// only passing in what getLink needs instead of the activty object(which would not be built when it gets called inside activity)
+		return is_complete ? `/scores/single/${inst_id}/${play_id}` : '#'
 	}
 
 	const _getScore = (activity) => {
-		return activity.is_complete === '1' ? Math.round(parseFloat(activity.percent)) : '--'
+		return activity.is_complete == true ? Math.round(parseFloat(activity.percent)) : '--'
 	}
 
 	const _getStatus = (activity) => {
-		return activity.is_complete === '1' ? '' : 'No Score Recorded'
+		return activity.is_complete == true ? '' : 'No Score Recorded'
 	}
 
 	const _getDate = (activity) => {

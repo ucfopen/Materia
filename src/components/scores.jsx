@@ -396,6 +396,13 @@ const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded,
 			}
 
 			setAttempts(scores)
+			const hash = getAttemptNumberFromHash()
+			if (hash && scores.length >= hash) {
+			  setCurrentAttempt(parseInt(hash))           // This triggers the correct useEffect
+			  setPlayId(scores[hash - 1].id)              // Ensures we fetch the play details
+			}
+
+
 		}
 	}
 
@@ -497,7 +504,8 @@ const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded,
 	const getAttemptNumberFromHash = () => {
 		const match = window.location.hash.match(/^#attempt-(\d+)/)
 		if (match && match[1] != null && !isNaN(match[1])) {
-			return match[1]
+			const num = parseInt(match[1])
+			return num > 0 ? num : undefined  // prevent 0
 		}
 		return attempts.length
 	}

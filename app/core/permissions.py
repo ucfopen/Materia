@@ -1,6 +1,6 @@
 import logging
 
-from core.models import Asset, ObjectPermission, Question, WidgetInstance, Notification
+from core.models import Asset, Notification, ObjectPermission, Question, WidgetInstance
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework import permissions
@@ -41,7 +41,7 @@ class HasPermsOrElevatedAccess(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if not request.user or not request.user.is_authenticated:
             return False
-        elif (PermManager.is_superuser_or_elevated(request.user)):
+        elif PermManager.is_superuser_or_elevated(request.user):
             return True
         else:
             if (

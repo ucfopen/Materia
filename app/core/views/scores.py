@@ -1,25 +1,53 @@
-from django.http import HttpResponseRedirect, Http404, HttpRequest, HttpResponseNotFound, HttpResponseBadRequest
-from django.conf import settings
-from django.views.generic import TemplateView
-
 from core.mixins import MateriaLoginMixin, MateriaLoginNeeded
 from core.models import WidgetInstance
+from django.conf import settings
+from django.http import (
+    Http404,
+    HttpRequest,
+    HttpResponseBadRequest,
+    HttpResponseNotFound,
+    HttpResponseRedirect,
+)
+from django.views.generic import TemplateView
 from util.context_util import ContextUtil
 from util.logging.session_play import SessionPlay
 
 
 class ScoresView(MateriaLoginMixin, TemplateView):
-    template_name = 'react.html'
+    template_name = "react.html"
     is_preview = False
     allow_all_by_default = True
 
     def get(self, request, *args, **kwargs):
-        # Get url args
-        widget_instance_id = kwargs.get('widget_instance_id')
-        is_embedded = self.kwargs.get('is_embedded', False)
-        token = self.kwargs.get('token')
+        widget_instance_id = kwargs.get("widget_instance_id")
+        token = kwargs.get("token")
+        is_embedded = kwargs.get("is_embedded", False)
 
-        context = _get_context_data(request, widget_instance_id, is_embedded, self.is_preview, token)
+        instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
+        if not instance:
+            return HttpResponseNotFound()
+
+        if not instance.playable_by_current_user(self.request.user):
+            return ContextUtil.create(
+                request=request,
+                title="Forbidden",
+                js_resources=settings.JS_GROUPS["no-permission"],
+                css_resources=settings.CSS_GROUPS["no-permission"],
+                js_globals={},
+            )
+
+        context = ContextUtil.create(
+            title="Score Results",
+            js_resources=settings.JS_GROUPS["scores"],
+            css_resources=settings.CSS_GROUPS["scores"],
+            js_globals={
+                "IS_EMBEDDED": is_embedded,
+                "IS_PREVIEW": self.is_preview,
+                "LAUNCH_TOKEN": token,
+            },
+            request=self.request,
+        )
+
         return self.render_to_response(context)
 
 
@@ -27,14 +55,14 @@ class ScoresView(MateriaLoginMixin, TemplateView):
 # In Canvas, this is shown on the grade review
 # enabled by launch param ext_outcome_data_values_accepted=url
 class ScoresViewSingle(MateriaLoginMixin, TemplateView):
-    template_name = 'react.html'
+    template_name = "react.html"
     allow_all_by_default = True
 
     def get(self, request, *args, **kwargs):
         # Get url args
-        play_id = kwargs.get('play_id')
-        widget_instance_id = kwargs.get('widget_instance_id')
-        token = self.kwargs.get('token')
+        play_id = kwargs.get("play_id")
+        widget_instance_id = kwargs.get("widget_instance_id")
+        token = self.kwargs.get("token")
 
         # Grab and verify play
         play = SessionPlay.get_or_none(play_id)
@@ -63,13 +91,18 @@ class ScoresViewSingle(MateriaLoginMixin, TemplateView):
         if redirect:
             return HttpResponseRedirect(redirect)
 
-        context = _get_context_data(request, widget_instance_id, is_embedded, False, token)
+        context = _get_context_data(
+            request, widget_instance_id, is_embedded, False, token
+        )
         return self.render_to_response(context)
 
 
 def _get_context_data(
-        request: HttpRequest, widget_instance_id: str, is_embedded: bool = False,
-        is_preview: bool = False, token: str = None,
+    request: HttpRequest,
+    widget_instance_id: str,
+    is_embedded: bool = False,
+    is_preview: bool = False,
+    token: str = None,
 ) -> dict:
     # Get widget instance
     instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()

@@ -2,7 +2,7 @@ import React from 'react'
 import ScoreGraphic from './score-graphic'
 
 const ScoreDetails = ({details, complete}) => {
-	
+
 	let detailsRender = []
 	details?.forEach((detail, i) => {
 		let detailsTableRows = []
@@ -67,7 +67,7 @@ const ScoreDetails = ({details, complete}) => {
 
 		})
 
-		detail.header.forEach((header, i) => {
+		detail.headers.forEach((header, i) => {
 			detailsHeaders.push(
 				<th key={`${header}-${i}`}>{header}</th>
 			)

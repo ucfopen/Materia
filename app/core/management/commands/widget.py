@@ -1,8 +1,12 @@
+import base64
+import json
 import logging
 import os
 from shutil import rmtree
 from urllib import request
 
+from core.models import Question, WidgetInstance, WidgetQset
+from core.serializers import QuestionSetSerializer
 from django.conf import settings
 from django.core.management import base
 from util.widget.installer import WidgetInstaller
@@ -158,3 +162,40 @@ class Command(base.BaseCommand):
         for file in widget_files:
             skip_upgrade = False  # get this from the CLI options somehow?
             WidgetInstaller.extract_package_and_install(file, skip_upgrade, replace_id)
+
+    # applies ids to all demos
+    def apply_ids_to_demos(self):
+        demos = WidgetInstance.objects.filter(user__isnull=True)
+        total = 0
+
+        for demo in demos:
+            latest_qset = demo.qsets.order_by("-created_at").first()
+            if not latest_qset:
+                continue
+
+            try:
+                decoded_data = WidgetQset.decode_data(latest_qset.data)
+                serializer = QuestionSetSerializer()
+                decoded_data, questions_list = serializer.apply_ids_to_questions(
+                    decoded_data
+                )
+
+                # save updated encoded data back into the qset
+                latest_qset.data = WidgetQset.encode_data(decoded_data)
+                latest_qset.save()
+
+                # wipe old questions and insert fresh ones
+                Question.objects.filter(qset=latest_qset).delete()
+                for q in questions_list:
+                    encoded = base64.b64encode(json.dumps(q).encode()).decode("utf-8")
+                    Question.objects.create(qset=latest_qset, data=encoded)
+
+                total += 1
+                print(
+                    f"Patched Qset {latest_qset.id} for Demo {demo.id} with {len(questions_list)} questions"
+                )
+
+            except Exception as e:
+                print(f"Failed to patch Demo {demo.id}: {e}")
+
+        print(f"\nDone. Updated {total} demo instances.")
