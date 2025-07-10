@@ -319,8 +319,8 @@ class QuestionSetSerializer(serializers.ModelSerializer):
         if instance:
             setattr(instance, "questions", questions_list)
 
-        _process_item(qset)
-        return qset, questions_list
+        processed_qset = _process_item(qset)
+        return processed_qset, questions_list
 
     def create(self, validated_data):
         if "instance" not in validated_data:
