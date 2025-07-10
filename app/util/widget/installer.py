@@ -289,8 +289,10 @@ class WidgetInstaller:
         metadata = manifest_data["meta_data"]
         WidgetInstaller.validate_keys_exist(metadata, ["about", "excerpt"])
 
-        # 7. Make sure the score module and the score module test files both exist
-        if not os.path.isfile(os.path.join(dir, "_score-modules/score_module.py")):
+        # 7. Make sure the score_module.py/php ((test file?)and the score module test files both exist)
+        if not os.path.isfile(
+            os.path.join(dir, "_score-modules/score_module.php")
+        ) and not os.path.isfile(os.path.join(dir, "_score-modules/score_module.py")):
             raise Exception("Missing score module file")
         if not os.path.isfile(
             os.path.join(dir, "_score-modules/test_score_module.php")
