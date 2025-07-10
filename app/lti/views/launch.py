@@ -1,7 +1,8 @@
 import logging
 
 from django.shortcuts import redirect
-from lti.services import LTIAuthService, LTILaunchService
+from lti.services.auth import LTIAuthService
+from lti.services.launch import LTILaunchService
 from lti_tool.views import LtiLaunchBaseView
 
 # from pprint import pformat

@@ -10,7 +10,8 @@ from django.http import Http404, HttpRequest
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from lti.mixins import LtiLaunchMixin
-from lti.services import LTIAuthService, LTILaunchService
+from lti.services.auth import LTIAuthService
+from lti.services.launch import LTILaunchService
 from util.context_util import ContextUtil
 from util.perm_manager import PermManager
 

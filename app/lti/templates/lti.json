@@ -1,6 +1,9 @@
 {
     "title": "Materia",
-    "scopes": [],
+    "scopes": [
+      "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem",
+      "https://purl.imsglobal.org/spec/lti-ags/scope/score"
+    ],
     "extensions": [
       {
         "domain": "{{ app_domain }}",
