@@ -267,10 +267,11 @@ class Base64JSONField(serializers.Field):
 # qset model serializer (inbound | outbound)
 class QuestionSetSerializer(serializers.ModelSerializer):
     data = Base64JSONField()
+    questions_list = serializers.JSONField(required=False)
 
     class Meta:
         model = WidgetQset
-        fields = ["id", "instance", "created_at", "data", "version"]
+        fields = ["id", "instance", "created_at", "data", "version", "questions_list"]
         extra_kwargs = {
             "id": {"required": False, "read_only": True},
             "instance": {"required": False},
@@ -279,9 +280,21 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             "version": {"required": True},
         }
 
-    # helper function to recursively apply uuids to blank ids
-    def apply_ids_to_questions(self, qset):
+    # helper function to recursively apply uuids to blank ids, also updates questions list
+    def apply_ids_to_questions(self, qset, instance=None):
         import uuid
+
+        questions_list = []
+
+        def is_question(item):
+            return (
+                isinstance(item, dict)
+                and item.get("id")
+                and isinstance(item.get("questions"), list)
+                and isinstance(item.get("answers"), list)
+                and len(item.get("questions")) > 0
+                and len(item.get("answers")) > 0
+            )
 
         def _process_item(item):
 
@@ -291,6 +304,9 @@ class QuestionSetSerializer(serializers.ModelSerializer):
                 ):
                     item["id"] = str(uuid.uuid4())
 
+                if is_question(item):
+                    questions_list.append(item)
+
                 for key, value in item.items():
                     item[key] = _process_item(value)
 
@@ -299,7 +315,12 @@ class QuestionSetSerializer(serializers.ModelSerializer):
 
             return item
 
-        return _process_item(qset)
+        # update WidgetMetaData model to include list
+        if instance:
+            setattr(instance, "questions", questions_list)
+
+        processed_qset = _process_item(qset)
+        return processed_qset, questions_list
 
     def create(self, validated_data):
         if "instance" not in validated_data:
@@ -310,10 +331,18 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             # despite passing data in as a dict, it's present here as a base64 blob again
             # decode it, apply ids to the dict, then re-encode it
             decoded_data = WidgetQset.decode_data(validated_data["data"])
-            decoded_data = self.apply_ids_to_questions(decoded_data)
+            decoded_data, questions_list = self.apply_ids_to_questions(decoded_data)
+            # decoded_data = self.apply_ids_to_questions(decoded_data, instance)
             validated_data["data"] = WidgetQset.encode_data(decoded_data)
+            widget_qset = super().create(validated_data)
+            from core.models import Question
 
-        return super().create(validated_data)
+            # we store each question as its own row instead of a list now
+            for q in questions_list:
+                encoded = base64.b64encode(json.dumps(q).encode()).decode("utf-8")
+                Question.objects.create(qset=widget_qset, data=encoded)
+
+        return widget_qset
 
 
 # instance model serializer (inbound | outbound)
@@ -449,22 +478,11 @@ class LogSubmissionSerializer(serializers.Serializer):
 
         if "item_id" in validated_data and validated_data["item_id"]:
             validated_data["item_id"] = str(validated_data["item_id"])
+            validated_data["type"] = SessionLogger.get_log_type(validated_data["type"])
+            validated_data["text"] = validated_data.get("text", "")
+            validated_data["value"] = validated_data.get("value") or ""
 
         return validated_data
-
-    def validate(self, data):
-        if not isinstance(data, list):
-            data = [data]
-
-            logs = []
-            for log in data:
-                # TODO what if the log type is actually invalid? Right now it'll return LogType.EMPTY
-                log["type"] = SessionLogger.get_log_type(log["type"])
-                log["text"] = log.get("text", "")
-                log["value"] = log.get("value", "")
-
-                logs.append(log)
-            return logs
 
 
 # serializes and validates individual logs for a play (inbound)
@@ -490,7 +508,7 @@ class PlayLogUpdateSerializer(serializers.Serializer):
                     )
 
             logs = LogSubmissionSerializer(data=data["logs"], many=True)
-            if logs.is_valid(raise_exception=True):
+            if logs.is_valid():
                 return {
                     "logs": logs.validated_data,
                     "is_preview": preview_instance_id is not None
@@ -669,7 +687,9 @@ class ScoreSummarySerializer(serializers.Serializer):
 
                 distribution = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 for i in range(0, 10):
-                    if i == (int(log.score / 10) if int(log.score / 10) < 10 else 9):
+                    if i == (
+                        int(log.percent / 10) if int(log.percent / 10) < 10 else 9
+                    ):
                         distribution[i] = 1
                     else:
                         distribution[i] = 0
@@ -679,32 +699,32 @@ class ScoreSummarySerializer(serializers.Serializer):
                     "term": log.semester.semester,
                     "year": log.created_at.year,
                     "students": 1,
-                    "total": log.score,
+                    "total": log.percent,
                     "distribution": distribution,
                 }
 
             else:
                 summary[semester_key]["students"] += 1
-                summary[semester_key]["total"] += log.score
+                summary[semester_key]["total"] += log.percent
 
-                summary[semester_key][distribution][
-                    int(log.score / 10) if int(log.score / 10) < 10 else 9
+                summary[semester_key]["distribution"][
+                    int(log.percent / 10) if int(log.percent / 10) < 10 else 9
                 ] += 1
 
-            results = []
-            for data in summary.values():
-                results.append(
-                    {
-                        "id": data["id"],
-                        "term": data["term"],
-                        "year": data["year"],
-                        "students": data["students"],
-                        "average": round(data["total"] / data["students"], 2),
-                        "distribution": data["distribution"],
-                    }
-                )
+        results = []
+        for data in summary.values():
+            results.append(
+                {
+                    "id": data["id"],
+                    "term": data["term"],
+                    "year": data["year"],
+                    "students": data["students"],
+                    "average": round(data["total"] / data["students"], 2),
+                    "distribution": data["distribution"],
+                }
+            )
 
-            return sorted(results, key=lambda x: (x["year"], x["term"]))
+        return sorted(results, key=lambda x: (x["year"], x["term"]))
 
 
 # Used for incoming requests for qset generation. Does NOT map to a model.

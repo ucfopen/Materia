@@ -41,7 +41,7 @@ class HasPermsOrElevatedAccess(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if not request.user or not request.user.is_authenticated:
             return False
-        elif (PermManager.is_superuser_or_elevated(request.user)):
+        elif PermManager.is_superuser_or_elevated(request.user):
             return True
         else:
             if (

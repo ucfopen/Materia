@@ -33,7 +33,7 @@ urlpatterns = [
         "scores/get_for_widget_instance_guest/", ScoresApi.get_for_widget_instance_guest
     ),
     path("scores/get_play_details/", ScoresApi.get_play_details),
-    path("scores/get_score_summary/", ScoresApi.score_summary_get),
+    # path("scores/get_score_summary/", ScoresApi.score_summary_get),
     # AI generation
     path("generate/qset/", generation.GenerateQsetView.as_view()),
     path("generate/from_prompt/", generation.GenerateFromPromptView.as_view()),

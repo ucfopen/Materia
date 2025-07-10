@@ -15,10 +15,10 @@ from pathlib import Path
 from typing import Self
 
 from django.conf import settings
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.db import models, transaction, DatabaseError
+from django.db import DatabaseError, models, transaction
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -627,45 +627,23 @@ class PermObjectToUser(models.Model):
 
 class Question(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(
-        User,
-        related_name="questions",
-        on_delete=models.PROTECT,
-        db_column="user_id",
-        blank=True,
+    qset = models.ForeignKey(
+        "WidgetQset",
+        related_name="flattened_questions",
+        on_delete=models.CASCADE,
+        db_column="qset_id",
         null=True,
+        blank=True,
     )
-    type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
-    text = models.TextField()
+    # base 64 encoded json question
+    data = models.TextField()
     created_at = models.DateTimeField(default=datetime.now)
-    _data = models.TextField(blank=True, null=True, db_column="data")
-    hash = models.CharField(unique=True, max_length=32)
-    qset = models.ManyToManyField(
-        "WidgetQset", through=MapQuestionToQset, related_name="questions"
-    )
-
-    permissions = GenericRelation(ObjectPermission)
-
-    @property
-    def data(self) -> dict:
-        decoded_data = base64.b64decode(self._data).decode("utf-8")
-        return json.loads(decoded_data)
-
-    @data.setter
-    def data(self, new_data: dict):
-        self._data = base64.b64encode(json.dumps(new_data).encode("utf-8")).decode(
-            "utf-8"
-        )
-
-    @classproperty
-    def content_type(cls):
-        return ContentType.objects.get_for_model(cls)
+    type = models.CharField(max_length=50, default="QA")
 
     class Meta:
         db_table = "question"
         indexes = [
-            models.Index(fields=["hash"], name="question_hash"),
-            models.Index(fields=["type"], name="question_type"),
+            models.Index(fields=["qset"], name="question_qset_idx"),
         ]
 
 
@@ -885,17 +863,22 @@ class WidgetInstance(models.Model):
         return f"{self.id}-{self.clean_name}{os.sep}"
 
     def status(self, context: str = None):
-        from util.scoring.scoring_util import ScoringUtil  # avoid cyclic import
+        from scoring.manager import ScoringUtil  # avoid cyclic import
         from util.semester_util import SemesterUtil
+
         semester = SemesterUtil.get_current_semester()
 
         now = timezone.now()
         start = self.open_at
         end = self.close_at
-        attempts_used = ScoringUtil.get_instance_score_history(self, context, semester).count()
+        attempts_used = len(
+            ScoringUtil.get_instance_score_history(self, context, semester)
+        )
 
         # Check to see if any extra attempts have been provided to the user. Decrement attempts_used if so.
-        extra_attempts = ScoringUtil.get_instance_extra_attempts(self, context, semester)
+        extra_attempts = ScoringUtil.get_instance_extra_attempts(
+            self, context, semester
+        )
         attempts_used -= extra_attempts
 
         has_attempts = self.attempts == -1 or attempts_used < self.attempts
@@ -905,7 +888,9 @@ class WidgetInstance(models.Model):
         always_open = not does_open and not does_close
         will_open = does_open and start > now
         will_close = does_close and end > now
-        is_open = always_open or ((not does_open or start < now) and (will_close or not does_close))
+        is_open = always_open or (
+            (not does_open or start < now) and (will_close or not does_close)
+        )
         is_closed = not always_open and (does_close and end < now)
 
         return {
@@ -930,9 +915,9 @@ class WidgetInstance(models.Model):
     def get_latest_qset(self) -> "WidgetQset | None":
         return self.qsets.order_by("-created_at").first()
 
-    def get_qset_for_play(self, play_id=None):
-        if play_id:
-            play = LogPlay.objects.get(id=play_id)
+    def get_qset_for_play(self, play_id=None, is_preview=False):
+        if play_id and not is_preview:
+            play = LogPlay.objects.get(id=play_id)  # this will fail if we are a preview
             return (
                 self.qsets.filter(created_at__lte=play.created_at)
                 .order_by("-created_at")
@@ -953,7 +938,10 @@ class WidgetInstance(models.Model):
         # ADDING A NEW INSTANCE
         if is_new:
             from util.widget.instance.hash import WidgetInstanceHash
-            tries = 3  # try this many times to generate an instance ID to avoid collisions
+
+            tries = (
+                3  # try this many times to generate an instance ID to avoid collisions
+            )
             while not success:
                 tries = tries - 1
                 if tries < 0:
@@ -1092,6 +1080,7 @@ class WidgetQset(models.Model):
     created_at = models.DateTimeField(default=datetime.now)
     data = models.TextField(db_column="data")
     version = models.CharField(max_length=10, blank=True, null=True)
+    # questions_list = models.TextField(null=True, blank=True)
 
     @classmethod
     def decode_data(cls, encoded_data) -> dict:
@@ -1112,47 +1101,6 @@ class WidgetQset(models.Model):
 
     def set_data(self, data_dict):
         self.data = self.encode_data(data_dict)
-
-    # TODO: implement this, old code below
-    def find_questions(self):
-        pass
-
-    # TODO: find the assets!!!
-    # Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QSET, $qset_id, $recursiveQGroup->assets);
-    # public static function find_questions(&$source, $create_ids=false, &$questions=[])
-    # {
-    #     if (is_array($source))
-    #     {
-    #         foreach ($source as $key => &$q)
-    #         {
-    #             if (self::is_question($q))
-    #             {
-    #                 $json = json_encode($q);
-
-    #                 $real_q = Widget_Question::forge()->from_json($json);
-
-    #                 // new question sets need ids
-    #                 if ($create_ids)
-    #                 {
-    #                     if (empty($real_q->id)) $real_q->id = \Str::random('uuid');
-    #                     foreach ($real_q->answers as &$a)
-    #                     {
-    #                         if (empty($a['id'])) $a['id'] = \Str::random('uuid');
-    #                     }
-    #                     $source[$key] = json_decode(json_encode($real_q), true);
-    #                 }
-    #                 if ($real_q->id)	$questions[$real_q->id] = $real_q;
-    #                 else $questions[] = $real_q;
-    #             }
-    #             elseif (is_array($q))
-    #             {
-    #                 // INCEPTION TIME!!
-    #                 self::find_questions($q, $create_ids, $questions);
-    #             }
-    #         }
-    #     }
-    #     return $questions;
-    # }
 
     class Meta:
         db_table = "widget_qset"
