@@ -21,7 +21,7 @@ const LoginPage = () => {
 	})
 
 	const waitForWindow = async () => {
-		// window properties on the login page are highly variable, WFW can only watch for the default ones ones
+		// window properties on the login page are highly variable, WFW can only watch for the default ones
 		while(!window.hasOwnProperty('BASE_URL')
 		&& !window.hasOwnProperty('WIDGET_URL')
 		&& !window.hasOwnProperty('STATIC_CROSSDOMAIN')) {
