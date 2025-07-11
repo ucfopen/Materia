@@ -28,7 +28,6 @@ class Command(base.BaseCommand):
 
     # utility command to back-populate ObjectPermission records based on instance ownership
     def populate_instance_owner_perms(self):
-
         from core.models import WidgetInstance
 
         instances = WidgetInstance.objects.all()
@@ -41,3 +40,17 @@ class Command(base.BaseCommand):
                         f"{instance.user.id} for instance {instance.name}\n"
                     )
                     instance.permissions.create(user=instance.user, permission="full")
+
+    def populate_notification_owner_perms(self):
+        from core.models import Notification
+
+        notifications = Notification.objects.all()
+
+        for notification in notifications:
+            if not notification.permissions.exists():
+                if notification.to_id is not None:
+                    logger.info(
+                        f"creating ObjectPermission record for user "
+                        f"{notification.to_id.id} for notification {notification.id}\n"
+                    )
+                    notification.permissions.create(user=notification.to_id, permission="full")

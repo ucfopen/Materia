@@ -1,9 +1,18 @@
+import hashlib
+
 from django.contrib.auth.models import User
 from util.message_util import Msg, MsgBuilder
 from util.perm_manager import PermManager
 
 
 class UserUtil:
+
+    @staticmethod
+    def get_avatar_url(user: User) -> str:
+        clean_email = user.email.strip().lower().encode("utf-8")
+        hash_email = hashlib.md5(clean_email).hexdigest()
+        return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
+
     # WAS Service_User::verify_session
     # Takes in the current request and a string or list of roles.
     # If no user is logged in, returns a no_login Msg.

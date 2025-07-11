@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 from typing import TYPE_CHECKING, Type
 
 from django.contrib.auth.models import AnonymousUser, User
@@ -19,7 +20,6 @@ class PermManager:
         return not PermManager.does_user_have_roles(
             user, ["basic_author", "super_user"]
         )
-        # return user.groups.filter(name="Student").exists()
 
     # Returns True if user has at least one of the roles specified
     @staticmethod
@@ -42,9 +42,9 @@ class PermManager:
         return user.groups.filter(name__in=roles).exists()
 
     @staticmethod
-    def get_all_objects_of_type_for_user[
-        T: Type[models.Model]
-    ](obj: T, user: User | str | int, perms: list[str]) -> QuerySet[T]:
+    def get_all_objects_of_type_for_user[T: Type[models.Model]](
+        obj: T, user: User | str | int, perms: list[str]
+    ) -> QuerySet[T]:
         if len(perms) <= 0:
             return obj.objects.none()
 
@@ -75,3 +75,27 @@ class PermManager:
     ):
         pass
         # TODO this needs to be implemented, probably once we figure out how MapAssetToObject will actually work
+
+    # TODO this needs to be linked up to something
+    #      it was hooked up to get_all_users_with_perms_to before
+    #      i imagine it might be better to instead have this run
+    #      on an automatic schedule or something though
+    @staticmethod
+    def check_and_expire_user_object_perms():
+        from core.models import Notification, ObjectPermission, WidgetInstance
+
+        now = datetime.now()
+        expired_perms = ObjectPermission.objects.filter(expires_at__lte=now)
+
+        for expired_perm in expired_perms:
+            # Send notif
+            if expired_perm.content_type == WidgetInstance.content_type:
+                Notification.create_instance_notification(
+                    from_user=expired_perm.user,
+                    to_user=expired_perm.user,
+                    instance=WidgetInstance.objects.get(pk=expired_perm.object_id),
+                    mode="expired",
+                )
+
+            # Delete perm
+            expired_perm.delete()

@@ -191,8 +191,12 @@ export const apiGetNotifications = () => {
 	return handleRequest(methods.GET, '/api/notifications/')
 }
 
-export const apiDeleteNotification = (data) => {
-	return handleRequest(methods.POST, '/api/notifications/delete/', { body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` })
+export const apiDeleteNotification = ({ notifId, deleteAll }) => {
+	if (deleteAll) {
+		return handleRequest(methods.DELETE, `/api/notifications/delete_all/`)
+	} else {
+		return handleRequest(methods.DELETE, `/api/notifications/${notifId}/`)
+	}
 }
 
 export const apiSearchUsers = (input = '', page_number = 1) => {
