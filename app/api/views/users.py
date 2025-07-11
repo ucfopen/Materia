@@ -232,12 +232,15 @@ class UsersApi:
                     login(request, user)
                     return JsonResponse({"isAuthenticated": True}, status=200)
                 else:
-                    return JsonResponse({"isAuthenticated": False}, status=401)
+                    return JsonResponse(
+                        {"message": "Invalid login.", "isAuthenticated": False},
+                        status=401,
+                    )
 
             except json.JSONDecodeError:
-                return JsonResponse({"error": "Invalid JSON"}, status=400)
-
-            return JsonResponse({"error": "Invalid request method"}, status=405)
+                return JsonResponse({"message": "Invalid JSON"}, status=400)
+        else:
+            return JsonResponse({"message": "Invalid request method"}, status=405)
 
     def logout(request):
         logout(request)
