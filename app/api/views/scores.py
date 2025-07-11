@@ -1,12 +1,16 @@
 import json
+import logging
+import traceback
 
-from core.models import DateRange, WidgetInstance
-from django.core import serializers
+from core.models import LogPlay, WidgetInstance
 from django.http import HttpResponseNotFound, JsonResponse
+from scoring.manager import ScoringUtil
 from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
-from util.scoring.scoring_util import ScoringUtil
+from util.semester_util import SemesterUtil
 from util.widget.validator import ValidatorUtil
+
+logger = logging.getLogger(__name__)
 
 
 class ScoresApi:
@@ -15,6 +19,7 @@ class ScoresApi:
     # Returns all scores (SessionPlays) for the given widget instance recorded by the current user, and attempts
     # remaining in the current context. If no launch token is supplied, the current semester will
     # be used as the current context.
+
     @staticmethod
     def get_for_widget_instance(request):
         # Get body params
@@ -37,28 +42,72 @@ class ScoresApi:
             if session_context_id:
                 context_id = session_context_id
 
-        semester = DateRange.objects.get(pk=5)  # TODO
+        semester = SemesterUtil.get_current_semester()
 
         # Get instance and validate user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
-        if not instance.playable_by_current_user(request.user):
-            return MsgBuilder.no_login(request=request).as_json_response()
 
-        # Get scores and return
-        scores = ScoringUtil.get_instance_score_history(instance, context_id)
+        if not instance.playable_by_current_user(request.user):
+            return MsgBuilder.no_permission().as_json_response()
+
+        log_plays = LogPlay.objects.filter(instance=instance, user=request.user)
+
+        if context_id:
+            log_plays = log_plays.filter(context_id=context_id)
+        if semester:
+            log_plays = log_plays.filter(semester=semester)
+
+        scores = []
+        errors = []
+        for play in log_plays.order_by("-created_at"):
+            try:
+                from util.logging.session_play import SessionPlay
+
+                sp = SessionPlay()
+                sp.data = play
+                sp.is_preview = False
+
+                play_data = ScoringUtil.get_play_details(sp)
+
+                scores.append(
+                    {
+                        "id": str(play.id),
+                        "created_at": int(play.created_at.timestamp()),
+                        "percent": play_data.get("overview", {}).get("score", None),
+                    }
+                )
+
+            except Exception as e:
+                tbString = traceback.format_exc()
+                logger.warning(
+                    f"[get_for_widget_instance] Failed to process LogPlay ID {play.id}: {e}\n{tbString}"
+                )
+                errors.append(str(play.id))
+
+        if errors:
+            return MsgBuilder.partial_success(
+                title="Some Sessions Failed",
+                msg=f"{len(errors)} sessions could not be processed.",
+                data={"processed": scores, "failed_ids": errors},
+            ).as_drf_response(status=206)
+
+        # compute and add attemptsLeft
         attempts_used = len(
-            ScoringUtil.get_instance_score_history(instance, context_id, semester)
+            ScoringUtil.get_instance_score_history(
+                instance, context_id, semester, user_id=request.user.id
+            )
         )
         extra = (
             ScoringUtil.get_instance_extra_attempts(instance, context_id, semester)
             if context_id
             else 0
         )
-
         attempts_left = instance.attempts - attempts_used + extra
 
+        # changing this to drf Response() makes it break ;( やばい！
+        # TODO convert this to DRF and make it work
         return JsonResponse(
             {
                 "scores": scores,
@@ -84,14 +133,58 @@ class ScoresApi:
         if not instance.playable_by_current_user(request.user):
             return MsgBuilder.no_login(request=request).as_json_response()
 
-        scores = ScoringUtil.get_guest_instance_score_history(instance, play_id)
-        # TODO: better serializing
-        json_scores = json.loads(serializers.serialize("json", scores))
-        fixed_json_scores = []
-        for json_score in json_scores:
-            fixed_json_scores.append(json_score["fields"])
+        play_data = ScoringUtil.get_guest_play_details(
+            request.session, instance, play_id, False
+        )
 
-        return JsonResponse({"scores": fixed_json_scores})
+        if not play_data:
+            return MsgBuilder.expired().as_json_response()
+
+        # semester = DateRange.objects.get(pk=5)  # TODO
+        semester = SemesterUtil.get_current_semester()
+        token = json_body.get("token")
+        # Grab context ID
+        context_id = None
+        if token:
+            result = ""  # TODO: \Event::trigger('before_score_display', $token)
+            if len(result) > 0:
+                context_id = result
+        else:
+            session_context_id = False  # TODO: \Session::get('context_id', false))
+            if session_context_id:
+                context_id = session_context_id
+
+        from django.utils.timezone import localtime
+
+        if play_data:
+            scores = [
+                {
+                    "id": play_id,
+                    "created_at": int(
+                        localtime(play_data["overview"]["created_at"]).timestamp()
+                    ),
+                    "percent": play_data["overview"]["score"],
+                }
+            ]
+        else:
+            scores = []
+
+        attempts_used = len(
+            ScoringUtil.get_instance_score_history(instance, context_id, semester)
+        )
+        extra = (
+            ScoringUtil.get_instance_extra_attempts(instance, context_id, semester)
+            if context_id
+            else 0
+        )
+        attempts_left = instance.attempts - attempts_used + extra
+
+        return JsonResponse(
+            {
+                "scores": scores,
+                "attemptsLeft": attempts_left,
+            }
+        )
 
     # WAS widget_instance_play_scores_get
     # Gets play details (from Log table, containing player's answers and actions) for a play_id
@@ -107,7 +200,10 @@ class ScoresApi:
         if ValidatorUtil.is_valid_hash(preview_inst_id):
             # Get preview play details
             if preview_play_id is None:
-                return MsgBuilder.invalid_input(msg="Missing preview play ID").as_json_response()
+                return MsgBuilder.invalid_input(
+                    msg="Missing preview play ID"
+                ).as_json_response()
+            is_preview: bool = True
             # Check if preview is valid and user has access
             if not request.user.is_authenticated:
                 return MsgBuilder.no_login(request=request).as_json_response()
@@ -117,8 +213,8 @@ class ScoresApi:
             if not widget_instance:
                 return HttpResponseNotFound()
 
-            play_details = ScoringUtil.get_preview_play_details(
-                request.session, widget_instance, preview_play_id
+            play_details = ScoringUtil.get_guest_play_details(
+                request.session, widget_instance, preview_play_id, is_preview
             )
             if not play_details:
                 return MsgBuilder.expired().as_json_response()

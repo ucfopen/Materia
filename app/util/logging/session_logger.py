@@ -1,11 +1,10 @@
 import logging
 from datetime import datetime
 
+from core.models import Log
 from django.contrib.sessions.backends.base import SessionBase
 from django.db.models import QuerySet
 from django.utils.timezone import make_aware
-
-from core.models import Log
 from util.logging.session_play import SessionPlay
 from util.message_util import Msg, MsgBuilder
 from util.widget.validator import ValidatorUtil
@@ -22,7 +21,9 @@ class SessionLogger:
     @staticmethod
     def store_log_array(play_session: SessionPlay, logs: list[dict]) -> Msg | None:
         # Validate play_session
-        if play_session.is_preview or not ValidatorUtil.is_valid_long_hash(play_session.data.id):
+        if play_session.is_preview or not ValidatorUtil.is_valid_long_hash(
+            play_session.data.id
+        ):
             return MsgBuilder.invalid_input("Invalid Play ID")
 
         # Validate logs
@@ -38,8 +39,13 @@ class SessionLogger:
     # Shortcut for adding a single log
     @staticmethod
     def add_log(
-            log_type: str, item_id: str, text: str, value: str, game_time: int,
-            created_at: datetime, session_play: SessionPlay | None
+        log_type: str,
+        item_id: str,
+        text: str,
+        value: str,
+        game_time: int,
+        created_at: datetime,
+        session_play: SessionPlay | None,
     ) -> Log:
         play_id = -1 if session_play is None else session_play.data.id
         log = Log(
@@ -58,22 +64,37 @@ class SessionLogger:
 
         return log
 
-    # Create an array of logs and store their references in the current session as preview logs
-    # Because they are preview logs, they will not be saved to the DB
+    # # NOTE: currently unused. session logs for previews are written directly in views/play_sessions.py
     @staticmethod
-    def save_preview_logs(session: SessionBase, widget_instance_id: str, preview_id: str, raw_logs: list[dict]):
-        # Append to any previously stored logs
-        session_key = f"preview_play_logs_{widget_instance_id}_{preview_id}"
+    def save_preview_logs(
+        session: SessionBase,
+        widget_instance_id: str,
+        preview_id: str,
+        raw_logs: list[dict],
+    ):
+        session_key = f"previewPlayLogs.{preview_id}"
+
         logs = session.get(session_key, [])
 
+        import uuid
+
         for raw_log in raw_logs:
-            log = SessionLogger._validate_and_store_log(raw_log, None)
-            logs.append(log.as_dict())
+            log_type = SessionLogger.get_log_type(raw_log.get("type", 0))
+            log_entry = {
+                "log_type": log_type,
+                "type": raw_log.get("type", 0),  # keep original for consistency
+                "item_id": raw_log.get("item_id", ""),
+                "text": raw_log.get("text", ""),
+                "value": raw_log.get("value", ""),
+                "game_time": raw_log.get("game_time", 0),
+                "created_at": str(datetime.now()),
+                "_uuid": str(uuid.uuid4()),
+            }
+            logs.append(log_entry)
 
-        # TODO \Sesssion::set('previewPlayLogs.'.$instId, $logs);
         session[session_key] = logs
+        session.modified = True
 
-    # Get logs for play ID. Very simple function, but just here to keep things consistent.
     @staticmethod
     def get_logs(play_id: str) -> QuerySet[Log]:
         return Log.objects.filter(play_id=play_id)
@@ -169,6 +190,11 @@ class SessionLogger:
         created_at = make_aware(datetime.now())
 
         return SessionLogger.add_log(
-            SessionLogger.get_log_type(log_type), item_id, text,
-            value, game_time, created_at, session_play
+            SessionLogger.get_log_type(log_type),
+            item_id,
+            text,
+            value,
+            game_time,
+            created_at,
+            session_play,
         )

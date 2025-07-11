@@ -1,7 +1,7 @@
 import logging
 
 from api.filters import UserInstanceFilterBackend
-from core.models import LogActivity, LogPlay, WidgetInstance, WidgetQset
+from core.models import LogActivity, LogPlay, WidgetInstance, WidgetQset, Notification
 from core.permissions import (
     CanCreateWidgetInstances,
     DenyAll,
@@ -172,6 +172,30 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             serializer.validated_data["published_by"] = self.request.user
 
         # TODO create session_activities for each updated field? see original PHP code
+        # TODO bundle below with above TODO when implemented
+        # If user is a student and they're not the owner, they can't do anything
+        # If user is a student and they're the owner, they're allowed to set it to guest access (but cant take it out)
+        # If not a student, they can do whatever
+        if (instance.user == self.request.user and guest_access) or not PermManager.user_is_student(self.request.user):
+            # TODO make session activity here
+
+            # Remove permissions from students when instance is no longer in guest mode
+            if serializer.validated_data.get("guest_access") is False:
+                for shared_user_perm in instance.permissions.all():
+                    # Make sure shared user is student
+                    if not PermManager.user_is_student(shared_user_perm.user) or shared_user_perm.user == instance.user:
+                        continue
+
+                    # Remove perm
+                    shared_user_perm.delete()
+
+                    # Send notif
+                    Notification.create_instance_notification(
+                        from_user=self.request.user,
+                        to_user=shared_user_perm.user,
+                        instance=instance,
+                        mode="disabled"
+                    )
 
         serializer.save()
 
@@ -192,6 +216,15 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             value_1=instance.name,
             value_2=instance.widget.id,
         )
+
+        # Send notifications
+        for shared_user_perm in instance.permissions.all():
+            Notification.create_instance_notification(
+                from_user=self.request.user,
+                to_user=shared_user_perm.user,
+                instance=instance,
+                mode="deleted"
+            )
 
     # /api/instances/<inst id>/question_sets/
     # ?latest=true GET param for only the latest qset
@@ -265,6 +298,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             permissions = instance.permissions.all()
             serialized = ObjectPermissionSerializer(permissions, many=True)
             return Response(serialized.data)
+
         elif request.method == "PUT":
             # Verify request data
             request_serializer = PermsUpdateRequestListSerializer(data=request.data)
@@ -285,6 +319,13 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 # If perm_level is null, delete the perm entry
                 if perm_level is None:
                     instance.permissions.filter(user=user).delete()
+                    # Send deletion notif
+                    Notification.create_instance_notification(
+                        from_user=self.request.user,
+                        to_user=user,
+                        instance=instance,
+                        mode="disabled"
+                    )
                     continue
 
                 # If this user is a student, make sure we can only give them perms if this instance is in guest mode
@@ -300,13 +341,18 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                         user, instance, perm_level
                     )
 
-                # Otherwise, update or create that perm
+                # Check if perm is about to be created or updated
+                will_update_or_create = not instance.permissions.filter(user=user, permission=perm_level).exists()
+
+                # Update or create that perm
                 instance.permissions.update_or_create(
                     user=user,
                     defaults={"permission": perm_level, "expires_at": expiration},
                 )
 
-                # TODO send a notification here
+                # Send notification
+                if will_update_or_create:
+                    Notification.create_instance_notification(request.user, user, instance, "changed", perm_level)
 
             # If there was a refusal, return a message
             if len(refusals) > 0:
