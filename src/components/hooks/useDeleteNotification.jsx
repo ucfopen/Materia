@@ -19,7 +19,7 @@ export default function useDeleteNotification() {
 				}
 				else
 				{
-					queryClient.setQueryData('notifications', old => old.filter(notif => notif.id != data.delID))
+					queryClient.setQueryData('notifications', old => old.filter(notif => notif.id != data.notifId))
 				}
 
 				// Stores the old value for use if there is an error

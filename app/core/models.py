@@ -12,12 +12,14 @@ import os
 import types
 from datetime import datetime
 from pathlib import Path
+from smtplib import SMTPException
 from typing import Self
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.mail import send_mail
 from django.db import DatabaseError, models, transaction
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
@@ -29,6 +31,7 @@ from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 from util.message_util import Msg, MsgBuilder
 from util.perm_manager import PermManager
+from util.user_util import UserUtil
 from util.widget.asset.manager import AssetManager
 from util.widget.validator import ValidatorUtil
 
@@ -566,6 +569,118 @@ class Notification(models.Model):
     updated_at = models.DateTimeField(default=datetime.now, null=True)
     action = models.CharField(max_length=255)
 
+    permissions = GenericRelation(ObjectPermission)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Create/update ownership permission
+        self.permissions.update_or_create(
+            user=self.to_id, permission=ObjectPermission.PERMISSION_FULL
+        )
+
+        # Send email, if not sent already
+        self.send_email()
+
+    @classmethod
+    def create_instance_notification(
+        cls,
+        from_user: User,
+        to_user: User,
+        instance: "WidgetInstance",
+        mode: str,
+        new_perm: str = None,
+    ) -> Self | None:
+        # Dont send notifs to self
+        if from_user == to_user:
+            return None
+
+        # Create some strings that will be used later
+        user_link = (
+            f"{from_user.first_name} {from_user.last_name} ({from_user.username})"
+        )
+        widget_name = instance.name
+        widget_type = instance.widget.name
+        widget_link = (
+            f"<a href='{settings.URLS["BASE_URL"]}my-widgets#{instance.id}' target='_blank'>"
+            f"{widget_name}</a>"
+        )
+
+        # Create permission string
+        match new_perm:
+            case ObjectPermission.PERMISSION_FULL:
+                perm_string = "Full"
+            case ObjectPermission.PERMISSION_VISIBLE:
+                perm_string = "View Scores"
+            case _:
+                perm_string = "Unknown"
+
+        # Create message
+        match mode:
+            case "disabled":
+                content = f"{user_link} is no longer sharing '{widget_name}' with you."
+            case "changed":
+                content = (
+                    f"{user_link} changed your access to widget '{widget_link}'.<br/>"
+                    f"You now have {perm_string} access."
+                )
+            case "expired":
+                content = f"Your access to '{widget_name}' has automatically expired."
+            case "deleted":
+                content = f"{user_link} deleted {widget_type} widget '{widget_name}'."
+            case "access_request":
+                content = (
+                    f"{user_link} is requesting access to your widget '{widget_link}'.<br/>"
+                    f"The widget is currently being used within a course in your LMS."
+                )
+            case _:
+                return
+
+        # Create notification object
+        notification = cls.objects.create(
+            from_id=from_user,
+            to_id=to_user,
+            item_type=WidgetInstance.content_type.id,
+            item_id=instance.id,
+            is_email_sent=False,
+            avatar=UserUtil.get_avatar_url(from_user),
+            subject=content,
+        )
+
+        return notification
+
+    def send_email(self, force_resend: bool = False) -> bool:
+        # Check if emails are enabled
+        if not settings.SEND_EMAILS:
+            return False
+
+        # Check if sent already
+        if self.is_email_sent and not force_resend:
+            return False
+
+        # Check if recipient has emails enabled
+        user_settings = UserSettings.objects.filter(user=self.to_id).first()
+        if user_settings is not None:
+            notify = user_settings.get_profile_fields().get("notify", False)
+            if not notify:
+                return False
+
+        try:
+            send_mail(
+                subject=f"{settings.NAME} Notification",
+                message=self.subject,
+                html_message=self.subject,
+                from_email=f'"{self.from_id.first_name} {self.from_id.last_name}" <{settings.SYSTEM_EMAIL}>',
+                recipient_list=[self.to_id.email],
+            )
+            self.is_email_sent = True
+            self.save()
+            return True
+        except SMTPException as e:
+            logger.error("Failed to send email. Exception follows:")
+            logger.error(e)
+            return False
+
     class Meta:
         db_table = "notification"
         indexes = [
@@ -627,45 +742,23 @@ class PermObjectToUser(models.Model):
 
 class Question(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(
-        User,
-        related_name="questions",
-        on_delete=models.PROTECT,
-        db_column="user_id",
-        blank=True,
+    qset = models.ForeignKey(
+        "WidgetQset",
+        related_name="flattened_questions",
+        on_delete=models.CASCADE,
+        db_column="qset_id",
         null=True,
+        blank=True,
     )
-    type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
-    text = models.TextField()
+    # base 64 encoded json question
+    data = models.TextField()
     created_at = models.DateTimeField(default=datetime.now)
-    _data = models.TextField(blank=True, null=True, db_column="data")
-    hash = models.CharField(unique=True, max_length=32)
-    qset = models.ManyToManyField(
-        "WidgetQset", through=MapQuestionToQset, related_name="questions"
-    )
-
-    permissions = GenericRelation(ObjectPermission)
-
-    @property
-    def data(self) -> dict:
-        decoded_data = base64.b64decode(self._data).decode("utf-8")
-        return json.loads(decoded_data)
-
-    @data.setter
-    def data(self, new_data: dict):
-        self._data = base64.b64encode(json.dumps(new_data).encode("utf-8")).decode(
-            "utf-8"
-        )
-
-    @classproperty
-    def content_type(cls):
-        return ContentType.objects.get_for_model(cls)
+    type = models.CharField(max_length=50, default="QA")
 
     class Meta:
         db_table = "question"
         indexes = [
-            models.Index(fields=["hash"], name="question_hash"),
-            models.Index(fields=["type"], name="question_type"),
+            models.Index(fields=["qset"], name="question_qset_idx"),
         ]
 
 
@@ -885,7 +978,7 @@ class WidgetInstance(models.Model):
         return f"{self.id}-{self.clean_name}{os.sep}"
 
     def status(self, context: str = None):
-        from util.scoring.scoring_util import ScoringUtil  # avoid cyclic import
+        from scoring.manager import ScoringUtil  # avoid cyclic import
         from util.semester_util import SemesterUtil
 
         semester = SemesterUtil.get_current_semester()
@@ -893,9 +986,9 @@ class WidgetInstance(models.Model):
         now = timezone.now()
         start = self.open_at
         end = self.close_at
-        attempts_used = ScoringUtil.get_instance_score_history(
-            self, context, semester
-        ).count()
+        attempts_used = len(
+            ScoringUtil.get_instance_score_history(self, context, semester)
+        )
 
         # Check to see if any extra attempts have been provided to the user. Decrement attempts_used if so.
         extra_attempts = ScoringUtil.get_instance_extra_attempts(
@@ -937,9 +1030,9 @@ class WidgetInstance(models.Model):
     def get_latest_qset(self) -> "WidgetQset | None":
         return self.qsets.order_by("-created_at").first()
 
-    def get_qset_for_play(self, play_id=None):
-        if play_id:
-            play = LogPlay.objects.get(id=play_id)
+    def get_qset_for_play(self, play_id=None, is_preview=False):
+        if play_id and not is_preview:
+            play = LogPlay.objects.get(id=play_id)  # this will fail if we are a preview
             return (
                 self.qsets.filter(created_at__lte=play.created_at)
                 .order_by("-created_at")
@@ -1107,6 +1200,7 @@ class WidgetQset(models.Model):
     created_at = models.DateTimeField(default=datetime.now)
     data = models.TextField(db_column="data")
     version = models.CharField(max_length=10, blank=True, null=True)
+    # questions_list = models.TextField(null=True, blank=True)
 
     @classmethod
     def decode_data(cls, encoded_data) -> dict:
@@ -1127,47 +1221,6 @@ class WidgetQset(models.Model):
 
     def set_data(self, data_dict):
         self.data = self.encode_data(data_dict)
-
-    # TODO: implement this, old code below
-    def find_questions(self):
-        pass
-
-    # TODO: find the assets!!!
-    # Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QSET, $qset_id, $recursiveQGroup->assets);
-    # public static function find_questions(&$source, $create_ids=false, &$questions=[])
-    # {
-    #     if (is_array($source))
-    #     {
-    #         foreach ($source as $key => &$q)
-    #         {
-    #             if (self::is_question($q))
-    #             {
-    #                 $json = json_encode($q);
-
-    #                 $real_q = Widget_Question::forge()->from_json($json);
-
-    #                 // new question sets need ids
-    #                 if ($create_ids)
-    #                 {
-    #                     if (empty($real_q->id)) $real_q->id = \Str::random('uuid');
-    #                     foreach ($real_q->answers as &$a)
-    #                     {
-    #                         if (empty($a['id'])) $a['id'] = \Str::random('uuid');
-    #                     }
-    #                     $source[$key] = json_decode(json_encode($real_q), true);
-    #                 }
-    #                 if ($real_q->id)	$questions[$real_q->id] = $real_q;
-    #                 else $questions[] = $real_q;
-    #             }
-    #             elseif (is_array($q))
-    #             {
-    #                 // INCEPTION TIME!!
-    #                 self::find_questions($q, $create_ids, $questions);
-    #             }
-    #         }
-    #     }
-    #     return $questions;
-    # }
 
     class Meta:
         db_table = "widget_qset"

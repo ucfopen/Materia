@@ -4,9 +4,11 @@
 
 html,
 body {
-	height: 100%;
-	min-height: 100%;
 	font-family: 'Lato', arial, sans-serif;
+}
+
+body {
+	height: 100%;
 }
 
 .container {
@@ -359,12 +361,23 @@ body {
 
 @media (max-width: 720px) {
 	.container {
-		margin: 10% auto 0 auto;
+		width: 100%;
+		margin: 0;
 		align-items: center;
 
 		section.page {
+			width: 100%;
 			border: 0;
 			box-shadow: none;
+
+			.widget_info {
+				border-top-left-radius: 0;
+				border-top-right-radius: 0;
+			}
+
+			.widget-embed-footer {
+				position: static;
+			}
 		}
 	}
 }

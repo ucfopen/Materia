@@ -29,6 +29,7 @@ services:
       - backend
     ports:
       - '8001:8001'
+      - '25:25'
     depends_on:
       - mysql
     environment:
@@ -39,8 +40,6 @@ services:
       - MYSQL_PASSWORD=kogneato
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
-      - EMAIL_HOST=host.docker.internal
-      - EMAIL_PORT=1025
     env_file:
       - .env
     volumes:
