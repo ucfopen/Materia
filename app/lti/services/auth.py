@@ -40,6 +40,15 @@ class LTIAuthService:
         return False
 
     @staticmethod
+    def is_test_user(launch):
+        roles = launch.get("https://purl.imsglobal.org/spec/lti/claim/roles", [])
+
+        if "http://purl.imsglobal.org/vocab/lti/system/person#TestUser" in roles:
+            return True
+
+        return False
+
+    @staticmethod
     def authenticate(request, launch):
 
         auth_data = {
@@ -57,8 +66,13 @@ class LTIAuthService:
             )
 
         if not auth_data["email"] or not auth_data["login_id"]:
-            logger.error("LTI auth: critical auth data (email or login id) missing")
-            return None
+
+            if LTIAuthService.is_test_user(launch):
+                auth_data["login_id"] = "test_user"
+                auth_data["email"] = "test-user@materia.test.edu"
+            else:
+                logger.error("LTI auth: critical auth data (email or login id) missing")
+                return None
 
         try:
             user, created = User.objects.get_or_create(
