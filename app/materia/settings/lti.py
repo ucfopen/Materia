@@ -5,6 +5,12 @@ LTI_USERDATA = {
     "identifier": os.environ.get("LTI_PAYLOAD_USER_IDENTIFIER"),
     "create_users": True,
     "update_roles": True,
+    "ags_claim": os.environ.get(
+        "LTI_PAYLOAD_AGS_USER_CLAIM", os.environ.get("LTI_PAYLOAD_USER_CLAIM")
+    ),
+    "ags_identifier": os.environ.get(
+        "LTI_PAYLOAD_AGS_USER_IDENTIFIER", os.environ.get("LTI_PAYLOAD_USER_CLAIM")
+    ),
 }
 
 LTI_ROLES = {

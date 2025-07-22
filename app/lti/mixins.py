@@ -1,7 +1,7 @@
 import logging
 
 from django.contrib.auth import logout
-from lti.services import LTIAuthService
+from lti.services.auth import LTIAuthService
 from lti_tool.models import LtiLaunch
 
 logger = logging.getLogger("django")

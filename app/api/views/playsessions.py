@@ -13,6 +13,7 @@ from core.serializers import (
 )
 from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from lti.ags.client import AGSClient
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -178,6 +179,41 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     existing_logs = request.session.get(preview_session_key, [])
                     request.session[preview_session_key] = existing_logs + logs
                     request.session.modified = True
+
+                """
+                TEMPORARY HOOK FOR LTI SCORING
+                this is functional but will need to be replaced with a finalized version
+                that handles results from the score module.
+                it's being included here as an example of proposed AGS submission flow
+                """
+                for log in logs:
+                    if log.get("type") == "WIDGET_END":
+                        log_play = LogPlay.objects.get(pk=pk)
+                        launch = request.session.get(
+                            f"lti-launch-{log_play.instance.id}", None
+                        )
+
+                        if launch:
+                            completed_time = int(
+                                log_play.created_at.timestamp() + log_play.elapsed
+                            )
+
+                            ags = AGSClient(launch)
+                            completion = (
+                                ags.score_builder()
+                                .score_given(100)
+                                .score_maximum(100)
+                                .activity_progress("Completed")
+                                .grading_progress("FullyGraded")
+                                .timestamp(completed_time)
+                                .submit()
+                            )
+
+                            logger.error(f"\ncompletion!\n{completion}\n")
+
+                        else:
+                            logger.error("\nCould NOT recover launch from session!\n")
+                            pass
 
                 return Response({"status": status.HTTP_200_OK, "success": True})
 

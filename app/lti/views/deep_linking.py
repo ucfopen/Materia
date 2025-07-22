@@ -27,7 +27,7 @@ def lti_deep_link_selection(request):
     # notably, this request will NOT have an associated LTI launch
     # we have to grab the original LTI launch ID from session cache and then
     # use that to grab the original launch from DjangoCacheDataStorage
-    cached_launch_id = request.session["lti-launch-id"]
+    cached_launch_id = request.session["lti-deep-link"]
     if not cached_launch_id:
         # TODO this should probably redirect to a dedicated "LTI failure view"
         return redirect("/404")
@@ -38,5 +38,9 @@ def lti_deep_link_selection(request):
     resource.set_url(selection).set_title(title)
 
     response = cached_launch.deep_link_response([resource])
+
+    # Clear the deep link session data now that it's no longer needed
+    if "lti-deep-link" in request.session:
+        del request.session["lti-deep-link"]
 
     return response

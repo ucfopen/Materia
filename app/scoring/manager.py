@@ -1,10 +1,13 @@
 import datetime
 import importlib
+import logging
 from pathlib import Path
 
 from core.models import DateRange, LogPlay, UserExtraAttempts, WidgetInstance
 from django.db.models import Avg, Count, F
 from django.db.models.functions import Round
+
+logger = logging.getLogger("django")
 
 
 class ScoringUtil:
@@ -118,7 +121,7 @@ class ScoringUtil:
         )
         play = session_play.data
         play.percent = score_module.calculated_percent
-        if not session_play.is_preview:
+        if not session_play.is_preview and score_module.finished:
             play.is_complete = True
             play.save()
 

@@ -15,6 +15,9 @@ from lti.services.launch import LTILaunchService
 from util.context_util import ContextUtil
 from util.perm_manager import PermManager
 
+# from pprint import pformat
+
+
 logger = logging.getLogger("django")
 
 
@@ -66,13 +69,15 @@ class WidgetDemoView(MateriaLoginMixin, TemplateView):
 
 class WidgetPlayView(LtiLaunchMixin, MateriaLoginMixin, TemplateView):
     template_name = "react.html"
-    allow_all_by_default = True
+    # TODO revisit this flag being defaulted to True here
+    # allow_all_by_default = True
 
     # overrides the baseline LTILaunchMixin's launch success method
     def on_lti_launch_success(self, request):
         inst_id = self.kwargs.get("widget_instance_id")
         instance = WidgetInstance.objects.filter(pk=inst_id).first()
         launch = self.request.lti_launch
+        context = None
 
         if instance is None:
             context = _create_lti_error_page(request, "error_unknown_assignment")
@@ -86,6 +91,9 @@ class WidgetPlayView(LtiLaunchMixin, MateriaLoginMixin, TemplateView):
             else:
                 LTILaunchService.register_association(request, launch)
                 context = _create_lti_success_page(request, instance)
+
+        # we need to store launch data for subsequent operations, like scoring
+        LTILaunchService.store_widget_launch(request, launch.get_launch_data())
 
         if context:
             return render(request, "react.html", context)

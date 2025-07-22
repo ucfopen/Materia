@@ -125,6 +125,11 @@ urlpatterns = [
         name="scores",
     ),
     path(
+        "scores/embed/<slug:widget_instance_id>/<slug:play_id>/",
+        ScoresView.as_view(),
+        name="scores",
+    ),
+    path(
         "scores/single/<slug:widget_instance_id>/<slug:play_id>/",
         ScoresViewSingle.as_view(),
         name="single score",

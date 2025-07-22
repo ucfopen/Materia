@@ -15,6 +15,8 @@ class ApplicationLaunchView(LtiLaunchBaseView):
     def handle_resource_launch(self, request, lti_launch):
         launch_data = lti_launch.get_launch_data()
 
+        # logger.error(f"\nLAUNCH DATA: {pformat(launch_data)}\n")
+
         auth = LTIAuthService.authenticate(request, launch_data)
 
         if not auth:
@@ -34,7 +36,7 @@ class ApplicationLaunchView(LtiLaunchBaseView):
 
         # store the launch ID in session - we'll need to grab this
         # in the subsequent request that does not have access to the original launch
-        request.session["lti-launch-id"] = lti_launch.get_launch_id()
+        request.session["lti-deep-link"] = lti_launch.get_launch_id()
 
         return redirect("/lti/picker/")
 

@@ -14,12 +14,12 @@ def lti_config(request):
 
     # TODO these values should come from settings.URLS instead of directly from env
     domain = urlparse(settings.LTI_URL_CONFIGS["tool_url"]).netloc or "localhost"
-    canvas_domain = os.environ.get("CANVAS_DOMAIN")
+    platform_domain = os.environ.get("PLATFORM_DOMAIN")
 
     try:
-        # Get registration by token_url domain that matches canvas_domain env var
+        # Get registration by token_url domain that matches platform_domain env var
         registration = LtiRegistration.objects.filter(
-            token_url__contains=canvas_domain
+            token_url__contains=platform_domain
         ).first()
         print(f"Using registration: {registration}")
         registration_uuid = (

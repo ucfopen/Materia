@@ -209,7 +209,7 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS")
 EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL")
-EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT"))
+EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", 0))
 EMAIL_SSL_KEYFILE = os.environ.get("EMAIL_SSL_KEYFILE")
 EMAIL_SSL_CERTFILE = os.environ.get("EMAIL_SSL_CERTFILE")
 
