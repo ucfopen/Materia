@@ -72,7 +72,9 @@ class LTIAuthService:
                 auth_data["email"] = "test-user@materia.test.edu"
             else:
                 logger.error("LTI auth: critical auth data (email or login id) missing")
-                return None
+                raise Exception(
+                    "LTI auth: critical auth data (email or login id) missing"
+                )
 
         try:
             user, created = User.objects.get_or_create(

@@ -59,31 +59,39 @@ urlpatterns = [
         name="widget guide view",
     ),
     path(
-        "play/<slug:widget_instance_id>/", WidgetPlayView.as_view(), name="widget play"
+        "play/<slug:widget_instance_id>/",
+        WidgetPlayView.as_view(),
+        {"is_embed": False},
+        name="widget play",
     ),
     path(
         "play/<slug:widget_instance_id>/<str:instance_name>/",
         WidgetPlayView.as_view(),
+        {"is_embed": False},
         name="widget play",
     ),
     path(
         "embed/<slug:widget_instance_id>/",
         WidgetPlayView.as_view(),
+        {"is_embed": True},
         name="widget embed",
     ),
     path(
         "embed/<slug:widget_instance_id>/<str:instance_name>/",
         WidgetPlayView.as_view(),
+        {"is_embed": True},
         name="widget embed",
     ),
     path(
         "preview/<slug:widget_instance_id>/",
         WidgetPreviewView.as_view(),
+        {"is_embed": False},
         name="widget preview",
     ),
     path(
         "preview/<slug:widget_instance_id>/<str:instance_name>/",
         WidgetPreviewView.as_view(),
+        {"is_embed": False},
         name="widget preview",
     ),
     # My Widgets

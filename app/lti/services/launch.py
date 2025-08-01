@@ -2,6 +2,7 @@ import logging
 import re
 
 from django.conf import settings
+from lti_tool.models import LtiLaunch
 
 # from pprint import pformat
 
@@ -64,15 +65,42 @@ class LTILaunchService:
         return False
 
     @staticmethod
-    def store_widget_launch(request, launch_data):
+    def is_lti_launch(request):
+        if hasattr(request, "lti_launch") and request.lti_launch:
+            return isinstance(request.lti_launch, LtiLaunch)
 
-        uri_claim = launch_data.get(
-            "https://purl.imsglobal.org/spec/lti/claim/target_link_uri"
-        )
+        return False
 
-        inst_id = LTILaunchService.get_inst_id_from_uri(uri_claim)
+    @staticmethod
+    def get_nonce(launch):
+        return launch.get("nonce", None)
 
-        request.session[f"lti-launch-{inst_id}"] = launch_data
+    @staticmethod
+    def get_context_id(launch):
+        context_claim = launch.get("https://purl.imsglobal.org/spec/lti/claim/context")
+        return context_claim.get("id")
+
+    @staticmethod
+    def get_or_recover_launch(request):
+        if LTILaunchService.is_lti_launch(request):
+            return request.lti_launch.get_launch_data()
+        else:
+            token_param = request.GET.get("token")
+            recovery = LTILaunchService.get_session_launch(request, token_param)
+            if recovery is not None:
+                logger.error("\nLaunch RECOVERED from get param!\n")
+            return recovery
+
+    @staticmethod
+    def store_session_launch(request, launch):
+        nonce_token = LTILaunchService.get_nonce(launch)
+
+        request.session[f"lti-launch-{nonce_token}"] = launch
         request.session.modified = True
 
-        return True
+        return nonce_token
+
+    @staticmethod
+    def get_session_launch(request, key):
+        launch = request.session.get(f"lti-launch-{key}", None)
+        return launch

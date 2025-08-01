@@ -36,3 +36,8 @@ class ContextUtil:
             "js_global_variables": processed_js_globals,
             "css_global_variables": processed_css_resources,
         }
+
+    @staticmethod
+    def add_global(context: dict, key: str, value: str = ""):
+        context["js_global_variables"][key] = value
+        return context

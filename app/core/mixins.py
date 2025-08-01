@@ -1,7 +1,10 @@
 import logging
 
+from core.models import WidgetInstance
+from core.services import WidgetPlayValidationService
 from django.contrib.auth.mixins import AccessMixin
 from django.http import HttpRequest, HttpResponse
+from util.context_util import ContextUtil
 
 logger = logging.getLogger("django")
 
@@ -95,3 +98,53 @@ class MateriaLoginNeeded(Exception):
         self.login_error = login_error
         self.login_title = login_title
         self.login_global_vars = login_global_vars
+
+
+class MateriaWidgetPlayProcessor:
+    """
+    Mixin to handle widget play view pre-processing
+    Incorporates several steps:
+    1. Validation: used to validate access and determine what play view to return
+    2. Context processing: based on validation, create the associated context object
+    3. Pre-init business logic: Play session instantiation and LTI association
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        # short-circuit this block if no inst id is present
+        # ex: widget demos
+        inst_id = self.kwargs.get("widget_instance_id", None)
+        if inst_id is not None:
+            self.instance = WidgetInstance.objects.filter(pk=inst_id).first()
+            self.is_embedded = kwargs.get("is_embed", False)
+
+            self.validation = self.get_validation(request, self.instance)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(
+        self,
+        widget_instance_id=None,
+        instance_name=None,
+        is_embed=False,
+    ):
+        processed_context = self.process_context(self.validation)
+
+        if self.validation is WidgetPlayValidationService.VALID:
+            pre_init = self.before_play_init(self.instance)
+
+            ContextUtil.add_global(processed_context, "PLAY_ID", pre_init["play_id"])
+            if pre_init["lti_token"] is not None:
+                ContextUtil.add_global(
+                    processed_context, "LTI_TOKEN", pre_init["lti_token"]
+                )
+
+        return processed_context
+
+    def process_context(self, validation):
+        pass
+
+    def get_validation(self, request, instance):
+        pass
+
+    def before_play_init(self, instance):
+        pass
