@@ -131,7 +131,7 @@ class WidgetPlayView(
             play.context_id = LTILaunchService.get_nonce(self.launch)
 
             # if it's a first-time launch, store in session
-            if LTILaunchService.is_lti_launch(self.request):
+            if LTILaunchService.get_launch_state(self.launch) == "INITIAL":
                 LTILaunchService.store_session_launch(
                     self.request, play.id, self.launch
                 )
