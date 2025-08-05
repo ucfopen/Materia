@@ -34,6 +34,19 @@ class LtiLaunchMixin:
         return super().dispatch(request, *args, **kwargs)
 
     def handle_lti_launch(self, request, launch):
+
+        # launch auth depends on launch state: initial or recovery
+        # for recovery launches, we don't want to destroy the session if we don't have to
+        # verify current user auth with user stored in recovered launch
+        if LTILaunchService.get_launch_state(launch) == "RECOVERY":
+            launch_username = LTIAuthService.get_username_from_launch(launch)
+
+            # explicitly bypass auth if launch user matches auth'd user
+            if request.user.username == launch_username:
+                return
+
+        # in all other launch contexts, destroy the current auth session and authenticate from the launch
+
         # destroy current authentication session if active
         if request.user and request.user.is_authenticated:
             logout(request)

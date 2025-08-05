@@ -81,24 +81,30 @@ class LTILaunchService:
         return context_claim.get("id")
 
     @staticmethod
+    def get_launch_state(launch):
+        return launch.get("materia_launch_state", None)
+
+    @staticmethod
     def get_or_recover_launch(request):
         if LTILaunchService.is_lti_launch(request):
-            return request.lti_launch.get_launch_data()
+            launch = request.lti_launch.get_launch_data()
+            launch["materia_launch_state"] = "INITIAL"
+            return launch
         else:
             token_param = request.GET.get("token")
             recovery = LTILaunchService.get_session_launch(request, token_param)
             if recovery is not None:
+                recovery["materia_launch_state"] = "RECOVERY"
                 logger.error("\nLaunch RECOVERED from get param!\n")
+
             return recovery
 
     @staticmethod
-    def store_session_launch(request, launch):
-        nonce_token = LTILaunchService.get_nonce(launch)
-
-        request.session[f"lti-launch-{nonce_token}"] = launch
+    def store_session_launch(request, key, launch):
+        request.session[f"lti-launch-{key}"] = launch
         request.session.modified = True
 
-        return nonce_token
+        return key
 
     @staticmethod
     def get_session_launch(request, key):

@@ -49,8 +49,6 @@ class AGSClient:
         url = f"{line_item}/scores"
         request = AGSRequest(self.access_token)
 
-        logger.error(f"\nscore url in submit_score {url}\n")
-
         body = {
             "userId": self.user_id,
             "activityProgress": score_data["activityProgress"],

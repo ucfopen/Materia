@@ -19,7 +19,6 @@ class WidgetPlayInitService:
             context_id="",
             created_at=make_aware(datetime.now()),
             elapsed=0,
-            environment_data="",
             id=str(uuid.uuid4()),
             instance=instance,
             ip=request.META.get("REMOTE_ADDR"),

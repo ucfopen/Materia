@@ -75,7 +75,7 @@ class SessionPlay:
         self.data.context_id = context_id
         self.data.is_preview = is_preview
         self.data.qset = instance.get_latest_qset()
-        self.data.environment_data = ""
+        # self.data.environment_data = ""
 
         # address these values that are set arbitrarly
         self.data.auth = ""

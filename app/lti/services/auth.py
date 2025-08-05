@@ -12,6 +12,18 @@ logger = logging.getLogger("django")
 class LTIAuthService:
 
     @staticmethod
+    def get_username_from_launch(launch):
+        username = None
+        if settings.LTI_USERDATA["claim"] is None:
+            username = launch.get(settings.LTI_USERDATA["identifier"])
+        else:
+            username = launch.get(settings.LTI_USERDATA["claim"]).get(
+                settings.LTI_USERDATA["identifier"]
+            )
+
+        return username
+
+    @staticmethod
     def provision_roles(user, lti_roles):
 
         for role in lti_roles:
@@ -56,14 +68,8 @@ class LTIAuthService:
             "first": launch.get("given_name", ""),
             "last": launch.get("family_name", ""),
             "roles": launch.get("https://purl.imsglobal.org/spec/lti/claim/roles", []),
+            "login_id": LTIAuthService.get_username_from_launch(launch),
         }
-
-        if settings.LTI_USERDATA["claim"] is None:
-            auth_data["login_id"] = launch.get(settings.LTI_USERDATA["identifier"])
-        else:
-            auth_data["login_id"] = launch.get(settings.LTI_USERDATA["claim"]).get(
-                settings.LTI_USERDATA["identifier"]
-            )
 
         if not auth_data["email"] or not auth_data["login_id"]:
 

@@ -129,9 +129,18 @@ class WidgetPlayView(
             play.auth = "lti"
             # TODO nonce shouldn't be used as context id
             play.context_id = LTILaunchService.get_nonce(self.launch)
-            play.save()
 
-            lti_token = play.context_id
+            # if it's a first-time launch, store in session
+            if LTILaunchService.is_lti_launch(self.request):
+                LTILaunchService.store_session_launch(
+                    self.request, play.id, self.launch
+                )
+                lti_token = play.id
+            else:
+                lti_token = self.request.GET.get("token")
+
+            play.lti_token = lti_token
+            play.save()
 
         return {"play_id": play.id, "lti_token": lti_token}
 
@@ -161,10 +170,6 @@ class WidgetPlayView(
         # assign launch object as an instance attribute so before_play_init can use it
         # we only do this once confirming it's an appropriate widget launch
         self.launch = launch
-
-        # if it's a first-time launch, store in session
-        if LTILaunchService.is_lti_launch(request):
-            LTILaunchService.store_session_launch(request, launch)
 
         return None
 
