@@ -41,6 +41,7 @@ class ScoresView(MateriaLoginMixin, TemplateView):
             js_resources=settings.JS_GROUPS["scores"],
             css_resources=settings.CSS_GROUPS["scores"],
             js_globals={
+                "USER_ID": request.user.id,
                 "IS_EMBEDDED": is_embedded,
                 "IS_PREVIEW": self.is_preview,
                 "LAUNCH_TOKEN": token,

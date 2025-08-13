@@ -1,5 +1,5 @@
 import logging
-from pprint import pformat
+import traceback
 
 from api.filters import LogPlayFilterBackend
 from core.models import Log, LogPlay, WidgetInstance
@@ -11,13 +11,14 @@ from core.serializers import (
     PlaySessionWithExtrasSerializer,
     PlaySessionWithExtraUserInfoSerializer,
 )
+from core.services import WidgetPlayInitService
 from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from scoring.module_factory import ScoreModuleFactory
 from util.custom_paginations import PageNumberWithTotalPagination
-from util.logging.session_play import SessionPlay
 from util.message_util import MsgBuilder
 from util.perm_manager import PermManager
 from util.widget.validator import ValidatorUtil
@@ -113,21 +114,34 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         )
         if serializer.is_valid(raise_exception=True):
             validated = serializer.validated_data
-            session_play = SessionPlay()
-            play_id = session_play.start(validated["instance"], request.user.id)
 
-            # this is where the desired error handling from session_play gets handled
-            if not play_id:
-                logger.warning(
-                    f"[Playsessions] Failed to start SessionPlay for instance"
-                    f"{validated["instance"].id} and user {request.user.id}"
+            if validated["is_preview"] is True:
+
+                preview_id = WidgetPlayInitService.init_preview(request)
+                return JsonResponse({"playId": preview_id})
+
+            else:
+                user = (
+                    request.user
+                    if validated["instance"].guest_access is False
+                    else None
                 )
-                return MsgBuilder.failure(
-                    "Failed to Create Play Session",
-                    "There was an error starting your play session. Please try again.",
-                ).as_drf_response()
+                new_play = WidgetPlayInitService.init_play(
+                    request, validated["instance"], user
+                )
 
-        return JsonResponse({"playId": play_id})
+                # this is where the desired error handling from session_play gets handled
+                if not new_play.id:
+                    logger.warning(
+                        f"[Playsessions] Failed to start SessionPlay for instance"
+                        f"{validated["instance"].id} and user {user}"
+                    )
+                    return MsgBuilder.failure(
+                        "Failed to Create Play Session",
+                        "There was an error starting your play session. Please try again.",
+                    ).as_drf_response()
+
+                return JsonResponse({"playId": new_play.id})
 
     def update(self, request, pk=None):
         if not pk:
@@ -164,11 +178,22 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     # only plays are saved to the db - previews are stored in request session (see below)
                     if not is_preview:
                         log_model.save()
-                    # TODO put preview logs in session
 
                 if not is_preview:
-                    session = SessionPlay(pk)
-                    session.update_elapsed()
+                    play = LogPlay.objects.get(pk=pk)
+                    play.update_elapsed()
+
+                    score_module = ScoreModuleFactory.create_score_module(
+                        instance=play.instance, play=play
+                    )
+
+                    score_module.validate_scores()
+                    if score_module.finished:
+                        play.set_complete(
+                            score_module.verified_score,
+                            score_module.total_questions,
+                            score_module.calculated_percent,
+                        )
                 else:
                     preview_play_id = update_serializer.validated_data[
                         "preview_play_id"
@@ -181,9 +206,10 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
                 return Response({"status": status.HTTP_200_OK, "success": True})
 
-            except Exception as e:
+            except Exception:
                 logger.error("play session log save failure:")
-                logger.error(pformat(e))
+                tbString = traceback.format_exc()
+                logger.error(f"\ntraceback: {tbString}")
                 return MsgBuilder.failure(
                     "Failed to Save", "Your play logs could not be saved."
                 ).as_drf_response()

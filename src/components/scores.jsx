@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef} from 'react'
-import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetGuestWidgetInstanceScores, apiGetScoreSummary, apiGetScoreDistribution, apiGetWidgetInstancePlayScores } from '../util/api'
+import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetScoreSummary, apiGetScoreDistribution, apiGetWidgetInstancePlayScores, apiGetWidgetInstancePreviewScores } from '../util/api'
 import { useQuery } from 'react-query'
 import ScoreOverview from './score-overview'
 import ScoreDetails from './score-details'
@@ -12,7 +12,7 @@ const STATE_RESTRICTED = 'restricted'
 const STATE_INVALID = 'invalid'
 const STATE_EXPIRED = 'expired'
 
-const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded, isPreview, previewPlayId }) => {
+const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isEmbedded, isPreview, previewPlayId }) => {
 
 	const [playId, setPlayId] = useState(null)
 	const [previewInstId, setPreviewInstId] = useState(null)
@@ -58,6 +58,8 @@ const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded,
 	const scoreHeaderRef = useRef(null)
 	const scoreWidgetRef = useRef(null)
 
+	const guestPlayId = playIdProp ? playIdProp : single_id
+
 	// Gets widget instance loads qset
   // No login required
 	const { isLoading: instanceIsLoading, data: instance } = useQuery({
@@ -72,7 +74,8 @@ const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded,
 	// As a result, instanceScores is never read.
 	const { isLoading: scoresAreLoading, data: instanceScores, refetch: loadInstanceScores } = useQuery({
 		queryKey: ['inst-scores', instId, send_token, previewPlayId],
-		queryFn: () => apiGetWidgetInstanceScores(instId, send_token),
+		// @TODO: we are not currently passing in or using send_token
+		queryFn: () => apiGetWidgetInstanceScores(instId, userId),
 		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
@@ -90,34 +93,14 @@ const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded,
 		}
 	})
 
-	// Gets guest widget instance scores
-	// important note: play_id is only set when the user first visits the score screen after completing a guest instance
-	// otherwise, single_id will contain the play ID and play_id will be null
-	const guestPlayId = playIdProp ? playIdProp : single_id
-	const { data: guestScores, refetch: loadGuestScores } = useQuery({
-		queryKey: ['guest-scores', instId, guestPlayId],
-		queryFn: () => apiGetGuestWidgetInstanceScores(instId, guestPlayId),
-		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
-		staleTime: Infinity,
-		refetchOnWindowFocus: false,
-		retry: false,
-		onSuccess: (result) => {
-			_populateScores(result['scores'])
-		},
-		onError: (error) => {
-			if (error.message == "Invalid Login") {
-				setErrorState(STATE_RESTRICTED)
-			} else {
-				setErrorState(STATE_INVALID)
-			}
-		}
-	})
-
 	// Gets widget instance play scores when playId
 	// or previewInstId are changed
 	const { data: playScores } = useQuery({
 		queryKey: ['play-scores', playId, previewInstId, previewPlayId],
-		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId, previewPlayId),
+		queryFn: () => {
+			if (isPreview) return apiGetWidgetInstancePreviewScores(previewPlayId, previewInstId)
+			else return apiGetWidgetInstancePlayScores(playId)
+		},
 		staleTime: Infinity,
 		enabled: (!!playId || (!!previewInstId && !!previewPlayId)),
 		refetchOnWindowFocus: false,
@@ -198,7 +181,7 @@ const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded,
 			// Guest play session
 			else if (instance.guest_access) {
 				setAttributes({ ...attributes, href: `/${isEmbedded ? 'embed' : 'play'}/${instId}/${instance.clean_name}`, hidePlayAgain: false })
-				loadGuestScores()
+				setPlayId(guestPlayId)
 			}
 			// User play session
 			else loadInstanceScores()
@@ -306,7 +289,6 @@ const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded,
 	useEffect(() => {
 
 		if (playScores != null) {
-
 			const deets = playScores
 			setPlayDetails({qset: { ...deets.qset }, details: [ ...deets.details ]})
 

@@ -417,6 +417,21 @@ class LogPlay(models.Model):
         db_column="semester_id",
     )
 
+    # TODO this can (should?) be replaced with a proper foreign key relationship in Log model
+    def get_logs(self):
+        return Log.objects.filter(play_id=self.id)
+
+    def update_elapsed(self):
+        self.elapsed = (make_aware(datetime.now()) - self.created_at).total_seconds()
+        self.save()
+
+    def set_complete(self, score, possible, percent):
+        self.is_complete = True
+        self.score = score
+        self.score_possible = possible
+        self.percent = percent if percent <= 100 else 100
+        self.save()
+
     class Meta:
         db_table = "log_play"
         indexes = [
@@ -744,22 +759,77 @@ class Question(models.Model):
     id = models.BigAutoField(primary_key=True)
     qset = models.ForeignKey(
         "WidgetQset",
-        related_name="flattened_questions",
-        on_delete=models.CASCADE,
+        related_name="questions",
+        on_delete=models.PROTECT,
         db_column="qset_id",
         null=True,
-        blank=True,
     )
     # base 64 encoded json question
-    data = models.TextField()
+    _data = models.TextField(db_column="data")
+    item_id = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(default=datetime.now)
-    type = models.CharField(max_length=50, default="QA")
+    type = models.ForeignKey(
+        "Widget", related_name="widget_type", on_delete=models.PROTECT, db_column="type"
+    )
+
+    @property
+    def data(self):
+        return self.decoded_data()
+
+    @data.setter
+    def data(self, value):
+        if isinstance(value, dict):
+            self._data = self.encode_data(value)
+        else:
+            self._data = value
+
+    def decoded_data(self):
+        try:
+            decoded_bytes = base64.b64decode(self._data)
+            return json.loads(decoded_bytes.decode("utf-8"))
+        except Exception as e:
+            logger.error(f"Error decoding JSON in Question model: {str(e)}")
+            return {}
+
+    # TODO this is effectively a duplicate of WidgetQset's encode_data
+    @classmethod
+    def encode_data(cls, decoded_data) -> str:
+        json_str = json.dumps(decoded_data)
+        return base64.b64encode(json_str.encode("utf-8")).decode("utf-8")
+
+    @staticmethod
+    def is_question(item):
+        # Convert item to a dictionary if it's not already
+        if not isinstance(item, dict):
+            try:
+                item = dict(item)
+            except (TypeError, ValueError):
+                return False
+
+        # Check if required keys exist
+        if "id" not in item:
+            return False
+        if "type" not in item:
+            return False
+        if "questions" not in item:
+            return False
+        if "answers" not in item:
+            return False
+
+        # Check if values are not empty
+        if not item["type"] or not item["questions"] or not item["answers"]:
+            return False
+
+        # Check if questions and answers are lists
+        if not isinstance(item["answers"], list):
+            return False
+        if not isinstance(item["questions"], list):
+            return False
+
+        return True
 
     class Meta:
         db_table = "question"
-        indexes = [
-            models.Index(fields=["qset"], name="question_qset_idx"),
-        ]
 
 
 class UserExtraAttempts(models.Model):
@@ -1195,7 +1265,6 @@ class WidgetQset(models.Model):
     created_at = models.DateTimeField(default=datetime.now)
     data = models.TextField(db_column="data")
     version = models.CharField(max_length=10, blank=True, null=True)
-    # questions_list = models.TextField(null=True, blank=True)
 
     @classmethod
     def decode_data(cls, encoded_data) -> dict:
@@ -1203,9 +1272,10 @@ class WidgetQset(models.Model):
             decoded_bytes = base64.b64decode(encoded_data)
             return json.loads(decoded_bytes.decode("utf-8"))
         except Exception as e:
-            logger.error(f"Error decoding JSON: {str(e)}")
+            logger.error(f"Error decoding JSON in WidgetQset model: {str(e)}")
             return {}
 
+    # TODO this might be better served as a utility method? Question needs it too
     @classmethod
     def encode_data(cls, decoded_data) -> str:
         json_str = json.dumps(decoded_data)
@@ -1216,6 +1286,64 @@ class WidgetQset(models.Model):
 
     def set_data(self, data_dict):
         self.data = self.encode_data(data_dict)
+
+    def process_and_create_questions(self):
+        """
+        Older versions of Materia will not have Question model instances associated with a qset
+        In this case, we unpack the qset, traverse it to identify individual questions, and create new question
+        instances.
+        This method will effectively be invoked once per qset at most,
+        as subsequent requests for questions will be able to use the ORM
+        """
+        decoded_data = self.decode_data(self.data)
+        raw_items = decoded_data.get("items", [])
+
+        def find_questions(source, questions=[]):
+
+            if isinstance(source, list):
+
+                for item in source:
+
+                    if Question.is_question(item):
+                        questions.append(item)
+                    else:
+                        questions.update(find_questions(item, questions))
+
+            elif isinstance(source, dict):
+                if Question.is_question(source):
+                    questions.append(source)
+                else:
+                    for key, value in source.items():
+                        if Question.is_question(value):
+                            questions.append(value)
+                        elif isinstance(value, (list, dict)):
+                            questions.update(find_questions(value, questions))
+            else:
+                logger.error(f"source is not list or dict, it is {type(source)}")
+                return []
+
+            return questions
+
+        questions = find_questions(raw_items, [])
+        questions_set = []
+        for question in questions:
+            new_question = Question(
+                type=self.instance.widget,
+                data=question,
+                qset=self,
+                item_id=question["id"],
+            )
+            new_question.save()
+            questions_set.append(new_question)
+
+        return questions_set
+
+    def get_questions(self):
+        questions = self.questions.all()
+        if questions.exists():
+            return questions
+        else:
+            return self.process_and_create_questions()
 
     class Meta:
         db_table = "widget_qset"

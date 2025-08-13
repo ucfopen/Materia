@@ -37,6 +37,7 @@ const ScorePage = () => {
 
 	const [state, setState] = useState({
 		instanceID: undefined,
+		userID: undefined,
 		playID: undefined,
 		singleID: undefined,
 		sendToken: undefined,
@@ -51,6 +52,7 @@ const ScorePage = () => {
 			if (window.IS_EMBEDDED) document.body.classList.add('embedded')
 
 			setState({
+				userID: window.USER_ID ?? null,
 				instanceID: (instId ? instId : null),
 				playID: playId ? playId : null,
 				singleID: single_id ? single_id : null,
@@ -64,6 +66,7 @@ const ScorePage = () => {
 	// Used to wait for window data to load
 	const waitForWindow = async () => {
 		while(!window.hasOwnProperty('IS_EMBEDDED')
+		&& !window.hasOwnProperty('USER_ID')
 		&& !window.hasOwnProperty('IS_PREVIEW')
 		&& !window.hasOwnProperty('LAUNCH_TOKEN')) {
 			await new Promise(resolve => setTimeout(resolve, 500))
@@ -81,6 +84,7 @@ const ScorePage = () => {
 		bodyRender = <Scores instId={state.instanceID}
 		playId={state.playID}
 		single_id={state.singleID}
+		userId={state.userID}
 		send_token={state.sendToken}
 		isEmbedded={state.isEmbedded}
 		isPreview={state.isPreview}
