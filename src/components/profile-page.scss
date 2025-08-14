@@ -19,6 +19,11 @@
 		border: #e4e4e4 1px solid;
 		box-shadow: 1px 3px 10px #dcdcdc;
 
+		&.loading {
+			width: 90%;
+			max-width: 800px;
+		}
+
 		.loading-icon-holder {
 			position: absolute;
 			width: 300px;

@@ -115,7 +115,7 @@ const SettingsPage = () => {
 		)
 	}
 
-	let mainContentRender = <section className='page'><div className='loading-icon-holder'><LoadingIcon /></div></section>
+	let mainContentRender = <section className='page loading'><div className='loading-icon-holder'><LoadingIcon /></div></section>
 	if ( !isFetching && currentUser ) {
 		mainContentRender = (
 			<section className="page settings">
