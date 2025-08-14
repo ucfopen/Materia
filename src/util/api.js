@@ -71,8 +71,8 @@ export const apiGetInstancesForUser = userId => {
 		.then(handleErrors)
 }
 
-export const apiGetWidgetsByType = () => {
-	return fetchGet('/api/json/widgets_get_by_type/', { body: `data=${formatFetchBody(['all'])}` })
+export const apiGetWidgetsByType = (type = 'all') => {
+	return fetchGet('/api/json/widgets_get_by_type/', { body: `data=${formatFetchBody([type])}` })
 }
 
 // Gets widget info

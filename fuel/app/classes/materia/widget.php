@@ -14,6 +14,7 @@ class Widget
 	public $id                     = 0;
 	public $is_answer_encrypted    = true;
 	public $in_catalog             = true;
+	public $featured               = false;
 	public $is_editable            = true;
 	public $is_playable            = true;
 	public $is_qset_encrypted      = true;
@@ -101,6 +102,7 @@ class Widget
 			'height'                 => $w['height'],
 			'id'                     => $w['id'],
 			'in_catalog'             => $w['in_catalog'],
+			'featured'               => $w['featured'],
 			'is_editable'            => $w['is_editable'],
 			'name'                   => $w['name'],
 			'is_playable'            => $w['is_playable'],
