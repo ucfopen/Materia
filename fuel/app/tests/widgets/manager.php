@@ -142,21 +142,32 @@ class Test_Widget_Manager extends \Basetest
 
 	public function test_get_all_widgets_featured()
 	{
+		$not_featured = $this->make_disposable_widget();
 		$not_in_catalog = $this->make_disposable_widget();
 		$not_playable = $this->make_disposable_widget();
 		$visible[] = $this->make_disposable_widget();
 		$visible[] = $this->make_disposable_widget();
 
-		// this shouldn't show up
+		// this shouldn't show up despite featured being true
 		$this->_as_super_user();
 		$args = $this->sample_widget_update_args($not_in_catalog->id, $not_in_catalog->clean_name);
 		$args->in_catalog = false;
+		$args->featured = true;
 		$msg = \Materia\Widget_Manager::update_widget($args);
 
-		// this shouldn't show up
+		// this shouldn't show up despite featured being true
 		$args = $this->sample_widget_update_args($not_playable->id, $not_playable->clean_name);
 		$args->is_playable = false;
+		$args->featured = true;
 		$msg = \Materia\Widget_Manager::update_widget($args);
+
+		// have to set featured to true for visible widgets, as it is false by default
+		foreach ($visible as $widget)
+		{
+			$args = $this->sample_widget_update_args($widget->id, $widget->clean_name);
+			$args->featured = true;
+			$msg = \Materia\Widget_Manager::update_widget($args);
+		}
 
 		$res = \Materia\Widget_Manager::get_widgets(null, 'featured');
 		self::assertCount(2, $res);
@@ -184,7 +195,7 @@ class Test_Widget_Manager extends \Basetest
 		$args->is_playable = false;
 		$msg = \Materia\Widget_Manager::update_widget($args);
 
-		$res = \Materia\Widget_Manager::get_widgets(null, 'featured');
+		$res = \Materia\Widget_Manager::get_widgets(null, 'catalog');
 		self::assertCount(2, $res);
 
 		self::assertEquals($visible[0]->id, $res[0]->id);
@@ -225,6 +236,7 @@ class Test_Widget_Manager extends \Basetest
 		$args->id = $id;
 		$args->clean_name = $clean_name;
 		$args->in_catalog = 1;
+		$args->featured = 0;
 		$args->is_editable = 1;
 		$args->is_scorable = 1;
 		$args->is_playable = 1;

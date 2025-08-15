@@ -12,7 +12,7 @@ class Widget_Manager
 	 *
 	 * @return array The information and metadata about the widget or widgets called for.
 	 */
-	static public function get_widgets($widget_ids=null, $type='featured')
+	static public function get_widgets($widget_ids=null, $type='catalog')
 	{
 		$widgets = [];
 		// =============== Get the requested widgets =================
@@ -40,6 +40,7 @@ class Widget_Manager
 					break;
 
 				case 'featured':
+					$query->where('featured', '1');
 				case 'catalog':
 				default:
 					$query->where('in_catalog', '1');

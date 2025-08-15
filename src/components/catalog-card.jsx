@@ -9,6 +9,7 @@ const CatalogCard = ({
 	id,
 	clean_name = '',
 	in_catalog = '0',
+	featured = '0',
 	name = '',
 	dir = '',
 	meta_data,
@@ -17,7 +18,7 @@ const CatalogCard = ({
 }) => {
 	// 'Featured' label
 	let featuredLabelRender = null
-	if (in_catalog === '1') {
+	if (featured === '1') {
 		featuredLabelRender = <div className='featured-label'>
 			<svg xmlns='http://www.w3.org/2000/svg'
 				width='18'
