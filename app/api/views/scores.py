@@ -7,6 +7,7 @@ from core.serializers import (
     ScoreDetailsForPreviewSerializer,
     ScoresForUserSerializer,
 )
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from scoring.module_factory import ScoreModuleFactory
@@ -18,11 +19,9 @@ logger = logging.getLogger(__name__)
 
 class ScoresView(APIView):
     http_method_names = ["get"]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        """
-        TODO validate access for scores for the given instance
-        """
         serializer = ScoresForUserSerializer(data=request.query_params)
         if serializer.is_valid(raise_exception=True):
             validated = serializer.validated_data
@@ -30,6 +29,16 @@ class ScoresView(APIView):
             instance = validated.get("instance")
             user = validated.get("user")
             context = validated.get("context", None)
+            """
+            access perms require either:
+            the user id in the API request matches the current user OR
+            the current user has authorship permissions to the instance
+            """
+            if (
+                request.user.id != user.id
+                and not instance.permissions.filter(user=request.user).exists()
+            ):
+                return MsgBuilder.no_perm().as_drf_response()
 
             plays = LogPlay.objects.filter(user=user, instance=instance)
 
@@ -76,10 +85,12 @@ class ScoresView(APIView):
 
 class ScoresDetailView(APIView):
     http_method_names = ["get"]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         """
-        TODO validate access to the given play (user or instance)
+        NOTE preview perms are not explicitly validated (beyond IsAuthenticated)
+            Preview records being stored in session effectively acts as validation
         """
         if request.query_params.get("preview_inst_id"):
             serializer = ScoreDetailsForPreviewSerializer(data=request.query_params)
@@ -113,6 +124,21 @@ class ScoresDetailView(APIView):
                 validated = serializer.validated_data
 
                 play = validated.get("play_id")
+
+                logger.error(
+                    f"\nplay user id: {play.user.id}\nrequest user id: {request.user.id}\n"
+                )
+
+                """
+                access perms require either:
+                The user in the play matches the current user OR
+                The current user has authorship permissions to the instance associated with the play
+                """
+                if (
+                    request.user.id != play.user.id
+                    and not play.instance.permissions.filter(user=request.user).exists()
+                ):
+                    return MsgBuilder.no_perm().as_drf_response()
 
                 module = ScoreModuleFactory.create_score_module(
                     instance=play.instance, play=play

@@ -128,3 +128,11 @@ class HasFullInstancePermsAndLockOrElevated(permissions.BasePermission):
                 user=request.user,
                 permission=ObjectPermission.PERMISSION_FULL,
             ).exists()
+
+
+class IsAuthenticatedOrGuestMode(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if not isinstance(obj, WidgetInstance):
+            return False
+
+        return request.user.is_authenticated or obj.guest_access

@@ -9,6 +9,7 @@ from core.permissions import (
     HasFullPermsOrElevated,
     HasFullPermsOrElevatedOrReadOnly,
     HasPermsOrElevatedAccess,
+    IsAuthenticatedOrGuestMode,
     IsSuperOrSupportUser,
 )
 from core.serializers import (
@@ -70,13 +71,15 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             else:
                 permission_classes = [IsAuthenticated]
 
+        # score distribution needs to be accessible to anyone who can play an instance
+        # this either requires authentication (for normal instances)
+        # or public visibility (for guest instances)
+        elif self.action == "scores":
+            permission_classes = [IsAuthenticatedOrGuestMode]
+
         # must have (any) access to instance or elevated perms
         # TODO: question_sets can't be restricted in this way, but we may want more context-sensitive authorization
-        elif (
-            self.action == "scores"
-            or self.action == "copy"
-            or self.action == "export_playdata"
-        ):
+        elif self.action == "copy" or self.action == "export_playdata":
             permission_classes = [HasPermsOrElevatedAccess]
 
         elif self.action == "undelete":

@@ -526,9 +526,10 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 	}
 
 	const attemptClick = () => {
-		if (isMobile.any()) {
-			setprevAttemptOpen(false)
-		}
+		// @TODO isMobile relies on include.js which is no longer bundled
+		// if (window.isMobile.any()) {
+		// 	setprevAttemptOpen(false)
+		// }
 	}
 
 	/******* DOM element rendering ********/
