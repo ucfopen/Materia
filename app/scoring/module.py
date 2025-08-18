@@ -262,7 +262,7 @@ class ScoreModule(ABC):
         return "[no question text]"
 
     def get_ss_answer(self, log, question) -> str:
-        return log.text if hasattr(log, "text") else log["text"]
+        return log.text
 
     def get_ss_expected_answers(self, log, question) -> str:
         if question["type"] == "mc":

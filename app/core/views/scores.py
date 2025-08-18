@@ -65,7 +65,7 @@ class ScoresViewSingle(MateriaLoginMixin, TemplateView):
         token = self.kwargs.get("token")
 
         # Grab and verify play
-        play = LogPlay.objects.filter(pk=play_id)
+        play = LogPlay.objects.get(pk=play_id)
         if play is None:
             return HttpResponseNotFound()
         if play.instance.id != widget_instance_id:
