@@ -7,6 +7,7 @@ import os
 
 from core.models import (
     Asset,
+    Log,
     LogPlay,
     Notification,
     ObjectPermission,
@@ -21,7 +22,6 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
-from util.logging.session_logger import SessionLogger
 from util.perm_manager import PermManager
 from util.user_util import UserUtil
 
@@ -481,7 +481,7 @@ class LogSubmissionSerializer(serializers.Serializer):
 
         if "item_id" in validated_data and validated_data["item_id"]:
             validated_data["item_id"] = str(validated_data["item_id"])
-            validated_data["type"] = SessionLogger.get_log_type(validated_data["type"])
+            validated_data["type"] = Log.LogType.get_log_type(validated_data["type"])
             validated_data["text"] = validated_data.get("text", "")
             validated_data["value"] = validated_data.get("value") or ""
 

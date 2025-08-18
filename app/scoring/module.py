@@ -4,8 +4,6 @@ import logging
 from abc import ABC, abstractmethod
 
 from core.models import Log, LogPlay
-from django.utils.timezone import now
-from util.logging.session_logger import SessionLogger
 from util.semester_util import SemesterUtil
 
 logger = logging.getLogger(__name__)
@@ -45,6 +43,9 @@ class ScoreModule(ABC):
         """validate that the logs we received make sense in time,
         both in our server time and in the player time.
         adds a validation fail log for every log that is found to be out of order (time-wise).
+
+        TODO: Aside from submitting a time validation log this has no actual effect on validation
+              Ideally time validation is revisited in the future in a way that doesn't brick prior plays
         """
         logs = self.play.get_logs()
         last_time = 0
@@ -55,17 +56,17 @@ class ScoreModule(ABC):
             if game_time < last_time and game_time != -1:
                 if self.log_problems:
                     # record a time validation failure log
-                    SessionLogger.add_log(
-                        log_type=1509,  # error_time_validation
-                        item_id=(
-                            log.item_id if hasattr(log, "item_id") else log["item_id"]
-                        ),
+                    error_log = Log(
+                        log_type=Log.LogType.ERROR_TIME_VALIDATION,
+                        item_id=log.item_id,
                         text=str(log.id) if hasattr(log, "id") else "preview_log",
                         value=str(last_time),
                         game_time=game_time,
                         created_at=datetime.datetime.now(),
                         play_id=self.play.id,
                     )
+                    error_log.save()
+
             last_time = game_time
 
         return True
@@ -281,15 +282,8 @@ class ScoreModule(ABC):
     def log_problem(
         self, item_id: str, value: str, error_code: int, description: str
     ) -> None:
-        if self.log_problems:
-            from util.logging.session_logger import SessionLogger
-
-            SessionLogger.add_log(
-                log_type=error_code,
-                item_id=item_id,
-                text=description,
-                value=value,
-                game_time=-1,
-                created_at=now(),
-                play_id=self.play_id,
-            )
+        """
+        This method is deprecated. Retaining the reference to prevent
+        widget score modules from using it.
+        """
+        pass

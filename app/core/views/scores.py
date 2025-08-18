@@ -1,5 +1,5 @@
 from core.mixins import MateriaLoginMixin, MateriaLoginNeeded
-from core.models import WidgetInstance
+from core.models import LogPlay, WidgetInstance
 from django.conf import settings
 from django.http import (
     Http404,
@@ -10,7 +10,6 @@ from django.http import (
 )
 from django.views.generic import TemplateView
 from util.context_util import ContextUtil
-from util.logging.session_play import SessionPlay
 
 
 class ScoresView(MateriaLoginMixin, TemplateView):
@@ -66,10 +65,10 @@ class ScoresViewSingle(MateriaLoginMixin, TemplateView):
         token = self.kwargs.get("token")
 
         # Grab and verify play
-        play = SessionPlay.get_or_none(play_id)
+        play = LogPlay.objects.filter(pk=play_id)
         if play is None:
             return HttpResponseNotFound()
-        if play.data.instance.id != widget_instance_id:
+        if play.instance.id != widget_instance_id:
             return HttpResponseBadRequest()
 
         redirect = None

@@ -133,7 +133,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 # this is where the desired error handling from session_play gets handled
                 if not new_play.id:
                     logger.warning(
-                        f"[Playsessions] Failed to start SessionPlay for instance"
+                        f"[Playsessions] Failed to start play session for instance"
                         f"{validated["instance"].id} and user {user}"
                     )
                     return MsgBuilder.failure(
@@ -188,6 +188,9 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     )
 
                     score_module.validate_scores()
+
+                    # TODO: handle validation failure?
+
                     if score_module.finished:
                         play.set_complete(
                             score_module.verified_score,

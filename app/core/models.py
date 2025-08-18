@@ -301,6 +301,70 @@ class Log(models.Model):
         WIDGET_STATE = "WIDGET_STATE", gettext_lazy("Widget State")
         DATA = "DATA", gettext_lazy("Data")
 
+        @staticmethod
+        def get_log_type(log_type_id: int) -> str:
+            """
+            Maps integer codes to log types
+            TODO: some of these don't seem to have equivalents in python. is this intentional?
+            """
+            match log_type_id:
+                case 1:
+                    return Log.LogType.WIDGET_START
+                case 2:
+                    return Log.LogType.WIDGET_END
+                case 4:
+                    return Log.LogType.WIDGET_RESTART
+                case 5:
+                    # return Log.LogType.ASSET_LOADING
+                    return Log.LogType.EMPTY
+                case 6:
+                    # return Log.LogType.ASSET_LOADED
+                    return Log.LogType.EMPTY
+                case 7:
+                    # return Log.LogType.FRAMEWORK_INIT
+                    return Log.LogType.WIDGET_CORE_INIT
+                case 8:
+                    # return Log.LogType.PLAY_REQUEST
+                    return Log.LogType.WIDGET_PLAY_REQ
+                case 9:
+                    # return Log.LogType.PLAY_CREATED
+                    return Log.LogType.WIDGET_PLAY_START
+                case 13:
+                    # return Log.LogType.LOG_IN
+                    return Log.LogType.WIDGET_LOGIN
+                case 15:
+                    # return Log.LogType.WIDGET_STATE_CHANGE
+                    return Log.LogType.WIDGET_STATE
+                case 500:
+                    return Log.LogType.KEY_PRESS
+                case 1000:
+                    return Log.LogType.BUTTON_PRESS
+                case 1001:
+                    # return Log.LogType.WIDGET_INTERACTION
+                    return Log.LogType.SCORE_WIDGET_INTERACTION
+                case 1002:
+                    # return Log.LogType.FINAL_SCORE_FROM_CLIENT
+                    return Log.LogType.SCORE_FINAL_FROM_CLIENT
+                case 1004:
+                    # return Log.LogType.QUESTION_ANSWERED
+                    return Log.LogType.SCORE_QUESTION_ANSWERED
+                case 1006:
+                    return Log.LogType.SCORE_PARTICIPATION
+                case 1008:
+                    # return Log.LogType.SCORE_FEEDBACK
+                    return Log.LogType.EMPTY
+                case 1009:
+                    # return Log.LogType.SCORE_ALERT
+                    return Log.LogType.EMPTY
+                case 1500:
+                    return Log.LogType.ERROR_GENERAL
+                case 1509:
+                    return Log.LogType.ERROR_TIME_VALIDATION
+                case 2000:
+                    return Log.LogType.DATA
+                case _:
+                    return Log.LogType.EMPTY
+
     id = models.BigAutoField(primary_key=True)
     # consider converting to UUID field. Note: there appear to be some non-UUID values in the table
     # TODO: should this be a foreign key to LogPlay?
@@ -833,6 +897,12 @@ class Question(models.Model):
 
 
 class UserExtraAttempts(models.Model):
+    """
+    TODO this model requires reworks:
+    - change fields to foreign keys
+    - Enable admin operations to apply extra attempts
+    """
+
     # Needs primary key
     inst_id = models.CharField(
         max_length=100, db_collation="utf8_bin"
@@ -1048,7 +1118,6 @@ class WidgetInstance(models.Model):
         return f"{self.id}-{self.clean_name}{os.sep}"
 
     def status(self, context: str = None):
-        from scoring.manager import ScoringUtil  # avoid cyclic import
         from util.semester_util import SemesterUtil
 
         semester = SemesterUtil.get_current_semester()
@@ -1056,14 +1125,24 @@ class WidgetInstance(models.Model):
         now = timezone.now()
         start = self.open_at
         end = self.close_at
-        attempts_used = len(
-            ScoringUtil.get_instance_score_history(self, context, semester)
+        attempts_used = LogPlay.objects.filter(
+            instance=self,
+            context_id=context,
+            semester=semester,
+        ).count()
+
+        # Check to see if any extra attempts have been provided to the context. Decrement attempts_used if so.
+        # TODO this does not filter by user - we don't have access to user id here. Do we need it?
+        extra_attempts_ref = UserExtraAttempts.objects.filter(
+            inst_id=self.id,
+            context_id=context,
+            semester=semester.id,
+        ).first()
+
+        extra_attempts = (
+            0 if extra_attempts_ref is None else extra_attempts_ref.extra_attempts
         )
 
-        # Check to see if any extra attempts have been provided to the user. Decrement attempts_used if so.
-        extra_attempts = ScoringUtil.get_instance_extra_attempts(
-            self, context, semester
-        )
         attempts_used -= extra_attempts
 
         has_attempts = self.attempts == -1 or attempts_used < self.attempts
@@ -1211,6 +1290,39 @@ class WidgetInstance(models.Model):
             )
 
         return dupe
+
+    def get_play_logs(self, semester=None, year=None, context_id=None):
+        """
+        Returns a filtered queryset of play logs for the current instance
+        Accepts semester, year, and context ID.
+        Note that context ID is semester-agnostic;
+        If it's not included, filtering can be performed with EITHER or BOTH
+        semester and year.
+        """
+        queryset = self.play_logs.all()
+
+        # treat "all" as None
+        semester = None if semester == "all" else semester
+        year = None if year == "all" else year
+
+        if context_id:
+            return queryset.filter(context_id=context_id)
+
+        if semester and year:
+            date = DateRange.objects.filter(semester=semester, year=year).first()
+            return queryset.filter(semester=date)
+
+        if year and not semester:
+            semesters = DateRange.objects.filter(year=year)
+            return queryset.filter(semester__in=semesters)
+
+        if semester and not year:
+            semesters = DateRange.objects.filter(
+                semester=semester, year=datetime.now().year
+            )
+            return queryset.filter(semester__in=semesters)
+
+        return queryset
 
     @property
     def play_url(self):
