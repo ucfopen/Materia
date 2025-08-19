@@ -1415,33 +1415,33 @@ class WidgetQset(models.Model):
         decoded_data = self.decode_data(self.data)
         raw_items = decoded_data.get("items", [])
 
-        def find_questions(source, questions=[]):
+        def find_questions(source):
+            questions = []
 
             if isinstance(source, list):
 
                 for item in source:
-
                     if Question.is_question(item):
                         questions.append(item)
                     else:
-                        questions.update(find_questions(item, questions))
+                        questions += find_questions(item)
 
             elif isinstance(source, dict):
+
                 if Question.is_question(source):
                     questions.append(source)
                 else:
                     for key, value in source.items():
                         if Question.is_question(value):
                             questions.append(value)
-                        elif isinstance(value, (list, dict)):
-                            questions.update(find_questions(value, questions))
+                        else:
+                            questions += find_questions(value)
             else:
-                logger.error(f"source is not list or dict, it is {type(source)}")
                 return []
 
             return questions
 
-        questions = find_questions(raw_items, [])
+        questions = find_questions(raw_items)
         questions_set = []
         for question in questions:
             new_question = Question(
