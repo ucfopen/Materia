@@ -7,6 +7,7 @@ import os
 
 from core.models import (
     Asset,
+    Log,
     LogPlay,
     Notification,
     ObjectPermission,
@@ -21,7 +22,6 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
-from util.logging.session_logger import SessionLogger
 from util.perm_manager import PermManager
 from util.user_util import UserUtil
 
@@ -255,7 +255,9 @@ class Base64JSONField(serializers.Field):
             decoded_bytes = base64.b64decode(value)
             return json.loads(decoded_bytes.decode("utf-8"))
         except Exception as e:
-            raise serializers.ValidationError(f"Error decoding JSON: {str(e)}")
+            raise serializers.ValidationError(
+                f"Error decoding JSON in Base64JSONField Serializer: {str(e)}"
+            )
 
     def to_internal_value(self, data):
         json_str = json.dumps(data)
@@ -330,15 +332,18 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             # decode it, apply ids to the dict, then re-encode it
             decoded_data = WidgetQset.decode_data(validated_data["data"])
             decoded_data, questions_list = self.apply_ids_to_questions(decoded_data)
-            # decoded_data = self.apply_ids_to_questions(decoded_data, instance)
             validated_data["data"] = WidgetQset.encode_data(decoded_data)
             widget_qset = super().create(validated_data)
             from core.models import Question
 
             # we store each question as its own row instead of a list now
             for q in questions_list:
-                encoded = base64.b64encode(json.dumps(q).encode()).decode("utf-8")
-                Question.objects.create(qset=widget_qset, data=encoded)
+                Question.objects.create(
+                    qset=widget_qset,
+                    data=q,
+                    type=validated_data["instance"].widget,
+                    item_id=q["id"],
+                )
 
         return widget_qset
 
@@ -476,7 +481,7 @@ class LogSubmissionSerializer(serializers.Serializer):
 
         if "item_id" in validated_data and validated_data["item_id"]:
             validated_data["item_id"] = str(validated_data["item_id"])
-            validated_data["type"] = SessionLogger.get_log_type(validated_data["type"])
+            validated_data["type"] = Log.LogType.get_log_type(validated_data["type"])
             validated_data["text"] = validated_data.get("text", "")
             validated_data["value"] = validated_data.get("value") or ""
 
@@ -528,7 +533,8 @@ class PlaySessionCreateSerializer(serializers.Serializer):
     is_preview = serializers.BooleanField(required=False)
 
     def validate(self, data):
-        if data.get("is_preview", False) is True:
+        is_preview = data.get("is_preview", False)
+        if is_preview is True:
             raise serializers.ValidationError(
                 "Invalid session creation for preview play."
             )
@@ -542,7 +548,7 @@ class PlaySessionCreateSerializer(serializers.Serializer):
         if not instance.playable_by_current_user(self.context["request"].user):
             raise serializers.ValidationError("Instance not playable by current user.")
 
-        return {"instance": instance}
+        return {"instance": instance, "is_preview": is_preview}
 
 
 # play session model (kinda) serializer (outbound)
@@ -782,3 +788,26 @@ class ObjectPermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ObjectPermission
         fields = ["user", "content_type", "object_id", "permission", "expires_at"]
+
+
+class ScoresForUserSerializer(serializers.Serializer):
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), required=True
+    )
+    instance = serializers.PrimaryKeyRelatedField(
+        queryset=WidgetInstance.objects.all(), required=True
+    )
+    context = serializers.CharField(required=False)
+
+
+class ScoreDetailsForPlaySerializer(serializers.Serializer):
+    play_id = serializers.PrimaryKeyRelatedField(
+        queryset=LogPlay.objects.all(), required=True
+    )
+
+
+class ScoreDetailsForPreviewSerializer(serializers.Serializer):
+    preview_inst_id = serializers.PrimaryKeyRelatedField(
+        queryset=WidgetInstance.objects.all(), required=True
+    )
+    play_id = serializers.UUIDField()

@@ -1,4 +1,3 @@
-import base64
 import json
 import logging
 import os
@@ -467,8 +466,6 @@ class WidgetInstaller:
         return widget_id
 
     def install_demo(widget_id, package_dir, existing_inst_id=None):
-        import json
-
         # add the demo
         json_file = os.path.join(package_dir, "demo.json")
         if os.path.isfile(json_file):
@@ -623,6 +620,7 @@ class WidgetInstaller:
         logger.info(f"Widget files deployed: {widget_dir}")
 
     # apply random ids to question on one demo
+    # TODO apply_ids_to_demo should really be performed in the qset model save method
     def apply_ids_to_demo(widget):
         try:
             demo_metadata = WidgetMetadata.objects.filter(
@@ -654,8 +652,12 @@ class WidgetInstaller:
             # wipe old questions and insert fresh ones
             Question.objects.filter(qset=latest_qset).delete()
             for q in questions_list:
-                encoded = base64.b64encode(json.dumps(q).encode()).decode("utf-8")
-                Question.objects.create(qset=latest_qset, data=encoded)
+                Question.objects.create(
+                    qset=latest_qset,
+                    data=q,
+                    type=demo_instance.widget,
+                    item_id=q["id"],
+                )
 
             # logger.info(
             #     f"Patched Qset {latest_qset.id} for Demo {demo_id} with {len(questions_list)} questions"

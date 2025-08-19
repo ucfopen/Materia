@@ -262,18 +262,16 @@ export const apiSearchInstances = (input, pageParam = 1, include_deleted = false
 }
 
 // TODO update or retire
-export const apiGetWidgetInstanceScores = (instId, send_token) => {
-	return handleRequest(methods.POST, '/api/scores/get_for_widget_instance/', {  instanceId: instId, token: send_token })
+export const apiGetWidgetInstanceScores = (instId, userId) => {
+	return handleRequest(methods.GET, `/api/scores/?instance=${instId}&user=${userId}`)
 }
 
-// TODO update or retire
-export const apiGetGuestWidgetInstanceScores = (instId, playId) => {
-	return handleRequest(methods.POST, '/api/scores/get_for_widget_instance_guest/', { instanceId: instId, playId: playId })
+export const apiGetWidgetInstancePlayScores = (playId) => {
+	return handleRequest(methods.GET, `/api/scores/details/?play_id=${playId}`)
 }
 
-// TODO update or retire
-export const apiGetWidgetInstancePlayScores = (playId, previewInstId, previewPlayId) => {
-	return handleRequest(methods.POST, '/api/scores/get_play_details/', {  playId, previewInstId, previewPlayId })
+export const apiGetWidgetInstancePreviewScores = (playId, previewInstId) => {
+	return handleRequest(methods.GET, `/api/scores/details/?play_id=${playId}&preview_inst_id=${previewInstId}`)
 }
 
 // TODO update

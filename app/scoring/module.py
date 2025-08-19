@@ -1,20 +1,20 @@
 # import base64
 # import json
+import logging
 from abc import ABC, abstractmethod
 
-from core.models import LogPlay, WidgetInstance, WidgetQset
-from django.utils.timezone import now
-from util.logging.session_logger import SessionLogger
-from util.logging.session_play import SessionPlay
+from core.models import Log, LogPlay
 from util.semester_util import SemesterUtil
+
+logger = logging.getLogger(__name__)
 
 
 class ScoreModule(ABC):
 
-    def __init__(self, play_id: str, instance: WidgetInstance, play=None):
+    def __init__(self, play: LogPlay):
         self.logs = []
-        self.play_id = play_id
-        self.instance = instance
+        self.play_id = play.id
+        self.instance = play.instance
         self.play = play
         self.verified_score = 0
         self.calculated_percent = 0  # full precision percent!! not rounded!
@@ -23,7 +23,8 @@ class ScoreModule(ABC):
         self.log_problems = False
         self.global_modifiers = []
         self.custom_methods = None
-        self.questions = []
+        self.qset = play.qset.get_data()
+        self.questions = play.qset.get_questions()
         self.score_display = {}
         self.scores = {}
         self._ss_table_title = "responses:"
@@ -42,31 +43,30 @@ class ScoreModule(ABC):
         """validate that the logs we received make sense in time,
         both in our server time and in the player time.
         adds a validation fail log for every log that is found to be out of order (time-wise).
+
+        TODO: Aside from submitting a time validation log this has no actual effect on validation
+              Ideally time validation is revisited in the future in a way that doesn't brick prior plays
         """
-        session = SessionPlay.get_or_none(str(self.play_id))
-        if not session:
-            return False
-        logs = session.get_logs()
+        logs = self.play.get_logs()
         last_time = 0
         from datetime import datetime
 
         for log in logs:
-            # if we are in preview, use dict, in play use model
-            game_time = log.game_time if hasattr(log, "game_time") else log["game_time"]
+            game_time = log.game_time
             if game_time < last_time and game_time != -1:
                 if self.log_problems:
                     # record a time validation failure log
-                    SessionLogger.add_log(
-                        log_type=1509,  # error_time_validation
-                        item_id=(
-                            log.item_id if hasattr(log, "item_id") else log["item_id"]
-                        ),
+                    error_log = Log(
+                        log_type=Log.LogType.ERROR_TIME_VALIDATION,
+                        item_id=log.item_id,
                         text=str(log.id) if hasattr(log, "id") else "preview_log",
                         value=str(last_time),
                         game_time=game_time,
                         created_at=datetime.datetime.now(),
-                        play_id=session,
+                        play_id=self.play.id,
                     )
+                    error_log.save()
+
             last_time = game_time
 
         return True
@@ -76,19 +76,9 @@ class ScoreModule(ABC):
         `calculated_percent`, which are eventually written to the database
         by the api. validates the individual question scores are valid.
         """
-        import logging
-
-        logger = logging.getLogger("django")
-
-        session = SessionPlay.get_or_none(str(self.play_id))
-        if not session:
-            # goes down to session.get_logs() and gets constructed preview logs
-            logger.warning("Session not found(in database) We must be in preview mode")
-
+        # TODO determine whether or not this timestamp check is needed
+        # follow-up: under what circumstances do we pass the timestamp? How is it used?
         if not timestamp:
-            if not self.play:
-                self.play = LogPlay.objects.get(id=self.play_id)
-
             # except for previews, check that attempts are not exceeded.
             if self.play_id != -1:
                 semester = SemesterUtil.get_current_semester()
@@ -104,12 +94,12 @@ class ScoreModule(ABC):
                 ):
                     from django.core.exceptions import ValidationError
 
-                    raise ValidationError("attempt limit met...")
+                    raise ValidationError("Attempt limit met for this context")
 
-        self.load_questions(timestamp)
+        self.questions = self.play.qset.get_questions()
 
         if not self.logs:
-            self.logs = session.get_logs()
+            self.logs = self.play.get_logs()
 
         self.process_score_logs()
         self.calculate_score()
@@ -118,51 +108,27 @@ class ScoreModule(ABC):
 
     def process_score_logs(self):
         """Processes logs to determine score"""
-
-        if len(self.logs) == 0:
-            print("No logs found! No questions were answered.")
-            # set the complete to false so it can render Incomplete Attempt
-            self.finished = False
-
         for log in self.logs:
-            log_type = (
-                log.log_type if hasattr(log, "log_type") else log["type"]
-            ).lower()
-
-            if log_type in ["widget_end", "WIDGET_END"]:
+            if log.log_type == Log.LogType.WIDGET_END:
                 self.finished = True
-            elif log_type in ["final_score_from_client", "FINAL_SCORE_FROM_CLIENT"]:
+            elif log.log_type == Log.LogType.SCORE_FINAL_FROM_CLIENT:
                 self.handle_log_client_final_score(log)
-            elif log_type in [
-                "question_answered",
-                "SCORE_QUESTION_ANSWERED",
-                "score_question_answered",
-            ]:
-                self.handle_log_question_answered(
-                    log
-                )  # THIS should lead to check_answer()
-            elif log_type in [
-                "widget_interaction",
-                "SCORE_WIDGET_INTERACTION",
-                "score_widget_interaction",
-            ]:
+            elif log.log_type == Log.LogType.SCORE_QUESTION_ANSWERED:
+                self.handle_log_question_answered(log)
+            elif log.log_type == Log.LogType.SCORE_WIDGET_INTERACTION:
                 self.handle_log_widget_interaction(log)
-            elif log_type in ["score_participation", "SCORE_PARTICIPATION"]:
-                self.verified_score = (
-                    log.value if hasattr(log, "value") else log["value"]
-                )
+            elif log.log_type == Log.LogType.SCORE_PARTICIPATION:
+                self.verified_score = log.value
 
     def handle_log_widget_interaction(self, log):
         """abstract method for handling widget interactions"""
-        print("this should be overridden")
         pass
 
     def handle_log_client_final_score(self, log) -> None:
         """handles the log when a final score is received from the client"""
         self.verified_score = 0
         self.total_questions = 0
-        val = log.value if hasattr(log, "value") else log["value"]
-        self.global_modifiers.append(int(val) - 100)
+        self.global_modifiers.append(int(log.value) - 100)
 
     def handle_log_question_answered(self, log):
         self.total_questions += 1
@@ -172,7 +138,6 @@ class ScoreModule(ABC):
     @abstractmethod
     def check_answer(self, log):
         """abstract method to check answers. implement this in child classes."""
-        print("this should be overridden")
         pass
 
     def calculate_score(self):
@@ -193,39 +158,24 @@ class ScoreModule(ABC):
         self.calculated_percent = max(0, min(self.calculated_percent, 100))
 
     def get_score_report(self) -> object:
+        if not self.logs:
+            self.logs = self.play.get_logs()
+
+        self.validate_scores()
+
         """returns a report of the calculated score"""
         self.score_display["overview"] = self.get_score_overview()
         self.score_display["details"] = self.get_score_details()
         return self.score_display
 
     def get_score_overview(self):
-        # acutaly let self.finished control if the thing is complete instead of true now
-
-        # # TODO: mark it complete for previews, i guess they should have play_id's of negative one.
-        # if self.play_id:
-        #     # complete = True
-        #     pass
-        # else:
-        #     print(f"self.play: {self.play} and self.play.data: {self.play.data}")
-        #     complete = bool(self.play.data.is_complete) if self.play else False
-
         return {
-            "complete": self.finished,
+            "complete": self.play.is_complete,
             "score": self.calculated_percent,
             "table": self.get_overview_items(),
-            "referrer_url": (
-                self.play.data.referrer_url
-                if self.play.data and self.play.data.referrer_url
-                else ""
-            ),
-            "created_at": (
-                self.play.data.created_at
-                if self.play.data and self.play.data.created_at
-                else ""
-            ),
-            "auth": (
-                self.play.data.auth if self.play.data and self.play.data.auth else ""
-            ),
+            "referrer_url": self.play.referrer_url,
+            "created_at": self.play.created_at,
+            "auth": self.play.auth,
         }
 
     def get_overview_items(self):
@@ -238,57 +188,21 @@ class ScoreModule(ABC):
         )
         return overview_items
 
-    def load_questions(self, timestamp=False):
-        self.questions = {}
-
-        widget_qset = self.instance.get_latest_qset()
-        if not widget_qset:
-            print("[load_questions] No widget_qset found!")
-            return
-
-        try:
-            decoded_data = WidgetQset.decode_data(widget_qset.data)
-            raw_items = decoded_data.get("items", [])
-
-            def normalize_and_store(item):
-                qid = item.get("id")
-                if qid:
-                    item["materiaType"] = item.get("materiaType", "question")
-                    self.questions[qid] = item
-
-            def walk_items(items):
-                for item in items:
-                    if isinstance(item, dict):
-                        # if this is a question(normal)
-                        if "questions" in item and "answers" in item:
-                            normalize_and_store(item)
-                        # if it's a category or container(enigma)
-                        elif "items" in item and isinstance(item["items"], list):
-                            walk_items(item["items"])
-
-            walk_items(raw_items)
-
-            print(
-                f"[load_questions] Loaded {len(self.questions)} question(s): {list(self.questions.keys())}"
-            )
-
-        except Exception as e:
-            print(f"[load_questions] Failed to decode or parse questions: {e}")
+    def get_question_by_item_id(self, item_id):
+        """
+        helper function to allow widget score modules to retrieve a question via item id
+        returns the json data of the question, not a question model instance
+        """
+        question = next((q for q in self.questions if q.item_id == item_id), None)
+        return question.data
 
     def get_score_details(self):
         table = []
         for log in self.logs:
-            log_type = (
-                log.log_type if hasattr(log, "log_type") else log["type"]
-            ).lower()
-            if log_type in [
-                "question_answered",
-                "score_question_answered",
-                "SCORE_QUESTION_ANSWERED",
-            ]:
+            if log.log_type == Log.LogType.SCORE_QUESTION_ANSWERED:
+                question = self.get_question_by_item_id(log.item_id)
 
-                item_id = log.item_id if hasattr(log, "item_id") else log["item_id"]
-                if item_id in self.questions:
+                if question is not None:
                     row = self.details_for_question_answered(log)
                     table.append(row)
 
@@ -301,9 +215,7 @@ class ScoreModule(ABC):
         ]
 
     def details_for_question_answered(self, log) -> dict:
-        """builds an item in the table array like in php"""
-        item_id = log.item_id if hasattr(log, "item_id") else log["item_id"]
-        question = self.questions[item_id]
+        question = self.get_question_by_item_id(log.item_id)
         score = self.check_answer(log)
 
         return {
@@ -316,7 +228,7 @@ class ScoreModule(ABC):
             "data_style": ["score", "question", "response", "answer"],
             "score": score,
             "feedback": self.get_feedback(log, question["answers"]),
-            "type": log.log_type if hasattr(log, "log_type") else log["type"],
+            "type": log.log_type,
             "style": self.get_detail_style(score),
             "tag": "div",
             "symbol": "%",
@@ -350,7 +262,7 @@ class ScoreModule(ABC):
         return "[no question text]"
 
     def get_ss_answer(self, log, question) -> str:
-        return log.text if hasattr(log, "text") else log["text"]
+        return log.text
 
     def get_ss_expected_answers(self, log, question) -> str:
         if question["type"] == "mc":
@@ -370,15 +282,8 @@ class ScoreModule(ABC):
     def log_problem(
         self, item_id: str, value: str, error_code: int, description: str
     ) -> None:
-        if self.log_problems:
-            from util.logging.session_logger import SessionLogger
-
-            SessionLogger.add_log(
-                log_type=error_code,
-                item_id=item_id,
-                text=description,
-                value=value,
-                game_time=-1,
-                created_at=now(),
-                play_id=self.play_id,
-            )
+        """
+        This method is deprecated. Retaining the reference to prevent
+        widget score modules from using it.
+        """
+        pass
