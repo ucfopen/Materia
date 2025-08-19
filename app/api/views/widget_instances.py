@@ -1,7 +1,7 @@
 import logging
 
 from api.filters import UserInstanceFilterBackend
-from core.models import LogActivity, LogPlay, WidgetInstance, WidgetQset, Notification
+from core.models import LogActivity, LogPlay, Notification, WidgetInstance, WidgetQset
 from core.permissions import (
     CanCreateWidgetInstances,
     DenyAll,
@@ -9,6 +9,7 @@ from core.permissions import (
     HasFullPermsOrElevated,
     HasFullPermsOrElevatedOrReadOnly,
     HasPermsOrElevatedAccess,
+    IsAuthenticatedOrGuestMode,
     IsSuperOrSupportUser,
 )
 from core.serializers import (
@@ -70,13 +71,15 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             else:
                 permission_classes = [IsAuthenticated]
 
+        # score distribution needs to be accessible to anyone who can play an instance
+        # this either requires authentication (for normal instances)
+        # or public visibility (for guest instances)
+        elif self.action == "scores":
+            permission_classes = [IsAuthenticatedOrGuestMode]
+
         # must have (any) access to instance or elevated perms
         # TODO: question_sets can't be restricted in this way, but we may want more context-sensitive authorization
-        elif (
-            self.action == "scores"
-            or self.action == "copy"
-            or self.action == "export_playdata"
-        ):
+        elif self.action == "copy" or self.action == "export_playdata":
             permission_classes = [HasPermsOrElevatedAccess]
 
         elif self.action == "undelete":
@@ -176,14 +179,19 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # If user is a student and they're not the owner, they can't do anything
         # If user is a student and they're the owner, they're allowed to set it to guest access (but cant take it out)
         # If not a student, they can do whatever
-        if (instance.user == self.request.user and guest_access) or not PermManager.user_is_student(self.request.user):
+        if (
+            instance.user == self.request.user and guest_access
+        ) or not PermManager.user_is_student(self.request.user):
             # TODO make session activity here
 
             # Remove permissions from students when instance is no longer in guest mode
             if serializer.validated_data.get("guest_access") is False:
                 for shared_user_perm in instance.permissions.all():
                     # Make sure shared user is student
-                    if not PermManager.user_is_student(shared_user_perm.user) or shared_user_perm.user == instance.user:
+                    if (
+                        not PermManager.user_is_student(shared_user_perm.user)
+                        or shared_user_perm.user == instance.user
+                    ):
                         continue
 
                     # Remove perm
@@ -194,7 +202,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                         from_user=self.request.user,
                         to_user=shared_user_perm.user,
                         instance=instance,
-                        mode="disabled"
+                        mode="disabled",
                     )
 
         serializer.save()
@@ -223,7 +231,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 from_user=self.request.user,
                 to_user=shared_user_perm.user,
                 instance=instance,
-                mode="deleted"
+                mode="deleted",
             )
 
     # /api/instances/<inst id>/question_sets/
@@ -272,6 +280,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             {"lock_obtained": WidgetInstanceUtil.get_lock(instance.id, request.user)}
         )
 
+    # TODO should this be under /instances or /scores ?
     @action(detail=True, methods=["get"])
     def scores(self, request, pk=None):
         instance = self.get_object()
@@ -324,7 +333,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                         from_user=self.request.user,
                         to_user=user,
                         instance=instance,
-                        mode="disabled"
+                        mode="disabled",
                     )
                     continue
 
@@ -342,7 +351,9 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                     )
 
                 # Check if perm is about to be created or updated
-                will_update_or_create = not instance.permissions.filter(user=user, permission=perm_level).exists()
+                will_update_or_create = not instance.permissions.filter(
+                    user=user, permission=perm_level
+                ).exists()
 
                 # Update or create that perm
                 instance.permissions.update_or_create(
@@ -352,7 +363,9 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
                 # Send notification
                 if will_update_or_create:
-                    Notification.create_instance_notification(request.user, user, instance, "changed", perm_level)
+                    Notification.create_instance_notification(
+                        request.user, user, instance, "changed", perm_level
+                    )
 
             # If there was a refusal, return a message
             if len(refusals) > 0:
