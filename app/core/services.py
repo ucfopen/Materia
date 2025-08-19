@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime
 
 from core.models import Log, LogPlay
+from django.contrib.auth.models import AnonymousUser
 from django.utils.timezone import make_aware
 from util.semester_util import SemesterUtil
 
@@ -16,6 +17,8 @@ class WidgetPlayInitService:
 
         created_at = make_aware(datetime.now())
         ip = request.META.get("REMOTE_ADDR")
+        if isinstance(user, AnonymousUser):
+            user = None
 
         play = LogPlay(
             auth="",
