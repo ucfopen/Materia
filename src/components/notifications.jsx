@@ -190,8 +190,7 @@ const Notifications = (user) => {
 				</div>
 				actionButton =  <button className="action_button notification_action" id={notification.id + "_action_button"} onClick={() => onClickGrantAccess(notification)}>Grant Access</button>
 			}
-			let createdAt = new Date(0)
-			createdAt.setUTCSeconds(notification.created_at)
+			let createdAt = new Date(notification.created_at)
 			let notifRow = <div className={`notice${notification.deleted ? 'deleted' : ''}`}
 				key={notification.id}
 				onMouseEnter={() => showDeleteButton(index)}

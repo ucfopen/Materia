@@ -1,5 +1,4 @@
 import base64
-import hashlib
 import json
 
 # debug logging
@@ -8,6 +7,7 @@ import os
 
 from core.models import (
     Asset,
+    Log,
     LogPlay,
     Notification,
     ObjectPermission,
@@ -22,8 +22,8 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
-from util.logging.session_logger import SessionLogger
 from util.perm_manager import PermManager
+from util.user_util import UserUtil
 
 logger = logging.getLogger("django")
 
@@ -63,9 +63,7 @@ class UserSerializer(serializers.ModelSerializer):
         return fields
 
     def get_avatar(self, user):
-        clean_email = user.email.strip().lower().encode("utf-8")
-        hash_email = hashlib.md5(clean_email).hexdigest()
-        return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
+        return UserUtil.get_avatar_url(user)
 
     def get_profile_fields(self, user):
         user_profile, _ = UserSettings.objects.get_or_create(user=user)
@@ -258,7 +256,9 @@ class Base64JSONField(serializers.Field):
             decoded_bytes = base64.b64decode(value)
             return json.loads(decoded_bytes.decode("utf-8"))
         except Exception as e:
-            raise serializers.ValidationError(f"Error decoding JSON: {str(e)}")
+            raise serializers.ValidationError(
+                f"Error decoding JSON in Base64JSONField Serializer: {str(e)}"
+            )
 
     def to_internal_value(self, data):
         json_str = json.dumps(data)
@@ -268,10 +268,11 @@ class Base64JSONField(serializers.Field):
 # qset model serializer (inbound | outbound)
 class QuestionSetSerializer(serializers.ModelSerializer):
     data = Base64JSONField()
+    questions_list = serializers.JSONField(required=False)
 
     class Meta:
         model = WidgetQset
-        fields = ["id", "instance", "created_at", "data", "version"]
+        fields = ["id", "instance", "created_at", "data", "version", "questions_list"]
         extra_kwargs = {
             "id": {"required": False, "read_only": True},
             "instance": {"required": False},
@@ -280,9 +281,21 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             "version": {"required": True},
         }
 
-    # helper function to recursively apply uuids to blank ids
-    def apply_ids_to_questions(self, qset):
+    # helper function to recursively apply uuids to blank ids, also updates questions list
+    def apply_ids_to_questions(self, qset, instance=None):
         import uuid
+
+        questions_list = []
+
+        def is_question(item):
+            return (
+                isinstance(item, dict)
+                and item.get("id")
+                and isinstance(item.get("questions"), list)
+                and isinstance(item.get("answers"), list)
+                and len(item.get("questions")) > 0
+                and len(item.get("answers")) > 0
+            )
 
         def _process_item(item):
 
@@ -292,6 +305,9 @@ class QuestionSetSerializer(serializers.ModelSerializer):
                 ):
                     item["id"] = str(uuid.uuid4())
 
+                if is_question(item):
+                    questions_list.append(item)
+
                 for key, value in item.items():
                     item[key] = _process_item(value)
 
@@ -300,7 +316,12 @@ class QuestionSetSerializer(serializers.ModelSerializer):
 
             return item
 
-        return _process_item(qset)
+        # update WidgetMetaData model to include list
+        if instance:
+            setattr(instance, "questions", questions_list)
+
+        processed_qset = _process_item(qset)
+        return processed_qset, questions_list
 
     def create(self, validated_data):
         if "instance" not in validated_data:
@@ -311,10 +332,21 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             # despite passing data in as a dict, it's present here as a base64 blob again
             # decode it, apply ids to the dict, then re-encode it
             decoded_data = WidgetQset.decode_data(validated_data["data"])
-            decoded_data = self.apply_ids_to_questions(decoded_data)
+            decoded_data, questions_list = self.apply_ids_to_questions(decoded_data)
             validated_data["data"] = WidgetQset.encode_data(decoded_data)
+            widget_qset = super().create(validated_data)
+            from core.models import Question
 
-        return super().create(validated_data)
+            # we store each question as its own row instead of a list now
+            for q in questions_list:
+                Question.objects.create(
+                    qset=widget_qset,
+                    data=q,
+                    type=validated_data["instance"].widget,
+                    item_id=q["id"],
+                )
+
+        return widget_qset
 
 
 # instance model serializer (inbound | outbound)
@@ -450,22 +482,11 @@ class LogSubmissionSerializer(serializers.Serializer):
 
         if "item_id" in validated_data and validated_data["item_id"]:
             validated_data["item_id"] = str(validated_data["item_id"])
+            validated_data["type"] = Log.LogType.get_log_type(validated_data["type"])
+            validated_data["text"] = validated_data.get("text", "")
+            validated_data["value"] = validated_data.get("value") or ""
 
         return validated_data
-
-    def validate(self, data):
-        if not isinstance(data, list):
-            data = [data]
-
-            logs = []
-            for log in data:
-                # TODO what if the log type is actually invalid? Right now it'll return LogType.EMPTY
-                log["type"] = SessionLogger.get_log_type(log["type"])
-                log["text"] = log.get("text", "")
-                log["value"] = log.get("value", "")
-
-                logs.append(log)
-            return logs
 
 
 # serializes and validates individual logs for a play (inbound)
@@ -491,7 +512,7 @@ class PlayLogUpdateSerializer(serializers.Serializer):
                     )
 
             logs = LogSubmissionSerializer(data=data["logs"], many=True)
-            if logs.is_valid(raise_exception=True):
+            if logs.is_valid():
                 return {
                     "logs": logs.validated_data,
                     "is_preview": preview_instance_id is not None
@@ -513,7 +534,8 @@ class PlaySessionCreateSerializer(serializers.Serializer):
     is_preview = serializers.BooleanField(required=False)
 
     def validate(self, data):
-        if data.get("is_preview", False) is True:
+        is_preview = data.get("is_preview", False)
+        if is_preview is True:
             raise serializers.ValidationError(
                 "Invalid session creation for preview play."
             )
@@ -527,7 +549,7 @@ class PlaySessionCreateSerializer(serializers.Serializer):
         if not instance.playable_by_current_user(self.context["request"].user):
             raise serializers.ValidationError("Instance not playable by current user.")
 
-        return {"instance": instance}
+        return {"instance": instance, "is_preview": is_preview}
 
 
 # play session model (kinda) serializer (outbound)
@@ -670,7 +692,9 @@ class ScoreSummarySerializer(serializers.Serializer):
 
                 distribution = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 for i in range(0, 10):
-                    if i == (int(log.score / 10) if int(log.score / 10) < 10 else 9):
+                    if i == (
+                        int(log.percent / 10) if int(log.percent / 10) < 10 else 9
+                    ):
                         distribution[i] = 1
                     else:
                         distribution[i] = 0
@@ -680,32 +704,32 @@ class ScoreSummarySerializer(serializers.Serializer):
                     "term": log.semester.semester,
                     "year": log.created_at.year,
                     "students": 1,
-                    "total": log.score,
+                    "total": log.percent,
                     "distribution": distribution,
                 }
 
             else:
                 summary[semester_key]["students"] += 1
-                summary[semester_key]["total"] += log.score
+                summary[semester_key]["total"] += log.percent
 
-                summary[semester_key][distribution][
-                    int(log.score / 10) if int(log.score / 10) < 10 else 9
+                summary[semester_key]["distribution"][
+                    int(log.percent / 10) if int(log.percent / 10) < 10 else 9
                 ] += 1
 
-            results = []
-            for data in summary.values():
-                results.append(
-                    {
-                        "id": data["id"],
-                        "term": data["term"],
-                        "year": data["year"],
-                        "students": data["students"],
-                        "average": round(data["total"] / data["students"], 2),
-                        "distribution": data["distribution"],
-                    }
-                )
+        results = []
+        for data in summary.values():
+            results.append(
+                {
+                    "id": data["id"],
+                    "term": data["term"],
+                    "year": data["year"],
+                    "students": data["students"],
+                    "average": round(data["total"] / data["students"], 2),
+                    "distribution": data["distribution"],
+                }
+            )
 
-            return sorted(results, key=lambda x: (x["year"], x["term"]))
+        return sorted(results, key=lambda x: (x["year"], x["term"]))
 
 
 # Used for incoming requests for qset generation. Does NOT map to a model.
@@ -765,3 +789,26 @@ class ObjectPermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ObjectPermission
         fields = ["user", "content_type", "object_id", "permission", "expires_at"]
+
+
+class ScoresForUserSerializer(serializers.Serializer):
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), required=True
+    )
+    instance = serializers.PrimaryKeyRelatedField(
+        queryset=WidgetInstance.objects.all(), required=True
+    )
+    context = serializers.CharField(required=False)
+
+
+class ScoreDetailsForPlaySerializer(serializers.Serializer):
+    play_id = serializers.PrimaryKeyRelatedField(
+        queryset=LogPlay.objects.all(), required=True
+    )
+
+
+class ScoreDetailsForPreviewSerializer(serializers.Serializer):
+    preview_inst_id = serializers.PrimaryKeyRelatedField(
+        queryset=WidgetInstance.objects.all(), required=True
+    )
+    play_id = serializers.UUIDField()

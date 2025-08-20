@@ -7,7 +7,7 @@ import { error } from 'jquery'
 export const getCSRFToken = () => {
 	const cookies = document.cookie.split(';')
 	for(let cookie of cookies) {
-		if(cookie.startsWith('csrftoken=')) {
+		if(cookie.trim().startsWith('csrftoken=')) {
 			return cookie.split('=')[1]
 		}
 	}
@@ -46,7 +46,6 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 				...fetchWriteOptions(method, {body: data}),
 				...options
 			}
-			console.log(add_options)
 			response = await fetch(url, add_options)
 		}
 
@@ -73,6 +72,9 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 		}
 
 		try {
+			if(response.status === 204){
+				return null
+			}
 			const data = await response.json()
 			return data
 		} catch (e) {
@@ -139,11 +141,27 @@ export const apiDeleteWidget = ({ instId }) => {
 }
 
 export const apiSaveWidget = (_params) => {
-	const body = {
-		widget_id: parseInt(_params.widgetId),
-		name: _params.name,
-		qset: _params.qset,
-		is_draft: _params.isDraft,
+	if (_params.instId != null) {
+		// limit args to the following params
+		const body = {
+			name: _params?.name ?? undefined,
+			qset: _params?.qset ?? undefined,
+			is_draft: _params?.isDraft ?? undefined,
+			open_at: _params?.openAt,
+			close_at: _params?.closeAt,
+			attempts: _params?.attempts ?? undefined,
+			guest_access: _params?.guestAccess ?? undefined,
+			embedded_only: _params?.embeddedOnly ?? undefined,
+		}
+		return handleRequest(methods.PATCH, `/api/instances/${_params.instId}/`, { ...body })
+	} else {
+		const body = {
+			widget_id: parseInt(_params.widgetId),
+			name: _params.name,
+			qset: _params.qset,
+			is_draft: _params.isDraft,
+		}
+		return handleRequest(methods.POST, '/api/instances/', { ...body })
 	}
 	return handleRequest(methods.POST, '/api/instances/', { ...body })
 }
@@ -173,8 +191,12 @@ export const apiGetNotifications = () => {
 	return handleRequest(methods.GET, '/api/notifications/')
 }
 
-export const apiDeleteNotification = (data) => {
-	return handleRequest(methods.POST, '/api/notifications/delete/', { body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` })
+export const apiDeleteNotification = ({ notifId, deleteAll }) => {
+	if (deleteAll) {
+		return handleRequest(methods.DELETE, `/api/notifications/delete_all/`)
+	} else {
+		return handleRequest(methods.DELETE, `/api/notifications/${notifId}/`)
+	}
 }
 
 export const apiSearchUsers = (input = '', page_number = 1) => {
@@ -240,18 +262,16 @@ export const apiSearchInstances = (input, pageParam = 1, include_deleted = false
 }
 
 // TODO update or retire
-export const apiGetWidgetInstanceScores = (instId, send_token) => {
-	return handleRequest(methods.POST, '/api/scores/get_for_widget_instance/', {  instanceId: instId, token: send_token })
+export const apiGetWidgetInstanceScores = (instId, userId) => {
+	return handleRequest(methods.GET, `/api/scores/?instance=${instId}&user=${userId}`)
 }
 
-// TODO update or retire
-export const apiGetGuestWidgetInstanceScores = (instId, playId) => {
-	return handleRequest(methods.POST, '/api/scores/get_for_widget_instance_guest/', { instanceId: instId, playId: playId })
+export const apiGetWidgetInstancePlayScores = (playId) => {
+	return handleRequest(methods.GET, `/api/scores/details/?play_id=${playId}`)
 }
 
-// TODO update or retire
-export const apiGetWidgetInstancePlayScores = (playId, previewInstId, previewPlayId) => {
-	return handleRequest(methods.POST, '/api/scores/get_play_details/', {  playId, previewInstId, previewPlayId })
+export const apiGetWidgetInstancePreviewScores = (playId, previewInstId) => {
+	return handleRequest(methods.GET, `/api/scores/details/?play_id=${playId}&preview_inst_id=${previewInstId}`)
 }
 
 // TODO update
@@ -296,37 +316,36 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 			const scoresByUser = new Map()
 			results.results.forEach(log => {
 				let scoresForUser
-				if (log.user_id === null || log.user_id === undefined) log.user_id = 0
 
-				if (!scoresByUser.has(log.user_id)) {
+				const userId = log.user_id ?? 0
+				const isGuest = userId === 0
 
-					// initialize user
-					const first = log.user?.first_name ?? null
-					const last = log.user?.last_name ?? null
-					const name = first === null || last == null ? 'All Guests' : `${first} ${last}`
+				const first = log.user?.first_name?.trim() || ""
+				const last = log.user?.last_name?.trim() || ""
+				const name = isGuest
+					? 'All Guests'
+					: (first || last ? `${first} ${last}`.trim() : `User ${userId}`)
+
+				if (!scoresByUser.has(userId)) {
 					scoresForUser = {
-						userId: log.user_id,
+						userId,
 						name,
 						searchableName: name.toLowerCase(),
 						scores: []
 					}
-
-					scoresByUser.set(log.user_id, scoresForUser)
-
+					scoresByUser.set(userId, scoresForUser)
 				} else {
-					// already initialized
-					scoresForUser = scoresByUser.get(log.user_id)
+					scoresForUser = scoresByUser.get(userId)
 				}
 
-				// append to scores
 				scoresForUser.scores.push({
 					elapsed: parseInt(log.elapsed, 10) + 's',
 					playId: log.id,
-					score: log.is_complete === '1' ? Math.round(parseFloat(log.percent)) + '%' : '---',
+					score: log.is_complete === true ? Math.round(parseFloat(log.percent)) + '%' : '---',
 					created_at: log.created_at
 				})
-
 			})
+
 
 			const logs = Array.from(scoresByUser, ([name, value]) => value)
 			const data = { 'total_num_pages': results.total_pages, pagination: logs }
@@ -373,7 +392,7 @@ export const apiSavePlayStorage = ({ play_id, logs }) => {
 }
 
 export const apiSavePlayLogs = ({ request }) => {
-	return handleRequest(methods.PUT, `/api/play-sessions/${request.playId}/`, { request })
+	return handleRequest(methods.PUT, `/api/play-sessions/${request.playId}/`, { ...request })
 }
 
 export const apiGetQuestionsByType = (arrayOfQuestionIds, questionTypes) => {
@@ -499,6 +518,10 @@ export const apiCheckWidgetForUpdate = (widgetId) => {
 
 export const apiInstallWidgetUpdate = (widgetId) => {
 	return handleRequest(methods.GET, `/api/widgets/${widgetId}/update_to_latest_version/`)
+}
+
+export const apiLoginDirect = ( username, password ) => {
+	return handleRequest(methods.POST, `/api/user/login/`, { username, password })
 }
 
 /** STORAGE UTILS */

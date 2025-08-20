@@ -3,12 +3,12 @@ from api.views import (
     generation,
     notifications,
     playsessions,
+    scores,
     sessions,
     users,
     widget_instances,
     widgets,
 )
-from api.views.scores import ScoresApi
 from django.urls import include, path
 from rest_framework import routers
 
@@ -28,12 +28,8 @@ urlpatterns = [
     # User
     path("user/login/", users.UsersApi.service_user_login, name="service_user_login"),
     # Scores
-    path("scores/get_for_widget_instance/", ScoresApi.get_for_widget_instance),
-    path(
-        "scores/get_for_widget_instance_guest/", ScoresApi.get_for_widget_instance_guest
-    ),
-    path("scores/get_play_details/", ScoresApi.get_play_details),
-    path("scores/get_score_summary/", ScoresApi.score_summary_get),
+    path("scores/", scores.ScoresView.as_view()),
+    path("scores/details/", scores.ScoresDetailView.as_view()),
     # AI generation
     path("generate/qset/", generation.GenerateQsetView.as_view()),
     path("generate/from_prompt/", generation.GenerateFromPromptView.as_view()),

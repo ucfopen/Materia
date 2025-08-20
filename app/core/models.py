@@ -12,13 +12,15 @@ import os
 import types
 from datetime import datetime
 from pathlib import Path
+from smtplib import SMTPException
 from typing import Self
 
 from django.conf import settings
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.db import models, transaction, DatabaseError
+from django.core.mail import send_mail
+from django.db import DatabaseError, models, transaction
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -29,6 +31,7 @@ from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 from util.message_util import Msg, MsgBuilder
 from util.perm_manager import PermManager
+from util.user_util import UserUtil
 from util.widget.asset.manager import AssetManager
 from util.widget.validator import ValidatorUtil
 
@@ -298,6 +301,70 @@ class Log(models.Model):
         WIDGET_STATE = "WIDGET_STATE", gettext_lazy("Widget State")
         DATA = "DATA", gettext_lazy("Data")
 
+        @staticmethod
+        def get_log_type(log_type_id: int) -> str:
+            """
+            Maps integer codes to log types
+            TODO: some of these don't seem to have equivalents in python. is this intentional?
+            """
+            match log_type_id:
+                case 1:
+                    return Log.LogType.WIDGET_START
+                case 2:
+                    return Log.LogType.WIDGET_END
+                case 4:
+                    return Log.LogType.WIDGET_RESTART
+                case 5:
+                    # return Log.LogType.ASSET_LOADING
+                    return Log.LogType.EMPTY
+                case 6:
+                    # return Log.LogType.ASSET_LOADED
+                    return Log.LogType.EMPTY
+                case 7:
+                    # return Log.LogType.FRAMEWORK_INIT
+                    return Log.LogType.WIDGET_CORE_INIT
+                case 8:
+                    # return Log.LogType.PLAY_REQUEST
+                    return Log.LogType.WIDGET_PLAY_REQ
+                case 9:
+                    # return Log.LogType.PLAY_CREATED
+                    return Log.LogType.WIDGET_PLAY_START
+                case 13:
+                    # return Log.LogType.LOG_IN
+                    return Log.LogType.WIDGET_LOGIN
+                case 15:
+                    # return Log.LogType.WIDGET_STATE_CHANGE
+                    return Log.LogType.WIDGET_STATE
+                case 500:
+                    return Log.LogType.KEY_PRESS
+                case 1000:
+                    return Log.LogType.BUTTON_PRESS
+                case 1001:
+                    # return Log.LogType.WIDGET_INTERACTION
+                    return Log.LogType.SCORE_WIDGET_INTERACTION
+                case 1002:
+                    # return Log.LogType.FINAL_SCORE_FROM_CLIENT
+                    return Log.LogType.SCORE_FINAL_FROM_CLIENT
+                case 1004:
+                    # return Log.LogType.QUESTION_ANSWERED
+                    return Log.LogType.SCORE_QUESTION_ANSWERED
+                case 1006:
+                    return Log.LogType.SCORE_PARTICIPATION
+                case 1008:
+                    # return Log.LogType.SCORE_FEEDBACK
+                    return Log.LogType.EMPTY
+                case 1009:
+                    # return Log.LogType.SCORE_ALERT
+                    return Log.LogType.EMPTY
+                case 1500:
+                    return Log.LogType.ERROR_GENERAL
+                case 1509:
+                    return Log.LogType.ERROR_TIME_VALIDATION
+                case 2000:
+                    return Log.LogType.DATA
+                case _:
+                    return Log.LogType.EMPTY
+
     id = models.BigAutoField(primary_key=True)
     # consider converting to UUID field. Note: there appear to be some non-UUID values in the table
     # TODO: should this be a foreign key to LogPlay?
@@ -413,6 +480,21 @@ class LogPlay(models.Model):
         on_delete=models.PROTECT,
         db_column="semester_id",
     )
+
+    # TODO this can (should?) be replaced with a proper foreign key relationship in Log model
+    def get_logs(self):
+        return Log.objects.filter(play_id=self.id)
+
+    def update_elapsed(self):
+        self.elapsed = (make_aware(datetime.now()) - self.created_at).total_seconds()
+        self.save()
+
+    def set_complete(self, score, possible, percent):
+        self.is_complete = True
+        self.score = score
+        self.score_possible = possible
+        self.percent = percent if percent <= 100 else 100
+        self.save()
 
     class Meta:
         db_table = "log_play"
@@ -566,6 +648,118 @@ class Notification(models.Model):
     updated_at = models.DateTimeField(default=datetime.now, null=True)
     action = models.CharField(max_length=255)
 
+    permissions = GenericRelation(ObjectPermission)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Create/update ownership permission
+        self.permissions.update_or_create(
+            user=self.to_id, permission=ObjectPermission.PERMISSION_FULL
+        )
+
+        # Send email, if not sent already
+        self.send_email()
+
+    @classmethod
+    def create_instance_notification(
+        cls,
+        from_user: User,
+        to_user: User,
+        instance: "WidgetInstance",
+        mode: str,
+        new_perm: str = None,
+    ) -> Self | None:
+        # Dont send notifs to self
+        if from_user == to_user:
+            return None
+
+        # Create some strings that will be used later
+        user_link = (
+            f"{from_user.first_name} {from_user.last_name} ({from_user.username})"
+        )
+        widget_name = instance.name
+        widget_type = instance.widget.name
+        widget_link = (
+            f"<a href='{settings.URLS["BASE_URL"]}my-widgets#{instance.id}' target='_blank'>"
+            f"{widget_name}</a>"
+        )
+
+        # Create permission string
+        match new_perm:
+            case ObjectPermission.PERMISSION_FULL:
+                perm_string = "Full"
+            case ObjectPermission.PERMISSION_VISIBLE:
+                perm_string = "View Scores"
+            case _:
+                perm_string = "Unknown"
+
+        # Create message
+        match mode:
+            case "disabled":
+                content = f"{user_link} is no longer sharing '{widget_name}' with you."
+            case "changed":
+                content = (
+                    f"{user_link} changed your access to widget '{widget_link}'.<br/>"
+                    f"You now have {perm_string} access."
+                )
+            case "expired":
+                content = f"Your access to '{widget_name}' has automatically expired."
+            case "deleted":
+                content = f"{user_link} deleted {widget_type} widget '{widget_name}'."
+            case "access_request":
+                content = (
+                    f"{user_link} is requesting access to your widget '{widget_link}'.<br/>"
+                    f"The widget is currently being used within a course in your LMS."
+                )
+            case _:
+                return
+
+        # Create notification object
+        notification = cls.objects.create(
+            from_id=from_user,
+            to_id=to_user,
+            item_type=WidgetInstance.content_type.id,
+            item_id=instance.id,
+            is_email_sent=False,
+            avatar=UserUtil.get_avatar_url(from_user),
+            subject=content,
+        )
+
+        return notification
+
+    def send_email(self, force_resend: bool = False) -> bool:
+        # Check if emails are enabled
+        if not settings.SEND_EMAILS:
+            return False
+
+        # Check if sent already
+        if self.is_email_sent and not force_resend:
+            return False
+
+        # Check if recipient has emails enabled
+        user_settings = UserSettings.objects.filter(user=self.to_id).first()
+        if user_settings is not None:
+            notify = user_settings.get_profile_fields().get("notify", False)
+            if not notify:
+                return False
+
+        try:
+            send_mail(
+                subject=f"{settings.NAME} Notification",
+                message=self.subject,
+                html_message=self.subject,
+                from_email=f'"{self.from_id.first_name} {self.from_id.last_name}" <{settings.SYSTEM_EMAIL}>',
+                recipient_list=[self.to_id.email],
+            )
+            self.is_email_sent = True
+            self.save()
+            return True
+        except SMTPException as e:
+            logger.error("Failed to send email. Exception follows:")
+            logger.error(e)
+            return False
+
     class Meta:
         db_table = "notification"
         indexes = [
@@ -627,49 +821,88 @@ class PermObjectToUser(models.Model):
 
 class Question(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(
-        User,
+    qset = models.ForeignKey(
+        "WidgetQset",
         related_name="questions",
         on_delete=models.PROTECT,
-        db_column="user_id",
-        blank=True,
+        db_column="qset_id",
         null=True,
     )
-    type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
-    text = models.TextField()
+    # base 64 encoded json question
+    _data = models.TextField(db_column="data")
+    item_id = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(default=datetime.now)
-    _data = models.TextField(blank=True, null=True, db_column="data")
-    hash = models.CharField(unique=True, max_length=32)
-    qset = models.ManyToManyField(
-        "WidgetQset", through=MapQuestionToQset, related_name="questions"
+    type = models.ForeignKey(
+        "Widget", related_name="widget_type", on_delete=models.PROTECT, db_column="type"
     )
 
-    permissions = GenericRelation(ObjectPermission)
-
     @property
-    def data(self) -> dict:
-        decoded_data = base64.b64decode(self._data).decode("utf-8")
-        return json.loads(decoded_data)
+    def data(self):
+        return self.decoded_data()
 
     @data.setter
-    def data(self, new_data: dict):
-        self._data = base64.b64encode(json.dumps(new_data).encode("utf-8")).decode(
-            "utf-8"
-        )
+    def data(self, value):
+        if isinstance(value, dict):
+            self._data = self.encode_data(value)
+        else:
+            self._data = value
 
-    @classproperty
-    def content_type(cls):
-        return ContentType.objects.get_for_model(cls)
+    def decoded_data(self):
+        try:
+            decoded_bytes = base64.b64decode(self._data)
+            return json.loads(decoded_bytes.decode("utf-8"))
+        except Exception as e:
+            logger.error(f"Error decoding JSON in Question model: {str(e)}")
+            return {}
+
+    # TODO this is effectively a duplicate of WidgetQset's encode_data
+    @classmethod
+    def encode_data(cls, decoded_data) -> str:
+        json_str = json.dumps(decoded_data)
+        return base64.b64encode(json_str.encode("utf-8")).decode("utf-8")
+
+    @staticmethod
+    def is_question(item):
+        # Convert item to a dictionary if it's not already
+        if not isinstance(item, dict):
+            try:
+                item = dict(item)
+            except (TypeError, ValueError):
+                return False
+
+        # Check if required keys exist
+        if "id" not in item:
+            return False
+        if "type" not in item:
+            return False
+        if "questions" not in item:
+            return False
+        if "answers" not in item:
+            return False
+
+        # Check if values are not empty
+        if not item["type"] or not item["questions"] or not item["answers"]:
+            return False
+
+        # Check if questions and answers are lists
+        if not isinstance(item["answers"], list):
+            return False
+        if not isinstance(item["questions"], list):
+            return False
+
+        return True
 
     class Meta:
         db_table = "question"
-        indexes = [
-            models.Index(fields=["hash"], name="question_hash"),
-            models.Index(fields=["type"], name="question_type"),
-        ]
 
 
 class UserExtraAttempts(models.Model):
+    """
+    TODO this model requires reworks:
+    - change fields to foreign keys
+    - Enable admin operations to apply extra attempts
+    """
+
     # Needs primary key
     inst_id = models.CharField(
         max_length=100, db_collation="utf8_bin"
@@ -893,17 +1126,31 @@ class WidgetInstance(models.Model):
         return f"{self.id}-{self.clean_name}{os.sep}"
 
     def status(self, context: str = None):
-        from util.scoring.scoring_util import ScoringUtil  # avoid cyclic import
         from util.semester_util import SemesterUtil
+
         semester = SemesterUtil.get_current_semester()
 
         now = timezone.now()
         start = self.open_at
         end = self.close_at
-        attempts_used = ScoringUtil.get_instance_score_history(self, context, semester).count()
+        attempts_used = LogPlay.objects.filter(
+            instance=self,
+            context_id=context,
+            semester=semester,
+        ).count()
 
-        # Check to see if any extra attempts have been provided to the user. Decrement attempts_used if so.
-        extra_attempts = ScoringUtil.get_instance_extra_attempts(self, context, semester)
+        # Check to see if any extra attempts have been provided to the context. Decrement attempts_used if so.
+        # TODO this does not filter by user - we don't have access to user id here. Do we need it?
+        extra_attempts_ref = UserExtraAttempts.objects.filter(
+            inst_id=self.id,
+            context_id=context,
+            semester=semester.id,
+        ).first()
+
+        extra_attempts = (
+            0 if extra_attempts_ref is None else extra_attempts_ref.extra_attempts
+        )
+
         attempts_used -= extra_attempts
 
         has_attempts = self.attempts == -1 or attempts_used < self.attempts
@@ -913,7 +1160,9 @@ class WidgetInstance(models.Model):
         always_open = not does_open and not does_close
         will_open = does_open and start > now
         will_close = does_close and end > now
-        is_open = always_open or ((not does_open or start < now) and (will_close or not does_close))
+        is_open = always_open or (
+            (not does_open or start < now) and (will_close or not does_close)
+        )
         is_closed = not always_open and (does_close and end < now)
 
         return {
@@ -938,9 +1187,9 @@ class WidgetInstance(models.Model):
     def get_latest_qset(self) -> "WidgetQset | None":
         return self.qsets.order_by("-created_at").first()
 
-    def get_qset_for_play(self, play_id=None):
-        if play_id:
-            play = LogPlay.objects.get(id=play_id)
+    def get_qset_for_play(self, play_id=None, is_preview=False):
+        if play_id and not is_preview:
+            play = LogPlay.objects.get(id=play_id)  # this will fail if we are a preview
             return (
                 self.qsets.filter(created_at__lte=play.created_at)
                 .order_by("-created_at")
@@ -961,7 +1210,10 @@ class WidgetInstance(models.Model):
         # ADDING A NEW INSTANCE
         if is_new:
             from util.widget.instance.hash import WidgetInstanceHash
-            tries = 3  # try this many times to generate an instance ID to avoid collisions
+
+            tries = (
+                3  # try this many times to generate an instance ID to avoid collisions
+            )
             while not success:
                 tries = tries - 1
                 if tries < 0:
@@ -1047,6 +1299,39 @@ class WidgetInstance(models.Model):
 
         return dupe
 
+    def get_play_logs(self, semester=None, year=None, context_id=None):
+        """
+        Returns a filtered queryset of play logs for the current instance
+        Accepts semester, year, and context ID.
+        Note that context ID is semester-agnostic;
+        If it's not included, filtering can be performed with EITHER or BOTH
+        semester and year.
+        """
+        queryset = self.play_logs.all()
+
+        # treat "all" as None
+        semester = None if semester == "all" else semester
+        year = None if year == "all" else year
+
+        if context_id:
+            return queryset.filter(context_id=context_id)
+
+        if semester and year:
+            date = DateRange.objects.filter(semester=semester, year=year).first()
+            return queryset.filter(semester=date)
+
+        if year and not semester:
+            semesters = DateRange.objects.filter(year=year)
+            return queryset.filter(semester__in=semesters)
+
+        if semester and not year:
+            semesters = DateRange.objects.filter(
+                semester=semester, year=datetime.now().year
+            )
+            return queryset.filter(semester__in=semesters)
+
+        return queryset
+
     @property
     def play_url(self):
         return f"{settings.URLS["BASE_URL"]}play/{self.id}/{slugify(self.name)}/"
@@ -1107,9 +1392,10 @@ class WidgetQset(models.Model):
             decoded_bytes = base64.b64decode(encoded_data)
             return json.loads(decoded_bytes.decode("utf-8"))
         except Exception as e:
-            logger.error(f"Error decoding JSON: {str(e)}")
+            logger.error(f"Error decoding JSON in WidgetQset model: {str(e)}")
             return {}
 
+    # TODO this might be better served as a utility method? Question needs it too
     @classmethod
     def encode_data(cls, decoded_data) -> str:
         json_str = json.dumps(decoded_data)
@@ -1121,46 +1407,63 @@ class WidgetQset(models.Model):
     def set_data(self, data_dict):
         self.data = self.encode_data(data_dict)
 
-    # TODO: implement this, old code below
-    def find_questions(self):
-        pass
+    def process_and_create_questions(self):
+        """
+        Older versions of Materia will not have Question model instances associated with a qset
+        In this case, we unpack the qset, traverse it to identify individual questions, and create new question
+        instances.
+        This method will effectively be invoked once per qset at most,
+        as subsequent requests for questions will be able to use the ORM
+        """
+        decoded_data = self.decode_data(self.data)
+        raw_items = decoded_data.get("items", [])
 
-    # TODO: find the assets!!!
-    # Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QSET, $qset_id, $recursiveQGroup->assets);
-    # public static function find_questions(&$source, $create_ids=false, &$questions=[])
-    # {
-    #     if (is_array($source))
-    #     {
-    #         foreach ($source as $key => &$q)
-    #         {
-    #             if (self::is_question($q))
-    #             {
-    #                 $json = json_encode($q);
+        def find_questions(source):
+            questions = []
 
-    #                 $real_q = Widget_Question::forge()->from_json($json);
+            if isinstance(source, list):
 
-    #                 // new question sets need ids
-    #                 if ($create_ids)
-    #                 {
-    #                     if (empty($real_q->id)) $real_q->id = \Str::random('uuid');
-    #                     foreach ($real_q->answers as &$a)
-    #                     {
-    #                         if (empty($a['id'])) $a['id'] = \Str::random('uuid');
-    #                     }
-    #                     $source[$key] = json_decode(json_encode($real_q), true);
-    #                 }
-    #                 if ($real_q->id)	$questions[$real_q->id] = $real_q;
-    #                 else $questions[] = $real_q;
-    #             }
-    #             elseif (is_array($q))
-    #             {
-    #                 // INCEPTION TIME!!
-    #                 self::find_questions($q, $create_ids, $questions);
-    #             }
-    #         }
-    #     }
-    #     return $questions;
-    # }
+                for item in source:
+                    if Question.is_question(item):
+                        questions.append(item)
+                    else:
+                        questions += find_questions(item)
+
+            elif isinstance(source, dict):
+
+                if Question.is_question(source):
+                    questions.append(source)
+                else:
+                    for key, value in source.items():
+                        if Question.is_question(value):
+                            questions.append(value)
+                        else:
+                            questions += find_questions(value)
+            else:
+                return []
+
+            return questions
+
+        questions = find_questions(raw_items)
+        questions_set = []
+        for question in questions:
+            new_question = Question(
+                type=self.instance.widget,
+                data=question,
+                qset=self,
+                item_id=question["id"],
+            )
+            new_question.save()
+            questions_set.append(new_question)
+
+        return questions_set
+
+    def get_questions(self):
+        questions = self.questions.all()
+        if questions.exists():
+            return questions
+        else:
+            return self.process_and_create_questions()
 
     class Meta:
         db_table = "widget_qset"

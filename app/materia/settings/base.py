@@ -3,6 +3,8 @@
 import os
 from pathlib import Path
 
+from util.widget.validator import ValidatorUtil
+
 from .css import *  # noqa: F401, F403
 from .generation import *  # noqa: F401, F403
 from .js import *  # noqa: F401, F403
@@ -12,7 +14,6 @@ from .session import *  # noqa: F401, F403
 from .storage import *  # noqa: F401, F403
 from .urls import *  # noqa: F401, F403
 from .widgets import *  # noqa: F401, F403
-from .verbage import *  # noqa: F401, F403
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -184,3 +185,27 @@ PLAYDATA_EXPORTER_CACHE_TIMEOUT = 120
 LOCK_TIMEOUT = 120
 
 LOGIN_URL = "/login/"
+
+NAME = "Materia"
+
+# Email config
+SEND_EMAILS = ValidatorUtil.validate_bool(os.environ.get("SEND_EMAILS", False))
+EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
+SYSTEM_EMAIL = os.environ.get("SYSTEM_EMAIL")
+
+# SMTP config
+EMAIL_HOST = os.environ.get("EMAIL_HOST")
+EMAIL_PORT = os.environ.get("EMAIL_PORT")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS")
+EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL")
+EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", 0))
+EMAIL_SSL_KEYFILE = os.environ.get("EMAIL_SSL_KEYFILE")
+EMAIL_SSL_CERTFILE = os.environ.get("EMAIL_SSL_CERTFILE")
+
+# Sendgrid config
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
+SENDGRID_SANDBOX_MODE_IN_DEBUG = (
+    False  # TODO when true, emails are not actually sent in debug mode
+)

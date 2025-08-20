@@ -35,7 +35,6 @@ const HelpPage = () => {
 			helpContentRender = <HelpForInstructors />
 			break
 		case 'accessibility':
-			console.log('accessibility yes')
 			helpContentRender = <HelpAccessibility />
 			break
 		default:

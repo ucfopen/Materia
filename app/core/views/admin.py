@@ -13,7 +13,7 @@ def widget(request):
         css_resources=settings.CSS_GROUPS["support"],
         js_globals={
             "UPLOAD_ENABLED": ValidatorUtil.validate_bool(
-                os.environ.get("ENABLE_ADMIN_UPLOADER"), False
+                os.environ.get("BOOL_ADMIN_UPLOADER_ENABLE"), False
             )
         },
         request=request,
