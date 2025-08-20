@@ -41,6 +41,8 @@ class WidgetPlayInitService:
             user=user,
         )
 
+        play.save()
+
         start_log = Log(
             log_type=Log.LogType.WIDGET_START,
             play_id=play.id,

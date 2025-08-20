@@ -24,7 +24,6 @@ class ScoreModuleFactory:
             script_path = os.path.join(widget_folder, "score_module.py")
 
             ScoreClass = cls._load_score_class(script_path, instance)
-            logger.error(f"\ngot ScoreClass: {ScoreClass}\n")
             if not ScoreClass:
                 logger.error(f"No score module found for widget {instance.widget.id}")
                 return None

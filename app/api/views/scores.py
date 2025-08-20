@@ -66,8 +66,10 @@ class ScoresView(APIView):
 
             attempts_used = 0 if not context else len(plays)
 
+            # TODO update filter params when we fix UserExtraAttempts fields
             extra_attempts = UserExtraAttempts.objects.filter(
                 inst_id=instance.id,
+                user_id=user.id,
                 context_id=context,
             ).first()
 
@@ -124,10 +126,6 @@ class ScoresDetailView(APIView):
                 validated = serializer.validated_data
 
                 play = validated.get("play_id")
-
-                logger.error(
-                    f"\nplay user id: {play.user.id}\nrequest user id: {request.user.id}\n"
-                )
 
                 """
                 access perms require either:

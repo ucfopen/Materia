@@ -128,7 +128,7 @@ class WidgetPlayView(
         if self.launch:
             play.auth = "lti"
             # TODO nonce shouldn't be used as context id
-            play.context_id = LTILaunchService.get_nonce(self.launch)
+            play.context_id = LTILaunchService.get_context_id(self.launch)
 
             # if it's a first-time launch, store in session
             if LTILaunchService.get_launch_state(self.launch) == "INITIAL":
