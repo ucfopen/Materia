@@ -334,21 +334,22 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 		if (instance && !single_id) {
 			// show play again button?
 			if (instance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview) {
-				const prefix = (() => {
-					if (isEmbedded && isPreview) return '/preview-embed/'
-					if (isEmbedded) return '/embed/'
-					if (isPreview) return '/preview/'
-					return '/play/'
+				let path = (() => {
+					if (isEmbedded) return instance.embed_url
+					if (isPreview) return instance.preview_url
+					return instance.play_url
 				})()
 
-				let href = prefix + instance.id + '/' + instance.clean_name
-				if (typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null) {
-					href += `?token=${window.LAUNCH_TOKEN}`
+				// attach token to play again path if present
+				const urlParams = new URLSearchParams(window.location.search)
+				const token = urlParams.get('token')
+				if (token) {
+					path = `${path}?token=${token}`
 				}
 
 				setAttributes({
 					...attributes,
-					href: href,
+					href: path,
 					hidePlayAgain: false
 				})
 			} else {
