@@ -127,7 +127,6 @@ class WidgetPlayView(
         # if it is - update the play with LTI flags and pass the token to context
         if self.launch:
             play.auth = "lti"
-            # TODO nonce shouldn't be used as context id
             play.context_id = LTILaunchService.get_context_id(self.launch)
 
             # if it's a first-time launch, store in session
@@ -197,7 +196,7 @@ class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateV
         )
 
     def before_play_init(self, instance):
-        preview = WidgetPlayInitService.init_preview()
+        preview = WidgetPlayInitService.init_preview(self.request)
 
         return {"play_id": preview, "lti_token": None}
 

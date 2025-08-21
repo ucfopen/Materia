@@ -15,8 +15,8 @@ class LTILaunchService:
     @staticmethod
     def register_association(request, launch):
         """
-        TODO should create a new instance of the LTI model.
-        Implementation requires updates to LTI model, which needs to be updated for 1.3.
+        TODO not currently implemented because django-lti stores records of resource links
+            Do we need this? When would we need to provide those resource links?
         """
         if not settings.LTI_SAVE_ASSOCIATIONS:
             return True

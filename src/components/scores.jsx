@@ -171,7 +171,7 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 			if (isPreview) {
 				setPreviewInstId(instance.id)
 				setPlayId(null)
-				setAttributes({ ...attributes, href: `/preview/${instId}/${instance.clean_name}`, hidePlayAgain: false })
+				setAttributes({ ...attributes, href: instance.preview_url, hidePlayAgain: false })
 			}
 			// Single play session
 			else if (single_id) {
@@ -180,7 +180,7 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 			}
 			// Guest play session
 			else if (instance.guest_access) {
-				setAttributes({ ...attributes, href: `/${isEmbedded ? 'embed' : 'play'}/${instId}/${instance.clean_name}`, hidePlayAgain: false })
+				setAttributes({ ...attributes, href: isEmbedded ? instance.embed_url : instance.play_url, hidePlayAgain: false })
 				setPlayId(guestPlayId)
 			}
 			// User play session
@@ -335,6 +335,7 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 			// show play again button?
 			if (instance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview) {
 				let path = (() => {
+					// @TODO: previews will never trigger this hook, is the isPreview check needed?
 					if (isEmbedded) return instance.embed_url
 					if (isPreview) return instance.preview_url
 					return instance.play_url
