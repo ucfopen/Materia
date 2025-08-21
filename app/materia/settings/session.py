@@ -2,7 +2,7 @@ import os
 
 # default to database session storage
 # this should be Django's default behavior as well
-session_driver = os.environ.get("SESSION_DRIVER", "db")
+session_driver = os.environ.get("SESSION_DRIVER", "redis")
 
 if session_driver == "redis":
     SESSION_ENGINE = "django.contrib.sessions.backends.cache"

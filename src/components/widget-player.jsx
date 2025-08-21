@@ -535,6 +535,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 			} else {
 				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}/${playId}`
 			}
+			// do we have an LTI token? Make sure it's appended to the score screen URL so we can play again with the same launch
+			if ( !!window.LTI_TOKEN) _scoreScreenURL += `?token=${window.LTI_TOKEN}`
 		return _scoreScreenURL
 	}
 

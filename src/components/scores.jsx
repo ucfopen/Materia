@@ -171,7 +171,7 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 			if (isPreview) {
 				setPreviewInstId(instance.id)
 				setPlayId(null)
-				setAttributes({ ...attributes, href: `/preview/${instId}/${instance.clean_name}`, hidePlayAgain: false })
+				setAttributes({ ...attributes, href: instance.preview_url, hidePlayAgain: false })
 			}
 			// Single play session
 			else if (single_id) {
@@ -180,7 +180,7 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 			}
 			// Guest play session
 			else if (instance.guest_access) {
-				setAttributes({ ...attributes, href: `/${isEmbedded ? 'embed' : 'play'}/${instId}/${instance.clean_name}`, hidePlayAgain: false })
+				setAttributes({ ...attributes, href: isEmbedded ? instance.embed_url : instance.play_url, hidePlayAgain: false })
 				setPlayId(guestPlayId)
 			}
 			// User play session
@@ -334,21 +334,23 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 		if (instance && !single_id) {
 			// show play again button?
 			if (instance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview) {
-				const prefix = (() => {
-					if (isEmbedded && isPreview) return '/preview-embed/'
-					if (isEmbedded) return '/embed/'
-					if (isPreview) return '/preview/'
-					return '/play/'
+				let path = (() => {
+					// @TODO: previews will never trigger this hook, is the isPreview check needed?
+					if (isEmbedded) return instance.embed_url
+					if (isPreview) return instance.preview_url
+					return instance.play_url
 				})()
 
-				let href = prefix + instance.id + '/' + instance.clean_name
-				if (typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null) {
-					href += `?token=${window.LAUNCH_TOKEN}`
+				// attach token to play again path if present
+				const urlParams = new URLSearchParams(window.location.search)
+				const token = urlParams.get('token')
+				if (token) {
+					path = `${path}?token=${token}`
 				}
 
 				setAttributes({
 					...attributes,
-					href: href,
+					href: path,
 					hidePlayAgain: false
 				})
 			} else {

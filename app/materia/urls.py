@@ -38,6 +38,7 @@ from core.views.widget import (
 )
 from django.contrib import admin
 from django.urls import include, path, re_path
+from lti.urls import urlpatterns as lti_urlpatterns
 
 urlpatterns = [
     # api router and endpoint registration in api_urls
@@ -58,31 +59,39 @@ urlpatterns = [
         name="widget guide view",
     ),
     path(
-        "play/<slug:widget_instance_id>/", WidgetPlayView.as_view(), name="widget play"
+        "play/<slug:widget_instance_id>/",
+        WidgetPlayView.as_view(),
+        {"is_embed": False},
+        name="widget play",
     ),
     path(
         "play/<slug:widget_instance_id>/<str:instance_name>/",
         WidgetPlayView.as_view(),
+        {"is_embed": False},
         name="widget play",
     ),
     path(
         "embed/<slug:widget_instance_id>/",
         WidgetPlayView.as_view(),
+        {"is_embed": True},
         name="widget embed",
     ),
     path(
         "embed/<slug:widget_instance_id>/<str:instance_name>/",
         WidgetPlayView.as_view(),
+        {"is_embed": True},
         name="widget embed",
     ),
     path(
         "preview/<slug:widget_instance_id>/",
         WidgetPreviewView.as_view(),
+        {"is_embed": False},
         name="widget preview",
     ),
     path(
         "preview/<slug:widget_instance_id>/<str:instance_name>/",
         WidgetPreviewView.as_view(),
+        {"is_embed": False},
         name="widget preview",
     ),
     # My Widgets
@@ -124,6 +133,11 @@ urlpatterns = [
         name="scores",
     ),
     path(
+        "scores/embed/<slug:widget_instance_id>/<slug:play_id>/",
+        ScoresView.as_view(),
+        name="scores",
+    ),
+    path(
         "scores/single/<slug:widget_instance_id>/<slug:play_id>/",
         ScoresViewSingle.as_view(),
         name="single score",
@@ -149,6 +163,8 @@ urlpatterns = [
     ),
     path("media/upload", MediaUpload.index),
 ]
+
+urlpatterns.extend(lti_urlpatterns)
 
 handler403 = "core.views.exception_handlers.forbidden"
 handler404 = "core.views.main.handler404"

@@ -1,0 +1,58 @@
+{
+    "title": "Materia",
+    "scopes": [
+      "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem",
+      "https://purl.imsglobal.org/spec/lti-ags/scope/score"
+    ],
+    "extensions": [
+      {
+        "domain": "{{ app_domain }}",
+        "platform": "canvas.instructure.com",
+        "settings": {
+          "platform": "canvas.instructure.com",
+          "placements": [
+            {
+              "enabled": true,
+              "default": "disabled",
+              "windowTarget": "_blank",
+              "placement": "course_navigation",
+              "message_type": "LtiResourceLinkRequest",
+              "target_link_uri": "{{ app_hostname }}/ltilaunch/"
+            },
+            {
+              "text":"Materia Widget",
+              "enabled":true,
+              "placement":"assignment_selection",
+              "message_type":"LtiDeepLinkingRequest",
+              "target_link_uri": "{{ app_hostname }}/ltilaunch/"
+           }
+          ]
+        },
+        "privacy_level": "public"
+      }
+    ],
+    "public_jwk": {},
+    "description": "Create engaging, interactive learning content that can be embedded in your online course.",
+    "custom_fields": {
+      "roles": "$Canvas.membership.roles",
+      "term_id": "$Canvas.term.id",
+      "login_id": "$Canvas.user.loginId",
+      "term_end": "$Canvas.term.endAt",
+      "course_id": "$Canvas.course.id",
+      "term_name": "$Canvas.term.name",
+      "canvas_url": "$Canvas.api.baseUrl",
+      "term_start": "$Canvas.term.startAt",
+      "redirect_url": "{{ app_hostname }}/ltilaunch/",
+      "course_status": "$Canvas.course.workflowState",
+      "user_canvas_id": "$Canvas.user.id",
+      "course_account_name": "$Canvas.account.name",
+      "course_enroll_status": "$Canvas.enrollment.enrollmentState",
+      "course_sis_account_id": "$Canvas.course.sisSourceId",
+      "course_canvas_account_id": "$Canvas.account.id",
+      "masquerade_user_canvas_id": "$Canvas.masqueradingUser.id"
+    },
+    "public_jwk_url": "{{ app_hostname }}/.well-known/jwks.json",
+    "target_link_uri": "{{ app_hostname }}/ltilaunch/",
+    "oidc_initiation_url": "{{ app_hostname }}/init/{{ registration_uuid }}/"
+  }
+  

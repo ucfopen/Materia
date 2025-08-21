@@ -470,8 +470,8 @@ class LogPlay(models.Model):
         on_delete=models.PROTECT,
         db_column="qset_id",
     )
-    environment_data = models.TextField()
     auth = models.CharField(max_length=3, choices=AUTH_CHOICES)
+    lti_token = models.CharField(max_length=100, default="")
     referrer_url = models.CharField(max_length=255)
     context_id = models.CharField(max_length=255)
     semester = models.ForeignKey(
@@ -1191,6 +1191,11 @@ class WidgetInstance(models.Model):
 
     def playable_by_current_user(self, user: User | AnonymousUser):
         return self.guest_access or user.is_authenticated
+
+    def editable_by_current_user(self, user: User | AnonymousUser):
+        return self.permissions.filter(
+            user=user, permission=ObjectPermission.PERMISSION_FULL
+        ).exists()
 
     def save(self, *args, **kwargs):
         # No user or permissions checks are checked here.
