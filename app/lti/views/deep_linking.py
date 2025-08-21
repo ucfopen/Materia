@@ -1,6 +1,6 @@
 import logging
 
-from django.shortcuts import redirect
+from lti.views.lti import error_page
 from lti_tool.utils import get_launch_from_request
 from pylti1p3.deep_link_resource import DeepLinkResource
 
@@ -21,16 +21,14 @@ def lti_deep_link_selection(request):
     title = request.POST.get("name", "Materia Widget Activity")
 
     if not selection:
-        # TODO this should probably redirect to a dedicated "LTI failure" view
-        return redirect("/404")
+        return error_page(request, "error_unknown_assignment")
 
     # notably, this request will NOT have an associated LTI launch
     # we have to grab the original LTI launch ID from session cache and then
     # use that to grab the original launch from DjangoCacheDataStorage
     cached_launch_id = request.session["lti-deep-link"]
     if not cached_launch_id:
-        # TODO this should probably redirect to a dedicated "LTI failure view"
-        return redirect("/404")
+        return error_page(request)
 
     cached_launch = get_launch_from_request(request, cached_launch_id)
 

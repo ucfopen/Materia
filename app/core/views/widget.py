@@ -17,6 +17,7 @@ from django.views.generic import TemplateView
 from lti.mixins import LtiLaunchMixin
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
+from lti.views.lti import error_page as lti_error_page
 from util.context_util import ContextUtil
 from util.perm_manager import PermManager
 
@@ -151,14 +152,11 @@ class WidgetPlayView(
         context = None
 
         if instance is None:
-            context = _create_lti_error_page(request, "error_unknown_assignment")
+            return lti_error_page(request, "error_unknown_assignment")
 
         if LTIAuthService.is_user_author(launch):
             if instance.guest_access:
-                context = _create_lti_error_page(
-                    request,
-                    "error_lti_guest_mode",
-                )
+                return lti_error_page(request, "error_lti_guest_mode")
             else:
                 LTILaunchService.register_association(request, launch)
                 context = _create_lti_success_page(request, instance)
@@ -173,8 +171,7 @@ class WidgetPlayView(
         return None
 
     def on_lti_launch_failure(self, request):
-        context = _create_lti_error_page(request, "")
-        return render(request, "react.html", context)
+        return lti_error_page(request)
 
 
 class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView):
@@ -493,22 +490,10 @@ def _create_embedded_only_page(request: HttpRequest, instance: WidgetInstance):
     )
 
 
-def _create_lti_error_page(request: HttpRequest, error_type: str):
-
-    return ContextUtil.create(
-        title="Widget Embed Error",
-        page_type="lti-error",
-        js_globals={
-            "TITLE": "There was a problem with this embedded content.",
-            "ERROR_TYPE": error_type,
-        },
-        js_resources=settings.JS_GROUPS["lti-error"],
-        css_resources=settings.CSS_GROUPS["lti"],
-        request=request,
-    )
-
-
 def _create_lti_success_page(request: HttpRequest, instance: WidgetInstance):
+    """
+    TODO should this be under the LTI app?
+    """
     is_owner = instance.editable_by_current_user(request.user)
     owner_list = instance.permissions.filter(
         permission=ObjectPermission.PERMISSION_FULL

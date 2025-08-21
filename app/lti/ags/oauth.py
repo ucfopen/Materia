@@ -2,7 +2,6 @@ import logging
 import os
 import time
 import uuid
-from pprint import pformat
 
 import jwt
 import requests
@@ -89,7 +88,6 @@ class AGSOauth:
         }
 
         response = requests.post(self.token_url, data=payload)
-        logger.error(f"\nOauth response body: {pformat(response.json())}\n")
         response.raise_for_status()
 
         token_data = response.json()

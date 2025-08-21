@@ -36,3 +36,23 @@ def picker(request):
     )
 
     return render(request, "react.html", context)
+
+
+def error_page(request, error_type: str = ""):
+    """
+    TODO the LTI error page doesn't yet use the new templating engine
+        It will only display placeholder support information for now
+    """
+    context = ContextUtil.create(
+        title="Widget Embed Error",
+        page_type="lti-error",
+        js_globals={
+            "TITLE": "There was a problem with this embedded content.",
+            "ERROR_TYPE": error_type,
+        },
+        js_resources=django_settings.JS_GROUPS["lti-error"],
+        css_resources=django_settings.CSS_GROUPS["lti"],
+        request=request,
+    )
+
+    return render(request, "react.html", context)

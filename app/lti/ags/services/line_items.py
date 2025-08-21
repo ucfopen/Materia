@@ -6,7 +6,9 @@ domain = settings.LTI_PLATFORM_DOMAIN
 
 class AGSLineItemService:
     """
-    AGS Line Items service - heavy WIP, do we need these methods?
+    AGS Line Items service
+    Mostly placeholder (for now)
+    TODO should be functionally similar to scores service instead of static methods?
     """
 
     @staticmethod

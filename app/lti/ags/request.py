@@ -37,8 +37,6 @@ class AGSRequest:
 
         return body
 
-        pass
-
     def put(self):
         pass
 
