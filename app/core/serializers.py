@@ -794,7 +794,7 @@ class ScoresForUserSerializer(serializers.Serializer):
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), required=True
     )
-    instance = serializers.PrimaryKeyRelatedField(
+    inst_id = serializers.PrimaryKeyRelatedField(
         queryset=WidgetInstance.objects.all(), required=True
     )
     context = serializers.CharField(required=False)

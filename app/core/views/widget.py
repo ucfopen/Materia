@@ -86,9 +86,7 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
         )
 
     def before_play_init(self, instance):
-        play = WidgetPlayInitService.init_play(
-            self.request, instance, self.request.user
-        )
+        play = WidgetPlayInitService.init_play(self.request, instance, None)
 
         return {"play_id": play.id, "lti_token": None}
 
@@ -118,15 +116,15 @@ class WidgetPlayView(
         )
 
     def before_play_init(self, instance):
-        play = WidgetPlayInitService.init_play(
-            self.request, instance, self.request.user
-        )
+
+        user = None if instance.guest_access else self.request.user
+        play = WidgetPlayInitService.init_play(self.request, instance, user)
         lti_token = None
 
         # do we have an LTI launch?
         # at this point the launch is recovered from either request or session
         # if it is - update the play with LTI flags and pass the token to context
-        if self.launch:
+        if self.launch and not instance.guest_access:
             play.auth = "lti"
             play.context_id = LTILaunchService.get_context_id(self.launch)
 

@@ -3,6 +3,7 @@ import traceback
 
 from api.filters import LogPlayFilterBackend
 from core.models import Log, LogPlay, WidgetInstance
+from core.permissions import PlaySessionInstancePermissions
 from core.serializers import (
     PlayLogUpdateSerializer,
     PlaySessionCreateSerializer,
@@ -41,10 +42,21 @@ class PlaySessionPagination(PageNumberWithTotalPagination):
 
 
 class PlaySessionViewSet(viewsets.ModelViewSet):
-    # TODO permissions checks:
-    #   must have instance edit perms to access all logs associated with an instance
-    #   must have instance play perms to CREATE, PUT play log
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        """
+        Note that queryset filtering is handling some perms duties
+        by checking access.
+        PlaySessionInstancePermissions is mostly verifying perms based on
+        guest access.
+        """
+        if self.action == "list":
+            permission_classes = [permissions.IsAuthenticated]
+        else:
+            permission_classes = [PlaySessionInstancePermissions]
+
+        return [permission() for permission in permission_classes]
+
     pagination_class = PlaySessionPagination
     filter_backends = [LogPlayFilterBackend, DjangoFilterBackend]
 
