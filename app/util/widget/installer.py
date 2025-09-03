@@ -164,7 +164,7 @@ class WidgetInstaller:
 
         return success
 
-    # Unzip a .wigt file into a temp directory, validate it, and extract manifest data and package.json
+    # Unzip a .wigt file into a temp directory, validate it, and extract manifest data and version
     # return array
     @staticmethod
     def unzip_and_read_manifest(widget_file) -> tuple[str, dict, str]:

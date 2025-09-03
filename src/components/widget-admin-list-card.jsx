@@ -63,13 +63,13 @@ const WidgetListCard = ({widget = null}) => {
         setState(prevState => ({...prevState, success: false}))
 
         const update = {
-        id: state.widget.id,
-        clean_name: state.widget.clean_name,
-        in_catalog: state.widget.in_catalog,
-        is_editable: state.widget.is_editable,
-        is_scorable: state.widget.is_scorable,
-        is_playable: state.widget.is_playable,
-        restrict_publish: state.widget.restrict_publish,
+            id: state.widget.id,
+            clean_name: state.widget.clean_name,
+            in_catalog: state.widget.in_catalog,
+            is_editable: state.widget.is_editable,
+            is_scorable: state.widget.is_scorable,
+            is_playable: state.widget.is_playable,
+            restrict_publish: state.widget.restrict_publish,
             meta_data: {
                 about: state.widget.meta_data.about,
                 excerpt: state.widget.meta_data.excerpt,

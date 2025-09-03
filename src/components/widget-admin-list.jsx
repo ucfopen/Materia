@@ -11,7 +11,7 @@ const WidgetList = ({widgets = [], isLoading = true}) => {
 
     return (
         <div className="container" id="widgets_area">
-		        <section className="page">
+            <section className="page">
                 <div className="top">
                     <h1>Widget List</h1>
                 </div>
@@ -19,7 +19,7 @@ const WidgetList = ({widgets = [], isLoading = true}) => {
                     { widgetsListRender }
                 </ul>
             </section>
-	      </div>
+        </div>
     )
 }
 
