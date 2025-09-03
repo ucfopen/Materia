@@ -1,6 +1,13 @@
 import logging
 
-from core.models import Asset, Notification, ObjectPermission, Question, WidgetInstance
+from core.models import (
+    Asset,
+    LogPlay,
+    Notification,
+    ObjectPermission,
+    Question,
+    WidgetInstance,
+)
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework import permissions
@@ -136,3 +143,35 @@ class IsAuthenticatedOrGuestMode(permissions.BasePermission):
             return False
 
         return request.user.is_authenticated or obj.guest_access
+
+
+class PlaySessionInstancePermissions(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user and request.user.is_authenticated:
+            return True
+
+        # do we have an instance ID query param?
+        inst_id = request.query_params.get("inst_id")
+        if inst_id is not None:
+            try:
+                instance = WidgetInstance.objects.get(pk=inst_id)
+                return instance.guest_access
+            except WidgetInstance.DoesNotExist:
+                return False
+
+        # is the pk of the request a play ID?
+        play = LogPlay.objects.get(pk=view.kwargs.get("pk"))
+        if play is not None:
+            return play.instance.guest_access
+
+        return False
+
+    def has_object_permission(self, request, view, obj):
+
+        if not isinstance(obj, LogPlay):
+            return False
+
+        if request.user and request.user.is_authenticated:
+            return True
+
+        return obj.instance.guest_access

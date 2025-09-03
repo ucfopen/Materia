@@ -32,7 +32,8 @@ const WidgetPlayerPage = () => {
 		playID: undefined,
 		widgetHeight: 0,
 		widgetWidth: 0,
-		widgetID: undefined
+		widgetID: undefined,
+		ltiToken: undefined
 	})
 
 	// Waits for window values to load from server then sets them
@@ -48,7 +49,8 @@ const WidgetPlayerPage = () => {
 						...state,
 						widgetHeight: window.WIDGET_HEIGHT,
 						widgetWidth: window.WIDGET_WIDTH,
-						widgetID: nameArr.length >= 1 ? nameArr[0] : null
+						widgetID: nameArr.length >= 1 ? nameArr[0] : null,
+						playID: window.PLAY_ID,
 					}))
 					break
 				case LEGACY_EMBED:
@@ -58,7 +60,9 @@ const WidgetPlayerPage = () => {
 						...state,
 						widgetHeight: window.WIDGET_HEIGHT,
 						widgetWidth: window.WIDGET_WIDTH,
-						widgetID: instId
+						widgetID: instId,
+						playID: window.PLAY_ID,
+						ltiToken: window.LTI_TOKEN
 					}))
 					break
 				case DEMO:
@@ -66,7 +70,8 @@ const WidgetPlayerPage = () => {
 						...state,
 						widgetHeight: window.WIDGET_HEIGHT,
 						widgetWidth: window.WIDGET_WIDTH,
-						widgetID: window.DEMO_ID
+						widgetID: window.DEMO_ID,
+						playID: window.PLAY_ID,
 					}))
 					break
 				default:
@@ -74,7 +79,9 @@ const WidgetPlayerPage = () => {
 						...state,
 						widgetHeight: window.WIDGET_HEIGHT,
 						widgetWidth: window.WIDGET_WIDTH,
-						widgetID: nameArr.length >= 1 ? nameArr[0] : null
+						widgetID: nameArr.length >= 1 ? nameArr[0] : null,
+						playID: window.PLAY_ID,
+						ltiToken: window.LTI_TOKEN
 					}))
 					break
 			}
@@ -82,28 +89,16 @@ const WidgetPlayerPage = () => {
 	}, [])
 
 	useEffect(() => {
-		if ( !!state.widgetID) {
-			if (type != PREVIEW && type != PREVIEW_EMBED) {
-				createPlaySession.mutate({
-					widgetId: state.widgetID,
-					successFunc: (data) => setState(state => ({
-						...state,
-						playID: data.playId
-					})),
-					errorFunc: (err) => {
-						console.error(err)
-					}
-				})
-			} else {
-				setState(state => ({...state, playID: null}))
-			}
+		if ( !!state.ltiToken) {
+			history.pushState(null, '', `${window.location.pathname}?token=${state.ltiToken}`)
 		}
-	},[state.widgetID])
+	},[state.ltiToken])
 
 	// Used to wait for window data to load
 	const waitForWindow = async () => {
 		while(!!window.hasOwnProperty('WIDGET_HEIGHT')
 		&& !window.hasOwnProperty('WIDGET_WIDTH')
+		&& !window.hasOwnProperty('PLAY_ID')
 		&& !window.hasOwnProperty('DEMO_ID')) {
 			await new Promise(resolve => setTimeout(resolve, 500))
 		}

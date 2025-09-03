@@ -1,13 +1,13 @@
 import logging
 
-from core.models import LogPlay, UserExtraAttempts
+from core.models import LogPlay, UserExtraAttempts, WidgetInstance
 from core.serializers import (
     QuestionSetSerializer,
     ScoreDetailsForPlaySerializer,
     ScoreDetailsForPreviewSerializer,
     ScoresForUserSerializer,
 )
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from scoring.module_factory import ScoreModuleFactory
@@ -19,14 +19,30 @@ logger = logging.getLogger(__name__)
 
 class ScoresView(APIView):
     http_method_names = ["get"]
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+
+        inst_id = self.request.query_params.get("inst_id")
+        if inst_id is not None:
+            instance = WidgetInstance.objects.get(pk=inst_id)
+
+            if instance and instance.guest_access is True:
+                permission_classes = [AllowAny]
+            else:
+                permission_classes = [IsAuthenticated]
+
+        else:
+            permission_classes = [IsAuthenticated]
+
+        return [permission() for permission in permission_classes]
 
     def get(self, request):
+
         serializer = ScoresForUserSerializer(data=request.query_params)
         if serializer.is_valid(raise_exception=True):
             validated = serializer.validated_data
 
-            instance = validated.get("instance")
+            instance = validated.get("inst_id")
             user = validated.get("user")
             context = validated.get("context", None)
             """
@@ -66,8 +82,10 @@ class ScoresView(APIView):
 
             attempts_used = 0 if not context else len(plays)
 
+            # TODO update filter params when we fix UserExtraAttempts fields
             extra_attempts = UserExtraAttempts.objects.filter(
                 inst_id=instance.id,
+                user_id=user.id,
                 context_id=context,
             ).first()
 
@@ -85,7 +103,26 @@ class ScoresView(APIView):
 
 class ScoresDetailView(APIView):
     http_method_names = ["get"]
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+
+        preview_inst_id = self.request.query_params.get("preview_inst_id")
+        play_id = self.request.query_params.get("play_id")
+
+        if preview_inst_id is not None:
+            permission_classes = [IsAuthenticated]
+
+        elif play_id is not None:
+            play = LogPlay.objects.get(pk=play_id)
+            if play and play.instance.guest_access is True:
+                permission_classes = [AllowAny]
+            else:
+                permission_classes = [IsAuthenticated]
+
+        else:
+            permission_classes = [IsAuthenticated]
+
+        return [permission() for permission in permission_classes]
 
     def get(self, request):
         """
@@ -124,18 +161,24 @@ class ScoresDetailView(APIView):
                 validated = serializer.validated_data
 
                 play = validated.get("play_id")
-
-                logger.error(
-                    f"\nplay user id: {play.user.id}\nrequest user id: {request.user.id}\n"
-                )
-
                 """
                 access perms require either:
                 The user in the play matches the current user OR
                 The current user has authorship permissions to the instance associated with the play
+                !!! NOTE guest plays add some complexity here:
+                    1. ALL guest plays will have a user id of None
+                    2. Because we can't verify whether the current user is
+                    associated with the play, all anonymous plays are visible
+                    to everyone
                 """
+                user_id = (
+                    None if request.user.is_authenticated is False else request.user.id
+                )
+                play_user_id = None if play.user is None else play.user.id
+
                 if (
-                    request.user.id != play.user.id
+                    user_id != play_user_id
+                    and play_user_id is not None
                     and not play.instance.permissions.filter(user=request.user).exists()
                 ):
                     return MsgBuilder.no_perm().as_drf_response()

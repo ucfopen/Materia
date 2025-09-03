@@ -263,7 +263,7 @@ export const apiSearchInstances = (input, pageParam = 1, include_deleted = false
 
 // TODO update or retire
 export const apiGetWidgetInstanceScores = (instId, userId) => {
-	return handleRequest(methods.GET, `/api/scores/?instance=${instId}&user=${userId}`)
+	return handleRequest(methods.GET, `/api/scores/?inst_id=${instId}&user=${userId}`)
 }
 
 export const apiGetWidgetInstancePlayScores = (playId) => {

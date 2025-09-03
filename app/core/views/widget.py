@@ -1,12 +1,23 @@
+import json
 import logging
 
-from core.mixins import MateriaLoginMixin, MateriaLoginNeeded
-from core.models import Widget, WidgetInstance
+from core.mixins import (
+    MateriaLoginMixin,
+    MateriaLoginNeeded,
+    MateriaWidgetPlayProcessor,
+)
+from core.models import ObjectPermission, Widget, WidgetInstance
+from core.services import WidgetPlayInitService, WidgetPlayValidationService
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
 from django.http import Http404, HttpRequest
+from django.shortcuts import render
 from django.views.generic import TemplateView
+from lti.mixins import LtiLaunchMixin
+from lti.services.auth import LTIAuthService
+from lti.services.launch import LTILaunchService
+from lti.views.lti import error_page as lti_error_page
 from util.context_util import ContextUtil
 from util.perm_manager import PermManager
 
@@ -36,65 +47,152 @@ class WidgetDetailView(TemplateView):
         )
 
 
-class WidgetDemoView(MateriaLoginMixin, TemplateView):
+class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView):
     template_name = "react.html"
     allow_all_by_default = True
 
-    def get_context_data(self, widget_slug):
-        autoplay = _parse_nullable_bool_string(self.request.GET.get("autoplay", None))
-
-        # Get demo widget instance
+    # first-in-line dispatch override for MateriaWidgetPlayProcessor
+    # demo urls are formatted differently so we have to acquire demo instance id elsewhere
+    def dispatch(self, request, *args, **kwargs):
+        widget_slug = kwargs.get("widget_slug")
         widget = Widget.objects.get(pk=_get_id_from_slug(widget_slug))
         demo_id = widget.metadata.get("demo")
-        demo_instance = WidgetInstance.objects.filter(pk=demo_id).first()
-        if not demo_instance:
-            raise Http404("Could not find widget demo instance")
+        self.instance = WidgetInstance.objects.filter(pk=demo_id).first()
+        self.validation = self.get_validation(request, self.instance)
 
-        return _create_player_page(
-            demo_instance,
-            self.request,
+        return super().dispatch(request, *args, **kwargs)
+
+    # override get_context_data to handle different url slugs
+    # functionally no different from MateriaWidgetPlayProcessor's get_context_data
+    def get_context_data(self, widget_slug):
+        return super().get_context_data(None, None, False)
+
+    def get_validation(self, request, instance):
+        validation_service = WidgetPlayValidationService()
+        validation = validation_service.validate_widget_context(
+            request,
+            instance,
             is_demo=True,
-            autoplay=autoplay,
             is_preview=False,
+            is_embedded=False,
         )
 
+        return validation
 
-class WidgetPlayView(MateriaLoginMixin, TemplateView):
+    def process_context(self, validation):
+        return _create_player_context(
+            validation, self.instance, self.request, is_demo=True, is_preview=False
+        )
+
+    def before_play_init(self, instance):
+        play = WidgetPlayInitService.init_play(self.request, instance, None)
+
+        return {"play_id": play.id, "lti_token": None}
+
+
+class WidgetPlayView(
+    LtiLaunchMixin, MateriaWidgetPlayProcessor, MateriaLoginMixin, TemplateView
+):
     template_name = "react.html"
-    allow_all_by_default = True
+    # TODO revisit this flag being defaulted to True here
+    # allow_all_by_default = True
 
-    def get_context_data(self, widget_instance_id, instance_name=None):
-        autoplay = _parse_nullable_bool_string(self.request.GET.get("autoplay", None))
-
-        # Get widget instance
-        instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
-        if instance is None:
-            raise Http404("Could not find widget instance")
-
-        return _create_player_page(
-            instance, self.request, is_demo=False, autoplay=autoplay, is_preview=False
+    def get_validation(self, request, instance):
+        validation_service = WidgetPlayValidationService()
+        validation = validation_service.validate_widget_context(
+            request,
+            instance,
+            is_demo=False,
+            is_preview=False,
+            is_embedded=self.is_embedded,
         )
 
+        return validation
 
-class WidgetPreviewView(MateriaLoginMixin, TemplateView):
+    def process_context(self, validation):
+        return _create_player_context(
+            validation, self.instance, self.request, is_demo=False, is_preview=False
+        )
+
+    def before_play_init(self, instance):
+
+        user = None if instance.guest_access else self.request.user
+        play = WidgetPlayInitService.init_play(self.request, instance, user)
+        lti_token = None
+
+        # do we have an LTI launch?
+        # at this point the launch is recovered from either request or session
+        # if it is - update the play with LTI flags and pass the token to context
+        if self.launch and not instance.guest_access:
+            play.auth = "lti"
+            play.context_id = LTILaunchService.get_context_id(self.launch)
+
+            # if it's a first-time launch, store in session
+            if LTILaunchService.get_launch_state(self.launch) == "INITIAL":
+                LTILaunchService.store_session_launch(
+                    self.request, play.id, self.launch
+                )
+                lti_token = play.id
+            else:
+                lti_token = self.request.GET.get("token")
+
+            play.lti_token = lti_token
+            play.save()
+
+        return {"play_id": play.id, "lti_token": lti_token}
+
+    # overrides the baseline LTILaunchMixin's launch success method
+    # validate whether we should render an actual play or another state
+    def on_lti_launch_success(self, request, launch):
+        inst_id = self.kwargs.get("widget_instance_id")
+        instance = WidgetInstance.objects.filter(pk=inst_id).first()
+        context = None
+
+        if instance is None:
+            return lti_error_page(request, "error_unknown_assignment")
+
+        if LTIAuthService.is_user_author(launch):
+            if instance.guest_access:
+                return lti_error_page(request, "error_lti_guest_mode")
+            else:
+                LTILaunchService.register_association(request, launch)
+                context = _create_lti_success_page(request, instance)
+
+        if context:
+            return render(request, "react.html", context)
+
+        # assign launch object as an instance attribute so before_play_init can use it
+        # we only do this once confirming it's an appropriate widget launch
+        self.launch = launch
+
+        return None
+
+    def on_lti_launch_failure(self, request):
+        return lti_error_page(request)
+
+
+class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView):
     template_name = "react.html"
     login_title = "Login to preview this widget"
     login_message = "Login to preview this widget"
 
-    def get_context_data(self, widget_instance_id, instance_name=None):
-        # Get widget instance
-        widget_instance = WidgetInstance.objects.get(pk=widget_instance_id)
-        if not widget_instance:
-            raise Http404("Could not find widget instance")
-
-        # Check if widget is playable
-        if not widget_instance.playable_by_current_user(self.request.user):
-            return _create_draft_not_playable_page(request=self.request)
-
-        # return _display_widget(instance=widget_instance, is_embedded=False)
-        return _create_player_page(
-            widget_instance, self.request, is_demo=False, autoplay=True, is_preview=True
+    def get_validation(self, request, instance):
+        validation_service = WidgetPlayValidationService()
+        validation = validation_service.validate_widget_context(
+            request, instance, is_demo=False, is_preview=True, is_embedded=False
         )
+
+        return validation
+
+    def process_context(self, validation):
+        return _create_player_context(
+            validation, self.instance, self.request, is_demo=False, is_preview=True
+        )
+
+    def before_play_init(self, instance):
+        preview = WidgetPlayInitService.init_preview(self.request)
+
+        return {"play_id": preview, "lti_token": None}
 
 
 class WidgetCreatorView(MateriaLoginMixin, PermissionRequiredMixin, TemplateView):
@@ -186,43 +284,39 @@ class WidgetQsetGenerateView(MateriaLoginMixin, TemplateView):
 
 
 # Creates a player page for a real, logged play session
-def _create_player_page(
+def _create_player_context(
+    validation: str,
     instance: WidgetInstance,
     request: HttpRequest,
     is_demo: bool = False,
     is_preview: bool = False,
     is_embedded: bool = False,
-    autoplay: bool | None = None,
 ):
-    # TODO call the LtiEvents/on_before_play_start_event() function. Seems to relate to LTI stuffs
-    # context_id = None  # TODO ^
-
     # Check if embed only widget
-    if not is_embedded and instance.embedded_only:
+    if validation == WidgetPlayValidationService.INVALID_EMBEDDED_ONLY:
         return _create_embedded_only_page(request, instance)
 
     # Check to see if login is required
-    if not instance.playable_by_current_user(request.user):
+    if validation == WidgetPlayValidationService.INVALID_NOT_PLAYABLE:
         raise MateriaLoginNeeded(
             login_global_vars=_create_widget_login_vars(
                 instance, request, is_embedded, is_preview
             )
         )
 
-    # Check to see if this widget is playable
-    login_messages = _generate_widget_login_messages(instance)
-
-    if not login_messages["is_open"]:
+    login_messages = []
+    if validation == WidgetPlayValidationService.INVALID_NOT_YET_OPEN:
+        login_messages = _generate_widget_login_messages(instance)
         return _create_widget_not_open_page(
             instance, request, login_messages, is_embedded
         )
-    if not is_preview and instance.is_draft:
+    if validation == WidgetPlayValidationService.INVALID_DRAFT_NOT_PLAYABLE:
         return _create_draft_not_playable_page(request)
-    if not is_demo and not instance.widget.is_playable:
+    if validation == WidgetPlayValidationService.INVALID_RETIRED_WIDGET:
         return _create_widget_retired_page(request, is_embedded)
-    if not login_messages["has_attempts"]:
+    if validation == WidgetPlayValidationService.INVALID_NO_ATTEMPTS:
         return _create_no_attempts_page(request, instance, is_embedded)
-    if autoplay is not None and autoplay is False:
+    if validation == WidgetPlayValidationService.VALID_WITH_PRE_EMBED:
         return _create_pre_embed_placeholder_page(request, instance)
 
     # NOTE: play session creation originally occurred here, in the view
@@ -232,7 +326,10 @@ def _create_player_page(
 
 
 def _display_widget(
-    instance: WidgetInstance, request: HttpRequest, is_embedded: bool = False
+    instance: WidgetInstance,
+    request: HttpRequest,
+    is_embedded: bool = False,
+    lti_token: str = None,
 ):
     return ContextUtil.create(
         title=f"{instance.name} - {instance.widget.name}",
@@ -245,6 +342,7 @@ def _display_widget(
             "WIDGET_WIDTH": instance.widget.width,
             "WIDGET_HEIGHT": instance.widget.height,
             "MEDIA_URL": settings.URLS["MEDIA_URL"],
+            "LTI_TOKEN": lti_token,
         },
         request=request,
     )
@@ -385,6 +483,37 @@ def _create_embedded_only_page(request: HttpRequest, instance: WidgetInstance):
         },
         js_resources=settings.JS_GROUPS["embedded-only"],
         css_resources=settings.CSS_GROUPS["login"],
+        request=request,
+    )
+
+
+def _create_lti_success_page(request: HttpRequest, instance: WidgetInstance):
+    """
+    TODO should this be under the LTI app?
+    """
+    is_owner = instance.editable_by_current_user(request.user)
+    owner_list = instance.permissions.filter(
+        permission=ObjectPermission.PERMISSION_FULL
+    )
+    owner_details = [
+        {"id": perm.user.id, "first": perm.user.first_name, "last": perm.user.last_name}
+        for perm in owner_list
+    ]
+
+    return ContextUtil.create(
+        title="Widget Connected Successfully",
+        page_type="preview",
+        js_globals={
+            "INST_ID": instance.id,
+            "ICON_DIR": settings.URLS["WIDGET_URL"] + instance.widget.dir,
+            "PREVIEW_URL": f"/preview/{instance.id}",
+            "PREVIEW_EMBED_URL": f"/preview-embed/{instance.id}",
+            "CURRENT_USER_OWNS": is_owner,
+            "OWNER_LIST": json.dumps(owner_details),
+            "USER_ID": request.user.id,
+        },
+        js_resources=settings.JS_GROUPS["open-preview"],
+        css_resources=settings.CSS_GROUPS["lti"],
         request=request,
     )
 

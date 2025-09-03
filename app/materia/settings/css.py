@@ -25,4 +25,9 @@ CSS_GROUPS = {
     "user_admin": [CSS_BASEURL + "user-admin.css"],
     "no-permission": [CSS_BASEURL + "no-permission.css"],
     "pre-embed": [CSS_BASEURL + "pre-embed-placeholder.css"],
+    "lti": [
+        CSS_BASEURL + "lti.css",
+        CSS_BASEURL + "lti-select-item.css",
+        CSS_BASEURL + "lti-error.css",
+    ],
 }

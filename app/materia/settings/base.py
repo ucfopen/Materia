@@ -8,6 +8,7 @@ from util.widget.validator import ValidatorUtil
 from .css import *  # noqa: F401, F403
 from .generation import *  # noqa: F401, F403
 from .js import *  # noqa: F401, F403
+from .lti import *  # noqa: F401, F403
 
 # import additional config files
 from .session import *  # noqa: F401, F403
@@ -30,6 +31,11 @@ DIRS = {
         os.path.join(APP_PATH, "staticfiles", "widget")
     ),  # + os.sep
 }
+
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SECURE = True
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -56,6 +62,8 @@ INSTALLED_APPS = [
     "rest_framework",
     # apps
     "core",
+    "lti_tool",
+    "lti",
 ]
 
 REST_FRAMEWORK = {
@@ -75,6 +83,7 @@ MIDDLEWARE = [
     # "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "lti_tool.middleware.LtiLaunchMiddleware",
 ]
 
 ROOT_URLCONF = "materia.urls"

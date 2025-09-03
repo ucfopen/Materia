@@ -3,6 +3,7 @@ import traceback
 
 from api.filters import LogPlayFilterBackend
 from core.models import Log, LogPlay, WidgetInstance
+from core.permissions import PlaySessionInstancePermissions
 from core.serializers import (
     PlayLogUpdateSerializer,
     PlaySessionCreateSerializer,
@@ -12,8 +13,11 @@ from core.serializers import (
     PlaySessionWithExtraUserInfoSerializer,
 )
 from core.services import WidgetPlayInitService
+from django.db.models import Max
 from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from lti.ags.client import AGSClient
+from lti.services.launch import LTILaunchService
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -38,10 +42,21 @@ class PlaySessionPagination(PageNumberWithTotalPagination):
 
 
 class PlaySessionViewSet(viewsets.ModelViewSet):
-    # TODO permissions checks:
-    #   must have instance edit perms to access all logs associated with an instance
-    #   must have instance play perms to CREATE, PUT play log
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        """
+        Note that queryset filtering is handling some perms duties
+        by checking access.
+        PlaySessionInstancePermissions is mostly verifying perms based on
+        guest access.
+        """
+        if self.action == "list":
+            permission_classes = [permissions.IsAuthenticated]
+        else:
+            permission_classes = [PlaySessionInstancePermissions]
+
+        return [permission() for permission in permission_classes]
+
     pagination_class = PlaySessionPagination
     filter_backends = [LogPlayFilterBackend, DjangoFilterBackend]
 
@@ -197,6 +212,49 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                             score_module.total_questions,
                             score_module.calculated_percent,
                         )
+
+                        if play.auth == "lti":
+
+                            launch = LTILaunchService.get_session_launch(
+                                request, play.lti_token
+                            )
+
+                            if launch:
+                                context_history = LogPlay.objects.filter(
+                                    instance=play.instance,
+                                    user=play.user,
+                                    context_id=play.context_id,
+                                )
+                                # Find the highest score for the current context
+                                max_score = context_history.aggregate(
+                                    Max("percent", default=play.percent)
+                                ).get("percent__max", 0)
+                                max_score = round(max_score, 2)
+
+                                completed_time = int(
+                                    play.created_at.timestamp() + play.elapsed
+                                )
+
+                                ags = AGSClient(launch)
+                                completion = (
+                                    ags.score_builder()
+                                    .score_given(max_score)
+                                    .score_maximum(100)
+                                    .activity_progress("Completed")
+                                    .grading_progress("FullyGraded")
+                                    .timestamp(completed_time)
+                                    .submit()
+                                )
+
+                                # TODO we should really have some kind of message provided to users
+                                # when LTI completion is successful
+                                logger.error(f"\ncompletion!\n{completion}\n")
+
+                            else:
+                                logger.error(
+                                    "\nCould NOT recover launch from session!\n"
+                                )
+                                pass
                 else:
                     preview_play_id = update_serializer.validated_data[
                         "preview_play_id"
