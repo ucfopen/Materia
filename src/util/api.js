@@ -520,6 +520,10 @@ export const apiInstallWidgetUpdate = (widgetId) => {
 	return handleRequest(methods.GET, `/api/widgets/${widgetId}/update_to_latest_version/`)
 }
 
+export const apiCheckAllWidgetsForUpdates = () => {
+	return handleRequest(methods.GET, `/api/widgets/check_updates/`)
+}
+
 export const apiLoginDirect = ( username, password ) => {
 	return handleRequest(methods.POST, `/api/user/login/`, { username, password })
 }

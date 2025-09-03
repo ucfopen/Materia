@@ -45,7 +45,7 @@ class WidgetDemoView(MateriaLoginMixin, TemplateView):
 
         # Get demo widget instance
         widget = Widget.objects.get(pk=_get_id_from_slug(widget_slug))
-        demo_id = widget.metadata_clean().get("demo")
+        demo_id = widget.metadata.get("demo")
         demo_instance = WidgetInstance.objects.filter(pk=demo_id).first()
         if not demo_instance:
             raise Http404("Could not find widget demo instance")

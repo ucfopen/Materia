@@ -112,3 +112,29 @@ class WidgetViewSet(viewsets.ModelViewSet):
             return MsgBuilder.failure(msg=str(e)).as_drf_response()
 
         return Response({"success": True})
+
+    # Checks all widgets for possible updates
+    @action(detail=False, methods=["get"])
+    def check_updates(self, request):
+        updates = {"updates_available": [], "could_not_check": []}
+        for widget_id in Widget.objects.values_list("id", flat=True).all():
+            # Grab latest available version
+            result = WidgetInstaller.get_latest_version_for(widget_id)
+            if isinstance(result, Msg):
+                updates["could_not_check"].append({
+                    "widget_id": widget_id,
+                    "msg": result.as_json()
+                })
+                continue
+            new_ver, _, _ = result
+
+            # Check if the latest available version is newer than what's currently installed
+            update_available = WidgetInstaller.needs_update(widget_id, new_ver)
+
+            if update_available:
+                updates["updates_available"].append({
+                    "widget_id": widget_id,
+                    "new_version": new_ver,
+                })
+
+        return Response(updates)

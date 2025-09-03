@@ -1,6 +1,6 @@
 import {apiCheckWidgetForUpdate, apiInstallWidgetUpdate, apiUpdateWidgetEngine} from '../util/api'
 import React, {useState, useEffect, useMemo} from 'react'
-import {useMutation, useQuery} from "react-query";
+import {useMutation, useQuery, useQueryClient} from "react-query";
 
 const WidgetListCard = ({widget = null}) => {
     const [state, setState] = useState({
@@ -10,23 +10,6 @@ const WidgetListCard = ({widget = null}) => {
         },
         errorMessage: '',
         success: false
-    })
-
-    const [updaterState, setUpdaterState] = useState("check")  // check | update
-
-    // Check if widget update is available on load
-    const updateCheckQuery = useQuery({
-        queryKey: ["widget-update-check", state.widget?.id],
-        queryFn: () => apiCheckWidgetForUpdate(state.widget?.id),
-        enabled: state.widget.expanded && !!state.widget?.id,
-        retry: false,
-        staleTime: Infinity,
-    })
-
-    const updateMutation = useMutation({
-        mutationFn: () => apiInstallWidgetUpdate(state.widget?.id),
-        onMutate: () => setUpdaterState("update"),
-        onSuccess: () => setState({ ...state, widget: { ...state.widget, version: updateCheckQuery.data["new_version"]}})
     })
 
     // Set state after uploading new widget
@@ -80,13 +63,13 @@ const WidgetListCard = ({widget = null}) => {
         setState(prevState => ({...prevState, success: false}))
 
         const update = {
-			id: state.widget.id,
-			clean_name: state.widget.clean_name,
-			in_catalog: state.widget.in_catalog,
-			is_editable: state.widget.is_editable,
-			is_scorable: state.widget.is_scorable,
-			is_playable: state.widget.is_playable,
-			restrict_publish: state.widget.restrict_publish,
+        id: state.widget.id,
+        clean_name: state.widget.clean_name,
+        in_catalog: state.widget.in_catalog,
+        is_editable: state.widget.is_editable,
+        is_scorable: state.widget.is_scorable,
+        is_playable: state.widget.is_playable,
+        restrict_publish: state.widget.restrict_publish,
             meta_data: {
                 about: state.widget.meta_data.about,
                 excerpt: state.widget.meta_data.excerpt,
@@ -129,47 +112,6 @@ const WidgetListCard = ({widget = null}) => {
         exportOptions = state.widget.meta_data.playdata_exporters?.map((qtype, i) => <li key={i}>{ qtype }</li>)
     }
 
-    const updaterRender = useMemo(() => {
-        switch (updaterState) {
-            case 'check':
-                if (updateCheckQuery.isLoading) return 'Checking for update...'
-                else if (updateCheckQuery.isSuccess) {
-                    if (updateCheckQuery.data['update_available']) {
-                        return (
-                            <>
-                                <b>{`Update available (${updateCheckQuery.data['new_version']})`}</b>
-                                <button
-                                  style={{ marginLeft: '0.25rem' }}
-                                  onClick={() => updateMutation.mutate()}
-                                >
-                                    Update now
-                                </button>
-                            </>
-                        )
-                    } else {
-                        return 'Up to date'
-                    }
-                }
-                else if (updateCheckQuery.isError) {
-                    return `Update check failed: ${updateCheckQuery.error.message}`
-                }
-                else return 'Unknown error occurred'
-            case 'update':
-                if (updateMutation.isLoading) {
-                    return 'Updating...'
-                }
-                else if (updateMutation.isSuccess) {
-                    return `Updated to ${updateCheckQuery.data['new_version']}!`
-                }
-                else if (updateMutation.isError) {
-                    return `An error occurred while updating: ${updateMutation.error.message}`
-                }
-                else return 'Unknown error occurred'
-            default:
-                return null
-        }
-    })
-
     return (
         <li key={state.widget.id}>
             <div className="clickable widget-title" onClick={handleWidgetClick}>
@@ -191,13 +133,7 @@ const WidgetListCard = ({widget = null}) => {
                     <div>
                         <span>
                             <label>Version:</label>
-                            {state.widget.version.trim() ? state.widget.version : 'Unknown'}
-                        </span>
-                    </div>
-                    <div>
-                        <span style={{ display: 'flex', alignItems: 'center', minHeight: '1.5rem' }}>
-                            <label>Update:</label>
-                            {updaterRender}
+                            {state.widget.meta_data.version.trim() ? state.widget.meta_data.version : 'Unknown'}
                         </span>
                     </div>
                     <div>

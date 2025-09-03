@@ -203,6 +203,49 @@ class Command(base.BaseCommand):
 
         logger.info("\nUpdate complete!")
 
+    def update_all(self):
+        print("Checking for updates...")
+        widgets = Widget.objects.values_list("id", "name").all()
+
+        # Check which widgets have updates
+        updates_pending = []
+        for widget_id, widget_name in widgets:
+            result = WidgetInstaller.get_latest_version_for(widget_id)
+            if isinstance(result, Msg):
+                print(f"{widget_name} ({widget_id}): Could not check for update")
+                continue
+            new_ver, wigt_url, checksum_url = result
+
+            update_needed = WidgetInstaller.needs_update(widget_id, new_ver)
+            if update_needed:
+                print(f"{widget_name} ({widget_id}): Update available ({new_ver})")
+                updates_pending.append((widget_id, widget_name, new_ver, wigt_url, checksum_url))
+            else:
+                print(f"{widget_name} ({widget_id}): Up to date")
+
+        print()
+
+        if not updates_pending:
+            print("No updates are available!")
+            return
+
+        are = "are" if len(updates_pending) != 1 else "is"
+        s = "s" if len(updates_pending) != 1 else ""
+        print(f"There {are} {len(updates_pending)} update{s} available. Proceed? (y/n): ", end="")
+        result = input()
+        while result.lower() != "y" and result.lower() != "n":
+            print("Please enter either 'y' for yes, or 'n' for no:", end="")
+            result = input()
+        if result.lower() == "n":
+            print("Updates aborted.")
+
+        print("Updating all widgets...")
+        for widget_id, widget_name, new_ver, wigt_url, checksum_url in updates_pending:
+            self.install_from_url(wigt_url, checksum_url, widget_id)
+            print(f"Updated {widget_name} ({widget_id}) to version {new_ver}")
+
+        print("Updated all widgets!")
+
     # applies ids to all demos
     def apply_ids_to_demos(self):
         demos = WidgetInstance.objects.filter(user__isnull=True)
@@ -239,3 +282,56 @@ class Command(base.BaseCommand):
                 print(f"Failed to patch Demo {demo.id}: {e}")
 
         print(f"\nDone. Updated {total} demo instances.")
+
+    def remove(self, widget_id):
+        """
+        Completely deletes a widget - all database rows and installed files.
+        If this widget engine has instances, this command will prompt to delete them all as well.
+        """
+        # Check if widget exists
+        widget = Widget.objects.filter(pk=widget_id).first()
+        if not widget:
+            print(f"Widget with id '{widget_id}' does not exist. Deletion aborted.")
+            return
+
+        # Instance check - see if instances exist, ask if the user wants to continue with deleting them
+        demo_id = widget.metadata.get("demo")
+        num_instances = (WidgetInstance.objects
+                         .filter(widget=widget)
+                         .exclude(pk=demo_id)
+                         .count())
+        if num_instances > 0:
+            print(
+                f"This widget engine has {num_instances} instance{'s' if num_instances != 1 else ''} associated with "
+                f"it (not including the demo). Delete all instances? (y/n):"
+            )
+            result = input()
+            while result.lower() != "y" and result.lower() != "n":
+                print("Enter 'y' or 'n': ")
+                result = input()
+            if result.lower() == "n":
+                print("Deletion aborted.")
+                return
+
+        # Delete all instances
+        print("Deleting instances...")
+        instances = WidgetInstance.objects.filter(widget=widget)
+        for instance in instances:  # delete permissions
+            instance.permissions.all().delete()
+        qsets = WidgetQset.objects.filter(instance__in=instances)
+        Question.objects.filter(qset__in=qsets).delete()
+        qsets.delete()
+        instances.delete()
+
+        # Delete widget from DB
+        print("Deleting widget entry...")
+        clean_name = widget.clean_name
+        widget.delete()
+
+        # Delete widget's installed files
+        print("Deleting widget files...")
+        WidgetInstaller.uninstall_widget_files(widget_id, clean_name)
+
+        print("Widget deleted!")
+
+        # TODO: delete assets?
