@@ -18,7 +18,7 @@ class WidgetMetadataInMigration(models.Model):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("core", "0024_alter_question_data_rename_data_question__data_and_more"),
+        ("core", "0026_merge_20250819_1026"),
     ]
 
     def convert_table_to_json(apps, schema_editor):
