@@ -65,7 +65,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 	)
 
 	useEffect(() => {
-		if (page < data?.total_num_pages) { refetch() }
+		if (page <= data?.total_num_pages) { refetch() }
 		else setState({ ...state, isLoading: false })
 	}, [page])
 
