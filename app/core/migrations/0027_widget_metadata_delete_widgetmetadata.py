@@ -5,69 +5,66 @@ from django.db import migrations, models
 from core.models import Widget
 
 
-class WidgetMetadataInMigration(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    widget_id = models.BigIntegerField()
-    name = models.CharField(max_length=255)
-    value = models.TextField()
+def convert_table_to_json(apps, schema_editor):
+    WidgetMetadata = apps.get_model("core", "WidgetMetadata")
+    db_alias = schema_editor.connection.alias
 
-    class Meta:
-        db_table = "widget_metadata"
-        managed = False
+    # Compile all metadata from widget_metadata as JSON
+    list_fields = ["features", "supported_data", "playdata_exporters"]
+    widget_metadata_json = {}
+    for metadata_row in WidgetMetadata.objects.using(db_alias).all():
+        widget_id = metadata_row.widget_id
+        field_name = metadata_row.name
+        value = metadata_row.value
+
+        # Check if widget entry exists
+        if widget_id not in widget_metadata_json:
+            widget_metadata_json[widget_id] = {}
+
+        # Check if this field is supposed to be in a list
+        if field_name in list_fields:
+            if field_name not in widget_metadata_json[widget_id]:
+                widget_metadata_json[widget_id][field_name] = []
+            widget_metadata_json[widget_id][field_name].append(value)
+            continue
+
+        # Otherwise, just put it in the JSON as is
+        widget_metadata_json[widget_id][field_name] = value
+
+    # Save each widget's metadata
+    for widget_id, metadata in widget_metadata_json.items():
+        widget = Widget.objects.get(id=widget_id)
+        widget.metadata = metadata
+        widget.save()
+
+
+def convert_json_to_table(apps, schema_editor):
+    WidgetMetadata = apps.get_model("core", "WidgetMetadata")
+    db_alias = schema_editor.connection.alias
+
+    for widget in Widget.objects.all():
+        for field_name, value in widget.metadata.items():
+            # If value is a list, create multiple WidgetMetadata instances
+            if isinstance(value, list):
+                for item in value:
+                    WidgetMetadata.objects.using(db_alias).create(
+                        widget_id=widget.id,
+                        name=field_name,
+                        value=item,
+                    )
+            # Otherwise, just put it as a single entry
+            else:
+                WidgetMetadata.objects.using(db_alias).create(
+                    widget_id=widget.id,
+                    name=field_name,
+                    value=value,
+                )
 
 
 class Migration(migrations.Migration):
     dependencies = [
         ("core", "0026_merge_20250819_1026"),
     ]
-
-    def convert_table_to_json(apps, schema_editor):
-        # Compile all metadata from widget_metadata as JSON
-        list_fields = ["features", "supported_data", "playdata_exporters"]
-        widget_metadata_json = {}
-        for metadata_row in WidgetMetadataInMigration.objects.all():
-            widget_id = metadata_row.widget_id
-            field_name = metadata_row.name
-            value = metadata_row.value
-
-            # Check if widget entry exists
-            if widget_id not in widget_metadata_json:
-                widget_metadata_json[widget_id] = {}
-
-            # Check if this field is supposed to be in a list
-            if field_name in list_fields:
-                if field_name not in widget_metadata_json[widget_id]:
-                    widget_metadata_json[widget_id][field_name] = []
-                widget_metadata_json[widget_id][field_name].append(value)
-                continue
-
-            # Otherwise, just put it in the JSON as is
-            widget_metadata_json[widget_id][field_name] = value
-
-        # Save each widget's metadata
-        for widget_id, metadata in widget_metadata_json.items():
-            widget = Widget.objects.get(id=widget_id)
-            widget.metadata = metadata
-            widget.save()
-
-    def convert_json_to_table(apps, schema_editor):
-        for widget in Widget.objects.all():
-            for field_name, value in widget.metadata.items():
-                # If value is a list, create multiple WidgetMetadata instances
-                if isinstance(value, list):
-                    for item in value:
-                        WidgetMetadataInMigration.objects.create(
-                            widget_id=widget.id,
-                            name=field_name,
-                            value=item,
-                        )
-                # Otherwise, just put it as a single entry
-                else:
-                    WidgetMetadataInMigration.objects.create(
-                        widget_id=widget.id,
-                        name=field_name,
-                        value=value,
-                    )
 
     operations = [
         migrations.AddField(
