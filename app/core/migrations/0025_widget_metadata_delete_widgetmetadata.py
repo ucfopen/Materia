@@ -7,12 +7,7 @@ from core.models import Widget
 
 class WidgetMetadataInMigration(models.Model):
     id = models.BigAutoField(primary_key=True)
-    widget = models.ForeignKey(
-        "Widget",
-        related_name="metadata",
-        on_delete=models.PROTECT,
-        db_column="widget_id",
-    )
+    widget_id = models.BigIntegerField()
     name = models.CharField(max_length=255)
     value = models.TextField()
 
@@ -28,9 +23,10 @@ class Migration(migrations.Migration):
 
     def convert_table_to_json(apps, schema_editor):
         # Compile all metadata from widget_metadata as JSON
+        list_fields = ["features", "supported_data", "playdata_exporters"]
         widget_metadata_json = {}
         for metadata_row in WidgetMetadataInMigration.objects.all():
-            widget_id = metadata_row.widget.id
+            widget_id = metadata_row.widget_id
             field_name = metadata_row.name
             value = metadata_row.value
 
@@ -39,7 +35,10 @@ class Migration(migrations.Migration):
                 widget_metadata_json[widget_id] = {}
 
             # Check if field already exists - append to it if so, converting to a list if not yet done so
-            if field_name in widget_metadata_json[widget_id]:
+            if (
+                field_name in widget_metadata_json[widget_id]
+                or field_name in list_fields
+            ):
                 if isinstance(widget_metadata_json[widget_id][field_name], list):
                     widget_metadata_json[widget_id][field_name].append(value)
                 else:
@@ -66,14 +65,14 @@ class Migration(migrations.Migration):
                 if isinstance(value, list):
                     for item in value:
                         WidgetMetadataInMigration.objects.create(
-                            widget=widget,
+                            widget_id=widget.id,
                             name=field_name,
                             value=item,
                         )
                 # Otherwise, just put it as a single entry
                 else:
                     WidgetMetadataInMigration.objects.create(
-                        widget=widget,
+                        widget_id=widget.id,
                         name=field_name,
                         value=value,
                     )
