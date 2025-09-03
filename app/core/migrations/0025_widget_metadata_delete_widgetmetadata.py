@@ -34,19 +34,11 @@ class Migration(migrations.Migration):
             if widget_id not in widget_metadata_json:
                 widget_metadata_json[widget_id] = {}
 
-            # Check if field already exists - append to it if so, converting to a list if not yet done so
-            if (
-                field_name in widget_metadata_json[widget_id]
-                or field_name in list_fields
-            ):
-                if isinstance(widget_metadata_json[widget_id][field_name], list):
-                    widget_metadata_json[widget_id][field_name].append(value)
-                else:
-                    existing_value = widget_metadata_json[widget_id][field_name]
-                    widget_metadata_json[widget_id][field_name] = [
-                        existing_value,
-                        value,
-                    ]
+            # Check if this field is supposed to be in a list
+            if field_name in list_fields:
+                if field_name not in widget_metadata_json[widget_id]:
+                    widget_metadata_json[widget_id][field_name] = []
+                widget_metadata_json[widget_id][field_name].append(value)
                 continue
 
             # Otherwise, just put it in the JSON as is
