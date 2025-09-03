@@ -2,6 +2,8 @@
 
 from django.db import migrations, models
 
+from core.models import Widget
+
 
 class WidgetMetadataInMigration(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -21,29 +23,69 @@ class WidgetMetadataInMigration(models.Model):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('core', '0024_alter_question_data_rename_data_question__data_and_more'),
+        ("core", "0024_alter_question_data_rename_data_question__data_and_more"),
     ]
 
     def convert_table_to_json(apps, schema_editor):
+        # Compile all metadata from widget_metadata as JSON
         widget_metadata_json = {}
         for metadata_row in WidgetMetadataInMigration.objects.all():
-            if metadata_row.widget.id not in widget_metadata_json:
-                widget_metadata_json[metadata_row.widget.id] = {}
-            widget_metadata_json[metadata_row.widget.id][metadata_row.name] = metadata_row.value
-        pass
+            widget_id = metadata_row.widget.id
+            field_name = metadata_row.name
+            value = metadata_row.value
+
+            # Check if widget entry exists
+            if widget_id not in widget_metadata_json:
+                widget_metadata_json[widget_id] = {}
+
+            # Check if field already exists - append to it if so, converting to a list if not yet done so
+            if field_name in widget_metadata_json[widget_id]:
+                if isinstance(widget_metadata_json[widget_id][field_name], list):
+                    widget_metadata_json[widget_id][field_name].append(value)
+                else:
+                    existing_value = widget_metadata_json[widget_id][field_name]
+                    widget_metadata_json[widget_id][field_name] = [
+                        existing_value,
+                        value,
+                    ]
+                continue
+
+            # Otherwise, just put it in the JSON as is
+            widget_metadata_json[widget_id][field_name] = value
+
+        # Save each widget's metadata
+        for widget_id, metadata in widget_metadata_json.items():
+            widget = Widget.objects.get(id=widget_id)
+            widget.metadata = metadata
+            widget.save()
 
     def convert_json_to_table(apps, schema_editor):
-
-        pass
+        for widget in Widget.objects.all():
+            for field_name, value in widget.metadata.items():
+                # If value is a list, create multiple WidgetMetadata instances
+                if isinstance(value, list):
+                    for item in value:
+                        WidgetMetadataInMigration.objects.create(
+                            widget=widget,
+                            name=field_name,
+                            value=item,
+                        )
+                # Otherwise, just put it as a single entry
+                else:
+                    WidgetMetadataInMigration.objects.create(
+                        widget=widget,
+                        name=field_name,
+                        value=value,
+                    )
 
     operations = [
         migrations.AddField(
-            model_name='widget',
-            name='metadata',
+            model_name="widget",
+            name="metadata",
             field=models.JSONField(default=dict),
         ),
         # migrations.RunPython(convert_table_to_json, convert_json_to_table),
         migrations.DeleteModel(
-            name='WidgetMetadata',
+            name="WidgetMetadata",
         ),
     ]
