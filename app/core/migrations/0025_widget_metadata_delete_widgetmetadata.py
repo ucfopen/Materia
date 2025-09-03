@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
             name="metadata",
             field=models.JSONField(default=dict),
         ),
-        # migrations.RunPython(convert_table_to_json, convert_json_to_table),
+        migrations.RunPython(convert_table_to_json, convert_json_to_table),
         migrations.DeleteModel(
             name="WidgetMetadata",
         ),
