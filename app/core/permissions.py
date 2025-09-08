@@ -167,7 +167,6 @@ class PlaySessionInstancePermissions(permissions.BasePermission):
         return False
 
     def has_object_permission(self, request, view, obj):
-
         if not isinstance(obj, LogPlay):
             return False
 
