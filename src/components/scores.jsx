@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef} from 'react'
-import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetScoreSummary, apiGetScoreDistribution, apiGetWidgetInstancePlayScores, apiGetWidgetInstancePreviewScores } from '../util/api'
 import { useQuery } from 'react-query'
+import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetWidgetInstancePlayScores, apiGetWidgetInstancePreviewScores } from '../util/api'
+
+import LoadingIcon from './loading-icon'
 import ScoreOverview from './score-overview'
 import ScoreDetails from './score-details'
 import SupportInfo from './support-info'
-import LoadingIcon from './loading-icon'
 
 import './scores.scss'
 
@@ -12,189 +13,100 @@ const STATE_RESTRICTED = 'restricted'
 const STATE_INVALID = 'invalid'
 const STATE_EXPIRED = 'expired'
 
-const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isEmbedded, isPreview, previewPlayId }) => {
+const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPreview, isSingle}) => {
 
-	const [playId, setPlayId] = useState(null)
-	const [previewInstId, setPreviewInstId] = useState(null)
-
-
-	// attemptDates is an array of attempts, [0] is the newest
-	const [attemptDates, setAttemptDates] = useState([])
-	const [attempts, setAttempts] = useState([])
-	// current attempt is the index of the attempt (the 1st attempt is attempts.length)
-	const [currentAttempt, setCurrentAttempt] = useState(null)
-	const [attemptsLeft, setAttemptsLeft] = useState(0)
-	const [attemptNum, setAttemptNum] = useState(null)
-
-	const [overview, setOverview] = useState()
-	const [playDetails, setPlayDetails] = useState(null)
-	const [prevAttemptOpen, setprevAttemptOpen] = useState(false)
-
-	// set to one of the state constants above if an error state manifests
+	const [playID, setPlayID] = useState(playIDProp)
 	const [errorState, setErrorState] = useState(null)
+	const [attemptsLeft, setAttemptsLeft] = useState(0)
+	const [currentAttempt, setCurrentAttempt] = useState(null)
 
-	const [showScoresOverview, setShowScoresOverview] = useState(true)
-	const [showResultsTable, setShowResultsTable] = useState(true)
-	const [scoreTable, setScoreTable] = useState(null)
+	const [attempts, setAttempts] = useState([])
 
-	const [guestAccess, setGuestAccess] = useState(null)
-	const [attributes, setAttributes] = useState({
-		hidePlayAgain: true,
-		hidePreviousAttempts: true
+	const [playData, setPlayData] = useState({
+		overview: null,
 	})
 
-	const [playAgainUrl, setPlayAgainUrl] = useState(null)
+	const [attributes, setAttributes] = useState({
+		showScoresOverview: true,
+		showResultsTable: true,
+		hidePlayAgain: true,
+		href: '',
+		hidePreviousAttempts: isPreview || isSingle
+	})
+
+	const [keepPrevOpen, setKeepPrevOpen] = useState(false)
+	const [prevAttemptOpen, setprevAttemptOpen] = useState(false)
 
 	const [customScoreScreen, setCustomScoreScreen] = useState({
 		htmlPath: null,
 		type: null,
-		qset: null,
-		scoreTable: null,
 		show: false,
 		loading: true,
 		ready: false
 	})
 
-	const scoreHeaderRef = useRef(null)
 	const scoreWidgetRef = useRef(null)
 
-	const guestPlayId = playIdProp ? playIdProp : single_id
-
-	// Gets widget instance loads qset
-  // No login required
-	const { isLoading: instanceIsLoading, data: instance } = useQuery({
-		queryKey: ['widget-inst', instId],
-		queryFn: () => apiGetWidgetInstance(instId), // TODO: this call also had a second parameter 'true', which i think would be the 'getDeleted' param? but that doesnt make sense in this case, and it's the only place where an additional 'true' was present on this call
-		enabled: !!instId,
+	/*
+	Grab instance information: required for all score screen types
+	*/
+	const { isLoading: instanceIsLoading, data: instance} = useQuery({
+		queryKey: ['widget-inst', instID],
+		queryFn: () => apiGetWidgetInstance(instID),
+		enabled: !!instID,
 		staleTime: Infinity,
 	})
 
-	// Gets widget instance scores
-	// Because of how we handle the results object, we can't follow-up via useEffect targeting instanceScores
-	// As a result, instanceScores is never read.
-	const { isLoading: scoresAreLoading, data: instanceScores, refetch: loadInstanceScores } = useQuery({
-		queryKey: ['inst-scores', instId, send_token, previewPlayId],
-		// @TODO: we are not currently passing in or using send_token
-		queryFn: () => apiGetWidgetInstanceScores(instId, userId),
-		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
-		staleTime: Infinity,
-		refetchOnWindowFocus: false,
-		retry: false,
-		onSuccess: (result) => {
-			_populateScores(result['scores'])
-			setAttemptsLeft(result['attemptsLeft'])
-		},
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setErrorState(STATE_RESTRICTED)
-			} else {
-				setErrorState(STATE_INVALID)
-			}
-		}
-	})
-
-	// Gets widget instance play scores when playId
-	// or previewInstId are changed
-	const { data: playScores } = useQuery({
-		queryKey: ['play-scores', playId, previewInstId, previewPlayId],
+	/*
+	Grab instance score data for a given user
+		Only requested for score screens displayed at end-of-play flow
+		Also disabled for guest plays, preview plays
+	*/
+	const { isLoading: scoresAreLoading, data: instanceScores, error: instanceScoresError, refetch: loadInstanceScores } = useQuery({
+		queryKey: ['inst-scores', instID],
 		queryFn: () => {
-			if (isPreview) return apiGetWidgetInstancePreviewScores(previewPlayId, previewInstId)
-			else return apiGetWidgetInstancePlayScores(playId)
+			return apiGetWidgetInstanceScores(instID, userID)
 		},
+		enabled: !isPreview && !isSingle && !!userID && !!instID,
 		staleTime: Infinity,
-		enabled: (!!playId || (!!previewInstId && !!previewPlayId)),
 		refetchOnWindowFocus: false,
 		retry: false,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setErrorState(STATE_RESTRICTED)
-			} else if (isPreview) {
-				setAttributes({...attributes, href: `/preview/${instId}/${instance?.clean_name}?previewId=${previewPlayId}`})
-				setErrorState(STATE_EXPIRED)
-			} else {
-				setErrorState(STATE_INVALID)
-			}
-		}
 	})
 
-	// Gets score distribution
-	const { refetch: loadScoreDistribution } = useQuery({
-		queryKey: ['score-dist', instId],
-		queryFn: () => apiGetScoreDistribution(instId),
-		enabled: false,
-		staleTime: Infinity,
-		retry: false,
-		onSuccess: (data) => {
-			_sendToWidget('scoreDistribution', [data])
+	/*
+	Grab play-specific score data. Bound to the current play (or preview) ID.
+	*/
+	const { data: playScores, error: playScoresError } = useQuery({
+		queryKey: ['play-scores', playID],
+		queryFn: () => {
+			if (isPreview) return apiGetWidgetInstancePreviewScores(playID, instID)
+			else return apiGetWidgetInstancePlayScores(playID)
 		},
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setErrorState(STATE_RESTRICTED)
-			} else {
-				setErrorState(STATE_INVALID)
-			}
-		}
+		staleTime: Infinity,
+		enabled: !!playID && !!instance,
+		refetchOnWindowFocus: false,
+		retry: false
 	})
 
+	/*
+	Setup state information based on instance data:
+		- play again URL
+		- feature visibility toggles
+		- custom score screen (if used)
+	*/
 	useEffect(() => {
-		window.addEventListener('hashchange', listenToHashChange)
+		if (!!instance) {
 
-		return () => {
-			window.removeEventListener('hashchange', listenToHashChange)
-		}
-	}, [currentAttempt])
+			let path = (() => {
+				if (isEmbedded) return instance.embed_url
+				if (isPreview) return instance.preview_url
+				return instance.play_url
+			})()
+			if (token) path = `${path}?token=${token}`
 
-	useEffect(() => {
-		// if customScoreScreen is not loading
-		// meaning it has 1) loaded or 2) does not exist
-		if (!customScoreScreen.loading) {
-			// setup the postmessage listener
-			window.addEventListener('message', _onPostMessage, false)
-
-			_displayWidgetInstance()
-
-			// cleanup this listener
-			return () => {
-				window.removeEventListener('message', _onPostMessage, false);
-			}
-		}
-	}, [
-		customScoreScreen.loading,
-		instance,
-	])
-
-	useEffect(() => {
-		// Fetch score data based on instance access
-		if (instance) {
-			setGuestAccess(instance.guest_access)
-			// Preview? Set certain attributes that wouldn't be assigned otherwise
-			if (isPreview) {
-				setPreviewInstId(instance.id)
-				setPlayId(null)
-				setAttributes({ ...attributes, href: instance.preview_url, hidePlayAgain: false })
-			}
-			// Single play session
-			else if (single_id) {
-				setPlayId(single_id)
-				setPreviewInstId(null)
-			}
-			// Guest play session
-			else if (instance.guest_access) {
-				setAttributes({ ...attributes, href: isEmbedded ? instance.embed_url : instance.play_url, hidePlayAgain: false })
-				setPlayId(guestPlayId)
-			}
-			// User play session
-			else loadInstanceScores()
-		}
-	}, [instance])
-
-	// Initializes the custom score screen
-	useEffect(() => {
-		if (instance && playDetails) {
-			let enginePath
 			const score_screen = instance.widget.score_screen
-			// custom score screen exists?
-			if (score_screen && scoreTable) {
+			let enginePath
+			if (score_screen) {
 				const splitSpot = score_screen.lastIndexOf('.')
 				if (splitSpot != -1) {
 					if (score_screen.substring(0, 4) == 'http') {
@@ -205,229 +117,211 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 						enginePath = window.WIDGET_URL + instance.widget.dir + score_screen
 					}
 				}
-				// first time loading the custom score screen
 				if (customScoreScreen.loading == true) {
 					setCustomScoreScreen({
 						...customScoreScreen,
 						htmlPath: enginePath + '?' + instance.widget.created_at,
-						scoreTable: scoreTable,
 						type: 'html',
 						loading: false,
 						show: true,
 					})
-				// custom score screen loaded previously - scoreTable updated, indicating a different play selected
-				// pass the message along to the score screen
-				} else if (customScoreScreen.ready) _sendWidgetUpdate()
-
-			// no score screen - set loading to false regardless now that we know
-			// doing so kicks off _displayWidgetInstance and initializes the postMessage listener
-			} else if (instance.widget && scoreTable) {
-				setCustomScoreScreen({ ...customScoreScreen, loading: false })
-			}
-
-		}
-	}, [instance, playDetails, scoreTable])
-
-	// _displayAttempts
-	useEffect(() => {
-		if (!!attempts) {
-			if (attempts instanceof Array && attempts.length > 0) {
-				let matchedAttempt = false
-				// Reverse attempts so that the most recent attempt has the highest index
-				attempts.reverse()
-
-				// attemptDates is used to populate the overview data in displayWidgetInstance, it's just assembled here.
-				let dates = [ ...attemptDates ]
-
-				// sort added here so it displays the correct date with the attempt and score
-				attempts.forEach((a, i) => {
-					const d = new Date(a.created_at * 1000)
-
-					// attemptDates is used to populate the overview data in displayWidgetInstance, it's just assembled here.
-					let date = { ...dates[i] }
-					date = d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
-					dates[i] = date
-					setAttemptDates(dates)
-
-					if (playIdProp === a.id) {
-						matchedAttempt = attempts.length // sets to uri attempt to the most resent one
-					}
-				})
-
-				if (isPreview) {
-					setCurrentAttempt(1)
-				} else if (matchedAttempt !== false && attempts.length > 1) {
-					// we only want to do this if there's more than one attempt. Otherwise it's a guest widget
-					// or the score is being viewed by an instructor, so we don't want to get rid of the playid
-					// in the hash
-					window.location.hash = `#attempt-${matchedAttempt}`
-
-				} else if (getAttemptNumberFromHash() === undefined) {
-					window.location.hash = `#attempt-${attempts.length - 1}`
-				} else {
-
-					const hash = getAttemptNumberFromHash()
-					if (currentAttempt != hash) {
-						setCurrentAttempt(hash)
-					}
 				}
 			}
-		}
-	}, [attempts])
 
+			setAttributes({
+				...attributes,
+				href: path,
+				title: instance.name,
+				hidePlayAgain: !!instance.guest_access || isSingle,
+				hidePreviousAttempts: instance.guest_access || attributes.hidePreviousAttempts,
+				showResultsTable: !score_screen
+			})
+		}
+	},[instance])
+
+	/*
+	Setup state information based on instance score data:
+		- List of attempts
+		- Remaining attempts
+	*/
 	useEffect(() => {
-		if (!!currentAttempt) {
-			if (guestAccess) {
-				setPlayId(playIdProp)
+		if (!!instanceScores) {
+			if (instanceScores.length < 1) {
+				setErrorState(STATE_INVALID)
 			} else {
+				const scores = Array.from(instanceScores.scores)
+				// Sort scores by created_at in ascending order (oldest first)
+				scores.sort((a, b) => {
+					return a.created_at - b.created_at
+				})
+				for (let score of scores) {
+					score.roundedPercent = parseFloat(score.percent).toFixed(2)
+					const d = new Date(score.created_at * 1000)
+					const date = d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
+					score.date = date
+				}
+				setAttempts(scores)
+				setAttemptsLeft(scores.attemptsLeft)
 				const hash = getAttemptNumberFromHash()
-				setPlayId(attempts[hash - 1].id)
+				if (hash && scores.length >= hash) {
+					setCurrentAttempt(parseInt(hash))
+				}
+
+				if (!attributes.hidePreviousAttempts && scores.length < 2) {
+					setAttributes({...attributes, hidePreviousAttempts: true})
+				}
+			}
+		} else if (!!instanceScoresError) {
+			if (instanceScoresError.message == "Permission Denied") {
+				setErrorState(STATE_RESTRICTED)
+			} else {
+				setErrorState(STATE_INVALID)
 			}
 		}
-	}, [currentAttempt])
+		// @TODO handle errors
+	},[instanceScores, instanceScoresError])
 
+	/*
+	Setup state information based on play data
+		- Score overview
+		- Score table (which is passed to score screen)
+	*/
 	useEffect(() => {
 
-		if (playScores != null) {
-			const deets = playScores
-			setPlayDetails({qset: { ...deets.qset }, details: [ ...deets.details ]})
+		if (!!playScores && !playScoresError) {
 
-			let score
+			let overview = {
+				...playScores.overview,
+				score: Math.round(playScores.overview.score),
+				table: Array.from(playScores.overview.table)
+			}
 
-			// Round the score for display
-			for (tableItem of Array.from(deets.details[0].table)) {
-				score = parseFloat(tableItem.score)
-				if (score !== 0 && score !== 100) {
+			let details = {
+				...playScores.details[0],
+				table: Array.from(playScores.details[0].table)
+			}
+			
+			for (let tableItem of details.table) {
+				let score = parseFloat(tableItem.score)
+				if (score != 0 && score != 100) {
 					tableItem.score = score.toFixed(2)
 				}
 			}
 
-			// send the materiaScoreRecorded postMessage
-			// previously within the if block below, but should happen regardless of whether the overview is shown
-			deets.overview.score = Math.round(deets.overview.score)
-			sendPostMessage(deets.overview.score)
-
-			if (showScoresOverview) {
-				for (var tableItem of Array.from(deets.overview.table)) {
+			sendPostMessage(overview.score)
+			if (attributes.showScoresOverview) {
+				for (let tableItem of overview.table) {
+					// convert each table value to a float if it's a string
 					if (tableItem.value.constructor === String) {
 						tableItem.value = parseFloat(tableItem.value)
 					}
+					// set to a fixed decimal length of 2
 					tableItem.value = tableItem.value.toFixed(2)
 				}
-
-				setOverview(deets.overview)
-				setAttemptNum(currentAttempt)
 			}
-
-			const referrerUrl = deets.overview.referrer_url
-			if (deets.overview.auth === 'lti' && !!referrerUrl && referrerUrl.indexOf(`/scores/${instId}`) === -1) {
-				setPlayAgainUrl(referrerUrl)
-			} else if (!single_id) {
-				setPlayAgainUrl(attributes.href)
-			}
-
-			setScoreTable(deets.details[0].table)
+			setPlayData((playData) => ({
+				id: playID,
+				overview: overview,
+				qset: { ...playScores.qset },
+				details: details
+			}))
 		}
-	}, [playScores])
+		else if (!!playScoresError) {
+			if (playScoresError.message == "Permission Denied") setErrorState(STATE_RESTRICTED)
+			else if (isPreview) setErrorState(STATE_EXPIRED)
+			else setErrorState(STATE_INVALID)
+		}
+		// @TODO handle errors
+	}, [playScores, playScoresError])
 
+	/*
+	When parsed play data is updated, send it to the custom score screen (if enabled)
+	*/
 	useEffect(() => {
-		if (instance && !single_id) {
-			// show play again button?
-			if (instance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview) {
-				let path = (() => {
-					// @TODO: previews will never trigger this hook, is the isPreview check needed?
-					if (isEmbedded) return instance.embed_url
-					if (isPreview) return instance.preview_url
-					return instance.play_url
-				})()
+		if (!errorState && customScoreScreen.show) {
+			sendToWidget('updateWidget', [playData.qset, playData.details.table])
+		}
+	},[playData.id])
 
-				// attach token to play again path if present
-				const urlParams = new URLSearchParams(window.location.search)
-				const token = urlParams.get('token')
-				if (token) {
-					path = `${path}?token=${token}`
-				}
+	/*
+	Setup postMessage listeners for communication between this frame and score screen
+	*/
+	useEffect(() => {
+		if (!!playData.id) {
+			if (!customScoreScreen.loading) {
+				window.addEventListener('message', onPostMessage, false)
+			}
+			return () => {
+				window.removeEventListener('message', onPostMessage, false)
+			}
+		}
+	},[customScoreScreen.loading, playData.id])
 
+	/*
+	Setup hash change listener
+	*/
+	useEffect(() => {
+		window.addEventListener('hashchange', listenToHashChange)
+
+		return () => {
+			window.removeEventListener('hashchange', listenToHashChange)
+		}
+	}, [currentAttempt])
+
+	/*
+	Update tracked playID when attempt hash changes
+	*/
+	useEffect(() => {
+		if (!!currentAttempt) {
+			if (instance?.guest_access || isSingle || isPreview) return false
+			else {
+				const hash = getAttemptNumberFromHash()
+				setPlayID(attempts[hash - 1].id)
+			}
+		}
+	},[currentAttempt])
+
+	/*
+	send postMessage to the score screen frame
+	*/
+	const sendToWidget = (type, args) => {
+		return scoreWidgetRef.current.contentWindow.postMessage(
+			JSON.stringify({ type, data: args }),
+			window.STATIC_CROSSDOMAIN
+		)
+	}
+
+	/*
+	Score screen initialization and error handling
+	*/
+	const sendWidgetInit = () => {
+		if (!errorState) { 
+			if (customScoreScreen.loading || (customScoreScreen.show && scoreWidgetRef.current == null)) {
+				setCustomScoreScreen({
+					...customScoreScreen,
+					show: false
+				})
 				setAttributes({
 					...attributes,
-					href: path,
-					hidePlayAgain: false
-				})
-			} else {
-				// if there are no attempts left, hide play again
-				setAttributes({
-					...attributes,
-					hidePlayAgain: true
+					showScoresOverview: true,
+					showResultsTable: true
 				})
 			}
-		}
-	}, [attemptsLeft])
-
-	const listenToHashChange = () => {
-		const hash = getAttemptNumberFromHash()
-		if (currentAttempt != hash) setCurrentAttempt(hash)
-	}
-
-	const _populateScores = (scores) => {
-		if (!scores || scores.length < 1) {
-			// score request was not in error, but request is empty
-			setErrorState(STATE_INVALID)
-
-		} else {
-			// Round scores
-			for (let attemptScore of Array.from(scores)) {
-				attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
-			}
-
-			setAttempts(scores)
-			const hash = getAttemptNumberFromHash()
-			if (hash && scores.length >= hash) {
-			  setCurrentAttempt(parseInt(hash))           // This triggers the correct useEffect
-			  setPlayId(scores[hash - 1].id)              // Ensures we fetch the play details
-			}
-
-
+			console.log("calling sendToWidget")
+			sendToWidget('initWidget', [playData.qset, playData.details.table, instance, isPreview, window.MEDIA_URL])
 		}
 	}
 
-	// only referenced once, after instance is loaded
-	const _displayWidgetInstance = () => {
-		// Build the data for the overview section
-		let overview = {
-			title: instance.name,
-			dates: attemptDates,
-		}
-
-		// Modify display of several elements after HTML is outputted
-		const lengthRange = Math.floor(instance.name.length / 10)
-		let textSize = 24
-		let paddingSize = 16
-
-		switch (lengthRange) {
-			case 0:
-			case 1:
-			case 2:
-				textSize -= 4
-				paddingSize += 4
-				break
-			case 3:
-				textSize -= 8
-				paddingSize += 8
-				break
-			default:
-				textSize -= 12
-				paddingSize += 12
-		}
-
-		overview.headerStyle = {
-			'fontSize': textSize,
-			'paddingTop': paddingSize,
-		}
-
-		setAttributes({...attributes, ...overview, hidePreviousAttempts: !!single_id || attempts.length < 2 })
+	const setHeight = (h) => {
+		const min_h = instance.widget.height
+		let desiredHeight = Math.max(h, min_h)
+		scoreWidgetRef.current.style.height = `${desiredHeight}px`
 	}
 
-	const _onPostMessage = (e) => {
+	/*
+	Handler for incoming postMessages from the custom score screen frame
+	*/
+	const onPostMessage = (e) => {
 		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
 			const msg = JSON.parse(e.data)
@@ -435,15 +329,20 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 				case 'score-core':
 					switch (msg.type) {
 						case 'start':
-							return _sendWidgetInit()
+							return sendWidgetInit()
 						case 'setHeight':
-							return _setHeight(msg.data[0])
+							return setHeight(msg.data[0])
 						case 'hideResultsTable':
-							return (setShowResultsTable(false))
+							return setAttributes({...attributes, showResultsTable: false})
 						case 'hideScoresOverview':
-							return (overview?.complete ? setShowScoresOverview(false) : setShowScoresOverview(true))
+							return (playData?.overview?.complete ? 
+								setAttributes({...attributes, showScoresOverview: false}) :
+								setAttributes({...attributes, showScoresOverview: true})
+							)
 						case 'requestScoreDistribution':
-							return loadScoreDistribution()
+							// @TODO
+							// return loadScoreDistribution()
+							return false
 						default:
 							console.warn(`Unknown PostMessage received from score core: ${msg.type}`)
 							return false
@@ -483,7 +382,10 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 		}
 	}
 
-	/****** helper methods ******/
+	const listenToHashChange = () => {
+		const hash = getAttemptNumberFromHash()
+		if (currentAttempt != hash) setCurrentAttempt(hash)
+	}
 
 	const getAttemptNumberFromHash = () => {
 		const match = window.location.hash.match(/^#attempt-(\d+)/)
@@ -494,49 +396,6 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 		return attempts.length
 	}
 
-	const _sendToWidget = (type, args) => {
-		return scoreWidgetRef.current.contentWindow.postMessage(
-			JSON.stringify({ type, data: args }),
-			window.STATIC_CROSSDOMAIN
-		)
-	}
-
-	// this is only called in response from the score-core
-	// it will not be called for default score screens
-	const _sendWidgetInit = () => {
-		if (customScoreScreen.scoreTable == null || playDetails == null || scoreWidgetRef.current == null) {
-			// Custom score screen failed to load, load default overview instead
-			setCustomScoreScreen({ ...customScoreScreen, loading: true, show: false })
-			setShowResultsTable(true)
-			setShowScoresOverview(true)
-			return
-		}
-		setCustomScoreScreen({ ...customScoreScreen, ready: true })
-
-		_sendToWidget('initWidget', [playDetails.qset, customScoreScreen.scoreTable, instance, isPreview, window.MEDIA_URL])
-	}
-
-	// tell the custom score screen that the selected attempt/play has changed, and pass the new scoreTable accordingly
-	const _sendWidgetUpdate = () => {
-		_sendToWidget('updateWidget', [playDetails.qset, scoreTable])
-	}
-
-	const _setHeight = (h) => {
-		const min_h = instance.widget.height
-		let desiredHeight = Math.max(h, min_h)
-		scoreWidgetRef.current.style.height = `${desiredHeight}px`
-	}
-
-	const attemptClick = () => {
-		// @TODO isMobile relies on include.js which is no longer bundled
-		// if (window.isMobile.any()) {
-		// 	setprevAttemptOpen(false)
-		// }
-	}
-
-	/******* DOM element rendering ********/
-
-	// Render error states, if any are active
 	let errorStateRender = null
 	if (errorState != null) {
 		switch (errorState) {
@@ -545,7 +404,7 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 					<div className="expired container general">
 						<section className="page score_expired">
 							<h2 className="logo">The preview score for this widget has expired.</h2>
-							<p>Preview scores are only available immediately after previewing a widget.</p>
+							<p>Preview scores are only available for a limited time after previewing a widget.</p>
 							<a className="action_button" href={attributes.href ? attributes.href : '#'}>Preview Again</a>
 						</section>
 					</div>
@@ -586,32 +445,28 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 		}
 	}
 
-	let previousAttempts = null
-	if (!attributes.hidePreviousAttempts && !isPreview && !guestAccess) {
-
+	let priorAttempts = null
+	if (!attributes.hidePreviousAttempts) {
 		let attemptList = attempts.map((attempt, index) => {
 			return (
 				<li key={index}>
-					<a
-						href={`#attempt-${index + 1}`}
-						onClick={attemptClick}
+					<a href={`#attempt-${index + 1}`}
+						onClick={() => setKeepPrevOpen(false)}
 					>
-						Attempt {index + 1}:
+						<span>Attempt {index + 1}: <span className="date">{attempt.date}</span></span>
 						<span className="score">{attempt.roundedPercent}%</span>
-						<span className="date">{attemptDates[index]}</span>
 					</a>
 				</li>
 			)
 		}).reverse()
-		// Reverses attempt list so that the most recent appears at top
-
-		previousAttempts = (
+		
+		priorAttempts = (
 			<nav
-				className={`header-element previous-attempts ${prevAttemptOpen ? 'open' : ''}`}
+				className={`previous-attempts ${prevAttemptOpen || keepPrevOpen ? 'open' : ''}`}
 				onMouseOver={() =>!prevAttemptOpen && setprevAttemptOpen(true)}
 				onMouseLeave={() => prevAttemptOpen && setprevAttemptOpen(false)}
 			>
-				<h1 onClick={() => !prevAttemptOpen && setprevAttemptOpen(true)}>
+				<h1 onClick={() => setKeepPrevOpen(!keepPrevOpen)}>
 					Prev. Attempts
 				</h1>
 				<ul>
@@ -624,75 +479,61 @@ const Scores = ({ instId, playId: playIdProp, single_id, userId, send_token, isE
 	let playAgainBtn = null
 	if (!attributes.hidePlayAgain) {
 		playAgainBtn = (
-			<nav className="play-again header-element">
-				<h1>
-					<a id="play-again" className="action_button" href={playAgainUrl}>
-						{isPreview ? 'Preview' : 'Play'} Again
-						{attemptsLeft > 0 ? <span>({attemptsLeft} Left)</span> : <></>}
-					</a>
-				</h1>
-			</nav>
+			<a id='play-again' className='action_button' href={attributes.href}>
+				{isPreview ? 'Preview' : 'Play'} Again
+				{attemptsLeft > 0 ? <span>({attemptsLeft} Left)</span> : <></>}
+			</a>
 		)
 	}
 
-	let scoreHeader = null
+	let scoreHeaderRender = null
 	if (!errorState) {
-		scoreHeader = (
+		scoreHeaderRender = (
 			<header className={`header score-header ${isPreview ? 'preview' : ''}`}>
-				{previousAttempts}
-				<h1 className="header-element widget-title" ref={scoreHeaderRef} style={attributes.headerStyle ? attributes.headerStyle : {}}>{attributes.title ? attributes.title : ''}</h1>
+				{priorAttempts}
+				<h1 className='widget-title'>{attributes.title ? attributes.title : ''}</h1>
 				{playAgainBtn}
 			</header>
 		)
 	}
 
 	let overviewRender = null
-	if (!errorState && showScoresOverview && !!overview) {
-		if (customScoreScreen.show && !customScoreScreen.ready) {
-			overviewRender = (
-				<section className={`overview ${isPreview ? 'preview' : ''}`}>
-					<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
-				</section>
-			)
-		}
-		else {
-			overviewRender = <ScoreOverview
-				inst_id={instId}
-				single_id={single_id}
-				overview={overview}
-				attemptNum={attemptNum}
-				isPreview={isPreview}
-				guestAccess={guestAccess} />
-		}
-
+	if (!errorState && attributes.showScoresOverview && !!playData.overview) {
+		overviewRender = <ScoreOverview
+			inst_id={instID}
+			single_id={null}
+			overview={playData.overview}
+			attemptNum={currentAttempt}
+			isPreview={isPreview}
+			guestAccess={instance?.guest_access} />
 	}
 
 	let customScoreScreenRender = null
-	//if (!errorState && customScoreScreen.show) {
+	if (!errorState && customScoreScreen.show) {
 		customScoreScreenRender = (
 			<iframe ref={scoreWidgetRef}
-				id="container"
-				className={`html ${showScoresOverview ? 'margin-above' : ''}${showResultsTable ? 'margin-below' : ''}${!overview?.complete ? ' incomplete' : ''}`}
+				id='container'
+				className={`html ${!playData.overview?.complete ? 'incomplete' : ''}`}
 				src={customScoreScreen.htmlPath}>
 			</iframe>
 		)
-	//}
+	}
 
 	let detailsRender = null
-	if (!errorStateRender && customScoreScreen.show && !customScoreScreen.ready) {
+	if (!errorState && !playData.id) {
 		detailsRender = (
 			<section className={`overview ${isPreview ? 'preview' : ''}`}>
 				<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
 			</section>
 		)
-	} else if (!errorStateRender && showResultsTable) {
-		detailsRender = <ScoreDetails details={playDetails?.details} complete={overview?.complete} />
+	} else if (!errorState && attributes.showResultsTable) {
+		detailsRender = <ScoreDetails details={playData?.details} complete={playData.overview?.complete} />
 	}
 
 	return (
-		<article className={`container ${ instanceIsLoading || scoresAreLoading ? 'loading' : 'ready'}`}>
+		<article className={`container ${instanceIsLoading || scoresAreLoading ? 'loading' : 'ready'}`}>
 			<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
-			{scoreHeader}
+			{scoreHeaderRender}
 			{overviewRender}
 			{customScoreScreenRender}
 			{detailsRender}

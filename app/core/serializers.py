@@ -553,20 +553,31 @@ class PlaySessionCreateSerializer(serializers.Serializer):
 
 # play session model (kinda) serializer (outbound)
 class PlaySessionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = LogPlay
-        fields = [
+    inst_name = serializers.CharField(source="instance.name", read_only=True)
+    widget_name = serializers.CharField(source="instance.widget.name", read_only=True)
+    widget_icon = serializers.SerializerMethodField()
+    user = UserSerializer(read_only=True)
+
+    def get_widget_icon(self, play):
+        return f"{play.instance.widget.id}-{play.instance.widget.clean_name}{os.sep}"
+
+    def __init__(self, *args, **kwargs):
+        is_student_view = kwargs.pop("is_student_view", False)
+        include_user_info = kwargs.pop("include_user_info", False)
+        include_activity = kwargs.pop("include_activity", False)
+
+        super().__init__(*args, **kwargs)
+
+        field_set = [
             "id",
             "instance",
             "is_valid",
-            "user_id",
             "is_complete",
             "score",
             "score_possible",
             "percent",
             "elapsed",
             "qset_id",
-            # "environment_data",
             "auth",
             "referrer_url",
             "context_id",
@@ -574,14 +585,19 @@ class PlaySessionSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
+        if not is_student_view:
+            field_set.append("user_id")
 
-# play session model (kinda) with inst and widget names included (outbound)
-# these include hits to other tables, so only include them if specifically needed
-class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
+        if include_activity:
+            field_set.extend(["inst_name", "widget_name", "widget_icon"])
 
-    inst_name = serializers.CharField(source="instance.name", read_only=True)
-    widget_name = serializers.CharField(source="instance.widget.name", read_only=True)
-    widget_icon = serializers.SerializerMethodField()
+        if include_user_info:
+            field_set.append("user")
+
+        allowed = set(field_set)
+        existing = set(self.fields)
+        for field_name in existing - allowed:
+            self.fields.pop(field_name)
 
     class Meta:
         model = LogPlay
@@ -596,7 +612,6 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
             "percent",
             "elapsed",
             "qset_id",
-            # "environment_data",
             "auth",
             "referrer_url",
             "context_id",
@@ -605,59 +620,7 @@ class PlaySessionWithExtrasSerializer(serializers.ModelSerializer):
             "inst_name",
             "widget_name",
             "widget_icon",
-        ]
-
-    def get_widget_icon(self, play):
-        return f"{play.instance.widget.id}-{play.instance.widget.clean_name}{os.sep}"
-
-
-# play session model; do not include user_id
-class PlaySessionStudentViewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = LogPlay
-        fields = [
-            "id",
-            "instance",
-            "is_valid",
-            "is_complete",
-            "score",
-            "score_possible",
-            "percent",
-            "elapsed",
-            "qset_id",
-            # "environment_data",
-            "auth",
-            "referrer_url",
-            "context_id",
-            "semester_id",
-            "created_at",
-        ]
-
-
-# play session model; include extra info about user
-class PlaySessionWithExtraUserInfoSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-
-    class Meta:
-        model = LogPlay
-        fields = [
-            "id",
-            "instance",
-            "is_valid",
-            "is_complete",
-            "score",
-            "score_possible",
-            "percent",
-            "elapsed",
-            "qset_id",
-            # "environment_data",
-            "auth",
-            "referrer_url",
-            "context_id",
-            "semester_id",
-            "created_at",
             "user",
-            "user_id",
         ]
 
 

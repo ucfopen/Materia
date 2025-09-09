@@ -144,9 +144,6 @@ class ScoreModule(ABC):
         """calculate final score percentage"""
         global_mod = sum(self.global_modifiers)
 
-        # sum up all the scores
-        self.verified_score = sum(self.scores.values())
-
         if self.total_questions > 0:
             points = self.verified_score + global_mod * self.total_questions
             self.calculated_percent = points / self.total_questions
