@@ -950,6 +950,7 @@ class Widget(models.Model):
     is_playable = models.BooleanField(default=True)
     is_scorable = models.BooleanField(default=True)
     in_catalog = models.BooleanField(default=True)
+    featured = models.BooleanField(default=False)
     is_generable = models.BooleanField(default=False)
     uses_prompt_generation = models.BooleanField(default=False)
     creator = models.CharField(max_length=255, default="")
