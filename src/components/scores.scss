@@ -423,9 +423,13 @@ article {
 
 						font-size: 0.8em;
 
+						border-bottom: solid 2px rgba(0,0,0,0);
+
 						&:hover {
-							padding: 0 0 0.25em 0;
+							padding: 0;
 							text-decoration: none;
+
+							border-bottom: 2px solid #0093E7;
 						}
 
 						.date {
@@ -793,5 +797,11 @@ iframe#container {
 
 	&.incomplete {
 		filter: blur(2px);
+	}
+}
+
+@media (max-width: 720px) {
+	.score-header nav {
+		max-height: none;
 	}
 }
