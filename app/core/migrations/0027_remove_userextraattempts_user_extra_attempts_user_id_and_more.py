@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import migrations, models
 
-from core.models import WidgetInstance
+from core.models import WidgetInstance, DateRange
 
 
 def clean_data(apps, schema_editor):
@@ -18,9 +18,11 @@ def clean_data(apps, schema_editor):
     for extra_attempt in UserExtraAttempts.objects.using(db_alias).all():
         instance_id = extra_attempt.inst_id
         user_id = extra_attempt.user_id
+        date_range_id = extra_attempt.semester
 
         instance_exists = WidgetInstance.objects.filter(id=instance_id).exists()
         user_exists = User.objects.filter(id=user_id).exists()
+        date_range_exists = DateRange.objects.filter(id=date_range_id).exists()
 
         if not instance_exists:
             print(
@@ -34,6 +36,12 @@ def clean_data(apps, schema_editor):
             )
             extra_attempt.delete()
             continue
+        if not date_range_exists:
+            print(
+                f"   - Deleting UserExtraAttempt {extra_attempt.id} without matching date range '{date_range_id}'"
+            )
+            extra_attempt.delete()
+            continue
 
 
 class Migration(migrations.Migration):
@@ -43,15 +51,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveIndex(
-            model_name="userextraattempts",
-            name="user_extra_attempts_user_id",
-        ),
-        migrations.RemoveIndex(
-            model_name="userextraattempts",
-            name="user_extra_attempts_inst_id",
-        ),
-        migrations.RunPython(clean_data),
+        # migrations.RemoveIndex(
+        #     model_name="userextraattempts",
+        #     name="user_extra_attempts_user_id",
+        # ),
+        # migrations.RemoveIndex(
+        #     model_name="userextraattempts",
+        #     name="user_extra_attempts_inst_id",
+        # ),
+        migrations.RunPython(clean_data, lambda x, y: None),
         migrations.RenameField(
             model_name="userextraattempts",
             old_name="inst_id",
@@ -80,6 +88,16 @@ class Migration(migrations.Migration):
                 null=False,
                 related_name="extra_attempts",
                 to="core.widgetinstance",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="userextraattempts",
+            name="semester",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                null=False,
+                related_name="extra_attempts",
+                to="core.daterange",
             ),
         ),
     ]

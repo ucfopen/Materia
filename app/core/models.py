@@ -917,7 +917,12 @@ class UserExtraAttempts(models.Model):
     created_at = models.DateTimeField(default=datetime.now)
     extra_attempts = models.IntegerField()
     context_id = models.CharField(max_length=255)
-    semester = models.PositiveBigIntegerField()  # foreign key to DateRange model
+    semester = models.ForeignKey(
+        DateRange,
+        related_name="extra_attempts",
+        on_delete=models.CASCADE,
+        null=False,
+    )
 
     class Meta:
         db_table = "user_extra_attempts"
