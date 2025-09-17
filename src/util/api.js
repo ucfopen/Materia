@@ -93,6 +93,7 @@ export const apiGetWidgetInstances = (user, pageParam) => {
 	return handleRequest(methods.GET, `/api/instances/?user=${user}&page=${pageParam}`)
 }
 
+// @TODO support getDeleted?
 export const apiGetWidgetInstance = (instId, getDeleted=false) => {
 	return handleRequest(methods.GET, `/api/instances/${instId}/`)
 }
@@ -263,6 +264,7 @@ export const apiSearchInstances = (input, pageParam = 1, include_deleted = false
 
 // TODO update or retire
 export const apiGetWidgetInstanceScores = (instId, userId) => {
+	console.log(`inst id: ${instId}, user id: ${userId}`)
 	return handleRequest(methods.GET, `/api/scores/?inst_id=${instId}&user=${userId}`)
 }
 
@@ -280,7 +282,7 @@ export const apiGetScoreDistribution = instId => {
 }
 
 export const apiGetScoreSummary = instId => {
-	return handleRequest(methods.GET, `/api/instances/${instId}/scores/`)
+	return handleRequest(methods.GET, `/api/instances/${instId}/performance/`)
 	.then(data => {
 		const scores = data
 		const ranges = [

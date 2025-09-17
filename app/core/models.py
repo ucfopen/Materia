@@ -491,6 +491,7 @@ class LogPlay(models.Model):
 
     def set_complete(self, score, possible, percent):
         self.is_complete = True
+        self.is_valid = False
         self.score = score
         self.score_possible = possible
         self.percent = percent if percent <= 100 else 100

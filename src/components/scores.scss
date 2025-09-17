@@ -49,14 +49,22 @@ $preview-purple: #b944cc;
 
 	&.expired, &.invalid, &.score_restrict {
 		min-height: 480px;
-		padding: 20px 40px;
 		background: #fff;
 
 		.page {
+			font-size: 1em;
+			font-weight: 400;
 			text-align: center;
 
+			h2 {
+				margin-bottom: 1em;
+				padding: 1em 0;
+				color: #fff;
+				background: $color-features;
+			}
+
 			p {
-				margin-bottom: 40px;
+				margin: 0 0 1em 0;
 			}
 
 			ul {
@@ -67,6 +75,10 @@ $preview-purple: #b944cc;
 				li {
 					margin-bottom: 5px;
 				}
+			}
+
+			.error-support {
+				padding-bottom: 1em;
 			}
 		}
 	}
@@ -275,11 +287,13 @@ article {
 	header {
 		z-index: 8;
 		position: relative;
-		padding: 0px 0px 15px;
-		height: auto;
-		min-height: 50px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		min-height: 65px;
 
 		margin: 0;
+		padding: 0 1em;
 
 		background: $header-color;
 		border-top-left-radius: 5px;
@@ -322,17 +336,15 @@ article {
 			}
 		}
 
-		.header-element {
-			display: inline-block;
-		}
-
-		.header-element.widget-title {
-			max-width: 500px;
-			padding-bottom: 5px;
-			padding-top: 16px;
+		h1.widget-title {
 			overflow-wrap: break-word;
-			word-wrap: break-word; // have to include word-wrap since Edge/IE11 will not support overflow-wrap
-			margin-left: -10px;
+			word-wrap: break-word;
+			font-size: clamp(16px, 2vw, 21px);
+			color: #fff;
+
+			&:only-child {
+				margin: 0 auto;
+			}
 		}
 
 		nav {
@@ -341,37 +353,24 @@ article {
 			opacity: 1;
 		}
 
-		nav.play-again {
-			margin: 12px;
-			padding: 0;
-			position: absolute;
-			top: 0px;
-			right: 0px;
-
-			h1 {
-				margin: 0;
-				padding: 0;
-
-				#play-again span {
-					margin-left: 0.5em;
-					font-size: 12px;
-				}
+		button#play-again {
+			#play-again span {
+				margin-left: 0.5em;
+				font-size: 12px;
 			}
 		}
 
 		nav.previous-attempts {
-			cursor: default;
-			position: absolute;
-			top: 0px;
-			left: 0px;
+			position: relative;
+			cursor: pointer;
 			margin: 0px;
 			text-align: left;
 			user-select: none;
 
 			h1 {
 				display: inline-block;
+				margin: 0;
 				padding: 10px 18px;
-				margin: 14px 0 0 10px;
 
 				font-size: 12px;
 				color: #000;
@@ -386,60 +385,71 @@ article {
 				h1 {
 					color: #222;
 					background: #d0eeff;
+					border-bottom-left-radius: 0;
+					border-bottom-right-radius: 0;
 				}
 
 				ul {
-					display: block !important;
-					margin-top: 10px;
+					display: block;
 				}
 			}
 
 			ul {
-				display: none;
-				background: #fff;
-				margin: 0;
 				z-index: 10;
-				position: relative;
-				margin-left: 6px;
+				position: absolute;
+				display: none;
+				min-width: 175px;
+				margin: 0;
 				border-radius: 15px;
+				border-top-left-radius: 0;
+				background: #fff;
 				box-shadow: 5px 5px 15px 1px #666;
 
-				.date {
-					margin-top: 5px;
-					color: #005391;
-					font-size: 12px;
-					display: block;
-					font-weight: normal;
-				}
-
-				.score {
-					color: #333;
-					font-weight: bold;
-					font-size: 20px;
-					padding-left: 10px;
-				}
-
 				li {
-					padding: 5px 15px;
-					list-style: none;
 					display: block;
+					padding: 0.5em 1em;
+					list-style: none;
+
+					border-radius: 15px;
 
 					&:hover {
 						background-color: #d0eeff;
-						border-radius: 15px;
 					}
 
-					a:hover {
-						text-decoration: none;
+					a {
+						display: flex;
+						flex-direction: column;
+						gap: 0.25em;
+
+						font-size: 0.8em;
+
+						border-bottom: solid 2px rgba(0,0,0,0);
+
+						&:hover {
+							padding: 0;
+							text-decoration: none;
+
+							border-bottom: 2px solid #0093E7;
+						}
+
+						.date {
+							color: #005391;
+							margin-left: 0.5em;
+
+							font-size: 0.9em;
+							font-weight: bold;
+						}
+		
+						.score {
+							color: #333;
+							font-weight: bold;
+							font-size: 1.5em;
+						}
 					}
+
+
 				}
 			}
-		}
-
-		> h1 {
-			color: #fff;
-			margin: 0px;
-			padding-top: 8px;
 		}
 	}
 
@@ -787,5 +797,11 @@ iframe#container {
 
 	&.incomplete {
 		filter: blur(2px);
+	}
+}
+
+@media (max-width: 720px) {
+	.score-header nav {
+		max-height: none;
 	}
 }
