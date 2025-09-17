@@ -899,15 +899,21 @@ class Question(models.Model):
 class UserExtraAttempts(models.Model):
     """
     TODO this model requires reworks:
-    - change fields to foreign keys
     - Enable admin operations to apply extra attempts
     """
 
-    # Needs primary key
-    inst_id = models.CharField(
-        max_length=100, db_collation="utf8_bin"
-    )  # foreign key to WidgetInstance model
-    user_id = models.PositiveBigIntegerField()  # foreign key to Users model
+    instance = models.ForeignKey(
+        "WidgetInstance",
+        related_name="extra_attempts",
+        on_delete=models.CASCADE,
+        null=False,
+    )
+    user = models.ForeignKey(
+        User,
+        related_name="extra_attempts",
+        on_delete=models.CASCADE,
+        null=False,
+    )
     created_at = models.DateTimeField(default=datetime.now)
     extra_attempts = models.IntegerField()
     context_id = models.CharField(max_length=255)
@@ -915,10 +921,6 @@ class UserExtraAttempts(models.Model):
 
     class Meta:
         db_table = "user_extra_attempts"
-        indexes = [
-            models.Index(fields=["user_id"], name="user_extra_attempts_user_id"),
-            models.Index(fields=["inst_id"], name="user_extra_attempts_inst_id"),
-        ]
 
 
 class Widget(models.Model):
@@ -1134,7 +1136,7 @@ class WidgetInstance(models.Model):
         # Check to see if any extra attempts have been provided to the context. Decrement attempts_used if so.
         # TODO this does not filter by user - we don't have access to user id here. Do we need it?
         extra_attempts_ref = UserExtraAttempts.objects.filter(
-            inst_id=self.id,
+            instance=self,
             context_id=context,
             semester=semester.id,
         ).first()
