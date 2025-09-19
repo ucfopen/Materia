@@ -10,6 +10,7 @@ from core.serializers import (
     PlaySessionSerializer,
 )
 from core.services import WidgetPlayInitService
+from django.conf import settings
 from django.db.models import Max
 from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
@@ -232,6 +233,8 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                                     play.created_at.timestamp() + play.elapsed
                                 )
 
+                                score_url = f"{settings.URLS["BASE_URL"]}scores/single/{play.instance.id}/{play.id}"
+
                                 ags = AGSClient(launch)
                                 completion = (
                                     ags.score_builder()
@@ -240,6 +243,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                                     .activity_progress("Completed")
                                     .grading_progress("FullyGraded")
                                     .timestamp(completed_time)
+                                    .submission_url(score_url)
                                     .submit()
                                 )
 
