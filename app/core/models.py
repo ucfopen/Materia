@@ -29,6 +29,7 @@ from django.utils.functional import classproperty
 from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
+from lti_tool.models import LtiDeployment
 from util.message_util import Msg, MsgBuilder
 from util.perm_manager import PermManager
 from util.user_util import UserUtil
@@ -549,8 +550,26 @@ class Lti(models.Model):
         db_column="item_id",
     )
     resource_link = models.CharField(max_length=255)
-    consumer = models.CharField(max_length=255)
-    consumer_guid = models.CharField(max_length=255)
+
+    # legacy 1.1 fields
+    consumer = models.CharField(max_length=255, null=True)
+    consumer_guid = models.CharField(max_length=255, null=True)
+
+    lti_version = models.CharField(
+        max_length=10, choices=[("1.1", "LTI 1.1"), ("1.3", "LTI 1.3")], default="1.1"
+    )
+
+    # LTI 1.3 foreign key to deployment
+    # Deployments are themselves FK'd to registrations and platforms
+    deployment = models.ForeignKey(
+        LtiDeployment,
+        related_name="deployment",
+        on_delete=models.PROTECT,
+        db_column="deployment_id",
+        blank=True,
+        null=True,
+    )
+
     user = models.ForeignKey(
         User,
         related_name="lti_embeds",
@@ -570,7 +589,14 @@ class Lti(models.Model):
         indexes = [
             models.Index(fields=["resource_link"], name="lti_resource_link"),
             models.Index(fields=["consumer_guid"], name="lti_consumer_guid"),
+            models.Index(fields=["deployment"], name="lti_deployment"),
         ]
+
+    def platform(self):
+        if self.lti_version == "1.3":
+            return self.deployment.platform_instance
+        else:
+            return self.consumer_guid
 
 
 # this sucks

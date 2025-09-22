@@ -1,8 +1,8 @@
 import logging
 import re
 
-from django.conf import settings
-from lti_tool.models import LtiLaunch
+from core.models import Lti
+from lti_tool.models import LtiDeployment, LtiLaunch
 
 # from pprint import pformat
 
@@ -13,15 +13,83 @@ logger = logging.getLogger("django")
 class LTILaunchService:
 
     @staticmethod
-    def register_association(request, launch):
+    def register_association(launch, user, instance):
         """
-        TODO not currently implemented because django-lti stores records of resource links
-            Do we need this? When would we need to provide those resource links?
+        LTI associations were not really used in PHP Materia
+        With LTI 1.3, we want to have a way to cross-reference resource link ids with instances
+        There is some complexity associated with handling legacy LTI associations
+        However, legacy associations enable us to back-reference previously embedded content
         """
-        if not settings.LTI_SAVE_ASSOCIATIONS:
-            return True
+        resource_link_1p1 = LTILaunchService.get_resource_link_1p1(launch)
+        resource_link_1p3 = LTILaunchService.get_resource_link(launch)
 
-        return True
+        launch_deployment = LTILaunchService.get_deployment(launch)
+        deployment = LtiDeployment.objects.get(deployment_id=launch_deployment)
+
+        legacy_association = Lti.objects.filter(
+            widget_instance=instance, resource_link=resource_link_1p1
+        ).first()
+
+        if legacy_association:
+            """
+            A legacy LTI 1.1 association already exists
+            Upgrade the record to LTI 1.3 by replacing the 1p1 resource link
+
+            TODO THIS REALLY NEEDS TESTING
+            """
+            legacy_association.deployment = deployment
+            legacy_association.resource_link = resource_link_1p3
+            legacy_association.lti_version = "1.3"
+            legacy_association.consumer = None
+            legacy_association.consumer_guid = None
+
+            legacy_association.save()
+
+        else:
+            association_1p3 = Lti.objects.filter(
+                widget_instance=instance, resource_link=resource_link_1p3
+            ).first()
+            if association_1p3:
+                return association_1p3
+            else:
+                new_association = Lti(
+                    widget_instance=instance,
+                    resource_link=resource_link_1p3,
+                    lti_version="1.3",
+                    deployment=deployment,
+                    user=user,
+                    name=f"{user.first_name} {user.last_name}",
+                    context_id=LTILaunchService.get_context_id(launch),
+                    context_title=LTILaunchService.get_context_title(launch),
+                )
+
+                new_association.save()
+            return new_association
+
+    def get_resource_link(launch_data):
+        resource_link_claim = launch_data.get(
+            "https://purl.imsglobal.org/spec/lti/claim/resource_link", None
+        )
+        return (
+            resource_link_claim.get("id", None)
+            if resource_link_claim is not None
+            else None
+        )
+
+    def get_resource_link_1p1(launch_data):
+        lti_1p1_claim = launch_data.get(
+            "https://purl.imsglobal.org/spec/lti/claim/lti1p1", None
+        )
+        return (
+            lti_1p1_claim.get("resource_link_id", None)
+            if lti_1p1_claim is not None
+            else None
+        )
+
+    def get_deployment(launch_data):
+        return launch_data.get(
+            "https://purl.imsglobal.org/spec/lti/claim/deployment_id", None
+        )
 
     @staticmethod
     def get_launch_redirect(launch_data):
@@ -79,6 +147,11 @@ class LTILaunchService:
     def get_context_id(launch):
         context_claim = launch.get("https://purl.imsglobal.org/spec/lti/claim/context")
         return context_claim.get("id")
+
+    @staticmethod
+    def get_context_title(launch):
+        context_claim = launch.get("https://purl.imsglobal.org/spec/lti/claim/context")
+        return context_claim.get("title", "Untitled Context")
 
     @staticmethod
     def get_launch_state(launch):

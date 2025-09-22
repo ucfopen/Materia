@@ -156,8 +156,12 @@ class WidgetPlayView(
             if instance.guest_access:
                 return lti_error_page(request, "error_lti_guest_mode")
             else:
-                LTILaunchService.register_association(request, launch)
                 context = _create_lti_success_page(request, instance)
+
+        # LTI associations are registered during play view init, instead of deep linking
+        # This behavior is carried over from PHP Materia
+        # Does it make more sense to perform the registration during deep linking?
+        LTILaunchService.register_association(launch, request.user, instance)
 
         if context:
             return render(request, "react.html", context)
