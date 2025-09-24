@@ -51,14 +51,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # migrations.RemoveIndex(
-        #     model_name="userextraattempts",
-        #     name="user_extra_attempts_user_id",
-        # ),
-        # migrations.RemoveIndex(
-        #     model_name="userextraattempts",
-        #     name="user_extra_attempts_inst_id",
-        # ),
+        migrations.RemoveIndex(
+            model_name="userextraattempts",
+            name="user_extra_attempts_user_id",
+        ),
+        migrations.RemoveIndex(
+            model_name="userextraattempts",
+            name="user_extra_attempts_inst_id",
+        ),
         migrations.RunPython(clean_data, lambda x, y: None),
         migrations.RenameField(
             model_name="userextraattempts",
