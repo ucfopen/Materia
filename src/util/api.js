@@ -102,7 +102,7 @@ export const apiGetInstancesForUser = userId => {
 }
 
 // Gets widget info
-export const apiGetWidget = (ids=[], widgetType='default') => {
+export const apiGetWidget = (ids=[], widgetType='catalog') => {
 	let params = `?type=${widgetType}`
 
 	if (ids.length) {
