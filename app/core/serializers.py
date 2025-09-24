@@ -16,7 +16,7 @@ from core.models import (
     WidgetInstance,
     WidgetMetadata,
     WidgetQset,
-    UserExtraAttempts,
+    UserExtraAttempts, DateRange,
 )
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -24,6 +24,7 @@ from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
 from util.perm_manager import PermManager
+from util.semester_util import SemesterUtil
 from util.user_util import UserUtil
 
 logger = logging.getLogger("django")
@@ -816,6 +817,9 @@ class ScoreDetailsForPreviewSerializer(serializers.Serializer):
 
 class UserExtraAttemptsSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
+    semester = serializers.PrimaryKeyRelatedField(
+        queryset=DateRange.objects.all(), default=lambda: SemesterUtil.get_current_semester()
+    )
 
     class Meta:
         model = UserExtraAttempts

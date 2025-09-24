@@ -922,7 +922,6 @@ class UserExtraAttempts(models.Model):
         DateRange,
         related_name="extra_attempts",
         on_delete=models.CASCADE,
-        default=get_cur_semester,
         null=False,
     )
 
@@ -1485,7 +1484,7 @@ class UserSettings(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="profile_settings"
     )
-    profile_fields = models.JSONField(default={})
+    profile_fields = models.JSONField(default=dict)
 
     def set_profile_fields(self, key, value):
         self.profile_fields[key] = value
