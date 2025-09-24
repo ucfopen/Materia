@@ -647,11 +647,15 @@ class WidgetInstaller:
         # Check metadata
         update_method = widget.metadata.get("update_method")
         if update_method is None:
-            return MsgBuilder.failure(msg=f"Widget {widget_id} '{widget.name}' does not have a update method set")
+            return MsgBuilder.failure(
+                msg=f"Widget {widget_id} '{widget.name}' does not have a update method set"
+            )
 
         if update_method not in (x[0] for x in Widget.UPDATE_METHODS):
-            return MsgBuilder.failure(msg=f"Widget {widget_id} '{widget.name}' requests a update method of "
-                                          f"'{widget.metadata["update_method"]}', which is not supported")
+            return MsgBuilder.failure(
+                msg=f"Widget {widget_id} '{widget.name}' requests a update method of "
+                f"'{widget.metadata["update_method"]}', which is not supported"
+            )
 
         match update_method:
             case "github":
@@ -696,14 +700,23 @@ class WidgetInstaller:
         if repo is None:
             return MsgBuilder.failure(msg="Widget does not have a repo set")
 
+        # Check if repo field is a full github URL. If so, take out the author and repo name.
+        if "github.com" in repo:
+            repo = repo.strip("/")
+            parts = repo.split("/")
+            author, repo_name = parts[-2:]
+            repo = f"{author}/{repo_name}"
+
         # Ping server for latest releases
-        releases_json = WidgetInstaller._get_json(f"https://api.github.com/repos/{repo}/releases")
+        releases_json = WidgetInstaller._get_json(
+            f"https://api.github.com/repos/{repo}/releases"
+        )
         if isinstance(releases_json, Msg):
             return releases_json
         if len(releases_json) == 0:
             return MsgBuilder.failure(msg="Github returned no releases for this widget")
 
-        latest = releases_json[-1]
+        latest = releases_json[0]
         version = latest["tag_name"]
         wigt_url = None
         checksum_url = None
@@ -716,7 +729,9 @@ class WidgetInstaller:
                 wigt_url = asset["browser_download_url"]
 
         if wigt_url is None or checksum_url is None:
-            return MsgBuilder.failure(msg=f"A release was found ({version}), but the required assets were not found")
+            return MsgBuilder.failure(
+                msg=f"A release was found ({version}), but the required assets were not found"
+            )
 
         return version, wigt_url, checksum_url
 
@@ -728,15 +743,23 @@ class WidgetInstaller:
         try:
             resp = urllib3.request("GET", url, timeout=10)
             if math.floor(resp.status) != 200:  # Check status
-                return MsgBuilder.failure(msg=f"Update server returned with status {resp.status}")
+                return MsgBuilder.failure(
+                    msg=f"Update server returned with status {resp.status}"
+                )
             json = resp.json()  # Decode JSON
             return json
         except MaxRetryError:
-            return MsgBuilder.failure(msg="Connection to the update server has timed out")
+            return MsgBuilder.failure(
+                msg="Connection to the update server has timed out"
+            )
         except JSONDecodeError:
-            return MsgBuilder.failure(msg="Unable to decode JSON response returned from update server")
+            return MsgBuilder.failure(
+                msg="Unable to decode JSON response returned from update server"
+            )
         except Exception:
-            return MsgBuilder.failure(msg="Unable to update due to an error connecting to the update server")
+            return MsgBuilder.failure(
+                msg="Unable to update due to an error connecting to the update server"
+            )
 
     # apply random ids to question on one demo
     # TODO apply_ids_to_demo should really be performed in the qset model save method
