@@ -16,7 +16,8 @@ from core.models import (
     WidgetInstance,
     WidgetMetadata,
     WidgetQset,
-    UserExtraAttempts, DateRange,
+    UserExtraAttempts,
+    DateRange,
 )
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -818,7 +819,8 @@ class ScoreDetailsForPreviewSerializer(serializers.Serializer):
 class UserExtraAttemptsSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
     semester = serializers.PrimaryKeyRelatedField(
-        queryset=DateRange.objects.all(), default=lambda: SemesterUtil.get_current_semester()
+        queryset=DateRange.objects.all(),
+        default=lambda: SemesterUtil.get_current_semester(),
     )
 
     class Meta:
