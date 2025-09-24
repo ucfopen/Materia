@@ -457,37 +457,20 @@ export const apiRequestAccess = (instId, ownerId) => {
 /** Controller_Api_Admin **/
 
 export const apiGetExtraAttempts = instId => {
-	return handleRequest(methods.GET, `/api/admin/extra_attempts/${instId}`)
-	.then(attempts => {
-		const map = new Map()
-		for (const i in attempts) {
-			map.set(parseInt(attempts[i].id),
-				{
-					id: parseInt(attempts[i].id),
-					user_id: parseInt(attempts[i].user_id),
-					context_id: attempts[i].context_id,
-					extra_attempts: parseInt(attempts[i].extra_attempts)
-				})
-		}
-		//const userIds = Array.from(attemps, user => user.user_id)
-		return map
-	})
+	return handleRequest(methods.GET, `/api/extra-attempts/?instance=${instId}&semester=current`)
 }
 
-// TODO update or retire
-export const apiSetAttempts = ({ instId, attempts }) => {
-	return fetch(`/api/admin/extra_attempts/${instId}`,
-		{
-			method: methods.POST,
-			mode: 'cors',
-			credentials: 'include',
-			headers: {
-				pragma: 'no-cache',
-				'cache-control': 'no-cache',
-				'content-type': 'application/json; charset=UTF-8'
-			},
-			body: JSON.stringify(attempts)
-		}).then(handleErrors)
+// User Extra Attempts
+export const apiUpdateExtraAttempts = (attempt) => {
+  return handleRequest(methods.PUT, `/api/extra-attempts/${attempt.id}/`, attempt)
+}
+
+export const apiCreateExtraAttempts = (attempt) => {
+  return handleRequest(methods.POST, `/api/extra-attempts/`, attempt)
+}
+
+export const apiDeleteExtraAttempts = (extraAttemptsId) => {
+  return handleRequest(methods.DELETE, `/api/extra-attempts/${extraAttemptsId}/`)
 }
 
 export const apiUpdateWidgetEngine = widget => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useQuery } from 'react-query'
 import { apiGetExtraAttempts, apiGetUsers } from '../util/api'
-import useSetAttempts from './hooks/useSetAttempts'
+import { useCreateExtraAttempts, useDeleteExtraAttempts, useUpdateExtraAttempts } from './hooks/useExtraAttempts'
 import Modal from './modal'
 import ExtraAttemptsRow from './extra-attempts-row'
 import LoadingIcon from './loading-icon'
@@ -13,7 +13,7 @@ import './extra-attempts-dialog.scss'
 // and does not check user permissions
 
 const defaultState = () => ({
-	extraAttempts: new Map(),
+	extraAttempts: [],
 	users: {},
 	newIdCount: -1,
 	userIDs: []
@@ -31,7 +31,9 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 	const [saveError, setSaveError] = useState('')
 	const [error, setError] = useState('')
 	const mounted = useRef(false)
-	const setExtraAttempts = useSetAttempts()
+	const createExtraAttempts = useCreateExtraAttempts()
+	const deleteExtraAttempts = useDeleteExtraAttempts()
+	const updateExtraAttempts = useUpdateExtraAttempts()
 	const { data: attempts, isLoading: attemptsLoading, isFetching, remove: removeAttempts } = useQuery({
 		queryKey: 'extra-attempts',
 		queryFn: () => apiGetExtraAttempts(inst.id),
@@ -67,10 +69,10 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 
 	// Sets the users and attempts on load
 	useEffect(() => {
-		if (attempts instanceof Map && mounted.current) {
+		if (attempts !== null && mounted.current) {
 			const idArr = []
-			attempts.forEach(user => {idArr.push(user.user_id)})
-			setState({...state, userIDs: idArr, extraAttempts: new Map(attempts)})
+			attempts.forEach(user => {idArr.push(user.user)})
+			setState({...state, userIDs: idArr, extraAttempts: attempts})
 		}
 	}, [JSON.stringify(attempts), mounted.current])
 
@@ -83,35 +85,33 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 	const addUser = (match) => {
 		// add user to users list if not already there
 		const tempUsers = {...state.users}
-		const tempAttempts = new Map(state.extraAttempts)
+		const tempAttempts = [...state.extraAttempts]
 
 		if(!(match.id in state.users)){
 			tempUsers[match.id] = match
 
 			// add another extra attempts row if needed
-			tempAttempts.set(
-				state.newIdCount,
+			tempAttempts.push(
 				{
-					id: parseInt(state.newIdCount),
+					id: state.newIdCount,
 					context_id: "",
 					extra_attempts: 1,
-					user_id: parseInt(match.id)
+					instance: inst.id,
+					user: parseInt(match.id),
 				}
 			)
 		}
 		else {
 			// Previously deleted user being re-added
-			for (const [attemptId, attemptVal] of tempAttempts) {
-				if (parseInt(attemptVal.user_id) === parseInt(match.id)) {
+			for (const [attemptIndex, attemptVal] of tempAttempts) {
+				if (parseInt(attemptVal.user) === parseInt(match.id)) {
 					// Only changes when necessary
 					if (attemptVal.extra_attempts < 0 || attemptVal.disabled === true) {
-						tempAttempts.set(attemptId,
-							{
-								...attemptVal,
-								extra_attempts: 1,
-								disabled: false
-							}
-						)
+						tempAttempts[attemptIndex] = {
+							...attemptVal,
+							extra_attempts: 1,
+							disabled: false
+						}
 					}
 					break
 				}
@@ -135,11 +135,28 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 		})
 
 		if (!isError) {
-			setExtraAttempts.mutate({
-				instId: inst.id,
-				attempts: Array.from(state.extraAttempts.values()),
-				successFunc: (data) => {},
-				errorFunc: (err) => {}
+			const mutateOptions = {
+				onSuccess: (data) => {},
+				onError: (err) => {}
+			}
+
+			state.extraAttempts.forEach((obj) => {
+				const cleanObj = { ...obj }
+				delete cleanObj.disabled
+
+				// Check if this needs to be deleted
+				if ((obj?.disabled || obj.extra_attempts < 0) && 'id' in obj) {
+					deleteExtraAttempts.mutate(obj.id, mutateOptions)
+				}
+				// Check if this is new
+				else if (obj.id < 0 && !obj?.disabled && obj.extra_attempts > 0) {
+					delete cleanObj.id
+					createExtraAttempts.mutate(cleanObj, mutateOptions)
+				}
+				// Otherwise, this just need to be updated
+				else {
+					updateExtraAttempts.mutate(cleanObj, mutateOptions)
+				}
 			})
 
 			// Removed current queries from cache to force reload on next open
@@ -151,33 +168,34 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 	}
 
 	const containsUser = useMemo(() => {
-		for (const [id, val] of Array.from(state.extraAttempts)) {
+		for (const val of state.extraAttempts) {
 			if (val.extra_attempts >= 0) return true
 		}
 
 		return false
-	},[inst, Array.from(state.extraAttempts)])
+	}, [inst, state.extraAttempts])
 
 	let contentRender = <LoadingIcon />
 	if (!isFetching) {
 		let extraAttemptsRender = <NoContentIcon />
 		if (containsUser) {
-			extraAttemptsRender = Array.from(state.extraAttempts).map(([attemptId, attemptObj]) => {
+			extraAttemptsRender = state.extraAttempts.map((attemptObj) => {
 				if (attemptObj.extra_attempts < 0) return
-				const user = state.users[attemptObj.user_id]
+				const user = state.users[attemptObj.user]
 				if (!user) return
 
 				const attemptsForUserChangeHandler = (id, updatedAttempt) => setState((oldState) => {
-					const attemptsMap = new Map(oldState.extraAttempts)
-					attemptsMap.set(id, updatedAttempt)
+					const attempts = [...oldState.extraAttempts]
+					const updatedAttemptIndex = attempts.findIndex(attempt => attempt.id === id)
+					attempts[updatedAttemptIndex] = updatedAttempt
 					return {
 						...oldState,
-						extraAttempts: attemptsMap
+						extraAttempts: attempts
 					}
 				})
 
 				return <ExtraAttemptsRow
-					key={attemptId}
+					key={attemptObj.id}
 					extraAttempt={attemptObj}
 					user={user}
 					onChange={attemptsForUserChangeHandler}

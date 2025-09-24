@@ -16,6 +16,7 @@ from core.models import (
     WidgetInstance,
     WidgetMetadata,
     WidgetQset,
+    UserExtraAttempts,
 )
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -811,3 +812,11 @@ class ScoreDetailsForPreviewSerializer(serializers.Serializer):
         queryset=WidgetInstance.objects.all(), required=True
     )
     play_id = serializers.UUIDField()
+
+
+class UserExtraAttemptsSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = UserExtraAttempts
+        fields = "__all__"
