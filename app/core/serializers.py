@@ -9,6 +9,7 @@ from core.models import (
     Asset,
     Log,
     LogPlay,
+    Lti,
     Notification,
     ObjectPermission,
     UserSettings,
@@ -469,7 +470,7 @@ class PlayIdSerializer(serializers.Serializer):
 
 class LogSubmissionSerializer(serializers.Serializer):
     game_time = serializers.FloatField()
-    item_id = serializers.UUIDField(required=False)
+    item_id = serializers.CharField(required=False)
     type = serializers.IntegerField()
     text = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     value = serializers.CharField(required=False, allow_blank=True, allow_null=True)
@@ -774,3 +775,16 @@ class ScoreDetailsForPreviewSerializer(serializers.Serializer):
         queryset=WidgetInstance.objects.all(), required=True
     )
     play_id = serializers.UUIDField()
+
+
+class LtiSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lti
+        fields = [
+            "widget_instance",
+            "resource_link",
+            "lti_version",
+            "name",
+            "context_id",
+            "context_title",
+        ]

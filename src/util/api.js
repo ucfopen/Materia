@@ -102,6 +102,10 @@ export const apiGetInstancesForUser = userId => {
 	return handleRequest(methods.GET, `/api/instances/?user=${userId}`)
 }
 
+export const apiGetInstancesFromContext = contextId => {
+	return handleRequest(methods.GET, `/api/lti/${contextId}/instances/`)
+}
+
 // TODO update or retire this
 export const apiGetWidgetsByType = (widgetType="default") => {
 	return handleRequest(methods.POST, '/api/widgets/get_by_type/', widgetType )

@@ -36,6 +36,13 @@ class AGSClient:
             self._user_id = AGSUtil.get_ags_user_id(self.launch_data)
         return self._user_id
 
+    def line_items(self):
+        line_items = AGSLineItemService.get_line_items_from_launch(self.launch_data)
+        request = AGSRequest(self.access_token)
+
+        fetch = request.get(line_items)
+        return fetch
+
     def score_builder(self):
         return AGSScoreBuilder(self)
 
