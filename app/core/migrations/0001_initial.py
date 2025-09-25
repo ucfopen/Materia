@@ -432,6 +432,7 @@ class Migration(migrations.Migration):
                 ("is_generable", models.CharField(max_length=1)),
                 ("uses_prompt_generation", models.CharField(max_length=1)),
                 ("in_catalog", models.CharField(max_length=1)),
+                ("featured", models.CharField(max_length=1)),
                 ("creator", models.CharField(max_length=255)),
                 ("clean_name", models.CharField(max_length=255)),
                 ("player", models.CharField(max_length=255)),

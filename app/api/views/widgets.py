@@ -19,14 +19,28 @@ class WidgetViewSet(viewsets.ModelViewSet):
     queryset = Widget.objects.all()
 
     def get_queryset(self):
-        # TODO add additional filtering based on type query_param
+        widget_ids_raw = self.request.query_params.get("ids", "")
+        widget_type = self.request.query_params.get("type", "catalog")
+
         widgets = Widget.objects.all().order_by("name")
-        if self.request.query_params.get("ids", ""):
-            return widgets.filter(
-                id__in=self.request.query_params.get("ids", "").split(",")
-            )
+
+        # Request only wants the specified IDs
+        if widget_ids_raw:
+            return widgets.filter(id__in=widget_ids_raw.split(","))
+        # Request wants to filter by widget type
         else:
-            return widgets
+            # Apply widget type filter
+            match widget_type:
+                case "admin":
+                    return widgets
+                case "all" | "playable":
+                    return widgets.filter(is_playable=True)
+                case "featured":
+                    return widgets.filter(
+                        is_playable=True, in_catalog=True, featured=True
+                    )
+                case "catalog" | "default" | _:
+                    return widgets.filter(is_playable=True, in_catalog=True)
 
     def get_permissions(self):
         if self.action in ["list", "retrieve", "publish_perms_verify"]:

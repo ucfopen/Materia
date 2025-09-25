@@ -102,14 +102,9 @@ export const apiGetInstancesForUser = userId => {
 	return handleRequest(methods.GET, `/api/instances/?user=${userId}`)
 }
 
-// TODO update or retire this
-export const apiGetWidgetsByType = (widgetType="default") => {
-	return handleRequest(methods.POST, '/api/widgets/get_by_type/', widgetType )
-}
-
 // Gets widget info
-export const apiGetWidget = (ids=[], type='default') => {
-	let params = `?type=${type}`
+export const apiGetWidget = (ids=[], widgetType='catalog') => {
+	let params = `?type=${widgetType}`
 
 	if (ids.length) {
 		const idsFilter = ids.toString()

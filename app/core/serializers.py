@@ -192,6 +192,7 @@ class WidgetSerializer(serializers.ModelSerializer):
             "is_playable",
             "is_scorable",
             "in_catalog",
+            "featured",
             "is_generable",
             "uses_prompt_generation",
             "creator",
