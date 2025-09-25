@@ -630,6 +630,7 @@
 	.user, .settings {
 		section.page {
 			flex-direction: column;
+			justify-content: flex-start;
 			gap: 0.5em;
 
 			max-width: 850px;
