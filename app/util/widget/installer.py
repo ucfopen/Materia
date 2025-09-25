@@ -7,8 +7,7 @@ import types
 from datetime import datetime
 from pathlib import Path
 
-from core.models import Question, Widget, WidgetInstance, WidgetMetadata, WidgetQset
-from core.serializers import QuestionSetSerializer
+from core.models import Widget, WidgetInstance, WidgetMetadata, WidgetQset
 from django.conf import settings
 from django.core.management import color_style
 from django.utils.timezone import make_aware
@@ -140,8 +139,6 @@ class WidgetInstaller:
 
         # save metadata
         WidgetInstaller.save_metadata(id, manifest_data["meta_data"])
-        widget = Widget.objects.get(id=id)
-        WidgetInstaller.apply_ids_to_demo(widget)
 
         logger.info(f"Widget installed: {dir}")
         success = True
@@ -618,50 +615,3 @@ class WidgetInstaller:
             shutil.rmtree(target_dir)
         shutil.copytree(source_path, target_dir)
         logger.info(f"Widget files deployed: {widget_dir}")
-
-    # apply random ids to question on one demo
-    # TODO apply_ids_to_demo should really be performed in the qset model save method
-    def apply_ids_to_demo(widget):
-        try:
-            demo_metadata = WidgetMetadata.objects.filter(
-                widget=widget, name="demo"
-            ).first()
-            if not demo_metadata:
-                return False
-            demo_id = demo_metadata.value
-            demo_instance = WidgetInstance.objects.filter(pk=demo_id).first()
-
-            if not demo_instance:
-                return False
-
-            latest_qset = demo_instance.qsets.order_by("-created_at").first()
-            if not latest_qset:
-                return False
-
-            decoded_data = WidgetQset.decode_data(latest_qset.data)
-
-            serializer = QuestionSetSerializer()
-            decoded_data, questions_list = serializer.apply_ids_to_questions(
-                decoded_data
-            )
-
-            # save updated encoded data back into the qset
-            latest_qset.data = WidgetQset.encode_data(decoded_data)
-            latest_qset.save()
-
-            # wipe old questions and insert fresh ones
-            Question.objects.filter(qset=latest_qset).delete()
-            for q in questions_list:
-                Question.objects.create(
-                    qset=latest_qset,
-                    data=q,
-                    type=demo_instance.widget,
-                    item_id=q["id"],
-                )
-
-            # logger.info(
-            #     f"Patched Qset {latest_qset.id} for Demo {demo_id} with {len(questions_list)} questions"
-            # )
-            return True
-        except Exception as e:
-            print(f"Failed to patch Demo {demo_id}: {e}")

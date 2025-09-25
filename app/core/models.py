@@ -882,7 +882,8 @@ class Question(models.Model):
             return False
 
         # Check if values are not empty
-        if not item["type"] or not item["questions"] or not item["answers"]:
+        # In some rare cases an empty answers array is acceptable, as with Adventure
+        if not item["type"] or not item["questions"]:
             return False
 
         # Check if questions and answers are lists
@@ -1462,6 +1463,53 @@ class WidgetQset(models.Model):
             return questions
         else:
             return self.process_and_create_questions()
+
+    def apply_ids_to_questions(self, qset):
+        """
+        Individual questions within qsets should be submitted with null ids
+        Historically we've relied on Materia to provision ids to them
+        before being committed to the database
+
+        Note that in cases where a new qset is being saved for an
+        existing widget, previously saved questions will already have uuids
+        provisioned.
+        """
+        import copy
+        import uuid
+
+        def _process_item(item):
+            if isinstance(item, list):
+                return [_process_item(element) for element in item]
+
+            if isinstance(item, dict):
+                result = copy.deepcopy(item)
+
+                if Question.is_question(result):
+                    if "id" in result and (
+                        result["id"] is None or result["id"] == 0 or result["id"] == ""
+                    ):
+                        result["id"] = str(uuid.uuid4())
+
+                for key, value in result.items():
+                    if isinstance(value, (dict, list)):
+                        result[key] = _process_item(value)
+
+                return result
+
+            return item
+
+        result = _process_item(qset)
+        return result
+
+    def save(self, *args, **kwargs):
+
+        decoded = self.get_data()
+        applied_ids = self.apply_ids_to_questions(decoded)
+        self.set_data(applied_ids)
+
+        super().save(*args, **kwargs)
+
+        self.process_and_create_questions()
 
     class Meta:
         db_table = "widget_qset"
