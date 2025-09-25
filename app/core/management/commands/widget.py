@@ -5,10 +5,11 @@ import os
 from shutil import rmtree
 from urllib import request
 
-from core.models import Question, WidgetInstance, WidgetQset
+from core.models import LogPlay, Question, WidgetInstance, WidgetQset
 from core.serializers import QuestionSetSerializer
 from django.conf import settings
 from django.core.management import base
+from scoring.module_factory import ScoreModuleFactory
 from util.widget.installer import WidgetInstaller
 
 logger = logging.getLogger("django")
@@ -199,3 +200,59 @@ class Command(base.BaseCommand):
                 print(f"Failed to patch Demo {demo.id}: {e}")
 
         print(f"\nDone. Updated {total} demo instances.")
+
+    # get number of plays up to a number and run them through x widgets score module 4 validation
+    def validate_plays_for_instance(self, instance_id: str, max_plays: int) -> None:
+        scores = []
+        mismatches = []
+        plays = LogPlay.objects.filter(instance=instance_id, is_complete=True).order_by(
+            "-id"
+        )[: int(max_plays)]
+
+        if not plays.exists():
+            print(f"no plays for widget instance: {instance_id}")
+            return
+
+        for play in plays:
+            module = ScoreModuleFactory.create_score_module(
+                instance=play.instance, play=play
+            )
+            if module is None:
+                print(f"no score module for play: {play.id}")
+
+            module.validate_scores(timestamp=False)
+            details = module.get_score_report()
+            scores.append(
+                {
+                    "percent": details.get("overview", {}).get("score", 0),
+                    "score": module.verified_score,
+                }
+            )
+
+            if (
+                play.percent != scores[-1]["percent"]
+                or play.score != scores[-1]["score"]
+            ):
+                (
+                    print(
+                        f"play.percent is {play.percent} but should be {scores[-1]["percent"]}"
+                    )
+                    if play.percent != scores[-1]["percent"]
+                    else ""
+                )
+                (
+                    print(
+                        f"play.score is {play.score} but should be {scores[-1]['score']}"
+                    )
+                    if play.score != scores[-1]["score"]
+                    else ""
+                )
+                print(f"play.id: {play.id}\n")
+
+                mismatches.append(play)
+                continue
+
+        if len(mismatches) > 0:
+            print(f"Mismatches: {len(mismatches)}")
+        else:
+            print("all plays are valid")
