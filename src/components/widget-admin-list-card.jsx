@@ -38,6 +38,10 @@ const WidgetListCard = ({widget = null}) => {
         setState(prevState => ({...prevState, widget: {...prevState.widget, meta_data: {...prevState.widget.meta_data, excerpt: event.target.value}}}))
     }
 
+	const toggleFeatured = (widget) => {
+        setState(prevState => ({...prevState, widget: {...prevState.widget, featured: !prevState.widget.featured}}))
+    }
+
     const toggleInCatalog = (widget) => {
         setState(prevState => ({...prevState, widget: {...prevState.widget, in_catalog: !prevState.widget.in_catalog}}))
     }
@@ -64,6 +68,7 @@ const WidgetListCard = ({widget = null}) => {
         const update = {
 			id: state.widget.id,
 			clean_name: state.widget.clean_name,
+			featured: state.widget.featured,
 			in_catalog: state.widget.in_catalog,
 			is_editable: state.widget.is_editable,
 			is_scorable: state.widget.is_scorable,
@@ -157,6 +162,13 @@ const WidgetListCard = ({widget = null}) => {
                             <label>Settings:</label>
                         </span>
                         <span>
+							<div>
+                                <label className="normal">
+                                    <input type="checkbox" checked={state.widget.featured}
+                                    onChange={toggleFeatured}/>
+                                    Featured
+                                </label>
+                            </div>
                             <div>
                                 <label className="normal">
                                     <input type="checkbox" checked={state.widget.in_catalog}
