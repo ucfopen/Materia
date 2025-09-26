@@ -6,6 +6,7 @@ import Header from './header'
 import WidgetInstall from './widget-admin-install'
 import WidgetList from './widget-admin-list'
 import { iconUrl } from '../util/icon-url'
+import WidgetUpdater from "@/components/widget-admin-updater";
 
 const WidgetAdminPage = () => {
 	const [widgets, setWidgets] = useState([])
@@ -38,8 +39,9 @@ const WidgetAdminPage = () => {
 
 	let pageRenderContent = (
         <>
-            <WidgetInstall refetchWidgets={refetchWidgets}/>
-            <WidgetList widgets={widgets} isLoading={isLoading}/>
+            <WidgetInstall refetchWidgets={refetchWidgets} />
+            <WidgetUpdater widgets={widgets} isLoading={isLoading} />
+            <WidgetList widgets={widgets} isLoading={isLoading} />
         </>
     )
 
