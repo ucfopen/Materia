@@ -14,7 +14,6 @@ from core.models import (
     UserSettings,
     Widget,
     WidgetInstance,
-    WidgetMetadata,
     WidgetQset,
 )
 from django.conf import settings
@@ -171,7 +170,7 @@ class WidgetMetadataDictField(serializers.Field):
 
 # Widget engine model serializer
 class WidgetSerializer(serializers.ModelSerializer):
-    meta_data = WidgetMetadataDictField(source="metadata", required=False)
+    meta_data = serializers.JSONField(source="metadata", required=False)
     dir = serializers.CharField(read_only=True)
 
     class Meta:
@@ -235,16 +234,11 @@ class WidgetSerializer(serializers.ModelSerializer):
             logger.error(f"\nupdating widget field: {field}\n")
             setattr(widget, field, value)
 
-        widget.save()
-
-        # updating metadata requires some additional work
-        # the updates affect WidgetMetadata model instances instead
         if metadata_dict:
-            existing_metadata = widget.metadata.all()
-
             for name, value in metadata_dict.items():
-                existing_metadata.filter(name=name).delete()
-                WidgetMetadata.objects.create(widget=widget, name=name, value=value)
+                widget.metadata[name] = value
+
+        widget.save()
 
         return widget
 
