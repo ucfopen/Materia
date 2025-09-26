@@ -8,9 +8,6 @@ from core.serializers import (
     PlayLogUpdateSerializer,
     PlaySessionCreateSerializer,
     PlaySessionSerializer,
-    PlaySessionStudentViewSerializer,
-    PlaySessionWithExtrasSerializer,
-    PlaySessionWithExtraUserInfoSerializer,
 )
 from core.services import WidgetPlayInitService
 from django.db.models import Max
@@ -85,8 +82,11 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    # we only need extras (widget name, inst name) when on the profile page
-    def get_serializer_class(self):
+    def get_serializer(self, *args, **kwargs):
+        """
+        PlaySessionSerializer operates on a number of kwargs to determine what fields to use
+        To pass them in, we implement get_serializer and manually append each kwarg
+        """
         inst_id = self.request.query_params.get("inst_id")
         include_user_info = ValidatorUtil.validate_bool(
             self.request.query_params.get("include_user_info"), default=False
@@ -95,33 +95,21 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             self.request.query_params.get("include_activity"), default=False
         )
 
-        if inst_id and include_user_info:
-            try:
-                instance = WidgetInstance.objects.get(pk=inst_id)
-            except WidgetInstance.DoesNotExist:
-                # logger.error(f"WidgetInstance {inst_id} does not exist")
-                # perhaps we should retunr the default seralizer instead
-                logger.warning(
-                    f"[get_serializer_class] WidgetInstance '{inst_id}' not found. "
-                    f"Falling back to PlaySessionSerializer."
-                )
-                # PR TODO: Rework the method entirely to filter by method first(after this gets merged in)
-                return PlaySessionSerializer
-            if instance and instance.guest_access:
-                # print("Widget is in guest mode, hiding user info")
-                return PlaySessionSerializer
-            else:
-                # print("Widget is NOT in guest mode, showing user info")
-                return PlaySessionWithExtraUserInfoSerializer
+        kwargs["is_student_view"] = inst_id and PermManager.user_is_student(
+            self.request.user
+        )
+        kwargs["include_activity"] = bool(include_activity)
+        kwargs["include_user_info"] = bool(include_user_info) and not (
+            inst_id and WidgetInstance.objects.filter(pk=inst_id).first().guest_access
+        )
 
-        elif inst_id and PermManager.user_is_student(self.request.user):
-            return PlaySessionStudentViewSerializer
+        return super().get_serializer(*args, **kwargs)
 
-        elif include_activity:
-            return PlaySessionWithExtrasSerializer
-
-        else:
-            return PlaySessionSerializer
+    def get_serializer_class(self):
+        """
+        get_serializer_class must be explicitly defined so get_serializer works as expected
+        """
+        return PlaySessionSerializer
 
     def create(self, request):
         serializer = PlaySessionCreateSerializer(
@@ -141,16 +129,18 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     if validated["instance"].guest_access is False
                     else None
                 )
+
+                # disallow plays for non-playable widget engines
+                if not validated["instance"].widget.is_playable:
+                    return MsgBuilder.failure(
+                        "Failed to Create Play Session", "This widget is not playable."
+                    ).as_drf_response()
+
+                # init the new play
                 new_play = WidgetPlayInitService.init_play(
                     request, validated["instance"], user
                 )
-
-                # this is where the desired error handling from session_play gets handled
                 if not new_play.id:
-                    logger.warning(
-                        f"[Playsessions] Failed to start play session for instance"
-                        f"{validated["instance"].id} and user {user}"
-                    )
                     return MsgBuilder.failure(
                         "Failed to Create Play Session",
                         "There was an error starting your play session. Please try again.",
@@ -196,6 +186,13 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
                 if not is_preview:
                     play = LogPlay.objects.get(pk=pk)
+                    self.check_object_permissions(request, play)
+
+                    if not play.is_valid:
+                        return MsgBuilder.failure(
+                            msg="This play is no longer valid."
+                        ).as_drf_response()
+
                     play.update_elapsed()
 
                     score_module = ScoreModuleFactory.create_score_module(

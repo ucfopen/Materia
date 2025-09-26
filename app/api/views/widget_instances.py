@@ -74,7 +74,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # score distribution needs to be accessible to anyone who can play an instance
         # this either requires authentication (for normal instances)
         # or public visibility (for guest instances)
-        elif self.action == "scores":
+        elif self.action == "performance":
             permission_classes = [IsAuthenticatedOrGuestMode]
 
         # must have (any) access to instance or elevated perms
@@ -282,7 +282,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     # TODO should this be under /instances or /scores ?
     @action(detail=True, methods=["get"])
-    def scores(self, request, pk=None):
+    def performance(self, request, pk=None):
         instance = self.get_object()
 
         logs_for_user = (

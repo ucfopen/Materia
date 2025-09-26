@@ -462,14 +462,16 @@ class WidgetInstaller:
             "metadata": manifest_data["meta_data"],
         }
 
+    @staticmethod
     def save_params(params, widget_id=None):
         # check for existing
         widget_obj = None
         try:
             # update
             widget_obj = Widget.objects.get(id=widget_id)
-            # do not overwrite the in_catalog flag for existing widgets
+            # do not overwrite the in_catalog or featured flag for existing widgets
             params.pop("in_catalog", True)
+            params.pop("featured", False)
             try:
                 for key, value in params.items():
                     setattr(widget_obj, key, value)
