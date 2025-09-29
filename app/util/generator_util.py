@@ -32,13 +32,13 @@ class GenerationUtil:
             include_images = False
 
         # Get demo for widget
-        widget_demo_id = widget.metadata_clean()["demo"]
+        widget_demo_id = widget.metadata.get("demo")
         widget_demo = WidgetInstance.objects.filter(id=widget_demo_id).first()
         if widget_demo is None:
             return MsgBuilder.not_found()
 
         # Prepare a few variables
-        about = widget.metadata_clean()["about"]
+        about = widget.metadata.get("about")
         qset_version = 1
 
         # Grab custom prompt from the widget engine if it's available

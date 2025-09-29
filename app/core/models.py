@@ -882,7 +882,8 @@ class Question(models.Model):
             return False
 
         # Check if values are not empty
-        if not item["type"] or not item["questions"] or not item["answers"]:
+        # In some rare cases an empty answers array is acceptable, as with Adventure
+        if not item["type"] or not item["questions"]:
             return False
 
         # Check if questions and answers are lists
@@ -933,6 +934,8 @@ class Widget(models.Model):
         ("SERVER-CLIENT", "widget is partially scored in both server and client"),
     ]
 
+    UPDATE_METHODS = [("github", "Update via a Github releases API URL")]
+
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255, default="")
     created_at = models.DateTimeField(default=datetime.now)
@@ -951,6 +954,7 @@ class Widget(models.Model):
     is_playable = models.BooleanField(default=True)
     is_scorable = models.BooleanField(default=True)
     in_catalog = models.BooleanField(default=True)
+    featured = models.BooleanField(default=False)
     is_generable = models.BooleanField(default=False)
     uses_prompt_generation = models.BooleanField(default=False)
     creator = models.CharField(max_length=255, default="")
@@ -962,26 +966,11 @@ class Widget(models.Model):
     restrict_publish = models.BooleanField(default=False)
     creator_guide = models.CharField(max_length=255, default="")
     player_guide = models.CharField(max_length=255, default="")
+    metadata = models.JSONField(default=dict)
 
     @property
     def dir(self):
         return f"{self.id}-{self.clean_name}{os.sep}"
-
-    def metadata_clean(self):
-        meta_raw = self.metadata.all()
-        meta_final = {}
-        for meta in meta_raw:
-            # special checks for metadata values that need to be tracked in lists
-            if meta.name in ["features", "supported_data", "playdata_exporters"]:
-                # initialize the list if needed
-                if meta.name not in meta_final:
-                    meta_final[meta.name] = []
-                meta_final[meta.name].append(meta.value)
-            else:
-                meta_final[meta.name] = meta.value
-        # set the 'meta_data' property of this Widget object for potential future reads
-        self.meta_data = meta_final
-        return self.meta_data
 
     def publishable_by(self, user: User) -> bool:
         if not self.restrict_publish:
@@ -1357,21 +1346,6 @@ class WidgetInstance(models.Model):
         ]
 
 
-class WidgetMetadata(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    widget = models.ForeignKey(
-        "Widget",
-        related_name="metadata",
-        on_delete=models.PROTECT,
-        db_column="widget_id",
-    )
-    name = models.CharField(max_length=255)
-    value = models.TextField()
-
-    class Meta:
-        db_table = "widget_metadata"
-
-
 class WidgetQset(models.Model):
     id = models.BigAutoField(primary_key=True)
     instance = models.ForeignKey(
@@ -1462,6 +1436,53 @@ class WidgetQset(models.Model):
             return questions
         else:
             return self.process_and_create_questions()
+
+    def apply_ids_to_questions(self, qset):
+        """
+        Individual questions within qsets should be submitted with null ids
+        Historically we've relied on Materia to provision ids to them
+        before being committed to the database
+
+        Note that in cases where a new qset is being saved for an
+        existing widget, previously saved questions will already have uuids
+        provisioned.
+        """
+        import copy
+        import uuid
+
+        def _process_item(item):
+            if isinstance(item, list):
+                return [_process_item(element) for element in item]
+
+            if isinstance(item, dict):
+                result = copy.deepcopy(item)
+
+                if Question.is_question(result):
+                    if "id" in result and (
+                        result["id"] is None or result["id"] == 0 or result["id"] == ""
+                    ):
+                        result["id"] = str(uuid.uuid4())
+
+                for key, value in result.items():
+                    if isinstance(value, (dict, list)):
+                        result[key] = _process_item(value)
+
+                return result
+
+            return item
+
+        result = _process_item(qset)
+        return result
+
+    def save(self, *args, **kwargs):
+
+        decoded = self.get_data()
+        applied_ids = self.apply_ids_to_questions(decoded)
+        self.set_data(applied_ids)
+
+        super().save(*args, **kwargs)
+
+        self.process_and_create_questions()
 
     class Meta:
         db_table = "widget_qset"

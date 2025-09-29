@@ -464,6 +464,7 @@ class Migration(migrations.Migration):
             },
         ),
 
+        # These migration operations actually take effect
         migrations.AlterField(
             model_name="notification",
             name="updated_at_dt",
