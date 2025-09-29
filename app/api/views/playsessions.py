@@ -199,7 +199,20 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                         instance=play.instance, play=play
                     )
 
-                    score_module.validate_scores()
+                    try:
+                        score_module.validate_scores()
+                    except Exception:
+                        play.is_valid = False
+                        play.save()
+
+                        tbString = traceback.format_exc()
+                        logger.error(
+                            f"\nvalidation failure for play {play.id}:\n{tbString}"
+                        )
+
+                        return MsgBuilder.failure(
+                            msg="This play did not pass validation."
+                        ).as_drf_response()
 
                     # TODO: handle validation failure?
 
