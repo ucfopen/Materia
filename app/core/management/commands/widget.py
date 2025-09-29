@@ -259,7 +259,25 @@ class Command(base.BaseCommand):
         """
         Completely deletes a widget - all database rows and installed files.
         If this widget engine has instances, this command will prompt to delete them all as well.
+        As you can imagine, this is an extremely destructive operation. Ask the user for confirmation first.
         """
+        print(
+            "\nThis operation will remove a widget engine from the database as well as all installed files."
+        )
+        print(
+            "\nAll widget instances created with this engine will be deleted as well."
+        )
+        print(
+            "\nAre you SURE you want to do this? This may cause significant data loss and errors."
+        )
+        confirmation = input(
+            "\nEnter 'Yes I am sure' EXACTLY to perform the delete operation:\n"
+        )
+
+        if confirmation != "Yes I am sure":
+            print("\nConfirmation did not match. Operation aborted.")
+            return False
+
         # Check if widget exists
         widget = Widget.objects.filter(pk=widget_id).first()
         if not widget:
