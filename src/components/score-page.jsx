@@ -42,7 +42,7 @@ const ScorePage = () => {
 				userID: window.USER_ID ?? null,
 				playID: playID,
 				token: token,
-				isEmbedded: isEmbed || !!token,
+				isEmbedded: isEmbed || !!token || !!window.LTI_EMBEDDED,
 				ready: true
 			})
 		})
