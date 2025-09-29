@@ -39,10 +39,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 	const [filteredWidgets, isFiltered] = useMemo(() => {
 		let isFiltered = false
 
-		// create initial set of widgets to filter from - only including playable widgets
-		let results = widgets.filter(w => {
-			return parseInt(w.is_playable) === 1
-		})
+		let results = [...widgets]
 
 		// filters are active, only match active filters
 		if(state.activeFilters.length){
@@ -68,10 +65,10 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 			results = results.filter(w => re.test(w.name))
 		}
 
-		// if there are no filters set, take out the featured widgets (those with in_catalog = 1)
+		// if there are no filters set, take out the featured widgets (those with featured = 1)
 		// when no filter is present, a featured section appears already showing featured widgets
 		if (!isFiltered) {
-			results = results.filter(w => parseInt(w.in_catalog) !== 1)
+			results = results.filter(w => !w.featured)
 		}
 
 		return [results, isFiltered]
@@ -189,7 +186,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 
 	let featuredWidgetsRender = null
 	if (!isFiltered && totalWidgets > 0 ) {
-		const featuredWidgetListRender = widgets.filter(w => w.in_catalog)
+		const featuredWidgetListRender = widgets.filter(w => w.featured)
 		.map(w => <CatalogCard {...w} key={w.id} />)
 		featuredWidgetsRender = (
 			<div className='widget-group'>

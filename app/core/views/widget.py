@@ -56,9 +56,8 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
     def dispatch(self, request, *args, **kwargs):
         widget_slug = kwargs.get("widget_slug")
         widget = Widget.objects.get(pk=_get_id_from_slug(widget_slug))
-        demo_id = widget.metadata_clean().get("demo")
+        demo_id = widget.metadata.get("demo")
         self.instance = WidgetInstance.objects.filter(pk=demo_id).first()
-
         self.validation = self.get_validation(request, self.instance)
 
         return super().dispatch(request, *args, **kwargs)
