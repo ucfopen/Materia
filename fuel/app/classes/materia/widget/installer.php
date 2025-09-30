@@ -313,8 +313,9 @@ class Widget_Installer
 		else
 		{
 			// update
-			// Do not over-write the db's in_catalog flag
+			// Do not over-write the db's in_catalog and featured flag
 			if (isset($params['in_catalog'])) unset($params['in_catalog']);
+			if (isset($params['featured'])) unset($params['featured']);
 
 			$num = \DB::update('widget')
 				->set($params)

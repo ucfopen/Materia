@@ -95,6 +95,12 @@ const ProfilePage = () => {
 
 	const _getMoreLogs = () => {
 		setActivityPage((previous) => previous + 1)
+		setTimeout(() => {
+			window.scrollTo({
+				top: document.body.scrollHeight,
+				behavior: 'smooth'
+			})
+		}, 100)
 	}
 
 	let noActivityRender = (
@@ -140,7 +146,7 @@ const ProfilePage = () => {
 	}
 
 	let mainContentRender = (
-		<section className="page">
+		<section className="page loading">
 			<div className="loading-icon-holder">
 				<LoadingIcon />
 			</div>

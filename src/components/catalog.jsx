@@ -68,10 +68,10 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 			results = results.filter(w => re.test(w.name))
 		}
 
-		// if there are no filters set, take out the featured widgets (those with in_catalog = 1)
+		// if there are no filters set, take out the featured widgets (those with featured = 1)
 		// when no filter is present, a featured section appears already showing featured widgets
 		if (!isFiltered) {
-			results = results.filter(w => parseInt(w.in_catalog) !== 1)
+			results = results.filter(w => parseInt(w.featured) !== 1)
 		}
 
 		return [results, isFiltered]
@@ -189,7 +189,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 
 	let featuredWidgetsRender = null
 	if (!isFiltered && totalWidgets > 0 ) {
-		const featuredWidgetListRender = widgets.filter(w => w.in_catalog==='1')
+		const featuredWidgetListRender = widgets.filter(w => w.featured==='1')
 		.map(w => <CatalogCard {...w} key={w.id} />)
 		featuredWidgetsRender = (
 			<div className='widget-group'>
