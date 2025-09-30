@@ -301,6 +301,10 @@ a {
 	cursor: pointer;
 }
 
+.edit_button:focus {
+	outline: 4px solid  #0078ff;
+}
+
 .green {
 	background:rgb(196, 221, 97);
 	color: rgb(82, 82, 82);
