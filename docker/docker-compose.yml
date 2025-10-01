@@ -5,15 +5,16 @@ networks:
   frontend:
 
 services:
-  nginx-django:
-    image: nginx
+  nginx:
+    build:
+      context: ../
+      dockerfile: materia-app.nginx.Dockerfile
     ports:
-      - '420:80'
+      - '80:80'
     volumes:
       - ../public:/var/www/html/staticfiles:ro
       - ../theme/img:/var/www/html/staticfiles/theme/img:ro
       - uploaded_widgets_django:/var/www/html/staticfiles/widget/:ro
-      - ./config/nginx/sites-enabled:/etc/nginx/conf.d:ro
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
       - frontend

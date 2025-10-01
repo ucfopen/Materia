@@ -1,0 +1,58 @@
+name: materia-django
+
+networks:
+  backend:
+  frontend:
+
+services:
+  nginx:
+    image: materia-django-nginx
+    build:
+      context: ../
+      dockerfile: materia-app.nginx.Dockerfile
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    volumes:
+      - ../theme/img:/var/www/html/staticfiles/theme/img:ro
+      - ../widget:/var/www/html/staticfiles/widget/:ro
+      # - ./config/nginx/sites-enabled:/etc/nginx/conf.d:ro
+      # - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - python
+
+  python:
+    image: materia-django-python
+    build:
+      context: ../
+      dockerfile: materia-app.python.Dockerfile
+    restart: unless-stopped
+    networks:
+      - backend
+    ports:
+      - '8001:8001'
+      - '25:25'
+    environment:
+      - DJANGO_ENV=dev
+      - MYSQL_PORT=3306
+    env_file:
+      - .env
+    volumes:
+    # volume paths may change depending on where your production compose file is located relative to persistent file directories
+      - ../media:/var/www/html/media/:rw
+      - ../widget:/var/www/html/staticfiles/widget/:rw
+      - ./config/uwsgi/:/etc/uwsgi
+    command: /wait_for_it.sh mysql:3306 -t 15 -- uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
+
+  redis:
+    image: redis:3.2
+    ports:
+    - "6379:6379"
+    networks:
+      - backend
+
+volumes:
+  s3_media: {}
