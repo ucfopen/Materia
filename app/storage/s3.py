@@ -6,7 +6,7 @@ import tempfile
 import boto3
 import botocore
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseNotFound, HttpResponseRedirect
 
 logger = logging.getLogger("django")
 
@@ -18,7 +18,25 @@ class S3AssetStorageDriver:
         return os.path.join(subdir or "", f"{id}_{size}")
 
     def get_view_url(id, size):
-        return f"{settings.DRIVER_SETTINGS["s3"]["view_url"]}{id}_{size}"
+
+        # assets served from cloudfront
+        if settings.DRIVER_SETTINGS["s3"]["use_cdn"]:
+            return f"{settings.DRIVER_SETTINGS["s3"]["cdn_domain"]}/{id}_{size}"
+
+        # assets served directly from the s3 bucket via presigned URLs
+        try:
+            client = S3AssetStorageDriver.get_s3(True)
+            url = client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": settings.DRIVER_SETTINGS["s3"]["bucket"],
+                    "Key": S3AssetStorageDriver.get_key_name(id, size),
+                },
+                ExpiresIn=3600,
+            )
+            return url
+        except Exception:
+            return HttpResponseNotFound()
 
     def get_s3(get_client=False):
         s = settings.DRIVER_SETTINGS["s3"]
