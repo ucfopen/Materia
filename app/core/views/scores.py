@@ -6,7 +6,6 @@ from django.http import (
     HttpRequest,
     HttpResponseBadRequest,
     HttpResponseNotFound,
-    HttpResponseRedirect,
 )
 from django.views.generic import TemplateView
 from util.context_util import ContextUtil
@@ -14,13 +13,10 @@ from util.context_util import ContextUtil
 
 class ScoresView(MateriaLoginMixin, TemplateView):
     template_name = "react.html"
-    is_preview = False
     allow_all_by_default = True
 
     def get(self, request, *args, **kwargs):
         widget_instance_id = kwargs.get("widget_instance_id")
-        token = kwargs.get("token")
-        is_embedded = kwargs.get("is_embedded", False)
 
         instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
         if not instance:
@@ -41,9 +37,6 @@ class ScoresView(MateriaLoginMixin, TemplateView):
             css_resources=settings.CSS_GROUPS["scores"],
             js_globals={
                 "USER_ID": request.user.id,
-                "IS_EMBEDDED": is_embedded,
-                "IS_PREVIEW": self.is_preview,
-                "LAUNCH_TOKEN": token,
             },
             request=self.request,
         )
@@ -62,7 +55,7 @@ class ScoresViewSingle(MateriaLoginMixin, TemplateView):
         # Get url args
         play_id = kwargs.get("play_id")
         widget_instance_id = kwargs.get("widget_instance_id")
-        token = self.kwargs.get("token")
+        token = self.kwargs.get("token")  # TODO verify if token is visible here
 
         # Grab and verify play
         play = LogPlay.objects.get(pk=play_id)
@@ -71,37 +64,24 @@ class ScoresViewSingle(MateriaLoginMixin, TemplateView):
         if play.instance.id != widget_instance_id:
             return HttpResponseBadRequest()
 
-        redirect = None
-        is_embedded = False
+        # TODO
+        # Revisit this redirect: this event trigger was associated LTI 1.1
 
         # Allow event listeners to redirect users
         # This is mostly to redirect them to failure status pages
-        # TODO event trigger here - see php
         # $results = \Event::trigger('before_single_score_review',
         # ['play_id' => $play_id, 'content_id' => $play->context_id], 'array');
 
-        results = []
-        for result in results:
-            # Allow events to redirect
-            if "redirect" in result:
-                redirect = result["redirect"]
-            if "is_embedded" in result:
-                is_embedded = result["is_embedded"]
+        # if redirect:
+        #     return HttpResponseRedirect(redirect)
 
-        if redirect:
-            return HttpResponseRedirect(redirect)
-
-        context = _get_context_data(
-            request, widget_instance_id, is_embedded, False, token
-        )
+        context = _get_context_data(request, widget_instance_id, token)
         return self.render_to_response(context)
 
 
 def _get_context_data(
     request: HttpRequest,
     widget_instance_id: str,
-    is_embedded: bool = False,
-    is_preview: bool = False,
     token: str = None,
 ) -> dict:
     # Get widget instance
@@ -115,12 +95,11 @@ def _get_context_data(
 
     # Set up context and return
     js_globals = {
-        "IS_EMBEDDED": is_embedded,
-        "IS_PREVIEW": is_preview,
+        "USER_ID": request.user.id,
     }
 
     if token:
-        js_globals["LAUNCH_TOKEN"] = token
+        js_globals["LTI_TOKEN"] = token
 
     return ContextUtil.create(
         title="Score Results",

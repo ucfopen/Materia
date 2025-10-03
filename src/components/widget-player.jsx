@@ -529,7 +529,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 	const _initScoreScreenUrl = () => {
 		let _scoreScreenURL = ''
 			if (isPreview) {
-				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}?previewId=${previewPlayId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}/${previewPlayId}`
 			} else if (isEmbedded) {
 				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}/${playId}`
 			} else {

@@ -60,7 +60,7 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 
 			// Create a rich error object with all available info
 			const error = new Error(
-				errorData.message || errorData.title || `HTTP error ${response.status}`
+				errorData.msg || errorData.title || `HTTP error ${response.status}`
 			)
 
 			// Add extra properties to the error
@@ -93,6 +93,7 @@ export const apiGetWidgetInstances = (user, pageParam) => {
 	return handleRequest(methods.GET, `/api/instances/?user=${user}&page=${pageParam}`)
 }
 
+// @TODO support getDeleted?
 export const apiGetWidgetInstance = (instId, getDeleted=false) => {
 	return handleRequest(methods.GET, `/api/instances/${instId}/`)
 }
@@ -101,14 +102,9 @@ export const apiGetInstancesForUser = userId => {
 	return handleRequest(methods.GET, `/api/instances/?user=${userId}`)
 }
 
-// TODO update or retire this
-export const apiGetWidgetsByType = (widgetType="default") => {
-	return handleRequest(methods.POST, '/api/widgets/get_by_type/', widgetType )
-}
-
 // Gets widget info
-export const apiGetWidget = (ids=[], type='default') => {
-	let params = `?type=${type}`
+export const apiGetWidget = (ids=[], widgetType='catalog') => {
+	let params = `?type=${widgetType}`
 
 	if (ids.length) {
 		const idsFilter = ids.toString()
@@ -263,6 +259,7 @@ export const apiSearchInstances = (input, pageParam = 1, include_deleted = false
 
 // TODO update or retire
 export const apiGetWidgetInstanceScores = (instId, userId) => {
+	console.log(`inst id: ${instId}, user id: ${userId}`)
 	return handleRequest(methods.GET, `/api/scores/?inst_id=${instId}&user=${userId}`)
 }
 
@@ -280,7 +277,7 @@ export const apiGetScoreDistribution = instId => {
 }
 
 export const apiGetScoreSummary = instId => {
-	return handleRequest(methods.GET, `/api/instances/${instId}/scores/`)
+	return handleRequest(methods.GET, `/api/instances/${instId}/performance/`)
 	.then(data => {
 		const scores = data
 		const ranges = [
@@ -493,6 +490,18 @@ export const apiUnDeleteWidget = ({ instId }) => {
 
 export const apiWidgetPromptGenerate = (prompt) => {
 	return handleRequest(methods.POST, `/api/json/widget_prompt_generate/`,  prompt)
+}
+
+export const apiCheckWidgetForUpdate = (widgetId) => {
+	return handleRequest(methods.GET, `/api/widgets/${widgetId}/check_update/`)
+}
+
+export const apiInstallWidgetUpdate = (widgetId) => {
+	return handleRequest(methods.GET, `/api/widgets/${widgetId}/update_to_latest_version/`)
+}
+
+export const apiCheckAllWidgetsForUpdates = () => {
+	return handleRequest(methods.GET, `/api/widgets/check_updates/`)
 }
 
 export const apiLoginDirect = ( username, password ) => {

@@ -8,7 +8,8 @@ const isValidAccessVal = val => ['Full', 'Limited'].includes(val)
 const CatalogCard = ({
 	id,
 	clean_name = '',
-	in_catalog = '0',
+	in_catalog = false,
+	featured = false,
 	name = '',
 	dir = '',
 	meta_data,
@@ -17,7 +18,7 @@ const CatalogCard = ({
 }) => {
 	// 'Featured' label
 	let featuredLabelRender = null
-	if (in_catalog === '1') {
+	if (featured) {
 		featuredLabelRender = <div className='featured-label'>
 			<svg xmlns='http://www.w3.org/2000/svg'
 				width='18'
@@ -58,7 +59,7 @@ const CatalogCard = ({
 				target='_self'>
 				<div className='header'>
 					{ featuredLabelRender }
-					<h1 className={`infoHeader ${in_catalog === '1' ? 'featured' : ''}`} >{name}</h1>
+					<h1 className={`infoHeader ${featured ? 'featured' : ''}`} >{name}</h1>
 				</div>
 
 				<div className='img-holder'>

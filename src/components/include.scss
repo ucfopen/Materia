@@ -79,10 +79,32 @@ body.darkMode {
 		text-decoration: none;
 	}
 
+    &:disabled {
+      background-color: #ccc;
+      color: #666;
+      cursor: default;
+
+      &:hover {
+        box-shadow: none;
+      }
+    }
+
 	.little-button-text {
 		font-size: 18px;
 		display: block;
 	}
+
+    .ng-modal & {
+      margin: 5px auto;
+    }
+
+    &.notification_action {
+      font-size: 14px;
+      display: none;
+      &.enabled {
+        display: block;
+      }
+  }
 }
 
 .darkMode .action_button {
@@ -1010,44 +1032,6 @@ h1.logo {
 	.darkMode header {
 		background: #1d1f25;
 		background-size: 12px 6px;
-	}
-}
-
-.action_button {
-	padding: 7px 23px 8px 23px;
-	background-color: #ffd439;
-	transition: all 0.4s ease-in-out;
-
-	font-weight: 700;
-	color: #333;
-	font-size: 18px;
-	position: relative;
-	cursor: pointer;
-	display: inline-block;
-	user-select: none;
-
-	border-radius: 4px;
-	border: none;
-
-	.ng-modal & {
-		margin: 5px auto;
-	}
-
-	&.green {
-		background: #c4dd61;
-		color: #525252;
-
-		&:hover {
-			background: #d5ea7f;
-		}
-	}
-
-	&.notification_action {
-		font-size: 14px;
-		display: none;
-		&.enabled {
-			display: block;
-		}
 	}
 }
 

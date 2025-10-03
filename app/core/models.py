@@ -491,6 +491,7 @@ class LogPlay(models.Model):
 
     def set_complete(self, score, possible, percent):
         self.is_complete = True
+        self.is_valid = False
         self.score = score
         self.score_possible = possible
         self.percent = percent if percent <= 100 else 100
@@ -940,6 +941,8 @@ class Widget(models.Model):
         ("SERVER-CLIENT", "widget is partially scored in both server and client"),
     ]
 
+    UPDATE_METHODS = [("github", "Update via a Github releases API URL")]
+
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255, default="")
     created_at = models.DateTimeField(default=datetime.now)
@@ -958,6 +961,7 @@ class Widget(models.Model):
     is_playable = models.BooleanField(default=True)
     is_scorable = models.BooleanField(default=True)
     in_catalog = models.BooleanField(default=True)
+    featured = models.BooleanField(default=False)
     is_generable = models.BooleanField(default=False)
     uses_prompt_generation = models.BooleanField(default=False)
     creator = models.CharField(max_length=255, default="")
@@ -969,26 +973,11 @@ class Widget(models.Model):
     restrict_publish = models.BooleanField(default=False)
     creator_guide = models.CharField(max_length=255, default="")
     player_guide = models.CharField(max_length=255, default="")
+    metadata = models.JSONField(default=dict)
 
     @property
     def dir(self):
         return f"{self.id}-{self.clean_name}{os.sep}"
-
-    def metadata_clean(self):
-        meta_raw = self.metadata.all()
-        meta_final = {}
-        for meta in meta_raw:
-            # special checks for metadata values that need to be tracked in lists
-            if meta.name in ["features", "supported_data", "playdata_exporters"]:
-                # initialize the list if needed
-                if meta.name not in meta_final:
-                    meta_final[meta.name] = []
-                meta_final[meta.name].append(meta.value)
-            else:
-                meta_final[meta.name] = meta.value
-        # set the 'meta_data' property of this Widget object for potential future reads
-        self.meta_data = meta_final
-        return self.meta_data
 
     def publishable_by(self, user: User) -> bool:
         if not self.restrict_publish:
@@ -1362,21 +1351,6 @@ class WidgetInstance(models.Model):
             models.Index(fields=["is_draft"], name="widget_instance_is_draft"),
             models.Index(fields=["is_deleted"], name="widget_instance_is_deleted"),
         ]
-
-
-class WidgetMetadata(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    widget = models.ForeignKey(
-        "Widget",
-        related_name="metadata",
-        on_delete=models.PROTECT,
-        db_column="widget_id",
-    )
-    name = models.CharField(max_length=255)
-    value = models.TextField()
-
-    class Meta:
-        db_table = "widget_metadata"
 
 
 class WidgetQset(models.Model):
