@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0024_alter_question_data_rename_data_question__data_and_more"),
+        ("core", "0024_noop"),
         ("core", "0025_remove_logplay_environment_data_logplay_lti_token"),
     ]
 

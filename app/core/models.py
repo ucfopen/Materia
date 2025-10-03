@@ -606,12 +606,8 @@ class MapAssetToObject(models.Model):
 # models ignoring related_names on foreign keys for now as it probably won't be used in this way
 class MapQuestionToQset(models.Model):
     id = models.BigAutoField(primary_key=True)
-    qset = models.ForeignKey(
-        "WidgetQset", on_delete=models.PROTECT, db_column="qset_id"
-    )
-    question = models.ForeignKey(
-        "Question", on_delete=models.PROTECT, db_column="question_id"
-    )
+    qset_id = models.PositiveBigIntegerField()
+    question_id = models.PositiveBigIntegerField()
 
     class Meta:
         db_table = "map_question_to_qset"
@@ -646,7 +642,7 @@ class Notification(models.Model):
     subject = models.CharField(max_length=511)
     # consider deleting this column & pulling the avatar from relevant user metadata just in time
     avatar = models.CharField(max_length=511)
-    updated_at = models.DateTimeField(default=datetime.now, null=True)
+    updated_at = models.DateTimeField(default=timezone.now, null=True)
     action = models.CharField(max_length=255)
 
     permissions = GenericRelation(ObjectPermission)
