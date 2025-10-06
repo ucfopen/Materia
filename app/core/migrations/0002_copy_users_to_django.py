@@ -9,10 +9,6 @@ def copy_users_to_django(apps, schema_editor):
     """
     Copy old Fuel Users model to Django's User model
     """
-    # TODO: figure out how to handle profile_fields, will do!いつてきます にほ 犬 和
-    # column profile_fields is a type TEXT. has json that looks like this:
-    # a:4:{s:11:"useGravatar";b:1;s:6:"notify";b:1;s:16:"last_pass_change";s:10:"1589489163";s:9:"beardMode";b:0;}
-    # or this: a:3:{s:6:"notify";s:2:"on";s:9:"beardMode";b:0;s:11:"useGravatar";b:1;}
     # TODO: look into bulk_create for potential efficiency
 
     FuelUsers = apps.get_model("core", "Users")

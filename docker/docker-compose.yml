@@ -31,14 +31,14 @@ services:
       - '8001:8001'
       - '25:25'
     depends_on:
-      - mysql2
+      - mysql
     environment:
       - DJANGO_ENV=dev
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=materia_dev
       - MYSQL_USER=materia_user
       - MYSQL_PASSWORD=kogneato
-      - MYSQL_HOST=mysql2
+      - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
     env_file:
       - .env
@@ -50,25 +50,13 @@ services:
     # command: uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
     command: /wait_for_it.sh mysql:3306 -t 15 -- uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
     # command: /bin/bash -c '/wait_for_it.sh mysql:3306 -t 10 && yarn install --silent && echo "Building frontend..." && yarn build-for-image && echo "Collecting static files..." && python manage.py collectstatic --noinput && echo "Starting Django server..." && uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2 && python manage.py runserver 0.0.0.0:8001'
-  mysql2:
+
+  mysql:
     image: mariadb:10.6
     networks:
       - backend
     ports:
       - '3309:3306'
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=materia_dev
-      - MYSQL_USER=materia_user
-      - MYSQL_PASSWORD=kogneato
-    volumes:
-      - ./config/mysql/override.cnf:/etc/mysql/conf.d/override.cnf
-  mysql3:
-    image: mariadb:10.6
-    networks:
-      - backend
-    ports:
-      - '3310:3306'
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=materia_dev
