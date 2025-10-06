@@ -4,6 +4,7 @@ from django.db.models import Q, Subquery
 
 
 def create_user_groups(apps, schema_editor):
+    print()
     support_group, created_support_group = Group.objects.get_or_create(
         name="support_user"
     )
