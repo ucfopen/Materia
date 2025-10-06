@@ -71,6 +71,9 @@ RUN mkdir -p /var/www/html
 COPY docker/dockerfiles/wait_for_it.sh /wait_for_it.sh
 RUN chmod +x /wait_for_it.sh
 
+# Copy default uwsgi configuration
+COPY docker/config/uwsgi /etc/uwsgi
+
 # Copy application code
 COPY --chown=www-data:www-data ./app /var/www/html/
 

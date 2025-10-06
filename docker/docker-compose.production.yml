@@ -44,7 +44,6 @@ services:
     # volume paths may change depending on where your production compose file is located relative to persistent file directories
       - ../media:/var/www/html/media/:rw
       - ../widget:/var/www/html/staticfiles/widget/:rw
-      - ./config/uwsgi/:/etc/uwsgi
     command: /wait_for_it.sh mysql:3306 -t 15 -- uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
 
   redis:
