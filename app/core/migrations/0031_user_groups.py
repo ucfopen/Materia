@@ -57,8 +57,6 @@ def convert_user_groups(apps, schema_editor):
                 continue
         php_to_django_role[php_role.role_id] = django_role.id
 
-    print(php_to_django_role)
-
     # Convert all roles
     for user_id, php_role_id in PermRoleToUser.objects.all().values_list(
         "user_id", "role_id"

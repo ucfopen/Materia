@@ -156,7 +156,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 				})
 				for (let score of scores) {
 					score.roundedPercent = parseFloat(score.percent).toFixed(2)
-					const d = new Date(score.created_at * 1000)
+					const d = new Date(score.created_at)
 					const date = d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
 					score.date = date
 				}
@@ -200,7 +200,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 				...playScores.details[0],
 				table: Array.from(playScores.details[0].table)
 			}
-			
+
 			for (let tableItem of details.table) {
 				let score = parseFloat(tableItem.score)
 				if (score != 0 && score != 100) {
@@ -295,7 +295,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 	Score screen initialization and error handling
 	*/
 	const sendWidgetInit = () => {
-		if (!errorState) { 
+		if (!errorState) {
 			if (customScoreScreen.loading || (customScoreScreen.show && scoreWidgetRef.current == null)) {
 				setCustomScoreScreen({
 					...customScoreScreen,
@@ -335,7 +335,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 						case 'hideResultsTable':
 							return setAttributes({...attributes, showResultsTable: false})
 						case 'hideScoresOverview':
-							return (playData?.overview?.complete ? 
+							return (playData?.overview?.complete ?
 								setAttributes({...attributes, showScoresOverview: false}) :
 								setAttributes({...attributes, showScoresOverview: true})
 							)
@@ -459,7 +459,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 				</li>
 			)
 		}).reverse()
-		
+
 		priorAttempts = (
 			<nav
 				className={`previous-attempts ${prevAttemptOpen || keepPrevOpen ? 'open' : ''}`}

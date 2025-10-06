@@ -19,6 +19,9 @@ class Migration(migrations.Migration):
         def timestamp_to_datetime(ts):
             if ts is None:
                 return None
+            if ts == -1:
+                return None
+
             from django.utils.timezone import make_aware
 
             return make_aware(datetime.fromtimestamp(ts))
@@ -40,7 +43,8 @@ class Migration(migrations.Migration):
 
         def datetime_to_timestamp(dt):
             if dt is None:
-                return None
+                return -1
+
             from datetime import datetime
 
             return datetime.timestamp(dt)
