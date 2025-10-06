@@ -1,13 +1,14 @@
 import React, { useRef, useEffect } from 'react'
 
 // renders the graphic displayed for default score screens that represents the score for an individual question
-const ScoreGraphic = ({type, width, height, set, number, percent, greyMode}) => {
+const ScoreGraphic = ({type, width, height, set=0, number, percent, greyMode}) => {
 	
 	const canvasRef = useRef(null)
-	const canvas = canvasRef.current
+
 
 	useEffect(() => {
 
+		const canvas = canvasRef.current
 		if (!canvas) return
 
 		// to make the canvas look good on retina displays, we need to scale it up
@@ -107,7 +108,7 @@ const ScoreGraphic = ({type, width, height, set, number, percent, greyMode}) => 
 			const dpi = window.devicePixelRatio;
 			context.scale(dpi, dpi);
 		}
-	}, [canvas, percent])
+	}, [height, type, percent, number, set])
 	
 	return (
 		<canvas

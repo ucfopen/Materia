@@ -67,6 +67,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name="widget",
+            name="featured",
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AlterField(
+            model_name="widget",
             name="is_answer_encrypted",
             field=models.BooleanField(default=True),
         ),

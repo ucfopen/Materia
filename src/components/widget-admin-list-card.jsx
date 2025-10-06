@@ -133,7 +133,7 @@ const WidgetListCard = ({widget = null}) => {
                     <div>
                         <span>
                             <label>Version:</label>
-                            {state.widget.meta_data.version.trim() ? state.widget.meta_data.version : 'Unknown'}
+                            {state.widget.meta_data.version ? state.widget.meta_data.version.trim() : 'Unknown'}
                         </span>
                     </div>
                     <div>

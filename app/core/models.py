@@ -491,6 +491,7 @@ class LogPlay(models.Model):
 
     def set_complete(self, score, possible, percent):
         self.is_complete = True
+        self.is_valid = False
         self.score = score
         self.score_possible = possible
         self.percent = percent if percent <= 100 else 100
@@ -957,6 +958,7 @@ class Widget(models.Model):
     is_playable = models.BooleanField(default=True)
     is_scorable = models.BooleanField(default=True)
     in_catalog = models.BooleanField(default=True)
+    featured = models.BooleanField(default=False)
     is_generable = models.BooleanField(default=False)
     uses_prompt_generation = models.BooleanField(default=False)
     creator = models.CharField(max_length=255, default="")

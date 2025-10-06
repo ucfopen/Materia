@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from scoring.module_factory import ScoreModuleFactory
 from util.message_util import MsgBuilder
+from util.perm_manager import PermManager
 from util.semester_util import SemesterUtil
 
 logger = logging.getLogger(__name__)
@@ -48,15 +49,19 @@ class ScoresView(APIView):
             """
             access perms require either:
             the user id in the API request matches the current user OR
-            the current user has authorship permissions to the instance
+            the current user has authorship permissions to the instance OR
+            the current user is a support user
             """
             if (
                 request.user.id != user.id
                 and not instance.permissions.filter(user=request.user).exists()
+                and not PermManager.is_superuser_or_elevated(request.user)
             ):
                 return MsgBuilder.no_perm().as_drf_response()
 
-            plays = LogPlay.objects.filter(user=user, instance=instance)
+            plays = LogPlay.objects.filter(
+                user=user, instance=instance, is_complete=True
+            )
 
             if validated.get("context"):
                 plays = plays.filter(context_id=context)
@@ -180,6 +185,7 @@ class ScoresDetailView(APIView):
                     user_id != play_user_id
                     and play_user_id is not None
                     and not play.instance.permissions.filter(user=request.user).exists()
+                    and not PermManager.is_superuser_or_elevated(request.user)
                 ):
                     return MsgBuilder.no_perm().as_drf_response()
 

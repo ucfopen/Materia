@@ -170,6 +170,9 @@ class PlaySessionInstancePermissions(permissions.BasePermission):
         if not isinstance(obj, LogPlay):
             return False
 
+        if obj.user != request.user:
+            return False
+
         if request.user and request.user.is_authenticated:
             return True
 

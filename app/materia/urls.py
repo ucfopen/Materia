@@ -123,8 +123,8 @@ urlpatterns = [
     ),
     # Scores
     path(
-        "scores/preview/<slug:widget_instance_id>/",
-        ScoresView.as_view(is_preview=True),
+        "scores/preview/<slug:widget_instance_id>/<slug:preview_id>/",
+        ScoresView.as_view(),
         name="preview scores",
     ),
     path(
