@@ -24,6 +24,10 @@ def create_user_groups(apps, schema_editor):
 
 
 def clean_perm_role_to_user(apps, schema_editor):
+    # Skip this migration if PermRoleToUser doesn't exist (meaning we aren't migrating from PHP)
+    if "perm_role_to_user" not in schema_editor.connection.introspection.table_names():
+        return
+
     PermRoleToUser = apps.get_model("core", "PermRoleToUser")
     User = apps.get_model("auth", "User")
     print("\nDeleting perm_role_to_user rows that do not have matching user...")
@@ -36,6 +40,10 @@ def clean_perm_role_to_user(apps, schema_editor):
 
 
 def convert_user_groups(apps, schema_editor):
+    # Skip this migration if PermRoleToUser doesn't exist (meaning we aren't migrating from PHP)
+    if "perm_role_to_user" not in schema_editor.connection.introspection.table_names():
+        return
+
     Group = apps.get_model("auth", "Group")
     UserGroups = apps.get_model("auth", "User_Groups")
 

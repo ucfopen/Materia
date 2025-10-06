@@ -252,13 +252,6 @@ class Migration(migrations.Migration):
             )
             invalid_widgetmetadata.delete()
 
-    # The QA database contains this table, but a fresh Materia PHP database not.
-    # This will delete this table, only if it exists
-    # def delete_table_conditionally(apps, schema_editor):
-    #     all_tables = connection.introspection.table_names()
-    #     if 'perm_role_to_user_backup' not in all_tables:
-    #         schema_editor.execute('CREATE TABLE perm_role_to_user_backup (temp_col int null);')
-
     operations = [
         migrations.RunPython(clean_data),
         # migrations.RunPython(delete_table_conditionally, atomic=False),
