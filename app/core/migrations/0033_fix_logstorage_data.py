@@ -6,19 +6,19 @@ def fix_qset_data(apps, schema_editor):
     Removes the b'' that surrounds some of the data in the qset table
     """
 
-    WidgetQset = apps.get_model("core", "WidgetQset")
+    LogStorage = apps.get_model("core", "LogStorage")
 
-    for qset in WidgetQset.objects.all():
-        decoded = qset.data.decode("utf-8")
+    for log_storage in LogStorage.objects.all():
+        decoded = log_storage.data.decode("utf-8")
         if decoded.startswith("b'") and decoded.endswith("'"):
             decoded = decoded[2:-1]
-            qset.data = decoded
-            qset.save()
+            log_storage.data = decoded
+            log_storage.save()
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("core", "0031_user_groups"),
+        ("core", "0032_fix_qset_data"),
     ]
 
     operations = [migrations.RunPython(fix_qset_data, migrations.RunPython.noop)]

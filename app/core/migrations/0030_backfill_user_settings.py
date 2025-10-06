@@ -8,14 +8,9 @@ def backfill_user_settings(apps, schema_editor):
     FuelUsers = apps.get_model("core", "Users")
     UserSettings = apps.get_model("core", "UserSettings")
 
-    amt_users = FuelUsers.objects.count()
-    count = 0
     for user_id, profile_fields in FuelUsers.objects.all().values_list(
         "id", "profile_fields"
     ):
-        # Count for progress bar tracking
-        count += 1
-
         # Ignore guest user
         if user_id == 0:
             continue
@@ -49,10 +44,6 @@ def backfill_user_settings(apps, schema_editor):
             )
         else:
             UserSettings.objects.create(user_id=user_id, profile_fields=old_fields_dict)
-
-        # Print status
-        if count % 1000 == 0:
-            print(f"~{(count / amt_users) * 100:.2f}%")
 
 
 class Migration(migrations.Migration):

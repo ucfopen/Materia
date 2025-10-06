@@ -602,17 +602,6 @@ class MapAssetToObject(models.Model):
         ]
 
 
-# Convert to be a through model for a many-to-many relationship between Question and WidgetQset
-# models ignoring related_names on foreign keys for now as it probably won't be used in this way
-class MapQuestionToQset(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    qset_id = models.PositiveBigIntegerField()
-    question_id = models.PositiveBigIntegerField()
-
-    class Meta:
-        db_table = "map_question_to_qset"
-
-
 class Notification(models.Model):
     id = models.BigAutoField(primary_key=True)
     from_id = models.ForeignKey(
