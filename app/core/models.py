@@ -756,55 +756,6 @@ class Notification(models.Model):
         ]
 
 
-# We may want to use Django's built-in permissions and roles system instead of these perm models.
-# Will need a migration plan for them potential foreign key relationship re: object_id, object_type
-# for assets, questions, and widget instances
-class PermObjectToUser(models.Model):
-    # historically unused options commented out for now
-    class Perm(models.IntegerChoices):
-        VISIBLE = 1, gettext_lazy("Can see object and view scores")
-        # PLAY = 5, gettext_lazy("Can play object")
-        # SCORE = 10, gettext_lazy("Can receive a score for object")
-        # DATA = 15, gettext_lazy("Can see logs for object")
-        # EDIT = 20, gettext_lazy("Can edit the object")
-        # COPY = 25, gettext_lazy("Can copy the object")
-        FULL = 30, gettext_lazy("Full access to object")
-        # SHARE = 35, gettext_lazy("Can share rights to object with another user")
-
-    class ObjectType(models.IntegerChoices):
-        QUESTION = 1, gettext_lazy("Question")
-        ASSET = 2, gettext_lazy("Media asset")
-        WIDGET = 3, gettext_lazy("Widget engine")
-        INSTANCE = 4, gettext_lazy("Widget instance")
-
-    # Needs primary key
-    id = models.BigAutoField(primary_key=True)
-    # appears to be a generic relationship combined with object_type
-    object_id = models.CharField(max_length=10, db_collation="utf8_bin")
-    user = models.ForeignKey(
-        User,
-        related_name="object_permissions_deprecated",
-        on_delete=models.SET_NULL,
-        db_column="user_id",
-        blank=True,
-        null=True,
-    )
-    perm = models.IntegerField(choices=Perm.choices)
-    # appears to be a generic relationship combined with object_type
-    object_type = models.IntegerField(choices=ObjectType.choices)
-    # will be auto-nulled when the expiration date elapses
-    expires_at = models.DateTimeField(default=None, null=True)
-
-    class Meta:
-        db_table = "perm_object_to_user"
-        constraints = [
-            models.UniqueConstraint(
-                fields=["object_id", "user_id", "perm", "object_type"],
-                name="perm_object_to_user_main",
-            ),
-        ]
-
-
 class Question(models.Model):
     id = models.BigAutoField(primary_key=True)
     qset = models.ForeignKey(

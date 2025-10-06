@@ -20,7 +20,7 @@ def backfill_user_settings(apps, schema_editor):
             continue
 
         # Try to convert the profile_fields field to a python dict
-        old_fields_dict = {}
+        old_fields_dict = None
         try:
             old_fields_dict = phpserialize.loads(
                 profile_fields.encode(), decode_strings=True
