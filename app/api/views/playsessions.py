@@ -199,7 +199,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                         instance=play.instance, play=play
                     )
 
-                    score_module.validate_scores()
+                    score_module.validate_scores(in_process=True)
 
                     # TODO: handle validation failure?
 

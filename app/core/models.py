@@ -1114,23 +1114,21 @@ class WidgetInstance(models.Model):
     def dir(self):
         return f"{self.id}-{self.clean_name}{os.sep}"
 
-    def status(self, context: str = None):
+    def attempts_left_for_user(self, user: User, context: str = ""):
         from util.semester_util import SemesterUtil
 
         semester = SemesterUtil.get_current_semester()
-
-        now = timezone.now()
-        start = self.open_at
-        end = self.close_at
         attempts_used = LogPlay.objects.filter(
+            user=user,
             instance=self,
             context_id=context,
             semester=semester,
+            is_complete=True,
         ).count()
 
         # Check to see if any extra attempts have been provided to the context. Decrement attempts_used if so.
-        # TODO this does not filter by user - we don't have access to user id here. Do we need it?
         extra_attempts_ref = UserExtraAttempts.objects.filter(
+            user=user,
             instance=self,
             context_id=context,
             semester=semester.id,
@@ -1142,7 +1140,17 @@ class WidgetInstance(models.Model):
 
         attempts_used -= extra_attempts
 
-        has_attempts = self.attempts == -1 or attempts_used < self.attempts
+        return -1 if self.attempts == -1 else self.attempts - attempts_used
+
+    def user_has_attempts(self, user: User, context: str = ""):
+        attempts_left = self.attempts_left_for_user(user, context)
+
+        return self.attempts == -1 or attempts_left > 0
+
+    def availability_status(self):
+        now = timezone.now()
+        start = self.open_at
+        end = self.close_at
 
         does_open = start is not None
         does_close = end is not None
@@ -1162,7 +1170,6 @@ class WidgetInstance(models.Model):
             "will_open": will_open,
             "will_close": will_close,
             "always_open": always_open,
-            "has_attempts": has_attempts,
         }
 
     def create_qset(self, data, version=None):
