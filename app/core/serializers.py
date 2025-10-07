@@ -265,11 +265,10 @@ class Base64JSONField(serializers.Field):
 # qset model serializer (inbound | outbound)
 class QuestionSetSerializer(serializers.ModelSerializer):
     data = Base64JSONField()
-    questions_list = serializers.JSONField(required=False)
 
     class Meta:
         model = WidgetQset
-        fields = ["id", "instance", "created_at", "data", "version", "questions_list"]
+        fields = ["id", "instance", "created_at", "data", "version"]
         extra_kwargs = {
             "id": {"required": False, "read_only": True},
             "instance": {"required": False},
@@ -278,70 +277,17 @@ class QuestionSetSerializer(serializers.ModelSerializer):
             "version": {"required": True},
         }
 
-    # helper function to recursively apply uuids to blank ids, also updates questions list
-    def apply_ids_to_questions(self, qset, instance=None):
-        import uuid
-
-        questions_list = []
-
-        def is_question(item):
-            return (
-                isinstance(item, dict)
-                and item.get("id")
-                and isinstance(item.get("questions"), list)
-                and isinstance(item.get("answers"), list)
-                and len(item.get("questions")) > 0
-                and len(item.get("answers")) > 0
-            )
-
-        def _process_item(item):
-
-            if isinstance(item, dict):
-                if "id" in item and (
-                    item["id"] is None or item["id"] == 0 or item["id"] == ""
-                ):
-                    item["id"] = str(uuid.uuid4())
-
-                if is_question(item):
-                    questions_list.append(item)
-
-                for key, value in item.items():
-                    item[key] = _process_item(value)
-
-            elif isinstance(item, list):
-                return [_process_item(i) for i in item]
-
-            return item
-
-        # update WidgetMetaData model to include list
-        if instance:
-            setattr(instance, "questions", questions_list)
-
-        processed_qset = _process_item(qset)
-        return processed_qset, questions_list
-
     def create(self, validated_data):
         if "instance" not in validated_data:
             raise serializers.ValidationError("instance required.")
         if "version" not in validated_data:
             validated_data["version"] = 1
-        if "data" in validated_data:
-            # despite passing data in as a dict, it's present here as a base64 blob again
-            # decode it, apply ids to the dict, then re-encode it
-            decoded_data = WidgetQset.decode_data(validated_data["data"])
-            decoded_data, questions_list = self.apply_ids_to_questions(decoded_data)
-            validated_data["data"] = WidgetQset.encode_data(decoded_data)
-            widget_qset = super().create(validated_data)
-            from core.models import Question
+        if "data" not in validated_data:
+            validated_data["data"] = {}
 
-            # we store each question as its own row instead of a list now
-            for q in questions_list:
-                Question.objects.create(
-                    qset=widget_qset,
-                    data=q,
-                    type=validated_data["instance"].widget,
-                    item_id=q["id"],
-                )
+        # previous widget preprocessing steps (applying IDs and creating questions)
+        # are now performed in the WidgetQset model's save method
+        widget_qset = super().create(validated_data)
 
         return widget_qset
 
@@ -467,7 +413,7 @@ class PlayIdSerializer(serializers.Serializer):
 
 class LogSubmissionSerializer(serializers.Serializer):
     game_time = serializers.FloatField()
-    item_id = serializers.UUIDField(required=False)
+    item_id = serializers.CharField(required=False)
     type = serializers.IntegerField()
     text = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     value = serializers.CharField(required=False, allow_blank=True, allow_null=True)
@@ -504,9 +450,7 @@ class PlayLogUpdateSerializer(serializers.Serializer):
                 # if not play.is_valid or play.user.id != user.id:
                 # TODO user validation, must accommodate guest mode
                 if not play.is_valid:
-                    raise serializers.ValidationError(
-                        f"Play ID {self.context["play_id"]} invalid."
-                    )
+                    raise serializers.ValidationError(f"Play ID {play.id} invalid.")
 
             logs = LogSubmissionSerializer(data=data["logs"], many=True)
             if logs.is_valid():

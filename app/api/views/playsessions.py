@@ -10,6 +10,7 @@ from core.serializers import (
     PlaySessionSerializer,
 )
 from core.services import WidgetPlayInitService
+from django.conf import settings
 from django.db.models import Max
 from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
@@ -199,7 +200,20 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                         instance=play.instance, play=play
                     )
 
-                    score_module.validate_scores(in_process=True)
+                    try:
+                        score_module.validate_scores(in_process=True)
+                    except Exception:
+                        play.is_valid = False
+                        play.save()
+
+                        tbString = traceback.format_exc()
+                        logger.error(
+                            f"\nvalidation failure for play {play.id}:\n{tbString}"
+                        )
+
+                        return MsgBuilder.failure(
+                            msg="This play did not pass validation."
+                        ).as_drf_response()
 
                     # TODO: handle validation failure?
 
@@ -232,6 +246,8 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                                     play.created_at.timestamp() + play.elapsed
                                 )
 
+                                score_url = f"{settings.URLS["BASE_URL"]}scores/single/{play.instance.id}/{play.id}"
+
                                 ags = AGSClient(launch)
                                 completion = (
                                     ags.score_builder()
@@ -240,6 +256,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                                     .activity_progress("Completed")
                                     .grading_progress("FullyGraded")
                                     .timestamp(completed_time)
+                                    .submission_url(score_url)
                                     .submit()
                                 )
 

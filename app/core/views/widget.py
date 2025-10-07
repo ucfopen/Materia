@@ -41,6 +41,7 @@ class WidgetDetailView(TemplateView):
                     self.request.user, "no_author"
                 ),
                 "WIDGET_HEIGHT": widget.height,
+                "MEDIA_URL": settings.URLS["MEDIA_URL"],
             },
             page_type="widget",
             request=self.request,

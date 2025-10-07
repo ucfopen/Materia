@@ -132,7 +132,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 				...attributes,
 				href: path,
 				title: instance.name,
-				hidePlayAgain: !!instance.guest_access || isSingle,
+				hidePlayAgain: isSingle,
 				hidePreviousAttempts: instance.guest_access || attributes.hidePreviousAttempts,
 				showResultsTable: !score_screen
 			})
