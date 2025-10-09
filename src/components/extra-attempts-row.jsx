@@ -46,7 +46,6 @@ const ExtraAttemptsRow = ({extraAttempt, user, onChange}) => {
 				<input type="text"
 					value={state.context_id}
 					onChange={onContextChange}
-					required
 					placeholder="e.g. 'nGjdE'"/>
 			</div>
 

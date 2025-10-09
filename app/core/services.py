@@ -87,7 +87,13 @@ class WidgetPlayValidationService:
     VALID = "valid"
 
     def validate_widget_context(
-        self, request, instance, is_demo=False, is_preview=False, is_embedded=False
+        self,
+        request,
+        instance,
+        is_demo=False,
+        is_preview=False,
+        is_embedded=False,
+        context_id=None,
     ):
 
         autoplay = parse_bool(request.GET.get("autoplay", None), True)
@@ -98,11 +104,11 @@ class WidgetPlayValidationService:
         if not instance.playable_by_current_user(request.user):
             return self.INVALID_NOT_PLAYABLE
 
-        instance_status = instance.status()
-        if not instance_status["is_open"]:
+        instance_availability = instance.availability_status()
+        if not instance_availability["is_open"]:
             return self.INVALID_NOT_YET_OPEN
 
-        if not instance_status["has_attempts"]:
+        if not instance.user_has_attempts(request.user, context_id):
             return self.INVALID_NO_ATTEMPTS
 
         if not is_preview and instance.is_draft:

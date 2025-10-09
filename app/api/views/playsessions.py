@@ -201,7 +201,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     )
 
                     try:
-                        score_module.validate_scores()
+                        score_module.validate_scores(in_process=True)
                     except Exception:
                         play.is_valid = False
                         play.save()

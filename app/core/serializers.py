@@ -7,10 +7,12 @@ import os
 
 from core.models import (
     Asset,
+    DateRange,
     Log,
     LogPlay,
     Notification,
     ObjectPermission,
+    UserExtraAttempts,
     UserSettings,
     Widget,
     WidgetInstance,
@@ -22,6 +24,7 @@ from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
 from util.perm_manager import PermManager
+from util.semester_util import SemesterUtil
 from util.user_util import UserUtil
 
 logger = logging.getLogger("django")
@@ -713,3 +716,16 @@ class ScoreDetailsForPreviewSerializer(serializers.Serializer):
         queryset=WidgetInstance.objects.all(), required=True
     )
     play_id = serializers.UUIDField()
+
+
+class UserExtraAttemptsSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
+    semester = serializers.PrimaryKeyRelatedField(
+        queryset=DateRange.objects.all(),
+        default=lambda: SemesterUtil.get_current_semester(),
+    )
+    context_id = serializers.CharField(allow_blank=True, required=False, default="")
+
+    class Meta:
+        model = UserExtraAttempts
+        fields = "__all__"
