@@ -7,16 +7,16 @@ import os
 
 from core.models import (
     Asset,
+    DateRange,
     Log,
     LogPlay,
     Notification,
     ObjectPermission,
+    UserExtraAttempts,
     UserSettings,
     Widget,
     WidgetInstance,
     WidgetQset,
-    UserExtraAttempts,
-    DateRange,
 )
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -724,6 +724,7 @@ class UserExtraAttemptsSerializer(serializers.ModelSerializer):
         queryset=DateRange.objects.all(),
         default=lambda: SemesterUtil.get_current_semester(),
     )
+    context_id = serializers.CharField(allow_blank=True, required=False, default="")
 
     class Meta:
         model = UserExtraAttempts

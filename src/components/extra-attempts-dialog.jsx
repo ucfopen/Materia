@@ -126,45 +126,36 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 	}
 
 	const onSave = () => {
-		let isError = false
+
+		const mutateOptions = {
+			onSuccess: (data) => {},
+			onError: (err) => {}
+		}
+
 		state.extraAttempts.forEach((obj) => {
-			if(obj.context_id === '') {
-				setSaveError('Must fill in Course ID field')
-				isError = true
+			const cleanObj = { ...obj }
+			delete cleanObj.disabled
+
+			// Check if this needs to be deleted
+			if ((obj?.disabled || obj.extra_attempts < 0) && 'id' in obj) {
+				deleteExtraAttempts.mutate(obj.id, mutateOptions)
+			}
+			// Check if this is new
+			else if (obj.id < 0 && !obj?.disabled && obj.extra_attempts > 0) {
+				delete cleanObj.id
+				createExtraAttempts.mutate(cleanObj, mutateOptions)
+			}
+			// Otherwise, this just need to be updated
+			else {
+				updateExtraAttempts.mutate(cleanObj, mutateOptions)
 			}
 		})
 
-		if (!isError) {
-			const mutateOptions = {
-				onSuccess: (data) => {},
-				onError: (err) => {}
-			}
+		// Removed current queries from cache to force reload on next open
+		removeAttempts()
+		removeUsers()
 
-			state.extraAttempts.forEach((obj) => {
-				const cleanObj = { ...obj }
-				delete cleanObj.disabled
-
-				// Check if this needs to be deleted
-				if ((obj?.disabled || obj.extra_attempts < 0) && 'id' in obj) {
-					deleteExtraAttempts.mutate(obj.id, mutateOptions)
-				}
-				// Check if this is new
-				else if (obj.id < 0 && !obj?.disabled && obj.extra_attempts > 0) {
-					delete cleanObj.id
-					createExtraAttempts.mutate(cleanObj, mutateOptions)
-				}
-				// Otherwise, this just need to be updated
-				else {
-					updateExtraAttempts.mutate(cleanObj, mutateOptions)
-				}
-			})
-
-			// Removed current queries from cache to force reload on next open
-			removeAttempts()
-			removeUsers()
-
-			onClose()
-		}
+		onClose()
 	}
 
 	const containsUser = useMemo(() => {
