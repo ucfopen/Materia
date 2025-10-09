@@ -40,7 +40,7 @@ const StudentSearch = ({addUser, debounceTime=300, setError}) => {
 
 		searchMatchElementsRender = (
 			<div className='attempts_search_list'>
-				{ searchMatchElements}
+				{ searchMatchElements }
 			</div>
 		)
 	}
