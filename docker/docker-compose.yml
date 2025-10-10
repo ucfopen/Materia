@@ -50,6 +50,7 @@ services:
     # command: uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
     command: /wait_for_it.sh mysql:3306 -t 15 -- uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
     # command: /bin/bash -c '/wait_for_it.sh mysql:3306 -t 10 && yarn install --silent && echo "Building frontend..." && yarn build-for-image && echo "Collecting static files..." && python manage.py collectstatic --noinput && echo "Starting Django server..." && uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2 && python manage.py runserver 0.0.0.0:8001'
+
   mysql:
     image: mariadb:10.6
     networks:

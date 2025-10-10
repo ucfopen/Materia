@@ -56,16 +56,6 @@ class Migration(migrations.Migration):
             new_name="widget_instance",
         ),
         migrations.RenameField(
-            model_name="mapquestiontoqset",
-            old_name="qset_id",
-            new_name="qset",
-        ),
-        migrations.RenameField(
-            model_name="mapquestiontoqset",
-            old_name="question_id",
-            new_name="question",
-        ),
-        migrations.RenameField(
             model_name="permobjecttouser",
             old_name="user_id",
             new_name="user",

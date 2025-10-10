@@ -4,7 +4,8 @@ import datetime
 
 import django.db.models.deletion
 from django.conf import settings
-from django.db import migrations, models, connection
+from django.db import migrations, models
+
 
 class Migration(migrations.Migration):
 
@@ -251,40 +252,33 @@ class Migration(migrations.Migration):
             )
             invalid_widgetmetadata.delete()
 
-    # The QA database contains this table, but a fresh Materia PHP database not.
-    # This will delete this table, only if it exists
-    def delete_table_conditionally(apps, schema_editor):
-        all_tables = connection.introspection.table_names()
-        if 'perm_role_to_user_backup' not in all_tables:
-            schema_editor.execute('CREATE TABLE perm_role_to_user_backup (temp_col int null);')
-
     operations = [
         migrations.RunPython(clean_data),
-        migrations.RunPython(delete_table_conditionally, atomic=False),
+        # migrations.RunPython(delete_table_conditionally, atomic=False),
         migrations.DeleteModel(
             name="Migration",
         ),
         migrations.DeleteModel(
             name="PermRoleToPerm",
         ),
-        migrations.DeleteModel(
-            name="PermRoleToUser",
-        ),
-        migrations.DeleteModel(
-            name="PermRoleToUserBackup",
-        ),
+        # migrations.DeleteModel(
+        #     name="PermRoleToUser",
+        # ),
+        # migrations.DeleteModel(
+        #     name="PermRoleToUserBackup",
+        # ),
         migrations.DeleteModel(
             name="Sessions",
         ),
         migrations.DeleteModel(
             name="UserMeta",
         ),
-        migrations.DeleteModel(
-            name="UserRole",
-        ),
-        migrations.DeleteModel(
-            name="Users",
-        ),
+        # migrations.DeleteModel(
+        #     name="UserRole",
+        # ),
+        # migrations.DeleteModel(
+        #     name="Users",
+        # ),
         migrations.RenameField(
             model_name="asset",
             old_name="type",
@@ -557,24 +551,6 @@ class Migration(migrations.Migration):
             model_name="mapquestiontoqset",
             name="id",
             field=models.BigAutoField(primary_key=True, serialize=False),
-        ),
-        migrations.AlterField(
-            model_name="mapquestiontoqset",
-            name="qset_id",
-            field=models.ForeignKey(
-                db_column="qset_id",
-                on_delete=django.db.models.deletion.PROTECT,
-                to="core.widgetqset",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="mapquestiontoqset",
-            name="question_id",
-            field=models.ForeignKey(
-                db_column="question_id",
-                on_delete=django.db.models.deletion.PROTECT,
-                to="core.question",
-            ),
         ),
         migrations.AlterField(
             model_name="notification",

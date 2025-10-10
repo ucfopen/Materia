@@ -8,23 +8,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0014_alter_widget_is_generable_and_more'),
+        ("core", "0014_alter_widget_is_generable_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='usersettings',
-            name='settings',
+            model_name="usersettings",
+            name="settings",
         ),
         migrations.AlterField(
-            model_name='usersettings',
-            name='profile_fields',
+            model_name="usersettings",
+            name="profile_fields",
             field=models.JSONField(default=dict),
         ),
         migrations.AlterField(
-            model_name='usersettings',
-            name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile_settings', to=settings.AUTH_USER_MODEL),
+            model_name="usersettings",
+            name="user",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="profile_settings",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]
