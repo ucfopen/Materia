@@ -1,23 +1,16 @@
 from datetime import datetime
 
 import pytz
-from django.contrib.auth.models import User as DjangoUser
 from django.db import IntegrityError, migrations, transaction
 from django.utils.timezone import make_aware
-
-# from core.models import Users
 
 
 def copy_users_to_django(apps, schema_editor):
     """
     Copy old Fuel Users model to Django's User model
     """
-    # column profile_fields is a type TEXT. has json that looks like this:
-    # a:4:{s:11:"useGravatar";b:1;s:6:"notify";b:1;s:16:"last_pass_change";s:10:"1589489163";s:9:"beardMode";b:0;}
-    # or this: a:3:{s:6:"notify";s:2:"on";s:9:"beardMode";b:0;s:11:"useGravatar";b:1;}
-    # TODO: look into bulk_create for potential efficiency
-
     FuelUsers = apps.get_model("core", "Users")
+    DjangoUser = apps.get_model("auth", "User")
 
     for fuel_user in FuelUsers.objects.all():
         # convert created_at and last_login to datetime
@@ -66,9 +59,11 @@ def copy_users_to_django(apps, schema_editor):
 
 def revert_django_users_to_empty(apps, schema_editor):
     # delete all Django User objects
+    DjangoUser = apps.get_model("core", "User")
+    db_alias = schema_editor.connection.alias
+
     try:
-        DjangoUser.apps.get_model("auth", "User")
-        DjangoUser.objects.all().delete()
+        DjangoUser.objects.using(db_alias).all().delete()
     except Exception:
         pass
 

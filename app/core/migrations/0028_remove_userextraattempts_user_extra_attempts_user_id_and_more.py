@@ -47,7 +47,7 @@ def clean_data(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0026_merge_20250819_1026"),
+        ("core", "0027_widget_metadata_delete_widgetmetadata"),
     ]
 
     operations = [
