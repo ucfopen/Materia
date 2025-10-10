@@ -8,6 +8,7 @@ from django.http import (
     HttpResponseNotFound,
 )
 from django.views.generic import TemplateView
+from lti.services.launch import LTILaunchService
 from util.context_util import ContextUtil
 
 
@@ -100,6 +101,9 @@ def _get_context_data(
 
     if token:
         js_globals["LTI_TOKEN"] = token
+
+    if LTILaunchService.is_lti_launch(request):
+        js_globals["LTI_EMBEDDED"] = True
 
     return ContextUtil.create(
         title="Score Results",

@@ -818,7 +818,8 @@ class Question(models.Model):
             return False
 
         # Check if values are not empty
-        if not item["type"] or not item["questions"] or not item["answers"]:
+        # In some rare cases an empty answers array is acceptable, as with Adventure
+        if not item["type"] or not item["questions"]:
             return False
 
         # Check if questions and answers are lists
@@ -834,28 +835,36 @@ class Question(models.Model):
 
 
 class UserExtraAttempts(models.Model):
-    """
-    TODO this model requires reworks:
-    - change fields to foreign keys
-    - Enable admin operations to apply extra attempts
-    """
+    @staticmethod
+    def get_cur_semester():
+        from util.semester_util import SemesterUtil
 
-    # Needs primary key
-    inst_id = models.CharField(
-        max_length=100, db_collation="utf8_bin"
-    )  # foreign key to WidgetInstance model
-    user_id = models.PositiveBigIntegerField()  # foreign key to Users model
+        return SemesterUtil.get_current_semester()
+
+    instance = models.ForeignKey(
+        "WidgetInstance",
+        related_name="extra_attempts",
+        on_delete=models.CASCADE,
+        null=False,
+    )
+    user = models.ForeignKey(
+        User,
+        related_name="extra_attempts",
+        on_delete=models.CASCADE,
+        null=False,
+    )
     created_at = models.DateTimeField(default=datetime.now)
     extra_attempts = models.IntegerField()
     context_id = models.CharField(max_length=255)
-    semester = models.PositiveBigIntegerField()  # foreign key to DateRange model
+    semester = models.ForeignKey(
+        DateRange,
+        related_name="extra_attempts",
+        on_delete=models.CASCADE,
+        null=False,
+    )
 
     class Meta:
         db_table = "user_extra_attempts"
-        indexes = [
-            models.Index(fields=["user_id"], name="user_extra_attempts_user_id"),
-            models.Index(fields=["inst_id"], name="user_extra_attempts_inst_id"),
-        ]
 
 
 class Widget(models.Model):
@@ -1042,24 +1051,22 @@ class WidgetInstance(models.Model):
     def dir(self):
         return f"{self.id}-{self.clean_name}{os.sep}"
 
-    def status(self, context: str = None):
+    def attempts_left_for_user(self, user: User, context: str = ""):
         from util.semester_util import SemesterUtil
 
         semester = SemesterUtil.get_current_semester()
-
-        now = timezone.now()
-        start = self.open_at
-        end = self.close_at
         attempts_used = LogPlay.objects.filter(
+            user=user,
             instance=self,
             context_id=context,
             semester=semester,
+            is_complete=True,
         ).count()
 
         # Check to see if any extra attempts have been provided to the context. Decrement attempts_used if so.
-        # TODO this does not filter by user - we don't have access to user id here. Do we need it?
         extra_attempts_ref = UserExtraAttempts.objects.filter(
-            inst_id=self.id,
+            user=user,
+            instance=self,
             context_id=context,
             semester=semester.id,
         ).first()
@@ -1070,7 +1077,17 @@ class WidgetInstance(models.Model):
 
         attempts_used -= extra_attempts
 
-        has_attempts = self.attempts == -1 or attempts_used < self.attempts
+        return -1 if self.attempts == -1 else self.attempts - attempts_used
+
+    def user_has_attempts(self, user: User, context: str = ""):
+        attempts_left = self.attempts_left_for_user(user, context)
+
+        return self.attempts == -1 or attempts_left > 0
+
+    def availability_status(self):
+        now = timezone.now()
+        start = self.open_at
+        end = self.close_at
 
         does_open = start is not None
         does_close = end is not None
@@ -1090,7 +1107,6 @@ class WidgetInstance(models.Model):
             "will_open": will_open,
             "will_close": will_close,
             "always_open": always_open,
-            "has_attempts": has_attempts,
         }
 
     def create_qset(self, data, version=None):
@@ -1371,6 +1387,53 @@ class WidgetQset(models.Model):
             return questions
         else:
             return self.process_and_create_questions()
+
+    def apply_ids_to_questions(self, qset):
+        """
+        Individual questions within qsets should be submitted with null ids
+        Historically we've relied on Materia to provision ids to them
+        before being committed to the database
+
+        Note that in cases where a new qset is being saved for an
+        existing widget, previously saved questions will already have uuids
+        provisioned.
+        """
+        import copy
+        import uuid
+
+        def _process_item(item):
+            if isinstance(item, list):
+                return [_process_item(element) for element in item]
+
+            if isinstance(item, dict):
+                result = copy.deepcopy(item)
+
+                if Question.is_question(result):
+                    if "id" in result and (
+                        result["id"] is None or result["id"] == 0 or result["id"] == ""
+                    ):
+                        result["id"] = str(uuid.uuid4())
+
+                for key, value in result.items():
+                    if isinstance(value, (dict, list)):
+                        result[key] = _process_item(value)
+
+                return result
+
+            return item
+
+        result = _process_item(qset)
+        return result
+
+    def save(self, *args, **kwargs):
+
+        decoded = self.get_data()
+        applied_ids = self.apply_ids_to_questions(decoded)
+        self.set_data(applied_ids)
+
+        super().save(*args, **kwargs)
+
+        self.process_and_create_questions()
 
     class Meta:
         db_table = "widget_qset"

@@ -56,6 +56,12 @@ class AGSClient:
             "timestamp": iso_timestamp,
             "scoreGiven": score_data["scoreGiven"],
             "scoreMaximum": score_data["scoreMaximum"],
+            "https://canvas.instructure.com/lti/submission": {
+                "new_submission": True,
+                "preserve_score": False,
+                "submission_type": "basic_lti_launch",
+                "submission_data": score_data["submissionUrl"],
+            },
         }
 
         fetch = request.post(url, body)

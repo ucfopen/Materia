@@ -63,7 +63,7 @@ def convert_json_to_table(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("core", "0026_merge_20250819_1026"),
+        ("core", "0026_widget_featured"),
     ]
 
     operations = [

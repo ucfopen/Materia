@@ -28,5 +28,9 @@ class AGSScoreBuilder:
         self.score_data["gradingProgress"] = progress
         return self
 
+    def submission_url(self, url):
+        self.score_data["submissionUrl"] = url
+        return self
+
     def submit(self):
         return self.client.submit_score(self.score_data)

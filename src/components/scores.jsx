@@ -132,7 +132,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 				...attributes,
 				href: path,
 				title: instance.name,
-				hidePlayAgain: !!instance.guest_access || isSingle,
+				hidePlayAgain: isSingle,
 				hidePreviousAttempts: instance.guest_access || attributes.hidePreviousAttempts,
 				showResultsTable: !score_screen
 			})
@@ -477,7 +477,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 	}
 
 	let playAgainBtn = null
-	if (!attributes.hidePlayAgain) {
+	if (!attributes.hidePlayAgain && attemptsLeft > 0) {
 		playAgainBtn = (
 			<a id='play-again' className='action_button' href={attributes.href}>
 				{isPreview ? 'Preview' : 'Play'} Again
