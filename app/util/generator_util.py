@@ -6,7 +6,7 @@ from core.models import Widget, WidgetInstance
 from django.conf import settings
 from openai import NOT_GIVEN, AzureOpenAI, OpenAI, OpenAIError
 from openai.types.chat import ChatCompletion
-from util.message_util import Msg, MsgBuilder
+from util.message_util import MsgInvalidInput, MsgNotFound, MsgFailure, MsgException
 
 logger = logging.getLogger(__name__)
 
@@ -22,10 +22,10 @@ class GenerationUtil:
         build_off_existing: bool,
         include_images: bool = False,
         instance: WidgetInstance = None,
-    ) -> dict | Msg:
+    ) -> dict:
         # Check if generation is enabled
         if not GenerationUtil.is_enabled():
-            return MsgBuilder.failure(msg="Generation is not enabled")
+            raise MsgFailure(msg="Generation is not enabled")
 
         # Check if image generation is allowed. Overrides what parameter says.
         if not settings.AI_GENERATION["ALLOW_IMAGES"]:
@@ -35,7 +35,7 @@ class GenerationUtil:
         widget_demo_id = widget.metadata.get("demo")
         widget_demo = WidgetInstance.objects.filter(id=widget_demo_id).first()
         if widget_demo is None:
-            return MsgBuilder.not_found()
+            raise MsgNotFound()
 
         # Prepare a few variables
         about = widget.metadata.get("about")
@@ -61,11 +61,11 @@ class GenerationUtil:
             # Validate instance
             qset = instance.get_latest_qset()
             if instance is None:
-                return MsgBuilder.invalid_input(
+                raise MsgInvalidInput(
                     msg="Requires a previously saved instance to build from"
                 )
             if not qset.data:
-                return MsgBuilder.failure(msg="No existing question set found")
+                raise MsgFailure(msg="No existing question set found")
             if qset.version:
                 qset_version = qset.version
 
@@ -111,7 +111,7 @@ class GenerationUtil:
             # Validate/process demo
             qset = widget_demo.get_latest_qset()
             if not qset:
-                return MsgBuilder.not_found(
+                raise MsgNotFound(
                     msg="Unable to locate demo question set for widget engine"
                 )
             if qset.version:
@@ -156,19 +156,19 @@ class GenerationUtil:
             prompt_text += f"\n{qset_encoded}"
 
         # Send the prompt to the generative AI provider
-        result = GenerationUtil._query(prompt_text, "json")
-        time_elapsed_seconds = datetime.now().timestamp() - start_time.timestamp()
-
-        if type(result) is Msg:
+        try:
+            result = GenerationUtil._query(prompt_text, "json")
+            time_elapsed_seconds = datetime.now().timestamp() - start_time.timestamp()
+        except MsgException as e:
             logger.error(
                 f"Error generating question set:\n"
                 f"- Widget: {widget.name}\n"
                 f"- Date: {datetime.now()}\n"
                 f"- Time to complete (seconds): {time_elapsed_seconds}\n"
                 f"- Number of questions asked to generate: {num_questions}\n"
-                f"- Error: {result}"
+                f"- Error: {e}"
             )
-            return result
+            raise e
 
         # A qset was received - decode it
         content = result.choices[0].message.content
@@ -189,11 +189,6 @@ class GenerationUtil:
                 f"- Total tokens: {result.usage.total_tokens}\n"
             )
 
-        # Generate images, if requested
-        # TODO image generation was never used in PHP docker, even though the code for it existed
-        #      reasons mainly include it being expensive and unreliable
-        #      so, for now at least, it's a low priority for me to port
-
         # Done!
         return {
             "qset": qset,
@@ -201,21 +196,21 @@ class GenerationUtil:
         }
 
     @staticmethod
-    def generate_from_prompt(prompt: str) -> str | Msg:
+    def generate_from_prompt(prompt: str) -> str:
         # Check if generation is enabled
         if not GenerationUtil.is_enabled():
-            return MsgBuilder.failure(msg="Generation is not enabled")
+            raise MsgFailure(msg="Generation is not enabled")
 
         # Do query
-        result = GenerationUtil._query(prompt, "text")
-
-        if type(result) is Msg:
+        try:
+            result = GenerationUtil._query(prompt, "text")
+        except MsgException as e:
             logger.error(
                 f"GENERATION UTIL: Error while generation prompt:\n"
                 f"- Prompt: {prompt}\n"
-                f"- Exception: {result}"
+                f"- Exception: {e}"
             )
-            return result
+            raise e
 
         return result.choices[0].message.content
 
@@ -224,11 +219,11 @@ class GenerationUtil:
         return bool(settings.AI_GENERATION["ENABLED"])
 
     @staticmethod
-    def _query(prompt: str, response_format: str = "json") -> ChatCompletion | Msg:
+    def _query(prompt: str, response_format: str = "json") -> ChatCompletion:
         # Get client
         client = GenerationUtil._get_client()
         if client is None:
-            return MsgBuilder.failure(msg="Failed to initialize generation client")
+            raise MsgFailure(msg="Failed to initialize generation client")
 
         # Process response format
         # TODO in the future, maybe look into supporting json_schema? it looks neat
@@ -256,17 +251,13 @@ class GenerationUtil:
                 "GENERATION ERROR: Client threw an error while attempting completion. Exception follows:"
             )
             logger.error(e)
-            return MsgBuilder.failure(
-                msg="Client threw an error while attempting completion"
-            )
+            raise MsgFailure(msg="Client threw an error while attempting completion")
         except Exception as e:
             logger.error(
                 "GENERATION ERROR: Unknown error occurred while attempting completion. Exception follows:"
             )
             logger.error(e)
-            return MsgBuilder.failure(
-                msg="Unknown error occurred while attempting completion"
-            )
+            raise MsgFailure(msg="Unknown error occurred while attempting completion")
 
         # Check for refusal
         message = completion.choices[0].message
@@ -274,7 +265,7 @@ class GenerationUtil:
             logger.error(
                 f"GENERATION ERROR: Provider actively refused to run completion. Reason given: '{message.refusal}'"
             )
-            return MsgBuilder.failure(msg="Provider actively refused to run completion")
+            raise MsgFailure(msg="Provider actively refused to run completion")
 
         return completion
 

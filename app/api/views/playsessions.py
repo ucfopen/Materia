@@ -3,8 +3,8 @@ import traceback
 
 from api.filters import LogPlayFilterBackend
 from core.models import Log, LogPlay, WidgetInstance
-from core.permissions import PlaySessionInstancePermissions
-from core.serializers import (
+from api.permissions import PlaySessionInstancePermissions
+from api.serializers import (
     PlayLogUpdateSerializer,
     PlaySessionCreateSerializer,
     PlaySessionSerializer,
@@ -21,7 +21,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from scoring.module_factory import ScoreModuleFactory
 from util.custom_paginations import PageNumberWithTotalPagination
-from util.message_util import MsgBuilder
+from util.message_util import MsgInvalidInput, MsgFailure
 from util.perm_manager import PermManager
 from util.widget.validator import ValidatorUtil
 
@@ -133,25 +133,25 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
                 # disallow plays for non-playable widget engines
                 if not validated["instance"].widget.is_playable:
-                    return MsgBuilder.failure(
+                    raise MsgFailure(
                         "Failed to Create Play Session", "This widget is not playable."
-                    ).as_drf_response()
+                    )
 
                 # init the new play
                 new_play = WidgetPlayInitService.init_play(
                     request, validated["instance"], user
                 )
                 if not new_play.id:
-                    return MsgBuilder.failure(
+                    raise MsgFailure(
                         "Failed to Create Play Session",
                         "There was an error starting your play session. Please try again.",
-                    ).as_drf_response()
+                    )
 
                 return JsonResponse({"playId": new_play.id})
 
     def update(self, request, pk=None):
         if not pk:
-            return MsgBuilder.invalid_input().as_drf_response()
+            raise MsgInvalidInput()
 
         update_serializer = PlayLogUpdateSerializer(
             data=request.data, context={"request": request, "session_id": pk}
@@ -190,9 +190,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     self.check_object_permissions(request, play)
 
                     if not play.is_valid:
-                        return MsgBuilder.failure(
-                            msg="This play is no longer valid."
-                        ).as_drf_response()
+                        raise MsgFailure(msg="This play is no longer valid.")
 
                     play.update_elapsed()
 
@@ -211,9 +209,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                             f"\nvalidation failure for play {play.id}:\n{tbString}"
                         )
 
-                        return MsgBuilder.failure(
-                            msg="This play did not pass validation."
-                        ).as_drf_response()
+                        raise MsgFailure(msg="This play did not pass validation.")
 
                     # TODO: handle validation failure?
 
@@ -285,9 +281,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 logger.error("play session log save failure:")
                 tbString = traceback.format_exc()
                 logger.error(f"\ntraceback: {tbString}")
-                return MsgBuilder.failure(
-                    "Failed to Save", "Your play logs could not be saved."
-                ).as_drf_response()
+                raise MsgFailure("Failed to Save", "Your play logs could not be saved.")
 
     def destroy(self, request, *args, **kwargs):
         return Response(

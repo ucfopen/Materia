@@ -13,28 +13,15 @@ class MsgSeverity(Enum):
     WARN = "warn"
 
 
-class MsgType(Enum):
-    GENERAL = 0
-    INVALID_INPUT = 1
-    NO_LOGIN = 2
-    NO_PERM = 3
-    STUDENT_COLLAB = 4
-    FAILURE = 5
-    NOT_FOUND = 6
-    EXPIRED = 7
-
-
-class Msg:
+class MsgException(Exception):
     def __init__(
         self,
         title: str,
         msg: str | dict,
-        msg_type: MsgType = MsgType.GENERAL,
         severity: MsgSeverity = MsgSeverity.ERROR,
         halt: bool = False,
         status: int = 403,
     ):
-        self.msg_type = msg_type
         self.title = title
         self.msg = msg
         self.severity = severity
@@ -67,57 +54,73 @@ class Msg:
         )
 
 
-class MsgBuilder:
-    @staticmethod
-    def invalid_input(title: str = "Validation Error", msg: str | dict = "") -> Msg:
-        return Msg(title, msg, MsgType.INVALID_INPUT, MsgSeverity.ERROR, True, 400)
+class MsgInvalidInput(MsgException):
+    def __init__(
+        self,
+        title: str = "Validation Error",
+        msg: str | dict = "",
+    ):
+        super().__init__(title, msg, MsgSeverity.ERROR, True, 400)
 
-    @staticmethod
-    def no_login(
+
+class MsgNoLogin(MsgException):
+    def __init__(
+        self,
         title: str = "Invalid Login",
         msg: str = "You have been logged out, and must login again to continue",
         request: HttpRequest = None,
-    ) -> Msg:
+    ):
         # Set error message for login screen
         if request is not None:
             login_global_vars = request.session.get("login_global_vars", {})
             login_global_vars["LOGIN_ERR"] = msg
             request.session["login_global_vars"] = login_global_vars
 
-        return Msg(title, msg, MsgType.NO_LOGIN, MsgSeverity.ERROR, True)
+        super().__init__(title, msg, MsgSeverity.ERROR, True)
 
-    @staticmethod
-    def no_perm(
+
+class MsgNoPerm(MsgException):
+    def __init__(
+        self,
         title: str = "Permission Denied",
         msg: str = "You do not have permission to access the requested content",
-    ) -> Msg:
-        return Msg(title, msg, MsgType.NO_PERM, MsgSeverity.WARN, False, 401)
+    ):
+        super().__init__(title, msg, MsgSeverity.WARN, False, 401)
 
-    @staticmethod
-    def student_collab(
-        title: str = "Share Not Allowed",
-        msg: str = "Students cannot be added as collaborator to widgets that have guest access disabled",
-    ) -> Msg:
-        return Msg(title, msg, MsgType.STUDENT_COLLAB, MsgSeverity.ERROR, False, 401)
 
-    @staticmethod
-    def failure(
+class MsgFailure(MsgException):
+    def __init__(
+        self,
         title: str = "Action Failed",
         msg: str = "The requested action could not be completed",
         status: int = 403,
-    ) -> Msg:
-        return Msg(title, msg, MsgType.FAILURE, MsgSeverity.ERROR, False, status)
+    ):
+        super().__init__(title, msg, MsgSeverity.ERROR, False, status)
 
-    @staticmethod
-    def not_found(
+
+class MsgNotFound(MsgException):
+    def __init__(
+        self,
         title: str = "Not Found",
         msg: str = "The requested content could not be found",
-    ) -> Msg:
-        return Msg(title, msg, MsgType.NOT_FOUND, MsgSeverity.ERROR, False, 404)
+    ):
+        super().__init__(title, msg, MsgSeverity.ERROR, False, 404)
 
-    @staticmethod
-    def expired(
+
+class MsgExpired(MsgException):
+    def __init__(
+        self,
         title: str = "Expired",
         msg: str = "The requested content has been expired and is no longer available",
-    ) -> Msg:
-        return Msg(title, msg, MsgType.EXPIRED, MsgSeverity.ERROR, False, 410)
+    ):
+        super().__init__(title, msg, MsgSeverity.ERROR, False, 410)
+
+
+class MsgBuilder:
+    # @staticmethod
+    # def student_collab(
+    #     title: str = "Share Not Allowed",
+    #     msg: str = "Students cannot be added as collaborator to widgets that have guest access disabled",
+    # ) -> Msg:
+    #     return Msg(title, msg, MsgType.STUDENT_COLLAB, MsgSeverity.ERROR, False, 401)
+    pass

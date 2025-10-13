@@ -5,8 +5,6 @@
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
 #   * Remove `managed = False` lines to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
-import base64
-import json
 import logging
 import os
 import types
@@ -29,7 +27,9 @@ from django.utils.functional import classproperty
 from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
-from util.message_util import Msg, MsgBuilder
+
+from util.b64_util import Base64Util
+from util.message_util import MsgFailure
 from util.perm_manager import PermManager
 from util.user_util import UserUtil
 from util.widget.asset.manager import AssetManager
@@ -135,8 +135,7 @@ class Asset(models.Model):
 
         return asset_id
 
-    # TODO: make this more Django-y?
-    def db_store(self, user=None):
+    def save(self, *args, **kwargs) -> bool:
         from django.utils.timezone import make_aware
         from util.widget.validator import ValidatorUtil
 
@@ -149,7 +148,7 @@ class Asset(models.Model):
             with transaction.atomic():
                 self.id = asset_id
                 self.created_at = make_aware(datetime.now())
-                self.save()
+                super().save(*args, **kwargs)
 
             return True
 
@@ -160,13 +159,13 @@ class Asset(models.Model):
             logger.error(e)
             return False
 
-    def db_remove(self):
+    def delete(self, *args, **kwargs) -> bool:
         if len(str(self.id)) == 0:
             return False
 
         try:
             with transaction.atomic():
-                self.delete()
+                super().delete()
                 try:
                     ad_obj = AssetData.objects.get(id=self.id)
                     ad_obj.delete()
@@ -207,7 +206,7 @@ class Asset(models.Model):
             asset, uploaded_file
         )
 
-        asset.db_store(user)
+        asset.save()
 
         return asset
 
@@ -309,61 +308,61 @@ class Log(models.Model):
             """
             match log_type_id:
                 case 1:
-                    return Log.LogType.WIDGET_START
+                    return Log.LogType.WIDGET_START[0]
                 case 2:
-                    return Log.LogType.WIDGET_END
+                    return Log.LogType.WIDGET_END[0]
                 case 4:
-                    return Log.LogType.WIDGET_RESTART
+                    return Log.LogType.WIDGET_RESTART[0]
                 case 5:
                     # return Log.LogType.ASSET_LOADING
-                    return Log.LogType.EMPTY
+                    return Log.LogType.EMPTY[0]
                 case 6:
                     # return Log.LogType.ASSET_LOADED
-                    return Log.LogType.EMPTY
+                    return Log.LogType.EMPTY[0]
                 case 7:
                     # return Log.LogType.FRAMEWORK_INIT
-                    return Log.LogType.WIDGET_CORE_INIT
+                    return Log.LogType.WIDGET_CORE_INIT[0]
                 case 8:
                     # return Log.LogType.PLAY_REQUEST
-                    return Log.LogType.WIDGET_PLAY_REQ
+                    return Log.LogType.WIDGET_PLAY_REQ[0]
                 case 9:
                     # return Log.LogType.PLAY_CREATED
-                    return Log.LogType.WIDGET_PLAY_START
+                    return Log.LogType.WIDGET_PLAY_START[0]
                 case 13:
                     # return Log.LogType.LOG_IN
-                    return Log.LogType.WIDGET_LOGIN
+                    return Log.LogType.WIDGET_LOGIN[0]
                 case 15:
                     # return Log.LogType.WIDGET_STATE_CHANGE
-                    return Log.LogType.WIDGET_STATE
+                    return Log.LogType.WIDGET_STATE[0]
                 case 500:
-                    return Log.LogType.KEY_PRESS
+                    return Log.LogType.KEY_PRESS[0]
                 case 1000:
-                    return Log.LogType.BUTTON_PRESS
+                    return Log.LogType.BUTTON_PRESS[0]
                 case 1001:
                     # return Log.LogType.WIDGET_INTERACTION
-                    return Log.LogType.SCORE_WIDGET_INTERACTION
+                    return Log.LogType.SCORE_WIDGET_INTERACTION[0]
                 case 1002:
                     # return Log.LogType.FINAL_SCORE_FROM_CLIENT
-                    return Log.LogType.SCORE_FINAL_FROM_CLIENT
+                    return Log.LogType.SCORE_FINAL_FROM_CLIENT[0]
                 case 1004:
                     # return Log.LogType.QUESTION_ANSWERED
-                    return Log.LogType.SCORE_QUESTION_ANSWERED
+                    return Log.LogType.SCORE_QUESTION_ANSWERED[0]
                 case 1006:
-                    return Log.LogType.SCORE_PARTICIPATION
+                    return Log.LogType.SCORE_PARTICIPATION[0]
                 case 1008:
                     # return Log.LogType.SCORE_FEEDBACK
-                    return Log.LogType.EMPTY
+                    return Log.LogType.EMPTY[0]
                 case 1009:
                     # return Log.LogType.SCORE_ALERT
-                    return Log.LogType.EMPTY
+                    return Log.LogType.EMPTY[0]
                 case 1500:
-                    return Log.LogType.ERROR_GENERAL
+                    return Log.LogType.ERROR_GENERAL[0]
                 case 1509:
-                    return Log.LogType.ERROR_TIME_VALIDATION
+                    return Log.LogType.ERROR_TIME_VALIDATION[0]
                 case 2000:
-                    return Log.LogType.DATA
+                    return Log.LogType.DATA[0]
                 case _:
-                    return Log.LogType.EMPTY
+                    return Log.LogType.EMPTY[0]
 
     id = models.BigAutoField(primary_key=True)
     # consider converting to UUID field. Note: there appear to be some non-UUID values in the table
@@ -838,29 +837,15 @@ class Question(models.Model):
     )
 
     @property
-    def data(self):
-        return self.decoded_data()
+    def data(self) -> dict:
+        return Base64Util.decode(self._data)
 
     @data.setter
-    def data(self, value):
+    def data(self, value: dict):
         if isinstance(value, dict):
-            self._data = self.encode_data(value)
+            self._data = Base64Util.encode(value)
         else:
             self._data = value
-
-    def decoded_data(self):
-        try:
-            decoded_bytes = base64.b64decode(self._data)
-            return json.loads(decoded_bytes.decode("utf-8"))
-        except Exception as e:
-            logger.error(f"Error decoding JSON in Question model: {str(e)}")
-            return {}
-
-    # TODO this is effectively a duplicate of WidgetQset's encode_data
-    @classmethod
-    def encode_data(cls, decoded_data) -> str:
-        json_str = json.dumps(decoded_data)
-        return base64.b64encode(json_str.encode("utf-8")).decode("utf-8")
 
     @staticmethod
     def is_question(item):
@@ -1014,7 +999,7 @@ class Widget(models.Model):
 
     def get_playdata_exporter_methods(
         self, script_path: str = None
-    ) -> dict[str, types.FunctionType] | Msg:
+    ) -> dict[str, types.FunctionType]:
         # Check to see if methods are cached already
         if hasattr(Widget, "playdata_exporter_methods"):
             return Widget.playdata_exporter_methods
@@ -1043,7 +1028,7 @@ class Widget(models.Model):
                 f"Play data exporter for widget '{self.name}' ({self.id}) is invalid!"
             )
             logger.error(" - Missing top level dict object named 'mappings'.")
-            return MsgBuilder.failure(
+            raise MsgFailure(
                 msg="Play data exporter script is invalid; missing 'mappings' dict"
             )
 
@@ -1358,26 +1343,11 @@ class WidgetQset(models.Model):
     data = models.TextField(db_column="data")
     version = models.CharField(max_length=10, blank=True, null=True)
 
-    @classmethod
-    def decode_data(cls, encoded_data) -> dict:
-        try:
-            decoded_bytes = base64.b64decode(encoded_data)
-            return json.loads(decoded_bytes.decode("utf-8"))
-        except Exception as e:
-            logger.error(f"Error decoding JSON in WidgetQset model: {str(e)}")
-            return {}
-
-    # TODO this might be better served as a utility method? Question needs it too
-    @classmethod
-    def encode_data(cls, decoded_data) -> str:
-        json_str = json.dumps(decoded_data)
-        return base64.b64encode(json_str.encode("utf-8")).decode("utf-8")
-
     def get_data(self) -> dict:
-        return self.decode_data(self.data)
+        return Base64Util.decode(self.data)
 
-    def set_data(self, data_dict):
-        self.data = self.encode_data(data_dict)
+    def set_data(self, data_dict: dict):
+        self.data = Base64Util.encode(data_dict)
 
     def process_and_create_questions(self):
         """
@@ -1387,7 +1357,7 @@ class WidgetQset(models.Model):
         This method will effectively be invoked once per qset at most,
         as subsequent requests for questions will be able to use the ORM
         """
-        decoded_data = self.decode_data(self.data)
+        decoded_data = Base64Util.decode(self.data)
         raw_items = decoded_data.get("items", [])
 
         def find_questions(source):

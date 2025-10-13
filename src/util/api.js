@@ -443,7 +443,6 @@ export const apiUpdateUser = (user) => {
 
 export const apiGetQuestionSetHistory = (instId) => {
 	return handleRequest('GET', `/api/instances/${instId}/question_sets/`)
-		.then(data => data['history'])
 }
 
 // Request access to widget

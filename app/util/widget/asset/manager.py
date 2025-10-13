@@ -35,7 +35,7 @@ class AssetManager:
         asset.file_size = file_info.st_size
 
         # try to save the asset and move it
-        if asset.db_store(user) and ValidatorUtil.is_valid_hash(asset.id):
+        if asset.save() and ValidatorUtil.is_valid_hash(asset.id):
             try:
                 # copy the file to its permanent home with an appropriate name
                 AssetManager.get_asset_storage_driver().store(
@@ -55,7 +55,7 @@ class AssetManager:
                 pass
 
             # something failed in the above block, remove the asset
-            asset.db_remove()
+            asset.delete()
 
         return asset
 

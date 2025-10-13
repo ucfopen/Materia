@@ -2,17 +2,17 @@ import logging
 
 from api.filters import UserInstanceFilterBackend
 from core.models import LogActivity, LogPlay, Notification, WidgetInstance, WidgetQset
-from core.permissions import (
+from api.permissions import (
     CanCreateWidgetInstances,
     DenyAll,
-    HasFullInstancePermsAndLockOrElevated,
-    HasFullPermsOrElevated,
-    HasFullPermsOrElevatedOrReadOnly,
-    HasPermsOrElevatedAccess,
-    IsAuthenticatedOrGuestMode,
     IsSuperOrSupportUser,
+    ReadOnlyIfAuthenticated,
+    HasAnyPerms,
+    HasFullPerms,
+    HasInstanceLock,
+    InstanceHasGuestAccess,
 )
-from core.serializers import (
+from api.serializers import (
     ObjectPermissionSerializer,
     PermsUpdateRequestListSerializer,
     PlayIdSerializer,
@@ -26,12 +26,12 @@ from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, MethodNotAllowed
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from util.logging.play_data_exporter import PlayDataExporter
-from util.message_util import Msg, MsgBuilder
+from util.message_util import MsgInvalidInput, MsgFailure
 from util.perm_manager import PermManager
 from util.widget.instance.instance_util import WidgetInstanceUtil
 
@@ -67,7 +67,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             if user_query is None:
                 permission_classes = [IsSuperOrSupportUser]
             # Otherwise, just make sure the user is authenticated. Do not allow reading if not. The queryset already
-            # only contain this user's instances if they have requested their own.
+            # only contains this user's instances if they have requested their own.
             else:
                 permission_classes = [IsAuthenticated]
 
@@ -75,19 +75,21 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # this either requires authentication (for normal instances)
         # or public visibility (for guest instances)
         elif self.action == "performance":
-            permission_classes = [IsAuthenticatedOrGuestMode]
+            permission_classes = [IsAuthenticated | InstanceHasGuestAccess]
 
         # must have (any) access to instance or elevated perms
         # TODO: question_sets can't be restricted in this way, but we may want more context-sensitive authorization
         elif self.action == "copy" or self.action == "export_playdata":
-            permission_classes = [HasPermsOrElevatedAccess]
+            permission_classes = [HasAnyPerms | IsSuperOrSupportUser]
 
         elif self.action == "undelete":
             permission_classes = [IsSuperOrSupportUser]
 
-        # any authenticated user can ask what users have what perms on an instance - but only owners can update perms
+        # any authenticated user can ask what users have what perms on an instance
         elif self.action == "perms":
-            permission_classes = [HasFullPermsOrElevatedOrReadOnly]
+            permission_classes = [
+                HasAnyPerms | IsSuperOrSupportUser | ReadOnlyIfAuthenticated
+            ]
 
         # Special perms for creation
         elif self.action == "create":
@@ -95,11 +97,13 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         # User needs full perms to delete or lock widget
         elif self.action == "destroy" or self.action == "lock":
-            permission_classes = [HasFullPermsOrElevated]
+            permission_classes = [HasFullPerms | IsSuperOrSupportUser]
 
         # User must have full perms and lock to edit
         elif self.action == "update" or self.action == "partial_update":
-            permission_classes = [HasFullInstancePermsAndLockOrElevated]
+            permission_classes = [
+                (HasFullPerms & HasInstanceLock) | IsSuperOrSupportUser
+            ]
 
         # Anyone can play a widget and get its qset
         elif self.action == "question_sets" or self.action == "retrieve":
@@ -309,32 +313,63 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             return Response(serialized.data)
 
         elif request.method == "PUT":
+            # Get info about requester
+            requester = self.request.user
+            requester_perm = instance.permissions.get(user=requester).permission
+
             # Verify request data
             request_serializer = PermsUpdateRequestListSerializer(data=request.data)
             request_serializer.is_valid(raise_exception=True)
 
             # Go through each perm request and process it
             refusals = []
-            for update in request_serializer.validated_data.get("updates", []):
-                user = update["user"]
+            updates = request_serializer.validated_data.get("updates", [])
+            for update in updates:
                 perm_level = update["perm_level"]
                 expiration = update["expiration"]
-
-                # TODO: there should be a check here to make sure a user can't assign greater perms than what they
-                #       current have. this was easier when perms were int-based, but not so much now.
-                #       though, im not sure if it even matters - because to use this endpoint, a user must have FULL
-                #       perms anyway (and i dont imagine there being a perm greater than FULL)
+                user = update["user"]
+                user_existing_perm = None
+                if user_existing_perm_obj := instance.permissions.filter(
+                    user=user
+                ).first():
+                    user_existing_perm = user_existing_perm_obj.permission
 
                 # If perm_level is null, delete the perm entry
                 if perm_level is None:
+                    if user_existing_perm is None:
+                        # user already doesnt have perms
+                        continue
+
+                    # Requester cannot remove perms from anyone w higher than them
+                    if (
+                        PermManager.compare_perms(requester_perm, user_existing_perm)
+                        > 0
+                    ):
+                        refusals.append(user)
+                        continue
+
                     instance.permissions.filter(user=user).delete()
                     # Send deletion notif
                     Notification.create_instance_notification(
-                        from_user=self.request.user,
+                        from_user=requester,
                         to_user=user,
                         instance=instance,
                         mode="disabled",
                     )
+                    continue
+
+                # Make sure requester can't modify perms of others with higher perms than their own
+                if (
+                    user_existing_perm is not None
+                    and PermManager.compare_perms(requester_perm, user_existing_perm)
+                    > 0
+                ):
+                    refusals.append(user)
+                    continue
+
+                # Make sure requester can't grant perms higher than their own
+                if PermManager.compare_perms(requester_perm, perm_level) > 0:
+                    refusals.append(user)
                     continue
 
                 # If this user is a student, make sure we can only give them perms if this instance is in guest mode
@@ -344,13 +379,11 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                         continue
 
                     # Additionally, if this user is a student, give them view access to all assets of this instance
-                    # TODO smth abt this doesnt sound right - shouldn't we be giving perms to everyone?
-                    #      maybe i just dont understand how asset perms work
                     PermManager.set_user_asset_perms_for_instance(
                         user, instance, perm_level
                     )
 
-                # Check if perm is about to be created or updated
+                # Check if perm is about to be created *or* updated (.update_or_create only returns True if created)
                 will_update_or_create = not instance.permissions.filter(
                     user=user, permission=perm_level
                 ).exists()
@@ -369,10 +402,16 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
             # If there was a refusal, return a message
             if len(refusals) > 0:
-                return MsgBuilder.student_collab().as_drf_response()
+                raise MsgFailure(
+                    msg=f"Could not update {len(refusals)} out of {len(updates)} permissions."
+                )
+                # return MsgBuilder.student_collab().as_drf_response()
+                # TODO once error messages are better, make this more detailed
 
             # Otherwise, return success
             return Response({"success": True})
+
+        raise MethodNotAllowed(request.method)
 
     @action(detail=True, methods=["put"])
     def copy(self, request, pk=None):
@@ -390,9 +429,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         except Exception as e:
             logger.error("Failed to copy widget instance:")
             logger.error(e)
-            return MsgBuilder.failure(
-                msg="Widget instance could not be copied."
-            ).as_drf_response()
+            raise MsgFailure(msg="Widget instance could not be copied.")
 
         return Response(WidgetInstanceSerializer(duplicate).data)
 
@@ -405,9 +442,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         semester_ids = request.query_params.get("semesters", "")
 
         if export_type is None:
-            return MsgBuilder.invalid_input(
-                msg="Missing export_type query parameter"
-            ).as_drf_response()
+            raise MsgInvalidInput(msg="Missing export_type query parameter")
 
         instance = self.get_object()
         is_student = PermManager.user_is_student(request.user)
@@ -415,8 +450,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         result, file_ext = PlayDataExporter.export(
             instance, export_type, semester_ids, is_student
         )
-        if type(result) is Msg:
-            return result.as_drf_response()
 
         # technically supposed to use DRF's Response here, but it adds additional processing that makes switching
         # between different file formats (strings like CSVs, blobs like ZIP files, etc.) more difficult

@@ -28,6 +28,8 @@ const QuestionHistory = () => {
 	})
 
 	useEffect(() => {
+		console.log("AAA")
+		console.log(qsetHistory)
 		if (qsetHistory)
 		{
 			qsetHistory.map((qset) => {
@@ -89,7 +91,7 @@ const QuestionHistory = () => {
 		savesRender = saves.map((save, index) => {
 			return (
 				<tr onClick={() => loadSaveData(save.id)} key={index}>
-					<td>Save #{saves.length - index}</td>
+					<td>Save #{index + 1}</td>
 					<td>{new Date(save.created_at).toLocaleString()}</td>
 				</tr>
 			)

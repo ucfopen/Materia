@@ -85,7 +85,7 @@ class MateriaLoginMixin(AccessMixin):
 
 
 # Special exception that can be called from within the dispatch of a view
-# to redirect that user to the login screen on-demand. Must be used with MateriaLoginMixin/ByExceptionMixin
+# to redirect that user to the login screen on-demand. Must be used with MateriaLoginMixin
 class MateriaLoginNeeded(Exception):
     def __init__(
         self,

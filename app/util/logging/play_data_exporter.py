@@ -3,10 +3,10 @@ import logging
 from types import FunctionType
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from core.models import DateRange, LogPlay, WidgetInstance
+from core.models import DateRange, LogPlay, WidgetInstance, Question
 from django.conf import settings
 from django.core.cache import cache
-from util.message_util import Msg, MsgBuilder
+from util.message_util import MsgInvalidInput, MsgNotFound, MsgFailure
 from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
@@ -19,7 +19,7 @@ class PlayDataExporter:
         export_type: str,
         semesters_string: str,
         is_student: bool,
-    ) -> tuple[str | bytes | Msg, str]:
+    ) -> tuple[str | bytes, str]:
         semesters = semesters_string.split(",")
 
         match export_type:
@@ -46,8 +46,6 @@ class PlayDataExporter:
             case _:
                 # Check the widget for its custom playdata exporters
                 methods = instance.widget.get_playdata_exporter_methods()
-                if isinstance(methods, Msg):
-                    return methods, ""
                 exporter_method = methods.get(export_type, None)
 
                 # A custom exporter was found, run it
@@ -59,25 +57,15 @@ class PlayDataExporter:
                             instance, semesters, is_student
                         )
                         # Verify the exporter method returned correct data
-                        if (
-                            not isinstance(result, str)
-                            and not isinstance(result, bytes)
-                            and not isinstance(result, Msg)
-                        ):
-                            return (
-                                MsgBuilder.failure(
-                                    msg=f"The playdata exporter returned an invalid data type '{type(result)}'",
-                                    status=500,
-                                ),
-                                "",
+                        if not (isinstance(result, str) or isinstance(result, bytes)):
+                            raise MsgFailure(
+                                msg=f"The playdata exporter returned an invalid data type '{type(result)}'",
+                                status=500,
                             )
                         if not isinstance(file_ext, str):
-                            return (
-                                MsgBuilder.failure(
-                                    msg=f"The playdata exporter returned an invalid file type '{type(file_ext)}'",
-                                    status=500,
-                                ),
-                                "",
+                            raise MsgFailure(
+                                msg=f"The playdata exporter returned an invalid file type '{type(file_ext)}'",
+                                status=500,
                             )
 
                         # All is good, return results
@@ -87,21 +75,18 @@ class PlayDataExporter:
                             f"Playdata exporter '{export_type}' for widget {instance.widget.clean_name} failed to run:"
                         )
                         logger.error(e)
-                        return (
-                            MsgBuilder.failure(
-                                msg="The playdata exporter failed to run", status=500
-                            ),
-                            "",
+                        raise MsgFailure(
+                            msg="The playdata exporter failed to run", status=500
                         )
 
                 # Otherwise, this export type just doesn't exist
                 else:
-                    return MsgBuilder.invalid_input(msg="Invalid export type"), ""
+                    raise MsgInvalidInput(msg="Invalid export type")
 
     @staticmethod
     def _export_high_scores(
         instance: WidgetInstance, semesters: list[str], is_student: bool
-    ) -> tuple[str | Msg, str]:
+    ) -> tuple[str, str]:
         headers = [
             "Last Name",
             "First Name",
@@ -142,7 +127,7 @@ class PlayDataExporter:
 
         # Throw 404 if there are no play logs
         if len(results) == 0:
-            return MsgBuilder.not_found(msg="No play logs found"), ""
+            raise MsgNotFound(msg="No play logs found")
 
         # Prepare fields for CSV
         data = []
@@ -157,7 +142,7 @@ class PlayDataExporter:
     @staticmethod
     def _export_all_scores(
         instance: WidgetInstance, semesters: list[str], is_student: bool
-    ) -> tuple[str | Msg, str]:
+    ) -> tuple[str, str]:
         headers = ["User ID", "Last Name", "First Name", "Score", "Semester"]
         data = []
         count = 0
@@ -180,7 +165,7 @@ class PlayDataExporter:
 
         # Throw 404 when there is no data found
         if len(data) == 0:
-            return MsgBuilder.not_found(msg="No play logs found"), ""
+            raise MsgNotFound(msg="No play logs found")
 
         # Build as CSV
         return PlayDataExporter.build_csv(headers, data), "csv"
@@ -189,7 +174,7 @@ class PlayDataExporter:
     @staticmethod
     def _export_full_event_log(
         instance: WidgetInstance, semesters: list[str], is_student: bool
-    ) -> tuple[bytes | Msg, str]:
+    ) -> tuple[bytes, str]:
         headers = [
             "User ID",
             "Last Name",
@@ -242,18 +227,96 @@ class PlayDataExporter:
 
         # Throw 404 if no logs found
         if len(play_log_data) == 0:
-            return MsgBuilder.not_found(msg="No play logs found"), ""
+            raise MsgNotFound(msg="No play logs found")
 
         # Build play logs csv
         play_logs_csv = PlayDataExporter.build_csv(headers, play_log_data)
 
-        # TODO find questions and process them here once we know how we're doing questions. check PHP code
+        # Get questions
+        qset = instance.get_latest_qset()
+        question_rows = Question.objects.filter(qset=qset)
 
+        csv_questions = []
+        csv_options = []
+        csv_answers = []
+
+        # Process each question row
+        for question_row in question_rows:
+            question_row_data = question_row.data
+
+            # Grab out each individual question
+            for question in question_row_data["questions"]:
+                csv_question = {
+                    "question_id": question_row_data["id"],
+                    "options": question_row_data["options"],
+                    "id": question.get("id", ""),
+                    "text": question["text"],
+                }
+                csv_questions.append(csv_question)
+
+            # Grab out the keys of options, add them if not already in the list
+            for key in question_row_data["options"].keys():
+                if key in csv_options:
+                    continue
+                csv_options.append(key)
+
+            # Grab out each individual answer
+            for answer in question_row_data["answers"]:
+                csv_answer = {
+                    "question_id": question_row_data["id"],
+                    "id": answer.get("id", ""),
+                    "text": answer.get("text", ""),
+                    "value": answer.get("value", ""),
+                }
+                csv_answers.append(csv_answer)
+
+        # Build questions CSV
+        question_csv_headers = ["question_id", "id", "text"]
+        question_csv_data = []
+        for option_key in csv_options:
+            question_csv_headers.append(option_key)
+
+        for question in csv_questions:
+            this_row = []
+            sanitized_question_text = PlayDataExporter._sanitize_text(question["text"])
+
+            this_row.append(question["question_id"])
+            this_row.append(question["id"])
+            this_row.append(sanitized_question_text)
+            for option_key in csv_options:
+                value = question["options"].get(option_key, "")
+                if isinstance(value, dict) or isinstance(value, list):
+                    value = "[object]"
+                this_row.append(value)
+
+            question_csv_data.append(this_row)
+
+        # Build answers CSV
+        answers_csv_headers = ["question_id", "id", "text", "value"]
+        answers_csv_data = []
+        for answer in csv_answers:
+            this_row = []
+            sanitized_answer_text = PlayDataExporter._sanitize_text(answer["text"])
+            this_row.append(answer["question_id"])
+            this_row.append(answer["id"])
+            this_row.append(sanitized_answer_text)
+            this_row.append(answer["value"])
+            answers_csv_data.append(this_row)
+
+        # Zip it all up and send it off
         zip_buffer = (
             io.BytesIO()
         )  # create in-memory byte buffer that can be used as a file
         with ZipFile(zip_buffer, "w", ZIP_DEFLATED) as zip_file:
             zip_file.writestr("logs.csv", play_logs_csv)
+            zip_file.writestr(
+                "questions.csv",
+                PlayDataExporter.build_csv(question_csv_headers, question_csv_data),
+            )
+            zip_file.writestr(
+                "answers.csv",
+                PlayDataExporter.build_csv(answers_csv_headers, answers_csv_data),
+            )
 
         return zip_buffer.getvalue(), "zip"
 
@@ -261,7 +324,7 @@ class PlayDataExporter:
     @staticmethod
     def _export_referrer_urls(
         instance: WidgetInstance, semesters: list[str], is_student: bool
-    ) -> tuple[bytes | Msg, str]:
+    ) -> tuple[bytes, str]:
         headers_individual = ["User", "URL", "Date"]
         data_individual = []
         referrer_count = {}
@@ -271,14 +334,14 @@ class PlayDataExporter:
             [year, term] = semester.split("-")
             date = DateRange.objects.filter(semester=term, year=year).first()
             if date is None:
-                return MsgBuilder.not_found(msg="Semester not found"), ""
+                raise MsgNotFound(msg="Semester not found")
 
             # Form query, only including user info if requesting user isn't a student
             raw_data = PlayDataExporter.get_all_plays_for_instance(
                 instance, term, int(year), is_student
             )
             if len(raw_data) == 0:
-                return MsgBuilder.not_found(msg="No play logs found"), ""
+                raise MsgNotFound(msg="No play logs found")
 
             # Process data for each individual play and their referrer
             for datum in raw_data:
@@ -315,9 +378,28 @@ class PlayDataExporter:
     @staticmethod
     def _export_questions_and_answers(
         instance: WidgetInstance, semesters: list[str]
-    ) -> tuple[str | Msg, str]:
-        # TODO awaiting re-do/implementation of the question structure
-        raise NotImplementedError()
+    ) -> tuple[str, str]:
+        qset = instance.get_latest_qset()
+        question_rows = Question.objects.filter(qset=qset)
+
+        headers = ["Question", "Answers"]
+        data = []
+
+        for question in question_rows:
+            this_row = []
+            question_data = question.data
+
+            question_text = question_data["questions"][0]["text"]
+            sanitized_question_text = PlayDataExporter._sanitize_text(question_text)
+            this_row.append(sanitized_question_text)
+
+            for answer in question_data["answers"]:
+                sanitized_answer_text = PlayDataExporter._sanitize_text(answer["text"])
+                this_row.append(sanitized_answer_text)
+
+            data.append(this_row)
+
+        return PlayDataExporter.build_csv(headers, data), "csv"
 
     @staticmethod
     def build_csv(headers: list[str], data: list[list[str]]) -> str:
@@ -359,3 +441,10 @@ class PlayDataExporter:
         result = list(plays)
         cache.set(cache_key, result, settings.PLAYDATA_EXPORTER_CACHE_TIMEOUT)
         return result
+
+    @staticmethod
+    def _sanitize_text(text):
+        if not isinstance(text, str):
+            return ""
+
+        return text.replace(",", "").replace("\n", "").replace("\r", "")

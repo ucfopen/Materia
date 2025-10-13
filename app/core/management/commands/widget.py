@@ -6,7 +6,7 @@ from urllib import request
 from core.models import Question, Widget, WidgetInstance, WidgetQset
 from django.conf import settings
 from django.core.management import base
-from util.message_util import Msg
+from util.message_util import MsgException
 from util.widget.installer import WidgetInstaller
 
 logger = logging.getLogger("django")
@@ -171,9 +171,10 @@ class Command(base.BaseCommand):
 
         # Get latest version available
         logger.warning("Getting latest available version...")
-        result = WidgetInstaller.get_latest_version_for(widget_id)
-        if isinstance(result, Msg):
-            logger.error(result.msg)
+        try:
+            result = WidgetInstaller.get_latest_version_for(widget_id)
+        except MsgException as e:
+            logger.error(e.msg)
             logger.error("Unable to update.")
             return
         new_ver, wigt_url, checksum_url = result
@@ -207,9 +208,10 @@ class Command(base.BaseCommand):
         # Check which widgets have updates
         updates_pending = []
         for widget_id, widget_name in widgets:
-            result = WidgetInstaller.get_latest_version_for(widget_id)
-            if isinstance(result, Msg):
-                print(f"{widget_name} ({widget_id}): Could not check for update")
+            try:
+                result = WidgetInstaller.get_latest_version_for(widget_id)
+            except MsgException as e:
+                print(f"{widget_name} ({widget_id}): Could not check for update ({e.msg})")
                 continue
             new_ver, wigt_url, checksum_url = result
 

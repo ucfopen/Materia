@@ -4,14 +4,14 @@ import traceback
 
 from core.management.commands import widget
 from core.models import Widget
-from core.permissions import IsSuperuser
-from core.serializers import WidgetSerializer
+from api.permissions import IsSuperuser
+from api.serializers import WidgetSerializer
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from util.message_util import Msg, MsgBuilder
+from util.message_util import MsgFailure, MsgException
 from util.widget.installer import WidgetInstaller
 
 logger = logging.getLogger("django")
@@ -90,8 +90,6 @@ class WidgetViewSet(viewsets.ModelViewSet):
     def check_update(self, request, pk):
         # Grab latest available version
         result = WidgetInstaller.get_latest_version_for(pk)
-        if isinstance(result, Msg):
-            return result.as_drf_response()
         new_ver, _, _ = result
 
         # Check if the latest available version is newer than what's currently installed
@@ -108,14 +106,12 @@ class WidgetViewSet(viewsets.ModelViewSet):
     def update_to_latest_version(self, request, pk):
         # Get latest version
         result = WidgetInstaller.get_latest_version_for(pk)
-        if isinstance(result, Msg):
-            return result.as_drf_response()
         new_ver, wigt_link, checksum_link = result
 
         # Check if update is even needed
         update_available = WidgetInstaller.needs_update(pk, new_ver)
         if not update_available:
-            return MsgBuilder.failure(msg="Widget already up to date").as_drf_response()
+            raise MsgFailure(msg="Widget already up to date")
 
         # We are good to update - start the process
         widget_command = widget.Command()
@@ -123,7 +119,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
             widget_command.install_from_url(wigt_link, checksum_link, pk)
         except Exception as e:
             print(traceback.format_exc())
-            return MsgBuilder.failure(msg=str(e)).as_drf_response()
+            raise MsgFailure(msg=str(e))
 
         return Response({"success": True})
 
@@ -133,12 +129,12 @@ class WidgetViewSet(viewsets.ModelViewSet):
         updates = {"updates_available": [], "could_not_check": []}
         for widget_id in Widget.objects.values_list("id", flat=True).all():
             # Grab latest available version
-            result = WidgetInstaller.get_latest_version_for(widget_id)
-            if isinstance(result, Msg):
-                updates["could_not_check"].append({
-                    "widget_id": widget_id,
-                    "msg": result.as_json()
-                })
+            try:
+                result = WidgetInstaller.get_latest_version_for(widget_id)
+            except MsgException as e:
+                updates["could_not_check"].append(
+                    {"widget_id": widget_id, "msg": e.as_json()}
+                )
                 continue
             new_ver, _, _ = result
 
@@ -146,9 +142,11 @@ class WidgetViewSet(viewsets.ModelViewSet):
             update_available = WidgetInstaller.needs_update(widget_id, new_ver)
 
             if update_available:
-                updates["updates_available"].append({
-                    "widget_id": widget_id,
-                    "new_version": new_ver,
-                })
+                updates["updates_available"].append(
+                    {
+                        "widget_id": widget_id,
+                        "new_version": new_ver,
+                    }
+                )
 
         return Response(updates)

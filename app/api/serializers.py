@@ -21,6 +21,8 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
+
+from util.b64_util import Base64Util
 from util.perm_manager import PermManager
 from util.user_util import UserUtil
 
@@ -112,17 +114,6 @@ class UserMetadataSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     f"Invalid profile field provided: {key}"
                 )
-
-            # TODO is this necessary? We're already enforcing booleans via BooleanField
-            if not isinstance(value, bool):
-                if value.lower() in ["true", "1"]:
-                    value = True
-                elif value.lower() in ["false", "0"]:
-                    value = False
-                else:
-                    raise serializers.ValidationError(
-                        f"Profile field {key} must provide boolean value."
-                    )
 
         return data["profile_fields"]
 
@@ -303,7 +294,7 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
         # once validated, save the qset
 
         if qset:
-            decoded_qset = WidgetQset.decode_data(qset["data"])
+            decoded_qset = Base64Util.decode(qset["data"])
             qset_serializer = QuestionSetSerializer(
                 data={**qset, "data": decoded_qset, "instance": widget_instance.id}
             )
@@ -686,7 +677,6 @@ class ObjectPermissionSerializer(serializers.ModelSerializer):
     def get_content_type(self, obj):
         return obj.content_type.model
 
-    # TODO content_type is returning an integer value, it should give us the actual content type name?
     class Meta:
         model = ObjectPermission
         fields = ["user", "content_type", "object_id", "permission", "expires_at"]

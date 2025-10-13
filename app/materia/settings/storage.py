@@ -43,3 +43,28 @@ DRIVER_SETTINGS = {
         ),
     },
 }
+
+ALLOWED_EXTENSIONS = (
+    os.environ.get("ALLOWED_EXTENSIONS", "jpg,jpeg,png,gif,wav,mp3,obj,m4a")
+    .replace(" ", "")
+    .split(",")
+)
+
+IMAGE_MIMETYPES = (
+    os.environ.get("IMAGE_MIMETYPES", "image/jpg,image/jpeg,image/gif,image/png")
+    .replace(" ", "")
+    .split(",")
+)
+
+AUDIO_MIMETYPES = (
+    os.environ.get(
+        "AUDIO_MIMETYPES",
+        "audio/mp3,audio/mpeg,audio/mpeg3,audio/mp4,audio/x-m4a,audio/wave,audio/wav,audio/x-wav,audio/m4a",
+    )
+    .replace(" ", "")
+    .split(",")
+)
+
+VIDEO_MIMETYPES = os.environ.get("VIDEO_MIMETYPES", "").replace(" ", "").split(",")
+
+MODEL_MIMETYPES = os.environ.get("MODEL_MIMETYPES", "obj").replace(" ", "").split(",")

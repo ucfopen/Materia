@@ -15,7 +15,7 @@ from django.conf import settings
 from django.core.management import color_style
 from django.utils.timezone import make_aware
 from urllib3.exceptions import MaxRetryError
-from util.message_util import Msg, MsgBuilder
+from util.message_util import MsgNotFound, MsgFailure
 
 logger = logging.getLogger("django")
 
@@ -635,21 +635,21 @@ class WidgetInstaller:
         shutil.rmtree(target_dir)
 
     @staticmethod
-    def get_latest_version_for(widget_id: int) -> tuple[str, str, str] | Msg:
+    def get_latest_version_for(widget_id: int) -> tuple[str, str, str]:
         # Grab widget
         widget = Widget.objects.filter(id=widget_id).first()
         if widget is None:
-            return MsgBuilder.not_found(msg=f"Widget with ID {widget_id} not found")
+            raise MsgNotFound(msg=f"Widget with ID {widget_id} not found")
 
         # Check metadata
         update_method = widget.metadata.get("update_method")
         if update_method is None:
-            return MsgBuilder.failure(
+            raise MsgFailure(
                 msg=f"Widget {widget_id} '{widget.name}' does not have a update method set"
             )
 
         if update_method not in (x[0] for x in Widget.UPDATE_METHODS):
-            return MsgBuilder.failure(
+            raise MsgFailure(
                 msg=f"Widget {widget_id} '{widget.name}' requests a update method of "
                 f"'{widget.metadata["update_method"]}', which is not supported"
             )
@@ -658,14 +658,12 @@ class WidgetInstaller:
             case "github":
                 result = WidgetInstaller._get_latest_release_github(widget.metadata)
             case _:
-                return MsgBuilder.failure(msg="Unsupported update method")
+                raise MsgFailure(msg="Unsupported update method")
 
-        if isinstance(result, Msg):
-            return result
         new_ver, wigt_url, checksum_url = result
 
         if new_ver is None or wigt_url is None or checksum_url is None:
-            return MsgBuilder.failure(msg="Unknown Error")
+            raise MsgFailure(msg="Unknown Error")
 
         return new_ver, wigt_url, checksum_url
 
@@ -688,14 +686,14 @@ class WidgetInstaller:
         return update_available
 
     @staticmethod
-    def _get_latest_release_github(widget_metadata) -> tuple[str, str, str] | Msg:
+    def _get_latest_release_github(widget_metadata) -> tuple[str, str, str]:
         """
         Returns the latest release for a widget from GitHub
         """
         # Grab repo from metadata
         repo = widget_metadata.get("repo")
         if repo is None:
-            return MsgBuilder.failure(msg="Widget does not have a repo set")
+            raise MsgFailure(msg="Widget does not have a repo set")
 
         # Check if repo field is a full github URL. If so, take out the author and repo name.
         if "github.com" in repo:
@@ -708,10 +706,8 @@ class WidgetInstaller:
         releases_json = WidgetInstaller._get_json(
             f"https://api.github.com/repos/{repo}/releases"
         )
-        if isinstance(releases_json, Msg):
-            return releases_json
         if len(releases_json) == 0:
-            return MsgBuilder.failure(msg="Github returned no releases for this widget")
+            raise MsgFailure(msg="Github returned no releases for this widget")
 
         latest = releases_json[0]
         version = latest["tag_name"]
@@ -726,34 +722,32 @@ class WidgetInstaller:
                 wigt_url = asset["browser_download_url"]
 
         if wigt_url is None or checksum_url is None:
-            return MsgBuilder.failure(
+            raise MsgFailure(
                 msg=f"A release was found ({version}), but the required assets were not found"
             )
 
         return version, wigt_url, checksum_url
 
     @staticmethod
-    def _get_json(url: str) -> dict | Msg:
+    def _get_json(url: str) -> dict:
         """
         Fetches a URL and processes it as JSON, with error checking baked in.
         """
         try:
             resp = urllib3.request("GET", url, timeout=10)
             if math.floor(resp.status) != 200:  # Check status
-                return MsgBuilder.failure(
+                raise MsgFailure(
                     msg=f"Update server returned with status {resp.status}"
                 )
-            json = resp.json()  # Decode JSON
-            return json
+            json_resp = resp.json()  # Decode JSON
+            return json_resp
         except MaxRetryError:
-            return MsgBuilder.failure(
-                msg="Connection to the update server has timed out"
-            )
+            raise MsgFailure(msg="Connection to the update server has timed out")
         except JSONDecodeError:
-            return MsgBuilder.failure(
+            raise MsgFailure(
                 msg="Unable to decode JSON response returned from update server"
             )
         except Exception:
-            return MsgBuilder.failure(
+            raise MsgFailure(
                 msg="Unable to update due to an error connecting to the update server"
             )

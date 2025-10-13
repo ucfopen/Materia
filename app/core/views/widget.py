@@ -1,6 +1,9 @@
 import json
 import logging
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
+
 from core.mixins import (
     MateriaLoginMixin,
     MateriaLoginNeeded,
@@ -48,6 +51,7 @@ class WidgetDetailView(TemplateView):
         )
 
 
+@method_decorator(never_cache, name="dispatch")
 class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView):
     template_name = "react.html"
     allow_all_by_default = True
@@ -91,6 +95,7 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
         return {"play_id": play.id, "lti_token": None}
 
 
+@method_decorator(never_cache, name="dispatch")
 class WidgetPlayView(
     LtiLaunchMixin, MateriaWidgetPlayProcessor, MateriaLoginMixin, TemplateView
 ):
@@ -172,6 +177,7 @@ class WidgetPlayView(
         return lti_error_page(request)
 
 
+@method_decorator(never_cache, name="dispatch")
 class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView):
     template_name = "react.html"
     login_title = "Login to preview this widget"
@@ -196,6 +202,7 @@ class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateV
         return {"play_id": preview, "lti_token": None}
 
 
+@method_decorator(never_cache, name="dispatch")
 class WidgetCreatorView(MateriaLoginMixin, PermissionRequiredMixin, TemplateView):
     template_name = "react.html"
     login_message = "Please log in to create this widget."
@@ -350,8 +357,6 @@ def _display_widget(
 
 
 def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
-    # TODO $this->_disable_browser_cache = true;
-
     return ContextUtil.create(
         title=f"{title}",
         js_resources="dist/js/creator-page.js",
@@ -436,8 +441,6 @@ def _create_widget_retired_page(request: HttpRequest, is_embedded: bool = False)
 def _create_no_attempts_page(
     request: HttpRequest, instance: WidgetInstance, is_embedded
 ):
-    # TODO _disable_browser_cache = true
-
     return ContextUtil.create(
         title="Widget Unavailable",
         page_type="login",
@@ -455,8 +458,6 @@ def _create_no_attempts_page(
 
 
 def _create_pre_embed_placeholder_page(request: HttpRequest, instance: WidgetInstance):
-    # TODO _disable_browser_cache = true
-
     return ContextUtil.create(
         title=f"{instance.name} {instance.widget.name}",
         page_type="widget",

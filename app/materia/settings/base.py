@@ -215,6 +215,4 @@ EMAIL_SSL_CERTFILE = os.environ.get("EMAIL_SSL_CERTFILE")
 
 # Sendgrid config
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
-SENDGRID_SANDBOX_MODE_IN_DEBUG = (
-    False  # TODO when true, emails are not actually sent in debug mode
-)
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
