@@ -151,7 +151,7 @@ class PlaySessionInstancePermissions(permissions.BasePermission):
             return True
 
         # do we have an instance ID query param?
-        inst_id = request.query_params.get("inst_id")
+        inst_id = request.query_params.get("inst_id") or request.data.get("instanceId")
         if inst_id is not None:
             try:
                 instance = WidgetInstance.objects.get(pk=inst_id)

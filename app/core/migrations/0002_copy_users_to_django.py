@@ -9,22 +9,8 @@ def copy_users_to_django(apps, schema_editor):
     """
     Copy old Fuel Users model to Django's User model
     """
-    # TODO: look into bulk_create for potential efficiency
-
     FuelUsers = apps.get_model("core", "Users")
     DjangoUser = apps.get_model("auth", "User")
-
-    # use raw sql to create a guest user with id 0
-    with transaction.atomic():
-        cursor = schema_editor.connection.cursor()
-        cursor.execute(
-            """
-            SET SESSION sql_mode='NO_AUTO_VALUE_ON_ZERO';
-            INSERT INTO `auth_user` (`id`, `password`, `last_login`, `is_superuser`, `username`, `first_name`, `last_name`, `email`, `is_staff`, `is_active`, `date_joined`)
-            VALUES
-                (0, '', NULL, 0, 'guestuser', 'guest', 'user', 'testguestuser@ucf.edu', 0, 1, NOW());
-            """
-        )
 
     for fuel_user in FuelUsers.objects.all():
         # convert created_at and last_login to datetime
