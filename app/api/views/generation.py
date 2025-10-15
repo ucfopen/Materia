@@ -8,8 +8,8 @@ from api.serializers import (
     QsetGenerationRequestSerializer,
     PromptGenerationRequestSerializer,
 )
-from util.generator_util import GenerationUtil
-from util.message_util import MsgNoLogin, MsgInvalidInput, MsgFailure
+from core.services.generator_service import GenerationUtil
+from core.message_exception import MsgNoLogin, MsgInvalidInput, MsgFailure
 
 
 class GenerateQsetView(APIView):

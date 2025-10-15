@@ -9,7 +9,7 @@ from api.serializers import (
     PlaySessionCreateSerializer,
     PlaySessionSerializer,
 )
-from core.services import WidgetPlayInitService
+from core.services.widget_play_services import WidgetPlayInitService
 from django.conf import settings
 from django.db.models import Max
 from django.http import JsonResponse
@@ -20,10 +20,10 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from scoring.module_factory import ScoreModuleFactory
-from util.custom_paginations import PageNumberWithTotalPagination
-from util.message_util import MsgInvalidInput, MsgFailure
-from util.perm_manager import PermManager
-from util.widget.validator import ValidatorUtil
+from api.paginators import PageNumberWithTotalPagination
+from core.message_exception import MsgInvalidInput, MsgFailure
+from core.services.perm_service import PermService
+from core.utils.validator_util import ValidatorUtil
 
 logger = logging.getLogger("django")
 
@@ -96,7 +96,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             self.request.query_params.get("include_activity"), default=False
         )
 
-        kwargs["is_student_view"] = inst_id and PermManager.user_is_student(
+        kwargs["is_student_view"] = inst_id and PermService.user_is_student(
             self.request.user
         )
         kwargs["include_activity"] = bool(include_activity)

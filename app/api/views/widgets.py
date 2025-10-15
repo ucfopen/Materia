@@ -11,8 +11,8 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from util.message_util import MsgFailure, MsgException
-from util.widget.installer import WidgetInstaller
+from core.message_exception import MsgFailure, MsgException
+from core.services.widget_installer_service import WidgetInstallerService
 
 logger = logging.getLogger("django")
 
@@ -67,13 +67,13 @@ class WidgetViewSet(viewsets.ModelViewSet):
             results = []
 
             for file in files:
-                temp_dir = WidgetInstaller.get_temp_dir()
+                temp_dir = WidgetInstallerService.get_temp_dir()
                 temp_file_path = os.path.join(temp_dir, file.name)
                 with open(temp_file_path, "wb+") as file_out:
                     for chunk in file.chunks():
                         file_out.write(chunk)
 
-                result = WidgetInstaller.extract_package_and_install(
+                result = WidgetInstallerService.extract_package_and_install(
                     temp_file_path, False, 0
                 )
                 results.append(result)
@@ -89,11 +89,11 @@ class WidgetViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"])
     def check_update(self, request, pk):
         # Grab latest available version
-        result = WidgetInstaller.get_latest_version_for(pk)
+        result = WidgetInstallerService.get_latest_version_for(pk)
         new_ver, _, _ = result
 
         # Check if the latest available version is newer than what's currently installed
-        update_available = WidgetInstaller.needs_update(pk, new_ver)
+        update_available = WidgetInstallerService.needs_update(pk, new_ver)
 
         # Return
         if update_available:
@@ -105,11 +105,11 @@ class WidgetViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"])
     def update_to_latest_version(self, request, pk):
         # Get latest version
-        result = WidgetInstaller.get_latest_version_for(pk)
+        result = WidgetInstallerService.get_latest_version_for(pk)
         new_ver, wigt_link, checksum_link = result
 
         # Check if update is even needed
-        update_available = WidgetInstaller.needs_update(pk, new_ver)
+        update_available = WidgetInstallerService.needs_update(pk, new_ver)
         if not update_available:
             raise MsgFailure(msg="Widget already up to date")
 
@@ -130,7 +130,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
         for widget_id in Widget.objects.values_list("id", flat=True).all():
             # Grab latest available version
             try:
-                result = WidgetInstaller.get_latest_version_for(widget_id)
+                result = WidgetInstallerService.get_latest_version_for(widget_id)
             except MsgException as e:
                 updates["could_not_check"].append(
                     {"widget_id": widget_id, "msg": e.as_json()}
@@ -139,7 +139,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
             new_ver, _, _ = result
 
             # Check if the latest available version is newer than what's currently installed
-            update_available = WidgetInstaller.needs_update(widget_id, new_ver)
+            update_available = WidgetInstallerService.needs_update(widget_id, new_ver)
 
             if update_available:
                 updates["updates_available"].append(

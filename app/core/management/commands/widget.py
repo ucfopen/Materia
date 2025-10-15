@@ -6,8 +6,8 @@ from urllib import request
 from core.models import Question, Widget, WidgetInstance, WidgetQset
 from django.conf import settings
 from django.core.management import base
-from util.message_util import MsgException
-from util.widget.installer import WidgetInstaller
+from core.message_exception import MsgException
+from core.services.widget_installer_service import WidgetInstallerService
 
 logger = logging.getLogger("django")
 
@@ -67,7 +67,7 @@ class Command(base.BaseCommand):
 
     def download_package(self, file_url):
         file_name = os.path.basename(file_url)
-        output_dir = WidgetInstaller.get_temp_dir()
+        output_dir = WidgetInstallerService.get_temp_dir()
 
         logger.info(f"Downloading .wigt package {file_url}")
         download_location = f"{output_dir}{file_name}"
@@ -159,7 +159,9 @@ class Command(base.BaseCommand):
         #  to have a null user?
         for file in widget_files:
             skip_upgrade = False  # get this from the CLI options somehow?
-            WidgetInstaller.extract_package_and_install(file, skip_upgrade, replace_id)
+            WidgetInstallerService.extract_package_and_install(
+                file, skip_upgrade, replace_id
+            )
 
     def update(self, widget_id):
         # Get current version
@@ -172,7 +174,7 @@ class Command(base.BaseCommand):
         # Get latest version available
         logger.warning("Getting latest available version...")
         try:
-            result = WidgetInstaller.get_latest_version_for(widget_id)
+            result = WidgetInstallerService.get_latest_version_for(widget_id)
         except MsgException as e:
             logger.error(e.msg)
             logger.error("Unable to update.")
@@ -183,7 +185,7 @@ class Command(base.BaseCommand):
         logger.info(f"Latest available version: {new_ver}")
 
         # Check if an update is even needed
-        update_needed = WidgetInstaller.needs_update(widget_id, new_ver)
+        update_needed = WidgetInstallerService.needs_update(widget_id, new_ver)
         if not update_needed:
             logger.warning(
                 "\nThis widget is already up to date. Do you want to continue the update anyway?"
@@ -209,13 +211,15 @@ class Command(base.BaseCommand):
         updates_pending = []
         for widget_id, widget_name in widgets:
             try:
-                result = WidgetInstaller.get_latest_version_for(widget_id)
+                result = WidgetInstallerService.get_latest_version_for(widget_id)
             except MsgException as e:
-                print(f"{widget_name} ({widget_id}): Could not check for update ({e.msg})")
+                print(
+                    f"{widget_name} ({widget_id}): Could not check for update ({e.msg})"
+                )
                 continue
             new_ver, wigt_url, checksum_url = result
 
-            update_needed = WidgetInstaller.needs_update(widget_id, new_ver)
+            update_needed = WidgetInstallerService.needs_update(widget_id, new_ver)
             if update_needed:
                 print(f"{widget_name} ({widget_id}): Update available ({new_ver})")
                 updates_pending.append(
@@ -321,7 +325,7 @@ class Command(base.BaseCommand):
 
         # Delete widget's installed files
         print("Deleting widget files...")
-        WidgetInstaller.uninstall_widget_files(widget_id, clean_name)
+        WidgetInstallerService.uninstall_widget_files(widget_id, clean_name)
 
         print("Widget deleted!")
 

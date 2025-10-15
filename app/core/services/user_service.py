@@ -3,7 +3,7 @@ import hashlib
 from django.contrib.auth.models import User
 
 
-class UserUtil:
+class UserService:
 
     @staticmethod
     def get_avatar_url(user: User) -> str:

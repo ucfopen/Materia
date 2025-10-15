@@ -20,7 +20,6 @@ from api.serializers import (
     ScoreSummarySerializer,
     WidgetInstanceCopyRequestSerializer,
     WidgetInstanceSerializer,
-    WidgetInstanceSerializerNoIdentifyingInfo,
 )
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
@@ -30,10 +29,10 @@ from rest_framework.exceptions import ValidationError, MethodNotAllowed
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from util.logging.play_data_exporter import PlayDataExporter
-from util.message_util import MsgInvalidInput, MsgFailure
-from util.perm_manager import PermManager
-from util.widget.instance.instance_util import WidgetInstanceUtil
+from core.services.play_data_exporter_service import PlayDataExporterService
+from core.message_exception import MsgInvalidInput, MsgFailure
+from core.services.perm_service import PermService
+from core.services.instance_service import WidgetInstanceService
 
 logger = logging.getLogger("django")
 
@@ -52,6 +51,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     pagination_class = WidgetInstancePagination
     filter_backends = [UserInstanceFilterBackend, DjangoFilterBackend]
+    serializer_class = WidgetInstanceSerializer
 
     # queryset filtering managed via UserInstanceFilterBackend
     def get_queryset(self):
@@ -115,22 +115,23 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         return [permission() for permission in permission_classes]
 
-    def get_serializer_class(self):
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
         # User isn't getting a widget detail, instead they are listing or updating.
-        # By that logic, they already can edit the widget.
+        # By that logic, they already can edit the widget due to how perms are set up.
         if self.action != "retrieve":
-            return WidgetInstanceSerializer
-        # Check if user can play the instance. If they can't, don't include identifying info about the instance
+            context["hide_identifying_info"] = False
+        # Check if the user can play the instance. If they can't don't include identifying info
         else:
             if self.get_object().playable_by_current_user(self.request.user):
-                return WidgetInstanceSerializer
+                context["hide_identifying_info"] = False
             else:
-                return WidgetInstanceSerializerNoIdentifyingInfo
+                context["hide_identifying_info"] = True
 
     def perform_create(self, serializer):
         widget = serializer.validated_data["widget"]
         is_draft = serializer.validated_data["is_draft"]
-        is_student = PermManager.user_is_student(self.request.user)
+        is_student = PermService.user_is_student(self.request.user)
 
         # Check to see if this widget is editable
         if is_draft and not widget.is_editable:
@@ -185,7 +186,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # If not a student, they can do whatever
         if (
             instance.user == self.request.user and guest_access
-        ) or not PermManager.user_is_student(self.request.user):
+        ) or not PermService.user_is_student(self.request.user):
             # TODO make session activity here
 
             # Remove permissions from students when instance is no longer in guest mode
@@ -193,7 +194,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 for shared_user_perm in instance.permissions.all():
                     # Make sure shared user is student
                     if (
-                        not PermManager.user_is_student(shared_user_perm.user)
+                        not PermService.user_is_student(shared_user_perm.user)
                         or shared_user_perm.user == instance.user
                     ):
                         continue
@@ -281,7 +282,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
     def lock(self, request, pk=None):
         instance = self.get_object()
         return Response(
-            {"lock_obtained": WidgetInstanceUtil.get_lock(instance.id, request.user)}
+            {"lock_obtained": WidgetInstanceService.get_lock(instance.id, request.user)}
         )
 
     # TODO should this be under /instances or /scores ?
@@ -342,7 +343,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
                     # Requester cannot remove perms from anyone w higher than them
                     if (
-                        PermManager.compare_perms(requester_perm, user_existing_perm)
+                        PermService.compare_perms(requester_perm, user_existing_perm)
                         > 0
                     ):
                         refusals.append(user)
@@ -361,25 +362,25 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 # Make sure requester can't modify perms of others with higher perms than their own
                 if (
                     user_existing_perm is not None
-                    and PermManager.compare_perms(requester_perm, user_existing_perm)
+                    and PermService.compare_perms(requester_perm, user_existing_perm)
                     > 0
                 ):
                     refusals.append(user)
                     continue
 
                 # Make sure requester can't grant perms higher than their own
-                if PermManager.compare_perms(requester_perm, perm_level) > 0:
+                if PermService.compare_perms(requester_perm, perm_level) > 0:
                     refusals.append(user)
                     continue
 
                 # If this user is a student, make sure we can only give them perms if this instance is in guest mode
-                if PermManager.user_is_student(user):
+                if PermService.user_is_student(user):
                     if not instance.guest_access:
                         refusals.append(user)
                         continue
 
                     # Additionally, if this user is a student, give them view access to all assets of this instance
-                    PermManager.set_user_asset_perms_for_instance(
+                    PermService.set_user_asset_perms_for_instance(
                         user, instance, perm_level
                     )
 
@@ -445,9 +446,9 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             raise MsgInvalidInput(msg="Missing export_type query parameter")
 
         instance = self.get_object()
-        is_student = PermManager.user_is_student(request.user)
+        is_student = PermService.user_is_student(request.user)
 
-        result, file_ext = PlayDataExporter.export(
+        result, file_ext = PlayDataExporterService.export(
             instance, export_type, semester_ids, is_student
         )
 

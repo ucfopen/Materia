@@ -10,8 +10,8 @@ from core.models import (
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework import permissions
-from util.perm_manager import PermManager
-from util.widget.instance.instance_util import WidgetInstanceUtil
+from core.services.perm_service import PermService
+from core.services.instance_service import WidgetInstanceService
 
 logger = logging.getLogger("django")
 
@@ -28,7 +28,7 @@ class IsSuperuser(permissions.BasePermission):
 
 class IsSuperOrSupportUser(permissions.BasePermission):
     def has_permission(self, request, view):
-        return PermManager.is_superuser_or_elevated(request.user)
+        return PermService.is_superuser_or_elevated(request.user)
 
 
 class ReadOnlyIfAuthenticated(permissions.BasePermission):
@@ -70,7 +70,7 @@ class HasAnyPerms(permissions.BasePermission):
 class CanCreateWidgetInstances(permissions.BasePermission):
     def has_permission(self, request, view):
         user = request.user
-        if not user.is_authenticated or PermManager.does_user_have_roles(
+        if not user.is_authenticated or PermService.does_user_have_roles(
             user, "no_author"
         ):
             return False
@@ -101,7 +101,7 @@ class HasInstanceLock(permissions.BasePermission):
         if not user or not user.is_authenticated:
             return False
 
-        return WidgetInstanceUtil.user_has_lock_or_is_unlocked(obj, user)
+        return WidgetInstanceService.user_has_lock_or_is_unlocked(obj, user)
 
 
 class InstanceHasGuestAccess(permissions.BasePermission):

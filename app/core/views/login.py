@@ -3,7 +3,7 @@ import re
 from core.models import WidgetInstance
 from django.conf import settings
 from django.shortcuts import render
-from util.context_util import ContextUtil
+from core.utils.context_util import ContextUtil
 
 
 def login(request):
@@ -30,7 +30,7 @@ def login(request):
         next = request.GET.get("next", None)
 
         if next:
-            match = re.search(r"/(play|embed){1}/([A-Za-z0-9]{5})/", next)
+            match = re.search(r"/(play|embed){1}/([A-Za-z0-9]{5,})/", next)
             if match:
                 method = match.group(1)
                 inst_id = match.group(2)

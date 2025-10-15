@@ -15,12 +15,12 @@ from django.conf import settings
 from django.core.management import color_style
 from django.utils.timezone import make_aware
 from urllib3.exceptions import MaxRetryError
-from util.message_util import MsgNotFound, MsgFailure
+from core.message_exception import MsgNotFound, MsgFailure
 
 logger = logging.getLogger("django")
 
 
-class WidgetInstaller:
+class WidgetInstallerService:
 
     @staticmethod
     def get_temp_dir():
@@ -68,7 +68,7 @@ class WidgetInstaller:
         #  the widget admin panel, the 'current user' will be findable in order to associate this
         #  action with them
         activity.user = None
-        dir, manifest_data, clean_name = WidgetInstaller.unzip_and_read_manifest(
+        dir, manifest_data, clean_name = WidgetInstallerService.unzip_and_read_manifest(
             widget_file
         )
 
@@ -108,7 +108,9 @@ class WidgetInstaller:
         if num_existing > 1 and replace_id == 0:
             raise Exception(f"Multiple existing widgets share clean name {clean_name}")
 
-        params = WidgetInstaller.generate_install_params(manifest_data, widget_file)
+        params = WidgetInstallerService.generate_install_params(
+            manifest_data, widget_file
+        )
         existing_demo_inst_id = None
 
         id = None
@@ -116,7 +118,7 @@ class WidgetInstaller:
         # NEW
         if not replace_id:
             logger.info("Installing brand new widget")
-            id = WidgetInstaller.save_params(params)
+            id = WidgetInstallerService.save_params(params)
             activity.type = LogActivity.TYPE_INSTALL_WIDGET
         # UPGRADE
         else:
@@ -130,18 +132,18 @@ class WidgetInstaller:
             except Widget.DoesNotExist:
                 pass
 
-            id = WidgetInstaller.save_params(params, replace_id)
+            id = WidgetInstallerService.save_params(params, replace_id)
             activity.type = LogActivity.TYPE_UPDATE_WIDGET
 
         # add the demo
-        demo_id = WidgetInstaller.install_demo(id, dir, existing_demo_inst_id)
+        demo_id = WidgetInstallerService.install_demo(id, dir, existing_demo_inst_id)
         widget = Widget.objects.get(pk=id)
         widget.metadata["demo"] = demo_id
         widget.save()
 
         logger.info("demo installed")
 
-        WidgetInstaller.install_widget_files(id, clean_name, dir)
+        WidgetInstallerService.install_widget_files(id, clean_name, dir)
 
         # save metadata
         widget = Widget.objects.get(id=id)
@@ -165,9 +167,9 @@ class WidgetInstaller:
     def unzip_and_read_manifest(widget_file) -> tuple[str, dict, str]:
         from core.models import Widget
 
-        target_dir = WidgetInstaller.unzip_to_tmp(widget_file)
-        manifest_data = WidgetInstaller.validate_widget(target_dir)
-        version_info = WidgetInstaller.get_version_info(target_dir)
+        target_dir = WidgetInstallerService.unzip_to_tmp(widget_file)
+        manifest_data = WidgetInstallerService.validate_widget(target_dir)
+        version_info = WidgetInstallerService.get_version_info(target_dir)
 
         clean_name = Widget.make_clean_name(manifest_data["general"]["name"])
 
@@ -206,7 +208,7 @@ class WidgetInstaller:
     def unzip_to_tmp(file):
         from zipfile import ZipFile
 
-        extract_location = WidgetInstaller.get_temp_dir()
+        extract_location = WidgetInstallerService.get_temp_dir()
         if not extract_location:
             raise Exception("Unable to extract widget.")
         # assume it's a zip file, attempt to extract
@@ -248,7 +250,7 @@ class WidgetInstaller:
     @staticmethod
     def validate_widget(dir):
         # 1. Do we have a manifest yaml file?
-        manifest_data = WidgetInstaller.get_manifest_data(dir)
+        manifest_data = WidgetInstallerService.get_manifest_data(dir)
 
         # 2. Our manifest should have 'general', 'files', 'score' and 'metadata' sections at least
         missing_sections = set(["general", "files", "score", "meta_data"]) - set(
@@ -273,9 +275,9 @@ class WidgetInstaller:
             "is_answer_encrypted",
             "api_version",
         ]
-        WidgetInstaller.validate_keys_exist(general, general_keys)
-        WidgetInstaller.validate_numeric_values(general, ["width", "height"])
-        WidgetInstaller.validate_boolean_values(
+        WidgetInstallerService.validate_keys_exist(general, general_keys)
+        WidgetInstallerService.validate_numeric_values(general, ["width", "height"])
+        WidgetInstallerService.validate_boolean_values(
             general,
             [
                 "in_catalog",
@@ -289,8 +291,8 @@ class WidgetInstaller:
 
         # 4. Make sure the 'files' section is correct
         files = manifest_data["files"]
-        WidgetInstaller.validate_keys_exist(files, ["player"])
-        WidgetInstaller.validate_numeric_values(files, ["flash_version"])
+        WidgetInstallerService.validate_keys_exist(files, ["player"])
+        WidgetInstallerService.validate_numeric_values(files, ["flash_version"])
 
         player_file = os.path.join(dir, files["player"])
         if not os.path.isfile(player_file):
@@ -306,12 +308,14 @@ class WidgetInstaller:
 
         # 5. Make sure the 'score' section is correct
         score = manifest_data["score"]
-        WidgetInstaller.validate_keys_exist(score, ["is_scorable", "score_module"])
-        WidgetInstaller.validate_boolean_values(score, ["is_scorable"])
+        WidgetInstallerService.validate_keys_exist(
+            score, ["is_scorable", "score_module"]
+        )
+        WidgetInstallerService.validate_boolean_values(score, ["is_scorable"])
 
         # 6. Make sure the 'meta_data' section is correct
         metadata = manifest_data["meta_data"]
-        WidgetInstaller.validate_keys_exist(metadata, ["about", "excerpt"])
+        WidgetInstallerService.validate_keys_exist(metadata, ["about", "excerpt"])
 
         # 7. Make sure the score_module.py/php ((test file?)and the score module test files both exist)
         if not os.path.isfile(
@@ -350,7 +354,7 @@ class WidgetInstaller:
             )
 
     def validate_numeric_values(section_data, attributes):
-        from util.widget.validator import ValidatorUtil
+        from core.utils.validator_util import ValidatorUtil
 
         values = {}
         for attribute in attributes:
@@ -498,9 +502,9 @@ class WidgetInstaller:
             demo_data = json.load(demo_file)
             demo_text = json.dumps(demo_data)
 
-            WidgetInstaller.validate_demo(demo_data)
+            WidgetInstallerService.validate_demo(demo_data)
             try:
-                demo_text = WidgetInstaller.preprocess_json_and_upload_assets(
+                demo_text = WidgetInstallerService.preprocess_json_and_upload_assets(
                     package_dir, demo_text
                 )
             except Exception as e:
@@ -591,7 +595,9 @@ class WidgetInstaller:
                 actual_file_path = os.path.join(
                     "/", base_dir.strip("/"), file.lstrip("/")
                 )
-                sideloaded_asset = WidgetInstaller.sideload_asset(actual_file_path)
+                sideloaded_asset = WidgetInstallerService.sideload_asset(
+                    actual_file_path
+                )
                 asset_ids[file] = sideloaded_asset.id
                 files_uploaded.append(file)
             asset_id = asset_ids[file]
@@ -601,11 +607,11 @@ class WidgetInstaller:
 
     # "uploads" an asset from a widget package
     def sideload_asset(file):
-        from util.widget.asset.manager import AssetManager
+        from core.services.asset_service import AssetService
 
         try:
             upload_info = os.stat(file)
-            asset = AssetManager.new_asset_from_file(
+            asset = AssetService.new_asset_from_file(
                 f"Demo asset {os.path.basename(file)}",
                 upload_info,
                 file,
@@ -656,7 +662,9 @@ class WidgetInstaller:
 
         match update_method:
             case "github":
-                result = WidgetInstaller._get_latest_release_github(widget.metadata)
+                result = WidgetInstallerService._get_latest_release_github(
+                    widget.metadata
+                )
             case _:
                 raise MsgFailure(msg="Unsupported update method")
 
@@ -703,7 +711,7 @@ class WidgetInstaller:
             repo = f"{author}/{repo_name}"
 
         # Ping server for latest releases
-        releases_json = WidgetInstaller._get_json(
+        releases_json = WidgetInstallerService._get_json(
             f"https://api.github.com/repos/{repo}/releases"
         )
         if len(releases_json) == 0:

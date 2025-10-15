@@ -16,15 +16,13 @@ from core.models import (
     WidgetInstance,
     WidgetQset,
 )
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.utils.text import slugify
 from rest_framework import serializers
 
-from util.b64_util import Base64Util
-from util.perm_manager import PermManager
-from util.user_util import UserUtil
+from core.utils.b64_util import Base64Util
+from core.services.perm_service import PermService
+from core.services.user_service import UserService
 
 logger = logging.getLogger("django")
 
@@ -43,7 +41,7 @@ class UserSerializer(serializers.ModelSerializer):
     is_student = serializers.SerializerMethodField()
 
     def get_is_student(self, user):
-        return PermManager.user_is_student(user)
+        return PermService.user_is_student(user)
 
     # remove sensitive information when requesting with non-privileged access
     def get_fields(self):
@@ -64,7 +62,7 @@ class UserSerializer(serializers.ModelSerializer):
         return fields
 
     def get_avatar(self, user):
-        return UserUtil.get_avatar_url(user)
+        return UserService.get_avatar_url(user)
 
     def get_profile_fields(self, user):
         user_profile, _ = UserSettings.objects.get_or_create(user=user)
@@ -287,6 +285,20 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
     embed_url = serializers.CharField(read_only=True, allow_null=True)
     qset = QuestionSetSerializer(required=False)
 
+    # remove sensitive info if context flag set
+    def get_fields(self):
+        fields = super().get_fields()
+        hide_identifying_info = self.context.get("hide_identifying_info", True)
+
+        if hide_identifying_info:
+            for field in [
+                "user_id",
+            ]:
+                if fields[field]:
+                    fields.pop(field)
+
+        return fields
+
     def _handle_qset(self, qset, widget_instance):
         # handling the qset requires a couple steps:
         # the qset present in validated_data is the base64 blob. Decode it first
@@ -350,40 +362,6 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "is_student_made",
             "widget",
             "widget_id",
-        ]
-
-
-class WidgetInstanceSerializerNoIdentifyingInfo(serializers.ModelSerializer):
-    preview_url = serializers.SerializerMethodField()
-    play_url = serializers.SerializerMethodField()
-
-    widget = WidgetSerializer(read_only=True)
-
-    def get_preview_url(self, instance):
-        return f"{settings.URLS["BASE_URL"]}preview/{instance.id}/{slugify(instance.name)}/"
-
-    def get_play_url(self, instance):
-        return (
-            f"{settings.URLS["BASE_URL"]}play/{instance.id}/{slugify(instance.name)}/"
-        )
-
-    class Meta:
-        model = WidgetInstance
-        fields = [
-            "id",
-            "name",
-            "is_student_made",
-            "guest_access",
-            "is_draft",
-            "created_at",
-            "open_at",
-            "close_at",
-            "attempts",
-            "is_deleted",
-            "embedded_only",
-            "widget",
-            "preview_url",
-            "play_url",
         ]
 
 

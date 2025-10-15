@@ -6,13 +6,13 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from core.models import DateRange, LogPlay, WidgetInstance, Question
 from django.conf import settings
 from django.core.cache import cache
-from util.message_util import MsgInvalidInput, MsgNotFound, MsgFailure
-from util.widget.validator import ValidatorUtil
+from core.message_exception import MsgInvalidInput, MsgNotFound, MsgFailure
+from core.utils.validator_util import ValidatorUtil
 
 logger = logging.getLogger("django")
 
 
-class PlayDataExporter:
+class PlayDataExporterService:
     @staticmethod
     def export(
         instance: WidgetInstance,
@@ -24,23 +24,23 @@ class PlayDataExporter:
 
         match export_type:
             case "High Scores":
-                return PlayDataExporter._export_high_scores(
+                return PlayDataExporterService._export_high_scores(
                     instance, semesters, is_student
                 )
             case "All Scores":
-                return PlayDataExporter._export_all_scores(
+                return PlayDataExporterService._export_all_scores(
                     instance, semesters, is_student
                 )
             case "Full Event Log":
-                return PlayDataExporter._export_full_event_log(
+                return PlayDataExporterService._export_full_event_log(
                     instance, semesters, is_student
                 )
             case "Referrer URLs":
-                return PlayDataExporter._export_referrer_urls(
+                return PlayDataExporterService._export_referrer_urls(
                     instance, semesters, is_student
                 )
             case "Questions and Answers":
-                return PlayDataExporter._export_questions_and_answers(
+                return PlayDataExporterService._export_questions_and_answers(
                     instance, semesters
                 )
             case _:
@@ -101,7 +101,7 @@ class PlayDataExporter:
         # Get all play logs for each semester requested
         for semester in semesters:
             [year, term] = semester.split("-")
-            logs = PlayDataExporter.get_all_plays_for_instance(
+            logs = PlayDataExporterService.get_all_plays_for_instance(
                 instance, term, int(year), is_student
             )
 
@@ -136,7 +136,7 @@ class PlayDataExporter:
             data.append([r["last_name"], r["first_name"], "", user_id, "", "", score])
 
         # Build CSV
-        return PlayDataExporter.build_csv(headers, data), "csv"
+        return PlayDataExporterService.build_csv(headers, data), "csv"
 
     # Exports all guest scores. For use when the instance is in guest mode
     @staticmethod
@@ -150,7 +150,7 @@ class PlayDataExporter:
         # For each semester, get all play logs
         for semester in semesters:
             [year, term] = semester.split("-")
-            logs = PlayDataExporter.get_all_plays_for_instance(
+            logs = PlayDataExporterService.get_all_plays_for_instance(
                 instance, term, int(year), is_student
             )
 
@@ -168,7 +168,7 @@ class PlayDataExporter:
             raise MsgNotFound(msg="No play logs found")
 
         # Build as CSV
-        return PlayDataExporter.build_csv(headers, data), "csv"
+        return PlayDataExporterService.build_csv(headers, data), "csv"
 
     # Prepare data log zip file
     @staticmethod
@@ -193,7 +193,7 @@ class PlayDataExporter:
         # For each semester, get all play logs
         for semester in semesters:
             [year, term] = semester.split("-")
-            logs = PlayDataExporter.get_all_plays_for_instance(
+            logs = PlayDataExporterService.get_all_plays_for_instance(
                 instance, term, int(year), is_student
             )
 
@@ -230,7 +230,7 @@ class PlayDataExporter:
             raise MsgNotFound(msg="No play logs found")
 
         # Build play logs csv
-        play_logs_csv = PlayDataExporter.build_csv(headers, play_log_data)
+        play_logs_csv = PlayDataExporterService.build_csv(headers, play_log_data)
 
         # Get questions
         qset = instance.get_latest_qset()
@@ -278,7 +278,9 @@ class PlayDataExporter:
 
         for question in csv_questions:
             this_row = []
-            sanitized_question_text = PlayDataExporter._sanitize_text(question["text"])
+            sanitized_question_text = PlayDataExporterService._sanitize_text(
+                question["text"]
+            )
 
             this_row.append(question["question_id"])
             this_row.append(question["id"])
@@ -296,7 +298,9 @@ class PlayDataExporter:
         answers_csv_data = []
         for answer in csv_answers:
             this_row = []
-            sanitized_answer_text = PlayDataExporter._sanitize_text(answer["text"])
+            sanitized_answer_text = PlayDataExporterService._sanitize_text(
+                answer["text"]
+            )
             this_row.append(answer["question_id"])
             this_row.append(answer["id"])
             this_row.append(sanitized_answer_text)
@@ -311,11 +315,15 @@ class PlayDataExporter:
             zip_file.writestr("logs.csv", play_logs_csv)
             zip_file.writestr(
                 "questions.csv",
-                PlayDataExporter.build_csv(question_csv_headers, question_csv_data),
+                PlayDataExporterService.build_csv(
+                    question_csv_headers, question_csv_data
+                ),
             )
             zip_file.writestr(
                 "answers.csv",
-                PlayDataExporter.build_csv(answers_csv_headers, answers_csv_data),
+                PlayDataExporterService.build_csv(
+                    answers_csv_headers, answers_csv_data
+                ),
             )
 
         return zip_buffer.getvalue(), "zip"
@@ -337,7 +345,7 @@ class PlayDataExporter:
                 raise MsgNotFound(msg="Semester not found")
 
             # Form query, only including user info if requesting user isn't a student
-            raw_data = PlayDataExporter.get_all_plays_for_instance(
+            raw_data = PlayDataExporterService.get_all_plays_for_instance(
                 instance, term, int(year), is_student
             )
             if len(raw_data) == 0:
@@ -358,14 +366,18 @@ class PlayDataExporter:
                     referrer_count[url] += 1
 
         # Build all individual data into a CSV
-        csv_individual = PlayDataExporter.build_csv(headers_individual, data_individual)
+        csv_individual = PlayDataExporterService.build_csv(
+            headers_individual, data_individual
+        )
 
         # Turn collective data into CSV-friendly format, build CSV
         headers_collective = ["URL", "Count"]
         data_collective = []
         for url, count in referrer_count.items():
             data_collective.append([url, count])
-        csv_collective = PlayDataExporter.build_csv(headers_collective, data_collective)
+        csv_collective = PlayDataExporterService.build_csv(
+            headers_collective, data_collective
+        )
 
         # Throw CSVs into zip file
         zip_buffer = io.BytesIO()
@@ -390,16 +402,20 @@ class PlayDataExporter:
             question_data = question.data
 
             question_text = question_data["questions"][0]["text"]
-            sanitized_question_text = PlayDataExporter._sanitize_text(question_text)
+            sanitized_question_text = PlayDataExporterService._sanitize_text(
+                question_text
+            )
             this_row.append(sanitized_question_text)
 
             for answer in question_data["answers"]:
-                sanitized_answer_text = PlayDataExporter._sanitize_text(answer["text"])
+                sanitized_answer_text = PlayDataExporterService._sanitize_text(
+                    answer["text"]
+                )
                 this_row.append(sanitized_answer_text)
 
             data.append(this_row)
 
-        return PlayDataExporter.build_csv(headers, data), "csv"
+        return PlayDataExporterService.build_csv(headers, data), "csv"
 
     @staticmethod
     def build_csv(headers: list[str], data: list[list[str]]) -> str:
@@ -418,7 +434,7 @@ class PlayDataExporter:
     # Build on top of WidgetInstance's get_play_logs method, adds caching and allows filtering out user info
     @staticmethod
     def get_all_plays_for_instance(
-        instance: WidgetInstance,
+        instance: WidgetInstance | str,
         semester: str = "all",
         year: str = "all",
         is_student: bool = False,

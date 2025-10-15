@@ -1,7 +1,7 @@
 from django.http import Http404
 from rest_framework.views import exception_handler
 
-from util.message_util import MsgException
+from core.message_exception import MsgException
 
 
 def materia_exception_handler(exc, context):

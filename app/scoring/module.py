@@ -4,7 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 
 from core.models import Log, LogPlay
-from util.semester_util import SemesterUtil
+from core.services.semester_service import SemesterService
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ class ScoreModule(ABC):
         if not timestamp:
             # except for previews, check that attempts are not exceeded.
             if self.play_id != -1:
-                semester = SemesterUtil.get_current_semester()
+                semester = SemesterService.get_current_semester()
                 attempts_used = LogPlay.objects.filter(
                     instance=self.instance,
                     context_id=self.play.context_id,

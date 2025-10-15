@@ -71,7 +71,7 @@ class ValidatorUtil:
         except ValueError:
             return False
 
-    # Ensures $hash is a valid alphanumeric, five-character string
+    # Ensures $hash is a valid alphanumeric, five-character (or more) string
 
     # return bool True if hash is a valid string
     # return bool False if hash is an invalid string
@@ -86,7 +86,7 @@ class ValidatorUtil:
             return True
 
         # matches any alphanumeric string between 1 and 5 characters EXCEPT 0
-        pattern = re.compile(r"^([A-Za-z0-9]{2,5}|[A-Za-z1-9]{1})")
+        pattern = re.compile(r"^([A-Za-z0-9]{2,}|[A-Za-z1-9]{1})")
         if type(hash) is str and bool(re.match(pattern, hash)):
             return True
 
@@ -130,10 +130,20 @@ class ValidatorUtil:
     def validate_bool(raw_bool: str, default: bool = False) -> bool:
         if type(raw_bool) is str:
             lowered_bool = raw_bool.lower()
-            if lowered_bool == "true" or lowered_bool == "yes" or lowered_bool == "on" or lowered_bool == "1":
+            if (
+                lowered_bool == "true"
+                or lowered_bool == "yes"
+                or lowered_bool == "on"
+                or lowered_bool == "1"
+            ):
                 return True
-            if lowered_bool == "false" or lowered_bool == "no" or lowered_bool == "off" or lowered_bool == "0" \
-                    or lowered_bool == "":
+            if (
+                lowered_bool == "false"
+                or lowered_bool == "no"
+                or lowered_bool == "off"
+                or lowered_bool == "0"
+                or lowered_bool == ""
+            ):
                 return False
 
         return default

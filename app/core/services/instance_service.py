@@ -9,7 +9,7 @@ from core.models import WidgetInstance
 logger = logging.getLogger("django")
 
 
-class WidgetInstanceUtil:
+class WidgetInstanceService:
     # Obtains a lock on a widget instance that will last for 2 minutes.
     # Returns True if that lock is obtained by the user (or if they already have a lock on it)
     # Returns False if another lock is already owned by someone else
@@ -38,7 +38,9 @@ class WidgetInstanceUtil:
     # Returns False if there is a lock and the user doesn't own it
     # Can pass in either a WidgetInstance object or the id of that instance
     @staticmethod
-    def user_has_lock_or_is_unlocked(instance: WidgetInstance | str, user: User) -> bool:
+    def user_has_lock_or_is_unlocked(
+        instance: WidgetInstance | str, user: User
+    ) -> bool:
         # Get instance id depending on what was passed in
         if type(instance) is WidgetInstance:
             instance_id = instance.id

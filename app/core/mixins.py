@@ -1,10 +1,10 @@
 import logging
 
 from core.models import WidgetInstance
-from core.services import WidgetPlayValidationService
+from core.services.widget_play_services import WidgetPlayValidationService
 from django.contrib.auth.mixins import AccessMixin
 from django.http import HttpRequest, HttpResponse
-from util.context_util import ContextUtil
+from core.utils.context_util import ContextUtil
 
 logger = logging.getLogger("django")
 

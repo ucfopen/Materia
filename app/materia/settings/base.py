@@ -1,9 +1,6 @@
 # BASE config file for Materia
 
-import os
 from pathlib import Path
-
-from util.widget.validator import ValidatorUtil
 
 from .css import *  # noqa: F401, F403
 from .generation import *  # noqa: F401, F403

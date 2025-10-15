@@ -9,7 +9,7 @@ from django.core.validators import FileExtensionValidator
 from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from util.widget.asset.manager import AssetManager
+from core.services.asset_service import AssetService
 
 logger = logging.getLogger("django")
 
@@ -83,7 +83,7 @@ class MediaUpload:
             return JsonResponse({"error": "Uploaded file is too large"}, status=400)
 
         # Make sure the user uploading the file hasn't hit their disk space limit
-        if not AssetManager.user_has_space_for(request.user, uploaded_file.size):
+        if not AssetService.user_has_space_for(request.user, uploaded_file.size):
             return JsonResponse(
                 {"error": "User does not have enough space for uploaded file"},
                 status=400,

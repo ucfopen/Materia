@@ -3,14 +3,14 @@ import logging
 from core.models import Asset, ObjectPermission, WidgetInstance
 from django.db.models import Q
 from rest_framework import filters
-from util.perm_manager import PermManager
+from core.services.perm_service import PermService
 
 logger = logging.getLogger("django")
 
 
 class AssetFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        return PermManager.get_all_objects_of_type_for_user(
+        return PermService.get_all_objects_of_type_for_user(
             Asset,
             request.user,
             [ObjectPermission.PERMISSION_FULL, ObjectPermission.PERMISSION_VISIBLE],
@@ -25,7 +25,7 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
         search_query = request.query_params.get("search")
 
         if user_query == "me":
-            queryset = PermManager.get_all_objects_of_type_for_user(
+            queryset = PermService.get_all_objects_of_type_for_user(
                 WidgetInstance,
                 user,
                 [ObjectPermission.PERMISSION_FULL, ObjectPermission.PERMISSION_VISIBLE],
@@ -36,7 +36,7 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
                 or user.groups.filter(name="support_user").exists()
                 or str(user.id) == user_query
             ):
-                queryset = PermManager.get_all_objects_of_type_for_user(
+                queryset = PermService.get_all_objects_of_type_for_user(
                     WidgetInstance,
                     user_query,
                     [

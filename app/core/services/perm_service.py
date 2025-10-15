@@ -14,10 +14,10 @@ if TYPE_CHECKING:
     from core.models import WidgetInstance, ObjectPermission
 
 
-class PermManager:
+class PermService:
     @staticmethod
     def user_is_student(user: User):
-        return not PermManager.does_user_have_roles(
+        return not PermService.does_user_have_roles(
             user, ["basic_author", "super_user"]
         )
 

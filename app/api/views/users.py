@@ -21,8 +21,8 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from util.custom_paginations import PageNumberWithTotalPagination
-from util.message_util import MsgInvalidInput
+from api.paginators import PageNumberWithTotalPagination
+from core.message_exception import MsgInvalidInput
 
 logger = logging.getLogger("django")
 
@@ -64,8 +64,8 @@ class UserViewSet(viewsets.ModelViewSet):
         elif (
             self.action == "list"
             and self.request.query_params.get("search") is not None
-        ):  # only users with elevated access can search for users carte blanche
-            permission_classes = [IsSuperOrSupportUser]
+        ):  # any authenticated user can search - required for collab dialog
+            permission_classes = [IsAuthenticated]
         elif (
             self.action == "list" and self.request.query_params.get("ids") is not None
         ):  # allow authenticated users to retrieve specific ids (required for collab)

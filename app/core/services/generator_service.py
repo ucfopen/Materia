@@ -6,7 +6,12 @@ from core.models import Widget, WidgetInstance
 from django.conf import settings
 from openai import NOT_GIVEN, AzureOpenAI, OpenAI, OpenAIError
 from openai.types.chat import ChatCompletion
-from util.message_util import MsgInvalidInput, MsgNotFound, MsgFailure, MsgException
+from core.message_exception import (
+    MsgInvalidInput,
+    MsgNotFound,
+    MsgFailure,
+    MsgException,
+)
 
 logger = logging.getLogger(__name__)
 

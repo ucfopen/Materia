@@ -10,7 +10,10 @@ from core.mixins import (
     MateriaWidgetPlayProcessor,
 )
 from core.models import ObjectPermission, Widget, WidgetInstance
-from core.services import WidgetPlayInitService, WidgetPlayValidationService
+from core.services.widget_play_services import (
+    WidgetPlayInitService,
+    WidgetPlayValidationService,
+)
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
@@ -21,8 +24,8 @@ from lti.mixins import LtiLaunchMixin
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from lti.views.lti import error_page as lti_error_page
-from util.context_util import ContextUtil
-from util.perm_manager import PermManager
+from core.utils.context_util import ContextUtil
+from core.services.perm_service import PermService
 
 logger = logging.getLogger("django")
 
@@ -40,7 +43,7 @@ class WidgetDetailView(TemplateView):
             js_resources=settings.JS_GROUPS["detail"],
             css_resources=settings.CSS_GROUPS["detail"],
             js_globals={
-                "NO_AUTHOR": PermManager.does_user_have_roles(
+                "NO_AUTHOR": PermService.does_user_have_roles(
                     self.request.user, "no_author"
                 ),
                 "WIDGET_HEIGHT": widget.height,
@@ -73,8 +76,7 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
         return super().get_context_data(None, None, False)
 
     def get_validation(self, request, instance):
-        validation_service = WidgetPlayValidationService()
-        validation = validation_service.validate_widget_context(
+        validation = WidgetPlayValidationService.validate_widget_context(
             request,
             instance,
             is_demo=True,
@@ -104,8 +106,7 @@ class WidgetPlayView(
     # allow_all_by_default = True
 
     def get_validation(self, request, instance):
-        validation_service = WidgetPlayValidationService()
-        validation = validation_service.validate_widget_context(
+        validation = WidgetPlayValidationService.validate_widget_context(
             request,
             instance,
             is_demo=False,
@@ -184,8 +185,7 @@ class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateV
     login_message = "Login to preview this widget"
 
     def get_validation(self, request, instance):
-        validation_service = WidgetPlayValidationService()
-        validation = validation_service.validate_widget_context(
+        validation = WidgetPlayValidationService.validate_widget_context(
             request, instance, is_demo=False, is_preview=True, is_embedded=False
         )
 
@@ -209,7 +209,7 @@ class WidgetCreatorView(MateriaLoginMixin, PermissionRequiredMixin, TemplateView
     permission_denied_message = "You do not have permission to create widgets."
 
     def has_permission(self):
-        return not PermManager.does_user_have_roles(self.request.user, "no_author")
+        return not PermService.does_user_have_roles(self.request.user, "no_author")
 
     def get_context_data(self, widget_slug, instance_id=None):
         # Create the widget instance

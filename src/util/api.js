@@ -240,7 +240,7 @@ export const apiUpdateWidgetInstance = ({ args }) => {
 		guest_access: args?.guestAccess ?? undefined,
 		embedded_only: args?.embeddedOnly ?? undefined,
 	}
-	return handleRequest(methods.PATCH, `/api/instances/${args.instId}/`, body)
+	return handleRequest(methods.PATCH, `/api/instances/${args.id}/`, body)
 }
 
 export const apiGetWidgetLock = (id = null) => {

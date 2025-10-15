@@ -1,6 +1,7 @@
-# Util class for creating messages for API errors. Returns JsonResponses that can be
-# directly passed back from the endpoint. The front-end will detect these errors and
-# display or handle them.
+# Util class for creating messages for API errors. Raising a MsgException will
+# eventually reach the exception handler, which will handle it as needed.
+# The front-end will detect these errors and display or handle them.
+
 from enum import Enum
 
 from django.http import HttpRequest, JsonResponse

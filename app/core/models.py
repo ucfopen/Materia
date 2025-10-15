@@ -5,6 +5,8 @@
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
 #   * Remove `managed = False` lines to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
+from __future__ import annotations
+
 import logging
 import os
 import types
@@ -28,12 +30,12 @@ from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 
-from util.b64_util import Base64Util
-from util.message_util import MsgFailure
-from util.perm_manager import PermManager
-from util.user_util import UserUtil
-from util.widget.asset.manager import AssetManager
-from util.widget.validator import ValidatorUtil
+from core.utils.b64_util import Base64Util
+from core.message_exception import MsgFailure
+from core.services.perm_service import PermService
+from core.services.user_service import UserService
+from core.services.asset_service import AssetService
+from core.utils.validator_util import ValidatorUtil
 
 logger = logging.getLogger("django")
 
@@ -101,7 +103,7 @@ class Asset(models.Model):
     permissions = GenericRelation(ObjectPermission)
 
     def is_valid(self):
-        from util.widget.validator import ValidatorUtil
+        from core.utils.validator_util import ValidatorUtil
 
         return (
             ValidatorUtil.is_valid_hash(self.id)
@@ -119,7 +121,7 @@ class Asset(models.Model):
     # Finds an available asset ID to avoid database collisions
     @staticmethod
     def get_unused_id():
-        from util.widget.instance.hash import WidgetInstanceHash
+        from core.utils.hash_util import WidgetInstanceHash
 
         asset_id = None
 
@@ -137,7 +139,7 @@ class Asset(models.Model):
 
     def save(self, *args, **kwargs) -> bool:
         from django.utils.timezone import make_aware
-        from util.widget.validator import ValidatorUtil
+        from core.utils.validator_util import ValidatorUtil
 
         if ValidatorUtil.is_valid_hash(self.id) and not bool(self.file_type):
             return False
@@ -183,7 +185,7 @@ class Asset(models.Model):
             return False
 
     def render(self, size="original"):
-        return AssetManager.get_asset_storage_driver().render(self, size)
+        return AssetService.get_asset_storage_driver().render(self, size)
 
     def get_mime_type(self):
         return Asset.MIME_TYPE_FROM_EXTENSION[self.file_type]
@@ -202,7 +204,7 @@ class Asset(models.Model):
         asset.title = uploaded_file.name
         asset.file_size = uploaded_file.size
 
-        AssetManager.get_asset_storage_driver().handle_uploaded_file(
+        AssetService.get_asset_storage_driver().handle_uploaded_file(
             asset, uploaded_file
         )
 
@@ -666,7 +668,7 @@ class Notification(models.Model):
         cls,
         from_user: User,
         to_user: User,
-        instance: "WidgetInstance",
+        instance: WidgetInstance,
         mode: str,
         new_perm: str = None,
     ) -> Self | None:
@@ -722,7 +724,7 @@ class Notification(models.Model):
             item_type=WidgetInstance.content_type.id,
             item_id=instance.id,
             is_email_sent=False,
-            avatar=UserUtil.get_avatar_url(from_user),
+            avatar=UserService.get_avatar_url(from_user),
             subject=content,
         )
 
@@ -960,42 +962,11 @@ class Widget(models.Model):
     def publishable_by(self, user: User) -> bool:
         if not self.restrict_publish:
             return True
-        return not PermManager.user_is_student(user)
+        return not PermService.user_is_student(user)
 
     @staticmethod
     def make_clean_name(name):
         return name.replace(" ", "-").lower()
-
-    @staticmethod
-    def load_script(script_path):
-        if not os.path.isfile(script_path):
-            raise Exception(f"Script not found: {script_path}")
-        # okay so this is kind of a weird one
-        # in PHP this function would open the file at the given path
-        #  and 'include' it - basically the same as importing it and
-        #  making all of its classes/methods/etc. available in the
-        #  scope in which this function is run
-        #
-
-    """
-    public static function load_script(string $script_path)
-    {
-        // closure helps to prevent the script poluting this and isolate scope
-        // in within the included script
-        $load_safer = function($file)
-        {
-            if ( ! file_exists($file))
-            {
-                trace("Script not found: {$file}");
-                return [];
-            }
-
-            return include($file);
-        };
-
-        return $load_safer($script_path);
-    }
-    """
 
     def get_playdata_exporter_methods(
         self, script_path: str = None
@@ -1093,9 +1064,9 @@ class WidgetInstance(models.Model):
         return f"{self.id}-{self.clean_name}{os.sep}"
 
     def status(self, context: str = None):
-        from util.semester_util import SemesterUtil
+        from core.services.semester_service import SemesterService
 
-        semester = SemesterUtil.get_current_semester()
+        semester = SemesterService.get_current_semester()
 
         now = timezone.now()
         start = self.open_at
@@ -1151,7 +1122,7 @@ class WidgetInstance(models.Model):
         )
         qset.save()
 
-    def get_latest_qset(self) -> "WidgetQset | None":
+    def get_latest_qset(self) -> WidgetQset | None:
         return self.qsets.order_by("-created_at").first()
 
     def get_qset_for_play(self, play_id=None, is_preview=False):
@@ -1181,7 +1152,7 @@ class WidgetInstance(models.Model):
 
         # ADDING A NEW INSTANCE
         if is_new:
-            from util.widget.instance.hash import WidgetInstanceHash
+            from core.utils.hash_util import WidgetInstanceHash
 
             tries = (
                 3  # try this many times to generate an instance ID to avoid collisions
@@ -1192,7 +1163,7 @@ class WidgetInstance(models.Model):
                     raise Exception("Unable to save new widget instance")
                 self.published_by = None if self.is_draft else self.user
                 try:
-                    hash = WidgetInstanceHash.generate_key_hash()
+                    hash = WidgetInstanceHash.generate_key_hash(length=10)
                     self.id = hash
                     self.created_at = make_aware(datetime.now())
                     super().save(*args, **kwargs)
@@ -1237,7 +1208,7 @@ class WidgetInstance(models.Model):
 
         # If original widget is student made, verify that the new user is a student or not.
         if dupe.is_student_made:
-            can_new_owner_author = PermManager.does_user_have_roles(
+            can_new_owner_author = PermService.does_user_have_roles(
                 owner, ["author", "superuser"]
             )
             if can_new_owner_author:
