@@ -1,5 +1,6 @@
 import logging
-from datetime import datetime
+
+from django.utils import timezone
 
 from api.filters import AssetFilterBackend
 from core.models import Asset
@@ -26,7 +27,7 @@ class AssetViewSet(viewsets.ModelViewSet):
         try:
 
             asset.is_deleted = True
-            asset.deleted_at = datetime.now()
+            asset.deleted_at = timezone.now()
             asset.save()
 
             return Response({"detail": "Asset deleted.", "status": status.HTTP_200_OK})

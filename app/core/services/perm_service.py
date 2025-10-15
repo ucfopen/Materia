@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
 from typing import TYPE_CHECKING, Type
 
 from django.contrib.auth.models import AnonymousUser, User
 from django.db import models
 from django.db.models import QuerySet
+from django.utils import timezone
 
 logger = logging.getLogger("django")
 
@@ -82,7 +82,7 @@ class PermService:
     def check_and_expire_user_object_perms():
         from core.models import Notification, ObjectPermission, WidgetInstance
 
-        now = datetime.now()
+        now = timezone.now()
         expired_perms = ObjectPermission.objects.filter(expires_at__lte=now)
 
         for expired_perm in expired_perms:

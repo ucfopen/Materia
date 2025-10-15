@@ -5,15 +5,15 @@ import os
 import sys
 import tempfile
 import types
-from datetime import datetime
 from json import JSONDecodeError
 from pathlib import Path
 
 import urllib3
+from django.utils import timezone
+
 from core.models import Widget, WidgetInstance, WidgetQset
 from django.conf import settings
 from django.core.management import color_style
-from django.utils.timezone import make_aware
 from urllib3.exceptions import MaxRetryError
 from core.message_exception import MsgNotFound, MsgFailure
 
@@ -384,10 +384,7 @@ class WidgetInstallerService:
             )
 
     def generate_install_params(manifest_data, package_file):
-        from datetime import datetime
         from hashlib import md5
-
-        from django.utils.timezone import make_aware
 
         clean_name = Widget.make_clean_name(manifest_data["general"]["name"])
         package_hash = md5()
@@ -401,7 +398,7 @@ class WidgetInstallerService:
 
         return {
             "name": manifest_data["general"]["name"],
-            "created_at": make_aware(datetime.now()),
+            "created_at": timezone.now(),
             "flash_version": manifest_data["files"]["flash_version"],
             "height": manifest_data["general"]["height"],
             "width": manifest_data["general"]["width"],
@@ -546,7 +543,7 @@ class WidgetInstallerService:
                     user=None,
                     name=demo_data["name"],
                     is_draft=False,
-                    created_at=make_aware(datetime.now()),
+                    created_at=timezone.now(),
                     widget=widget,
                     is_student_made=False,
                     guest_access=True,

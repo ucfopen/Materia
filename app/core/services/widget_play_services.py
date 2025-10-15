@@ -1,10 +1,10 @@
 import logging
 import uuid
-from datetime import datetime
+
+from django.utils import timezone
 
 from core.models import Log, LogPlay
 from django.contrib.auth.models import AnonymousUser
-from django.utils.timezone import make_aware
 from core.utils.http_util import parse_bool
 from core.services.semester_service import SemesterService
 
@@ -16,7 +16,7 @@ class WidgetPlayInitService:
     @staticmethod
     def init_play(request, instance, user):
 
-        created_at = make_aware(datetime.now())
+        created_at = timezone.now()
         ip = request.META.get("REMOTE_ADDR")
         if isinstance(user, AnonymousUser):
             user = None

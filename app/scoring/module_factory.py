@@ -1,9 +1,10 @@
 import logging
 import os
 import types
-from datetime import datetime
 from pathlib import Path
 from typing import Optional, Type
+
+from django.utils import timezone
 
 from core.models import Log, LogPlay, User, WidgetInstance
 from scoring.module import ScoreModule
@@ -71,7 +72,7 @@ class ScoreModuleFactory:
             instance=instance,
             is_valid=True,
             is_complete=True,
-            created_at=datetime.now(),
+            created_at=timezone.now(),
             user=user,
             elapsed=0,
             qset=instance.get_latest_qset(),

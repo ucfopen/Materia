@@ -10,7 +10,6 @@ from __future__ import annotations
 import logging
 import os
 import types
-from datetime import datetime
 from pathlib import Path
 from smtplib import SMTPException
 from typing import Self
@@ -27,7 +26,6 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.functional import classproperty
 from django.utils.text import slugify
-from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 
 from core.utils.b64_util import Base64Util
@@ -94,7 +92,7 @@ class Asset(models.Model):
 
     id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
     file_type = models.CharField(max_length=10, default="")
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     title = models.CharField(max_length=300, default="")
     file_size = models.IntegerField(default=0)
     deleted_at = models.DateTimeField(default=None, null=True)
@@ -138,7 +136,6 @@ class Asset(models.Model):
         return asset_id
 
     def save(self, *args, **kwargs) -> bool:
-        from django.utils.timezone import make_aware
         from core.utils.validator_util import ValidatorUtil
 
         if ValidatorUtil.is_valid_hash(self.id) and not bool(self.file_type):
@@ -149,7 +146,7 @@ class Asset(models.Model):
         try:
             with transaction.atomic():
                 self.id = asset_id
-                self.created_at = make_aware(datetime.now())
+                self.created_at = timezone.now()
                 super().save(*args, **kwargs)
 
             return True
@@ -237,7 +234,7 @@ class AssetData(models.Model):
     size = models.CharField(max_length=20)
     bytes = models.IntegerField()  # consider using db_column to change the name
     hash = models.CharField(max_length=255)
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     data = LongBlobField()
 
     class Meta:
@@ -255,8 +252,8 @@ class DateRange(models.Model):
     id = models.BigAutoField(primary_key=True)
     semester = models.CharField(max_length=255)
     year = models.IntegerField()
-    start_at = models.DateTimeField(default=datetime.now)
-    end_at = models.DateTimeField(default=datetime.now)
+    start_at = models.DateTimeField(default=timezone.now)
+    end_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "date_range"
@@ -382,7 +379,7 @@ class Log(models.Model):
     item_id = models.CharField(max_length=255)
     text = models.TextField()
     value = models.CharField(max_length=255)
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     game_time = models.IntegerField()
     ip = models.CharField(max_length=20)
 
@@ -423,7 +420,7 @@ class LogActivity(models.Model):
     )
 
     type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     # item_id contains arbitrary values based on what 'type' of activity is being logged
     item_id = models.CharField(max_length=100, db_collation="utf8_bin")
     value_1 = models.CharField(max_length=255, blank=True, null=True)
@@ -450,7 +447,7 @@ class LogPlay(models.Model):
         db_column="inst_id",
     )
     is_valid = models.BooleanField()  # was previously CharField, enum in DB
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(
         User,
         related_name="play_logs",
@@ -487,7 +484,7 @@ class LogPlay(models.Model):
         return Log.objects.filter(play_id=self.id)
 
     def update_elapsed(self):
-        self.elapsed = (make_aware(datetime.now()) - self.created_at).total_seconds()
+        self.elapsed = (timezone.now() - self.created_at).total_seconds()
         self.save()
 
     def set_complete(self, score, possible, percent):
@@ -529,7 +526,7 @@ class LogStorage(models.Model):
         blank=True,
         null=True,
     )
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=64)
     data = models.TextField()
 
@@ -563,8 +560,8 @@ class Lti(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     context_id = models.CharField(max_length=255, blank=True, null=True)
     context_title = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(default=datetime.now)
-    updated_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "lti"
@@ -628,7 +625,7 @@ class Notification(models.Model):
     item_id = models.CharField(max_length=100, db_collation="utf8_bin")
     # is_email_sent = models.CharField(max_length=1)  # convert to boolean field
     is_email_sent = models.BooleanField()  # was previously CharField, enum in DB
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     subject = models.CharField(max_length=511)
     # consider deleting this column & pulling the avatar from relevant user metadata just in time
     avatar = models.CharField(max_length=511)
@@ -769,7 +766,7 @@ class Question(models.Model):
     # base 64 encoded json question
     _data = models.TextField(db_column="data")
     item_id = models.CharField(max_length=100, blank=True)
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     type = models.ForeignKey(
         "Widget", related_name="widget_type", on_delete=models.PROTECT, db_column="type"
     )
@@ -840,7 +837,7 @@ class UserExtraAttempts(models.Model):
         on_delete=models.CASCADE,
         null=False,
     )
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     extra_attempts = models.IntegerField()
     context_id = models.CharField(max_length=255)
     semester = models.ForeignKey(
@@ -869,7 +866,7 @@ class Widget(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255, default="")
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     flash_version = models.PositiveIntegerField(default=0)
     height = models.PositiveSmallIntegerField(default=0)
     width = models.PositiveSmallIntegerField(default=0)
@@ -980,7 +977,7 @@ class WidgetInstance(models.Model):
         blank=True,
         null=True,
     )
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=100)
     is_draft = models.BooleanField(default=False)
     height = models.IntegerField(default=0)
@@ -1116,7 +1113,7 @@ class WidgetInstance(models.Model):
                 try:
                     hash = WidgetInstanceHash.generate_key_hash(length=10)
                     self.id = hash
-                    self.created_at = make_aware(datetime.now())
+                    self.created_at = timezone.now()
                     super().save(*args, **kwargs)
                     success = True
                 except DatabaseError as e:
@@ -1125,7 +1122,7 @@ class WidgetInstance(models.Model):
 
         # UPDATING AN EXISTING INSTANCE
         else:
-            self.updated_at = make_aware(datetime.now())
+            self.updated_at = timezone.now()
             super().save(*args, **kwargs)
 
         return
@@ -1155,7 +1152,7 @@ class WidgetInstance(models.Model):
         dupe.embedded_only = False
 
         # Manually update created_at
-        dupe.created_at = make_aware(datetime.now())
+        dupe.created_at = timezone.now()
 
         # If original widget is student made, verify that the new user is a student or not.
         if dupe.is_student_made:
@@ -1220,7 +1217,7 @@ class WidgetInstance(models.Model):
 
         if semester and not year:
             semesters = DateRange.objects.filter(
-                semester=semester, year=datetime.now().year
+                semester=semester, year=timezone.now().year
             )
             return queryset.filter(semester__in=semesters)
 
@@ -1261,7 +1258,7 @@ class WidgetQset(models.Model):
         on_delete=models.PROTECT,
         db_column="inst_id",
     )
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     data = models.TextField(db_column="data")
     version = models.CharField(max_length=10, blank=True, null=True)
 
