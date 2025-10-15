@@ -28,8 +28,6 @@ const QuestionHistory = () => {
 	})
 
 	useEffect(() => {
-		console.log("AAA")
-		console.log(qsetHistory)
 		if (qsetHistory)
 		{
 			qsetHistory.map((qset) => {
