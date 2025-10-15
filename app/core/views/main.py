@@ -16,15 +16,6 @@ def index(request, *args, **kwargs):
     return render(request, "react.html", context)
 
 
-def get_theme_overrides():
-    # This function will be called before the help page is loaded.
-    # You can use it to check for theme overrides.
-    # Return a dictionary with the 'js' and 'css' keys if an override exists,
-    # or None if no override exists.
-    # For this example, we'll just return None.
-    return None
-
-
 def help(request):
     context = ContextUtil.create(
         title="Help",
