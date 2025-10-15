@@ -85,7 +85,7 @@ class ValidatorUtil:
         ):
             return True
 
-        # matches any alphanumeric string between 1 and 5 characters EXCEPT 0
+        # matches any alphanumeric string 1 character or longer EXCEPT 0
         pattern = re.compile(r"^([A-Za-z0-9]{2,}|[A-Za-z1-9]{1})")
         if type(hash) is str and bool(re.match(pattern, hash)):
             return True
