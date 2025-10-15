@@ -1,6 +1,6 @@
 import os
 
-from util.widget.validator import ValidatorUtil
+from core.utils.validator_util import ValidatorUtil
 
 # amount of kilobytes alloted to any individual user for media storage
 MEDIA_QUOTA = 5000

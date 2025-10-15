@@ -117,16 +117,19 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
+
         # User isn't getting a widget detail, instead they are listing or updating.
         # By that logic, they already can edit the widget due to how perms are set up.
         if self.action != "retrieve":
             context["hide_identifying_info"] = False
-        # Check if the user can play the instance. If they can't don't include identifying info
+        # Check if the user can play the instance. If they can't, don't include identifying info
         else:
             if self.get_object().playable_by_current_user(self.request.user):
                 context["hide_identifying_info"] = False
             else:
                 context["hide_identifying_info"] = True
+
+        return context
 
     def perform_create(self, serializer):
         widget = serializer.validated_data["widget"]
