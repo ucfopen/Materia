@@ -30,7 +30,7 @@ const Header = ({
 
 	useEffect(() => {
 		if (userPerms != undefined) {
-			
+
 			setVerified(!!userPerms.isAuthenticated)
 			setPermLevel(userPerms.permLevel ?? 'anonymous')
 		}
@@ -63,6 +63,9 @@ const Header = ({
 					</li>
 					<li>
 						<a className='elevated' href='/admin/instance'>Instances</a>
+					</li>
+					<li>
+						<a className='elevated' href='/admin/'>Django Admin</a>
 					</li>
 				</ul>
 			</li>
