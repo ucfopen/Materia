@@ -5,6 +5,7 @@ COPY ./docker/config/nginx/nginx.prod.conf /etc/nginx/nginx.conf
 COPY ./public /var/www/html/staticfiles
 
 USER root
+RUN /usr/sbin/addgroup nginx www-data
 RUN chmod -R 0755 /etc/nginx/conf.d && \
     chmod 0644 /etc/nginx/nginx.conf && \
     chmod -R 0755 /var/www/html/staticfiles
