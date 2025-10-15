@@ -127,8 +127,11 @@ class ValidatorUtil:
 
     # Mimics PHP's FILTER_VALIDATE_BOOL
     @staticmethod
-    def validate_bool(raw_bool: str, default: bool = False) -> bool:
-        if type(raw_bool) is str:
+    def validate_bool(raw_bool, default: bool = False) -> bool:
+        if isinstance(raw_bool, bool):
+            return raw_bool
+
+        if isinstance(raw_bool, str):
             lowered_bool = raw_bool.lower()
             if (
                 lowered_bool == "true"

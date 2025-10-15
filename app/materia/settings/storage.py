@@ -1,5 +1,7 @@
 import os
 
+from util.widget.validator import ValidatorUtil
+
 # amount of kilobytes alloted to any individual user for media storage
 MEDIA_QUOTA = 5000
 
@@ -36,11 +38,15 @@ DRIVER_SETTINGS = {
         ),
         "token": os.environ.get("AWS_SESSION_TOKEN", "TOKEN"),  # aws session token
         # use fakes3 unless explicitly disabled
-        "fakes3_enabled": os.environ.get("DEV_ONLY_USE_FAKES3", True),
-        # base S3 URL for viewing objects in-browser
-        "view_url": os.environ.get(
-            "ASSET_STORAGE_S3_BASEURL", "http://localhost:10001/fake_bucket/media/"
+        "fakes3_enabled": ValidatorUtil.validate_bool(
+            os.environ.get("DEV_ONLY_USE_FAKES3", True),
         ),
+        # host to SERVE fakes3 assets. this should not have to be changed.
+        "fakes3_host": "http://localhost:10001",
+        "use_cdn": ValidatorUtil.validate_bool(
+            os.environ.get("ASSET_STORAGE_S3_USE_CDN", False),
+        ),
+        "cdn_domain": os.environ.get("ASSET_STORAGE_S3_CDN_DOMAIN", ""),
     },
 }
 

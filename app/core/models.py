@@ -603,21 +603,6 @@ class MapAssetToObject(models.Model):
         ]
 
 
-# Convert to be a through model for a many-to-many relationship between Question and WidgetQset
-# models ignoring related_names on foreign keys for now as it probably won't be used in this way
-class MapQuestionToQset(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    qset = models.ForeignKey(
-        "WidgetQset", on_delete=models.PROTECT, db_column="qset_id"
-    )
-    question = models.ForeignKey(
-        "Question", on_delete=models.PROTECT, db_column="question_id"
-    )
-
-    class Meta:
-        db_table = "map_question_to_qset"
-
-
 class Notification(models.Model):
     id = models.BigAutoField(primary_key=True)
     from_id = models.ForeignKey(
@@ -647,7 +632,7 @@ class Notification(models.Model):
     subject = models.CharField(max_length=511)
     # consider deleting this column & pulling the avatar from relevant user metadata just in time
     avatar = models.CharField(max_length=511)
-    updated_at = models.DateTimeField(default=datetime.now, null=True)
+    updated_at = models.DateTimeField(default=timezone.now, null=True)
     action = models.CharField(max_length=255)
 
     permissions = GenericRelation(ObjectPermission)
@@ -772,55 +757,6 @@ class Notification(models.Model):
         ]
 
 
-# We may want to use Django's built-in permissions and roles system instead of these perm models.
-# Will need a migration plan for them potential foreign key relationship re: object_id, object_type
-# for assets, questions, and widget instances
-class PermObjectToUser(models.Model):
-    # historically unused options commented out for now
-    class Perm(models.IntegerChoices):
-        VISIBLE = 1, gettext_lazy("Can see object and view scores")
-        # PLAY = 5, gettext_lazy("Can play object")
-        # SCORE = 10, gettext_lazy("Can receive a score for object")
-        # DATA = 15, gettext_lazy("Can see logs for object")
-        # EDIT = 20, gettext_lazy("Can edit the object")
-        # COPY = 25, gettext_lazy("Can copy the object")
-        FULL = 30, gettext_lazy("Full access to object")
-        # SHARE = 35, gettext_lazy("Can share rights to object with another user")
-
-    class ObjectType(models.IntegerChoices):
-        QUESTION = 1, gettext_lazy("Question")
-        ASSET = 2, gettext_lazy("Media asset")
-        WIDGET = 3, gettext_lazy("Widget engine")
-        INSTANCE = 4, gettext_lazy("Widget instance")
-
-    # Needs primary key
-    id = models.BigAutoField(primary_key=True)
-    # appears to be a generic relationship combined with object_type
-    object_id = models.CharField(max_length=10, db_collation="utf8_bin")
-    user = models.ForeignKey(
-        User,
-        related_name="object_permissions_deprecated",
-        on_delete=models.SET_NULL,
-        db_column="user_id",
-        blank=True,
-        null=True,
-    )
-    perm = models.IntegerField(choices=Perm.choices)
-    # appears to be a generic relationship combined with object_type
-    object_type = models.IntegerField(choices=ObjectType.choices)
-    # will be auto-nulled when the expiration date elapses
-    expires_at = models.DateTimeField(default=None, null=True)
-
-    class Meta:
-        db_table = "perm_object_to_user"
-        constraints = [
-            models.UniqueConstraint(
-                fields=["object_id", "user_id", "perm", "object_type"],
-                name="perm_object_to_user_main",
-            ),
-        ]
-
-
 class Question(models.Model):
     id = models.BigAutoField(primary_key=True)
     qset = models.ForeignKey(
@@ -886,28 +822,36 @@ class Question(models.Model):
 
 
 class UserExtraAttempts(models.Model):
-    """
-    TODO this model requires reworks:
-    - change fields to foreign keys
-    - Enable admin operations to apply extra attempts
-    """
+    @staticmethod
+    def get_cur_semester():
+        from core.services.semester_service import SemesterService
 
-    # Needs primary key
-    inst_id = models.CharField(
-        max_length=100, db_collation="utf8_bin"
-    )  # foreign key to WidgetInstance model
-    user_id = models.PositiveBigIntegerField()  # foreign key to Users model
+        return SemesterService.get_current_semester()
+
+    instance = models.ForeignKey(
+        "WidgetInstance",
+        related_name="extra_attempts",
+        on_delete=models.CASCADE,
+        null=False,
+    )
+    user = models.ForeignKey(
+        User,
+        related_name="extra_attempts",
+        on_delete=models.CASCADE,
+        null=False,
+    )
     created_at = models.DateTimeField(default=datetime.now)
     extra_attempts = models.IntegerField()
     context_id = models.CharField(max_length=255)
-    semester = models.PositiveBigIntegerField()  # foreign key to DateRange model
+    semester = models.ForeignKey(
+        DateRange,
+        related_name="extra_attempts",
+        on_delete=models.CASCADE,
+        null=False,
+    )
 
     class Meta:
         db_table = "user_extra_attempts"
-        indexes = [
-            models.Index(fields=["user_id"], name="user_extra_attempts_user_id"),
-            models.Index(fields=["inst_id"], name="user_extra_attempts_inst_id"),
-        ]
 
 
 class Widget(models.Model):
@@ -1063,24 +1007,22 @@ class WidgetInstance(models.Model):
     def dir(self):
         return f"{self.id}-{self.clean_name}{os.sep}"
 
-    def status(self, context: str = None):
+    def attempts_left_for_user(self, user: User, context: str = ""):
         from core.services.semester_service import SemesterService
 
         semester = SemesterService.get_current_semester()
-
-        now = timezone.now()
-        start = self.open_at
-        end = self.close_at
         attempts_used = LogPlay.objects.filter(
+            user=user,
             instance=self,
             context_id=context,
             semester=semester,
+            is_complete=True,
         ).count()
 
         # Check to see if any extra attempts have been provided to the context. Decrement attempts_used if so.
-        # TODO this does not filter by user - we don't have access to user id here. Do we need it?
         extra_attempts_ref = UserExtraAttempts.objects.filter(
-            inst_id=self.id,
+            user=user,
+            instance=self,
             context_id=context,
             semester=semester.id,
         ).first()
@@ -1091,7 +1033,17 @@ class WidgetInstance(models.Model):
 
         attempts_used -= extra_attempts
 
-        has_attempts = self.attempts == -1 or attempts_used < self.attempts
+        return -1 if self.attempts == -1 else self.attempts - attempts_used
+
+    def user_has_attempts(self, user: User, context: str = ""):
+        attempts_left = self.attempts_left_for_user(user, context)
+
+        return self.attempts == -1 or attempts_left > 0
+
+    def availability_status(self):
+        now = timezone.now()
+        start = self.open_at
+        end = self.close_at
 
         does_open = start is not None
         does_close = end is not None
@@ -1111,7 +1063,6 @@ class WidgetInstance(models.Model):
             "will_open": will_open,
             "will_close": will_close,
             "always_open": always_open,
-            "has_attempts": has_attempts,
         }
 
     def create_qset(self, data, version=None):

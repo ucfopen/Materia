@@ -7,10 +7,12 @@ import os
 
 from core.models import (
     Asset,
+    DateRange,
     Log,
     LogPlay,
     Notification,
     ObjectPermission,
+    UserExtraAttempts,
     UserSettings,
     Widget,
     WidgetInstance,
@@ -19,8 +21,8 @@ from core.models import (
 from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import serializers
-
 from core.utils.b64_util import Base64Util
+from core.services.semester_service import SemesterService
 from core.services.perm_service import PermService
 from core.services.user_service import UserService
 
@@ -681,3 +683,16 @@ class ScoreDetailsForPreviewSerializer(serializers.Serializer):
         queryset=WidgetInstance.objects.all(), required=True
     )
     play_id = serializers.UUIDField()
+
+
+class UserExtraAttemptsSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
+    semester = serializers.PrimaryKeyRelatedField(
+        queryset=DateRange.objects.all(),
+        default=lambda: SemesterService.get_current_semester(),
+    )
+    context_id = serializers.CharField(allow_blank=True, required=False, default="")
+
+    class Meta:
+        model = UserExtraAttempts
+        fields = "__all__"

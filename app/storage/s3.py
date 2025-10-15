@@ -6,7 +6,7 @@ import tempfile
 import boto3
 import botocore
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseNotFound, HttpResponseRedirect
 
 logger = logging.getLogger("django")
 
@@ -18,7 +18,32 @@ class S3AssetStorageDriver:
         return os.path.join(subdir or "", f"{id}_{size}")
 
     def get_view_url(id, size):
-        return f"{settings.DRIVER_SETTINGS["s3"]["view_url"]}{id}_{size}"
+
+        # presigned urls work, but for fakes3 let's just return an unsigned path
+        if settings.DRIVER_SETTINGS["s3"]["fakes3_enabled"]:
+            host = settings.DRIVER_SETTINGS["s3"]["fakes3_host"]
+            bucket = settings.DRIVER_SETTINGS["s3"]["bucket"]
+            subdir = settings.DRIVER_SETTINGS["s3"]["subdir"]
+            return f"{host}/{bucket}/{subdir}/{id}_{size}"
+
+        # assets served from cloudfront
+        if settings.DRIVER_SETTINGS["s3"]["use_cdn"]:
+            return f"{settings.DRIVER_SETTINGS["s3"]["cdn_domain"]}/{id}_{size}"
+
+        # assets served directly from the s3 bucket via presigned URLs
+        try:
+            client = S3AssetStorageDriver.get_s3(True)
+            url = client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": settings.DRIVER_SETTINGS["s3"]["bucket"],
+                    "Key": S3AssetStorageDriver.get_key_name(id, size),
+                },
+                ExpiresIn=3600,
+            )
+            return url
+        except Exception:
+            return HttpResponseNotFound()
 
     def get_s3(get_client=False):
         s = settings.DRIVER_SETTINGS["s3"]
@@ -46,6 +71,8 @@ class S3AssetStorageDriver:
             logger.error("S3: Failed to create S3 session.")
             logger.error(e)
 
+        logger.error(f"\ndriver settings:\n{s}\n")
+
         s3_config = {}
         # Endpoint config is only required for fakeS3 - the param is not required for actual S3 on AWS
         if "fakes3_enabled" in s and s["fakes3_enabled"]:
@@ -53,6 +80,8 @@ class S3AssetStorageDriver:
 
         if "force_path_style" in s and s["force_path_style"]:
             s3_config["s3"] = {"addressing_style": "path"}
+
+        logger.error(f"\nclient config:\n{s3_config}\n")
 
         if get_client:
             return session.client("s3", **s3_config)

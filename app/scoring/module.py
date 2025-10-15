@@ -4,7 +4,6 @@ import logging
 from abc import ABC, abstractmethod
 
 from core.models import Log, LogPlay
-from core.services.semester_service import SemesterService
 
 logger = logging.getLogger(__name__)
 
@@ -71,30 +70,24 @@ class ScoreModule(ABC):
 
         return True
 
-    def validate_scores(self, timestamp=False) -> bool:
+    def validate_scores(self, in_process=False) -> bool:
         """calculates score for this session. updates `verified_score` and
         `calculated_percent`, which are eventually written to the database
         by the api. validates the individual question scores are valid.
         """
-        # TODO determine whether or not this timestamp check is needed
-        # follow-up: under what circumstances do we pass the timestamp? How is it used?
-        if not timestamp:
-            # except for previews, check that attempts are not exceeded.
-            if self.play_id != -1:
-                semester = SemesterService.get_current_semester()
-                attempts_used = LogPlay.objects.filter(
-                    instance=self.instance,
-                    context_id=self.play.context_id,
-                    semester=semester,
-                ).count()
 
-                if (
-                    self.instance.attempts != -1
-                    and attempts_used >= self.instance.attempts
-                ):
-                    from django.core.exceptions import ValidationError
+        # If we're validating scores mid-flight (a play session is in progress),
+        # attempt limit validation should ensure we do not allow scores to be created
+        # that exceed the attempt limit.
+        # In other contexts (visiting the score screen), we bypass this check.
+        # Additionally, previews do not have attempt limits checked.
+        if in_process and self.play_id != -1:
+            if not self.instance.user_has_attempts(
+                self.play.user, self.play.context_id
+            ):
+                from django.core.exceptions import ValidationError
 
-                    raise ValidationError("Attempt limit met for this context")
+                raise ValidationError("Attempt limit met for this context")
 
         self.questions = self.play.qset.get_questions()
 

@@ -30,12 +30,30 @@ class Command(base.BaseCommand):
             logger.info(e)
             logger.exception("")
 
+    def populate_db(self):
+        from django.core.management import call_command
+
+        # 1. Run database migrations
+        call_command("migrate")
+
+        # 2. Populate default groups
+        self.populate_default_groups()
+
+        # 3. Populate date ranges from 2020 to 2032
+        self.populate_dateranges("2020", "2032")
+
+        logger.info("Database successfully populated with initial data")
+
     def populate_default_groups(self):
-        support_group, created_support_group = Group.objects.get_or_create(name='support_user')
+        support_group, created_support_group = Group.objects.get_or_create(
+            name="support_user"
+        )
         if created_support_group:
             logger.info("support_user group created")
 
-        author_group, created_author_group = Group.objects.get_or_create(name='basic_author')
+        author_group, created_author_group = Group.objects.get_or_create(
+            name="basic_author"
+        )
         if created_author_group:
             logger.info("basic_author group created")
 
@@ -43,10 +61,10 @@ class Command(base.BaseCommand):
 
     def populate_dateranges(self, start_year, end_year):
 
-        if not re.match(r'^\d{4}$', start_year):
-            raise ValueError('start_year must be a 4-digit year')
-        if not re.match(r'^\d{4}$', end_year):
-            raise ValueError('end_year must be a 4-digit year')
+        if not re.match(r"^\d{4}$", start_year):
+            raise ValueError("start_year must be a 4-digit year")
+        if not re.match(r"^\d{4}$", end_year):
+            raise ValueError("end_year must be a 4-digit year")
 
         start_year = int(start_year)
         end_year = int(end_year)

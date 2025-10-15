@@ -1,4 +1,4 @@
-# temp files from editors
+# temp files from editors and environments
 *~
 *.bak
 .DS_Store
@@ -12,6 +12,15 @@ nbproject/
 *.pem
 .phpunit.result.cache
 .vscode
+.bash_history
+.bash_logout
+.bash_profile
+.bashrc
+.viminfo
+
+.cache/
+.npm/
+.ssh/
 
 # custom config
 .env.local

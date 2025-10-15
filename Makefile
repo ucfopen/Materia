@@ -118,6 +118,9 @@ logs: ## View container logs (optionally specifying a service name, like `python
 #==============================================
 # Application management commands
 #==============================================
+post-install:
+	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py post-install populate_db"
+
 create-superuser: ## Create a new superuser using the Django `createsuperuser` management command
 	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py createsuperuser"
 
