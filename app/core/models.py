@@ -11,14 +11,12 @@ import logging
 import os
 import types
 from pathlib import Path
-from smtplib import SMTPException
 from typing import Self
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.core.mail import send_mail
 from django.db import DatabaseError, models, transaction
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
@@ -28,6 +26,7 @@ from django.utils.functional import classproperty
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy
 
+from core.services.email_service import EmailService
 from core.utils.b64_util import Base64Util
 from core.message_exception import MsgFailure
 from core.services.perm_service import PermService
@@ -623,7 +622,6 @@ class Notification(models.Model):
     # can't foreign key it properly because we can't reliably expect every value to be valid
     # potentially sanitize data and revisit
     item_id = models.CharField(max_length=100, db_collation="utf8_bin")
-    # is_email_sent = models.CharField(max_length=1)  # convert to boolean field
     is_email_sent = models.BooleanField()  # was previously CharField, enum in DB
     created_at = models.DateTimeField(default=timezone.now)
     subject = models.CharField(max_length=511)
@@ -679,6 +677,7 @@ class Notification(models.Model):
                 perm_string = "Unknown"
 
         # Create message
+        action = ""
         match mode:
             case "disabled":
                 content = f"{user_link} is no longer sharing '{widget_name}' with you."
@@ -696,8 +695,9 @@ class Notification(models.Model):
                     f"{user_link} is requesting access to your widget '{widget_link}'.<br/>"
                     f"The widget is currently being used within a course in your LMS."
                 )
+                action = "access_request"
             case _:
-                return
+                return None
 
         # Create notification object
         notification = cls.objects.create(
@@ -708,41 +708,45 @@ class Notification(models.Model):
             is_email_sent=False,
             avatar=UserService.get_avatar_url(from_user),
             subject=content,
+            action=action,
         )
 
         return notification
 
-    def send_email(self, force_resend: bool = False) -> bool:
-        # Check if emails are enabled
-        if not settings.SEND_EMAILS:
-            return False
-
+    def send_email(self, force_resend: bool = False):
         # Check if sent already
         if self.is_email_sent and not force_resend:
-            return False
+            return
 
-        # Check if recipient has emails enabled
+        # Check if recipient has notification emails enabled
         user_settings = UserSettings.objects.filter(user=self.to_id).first()
         if user_settings is not None:
             notify = user_settings.get_profile_fields().get("notify", False)
             if not notify:
-                return False
+                return
 
-        try:
-            send_mail(
-                subject=f"{settings.NAME} Notification",
-                message=self.subject,
-                html_message=self.subject,
-                from_email=f'"{self.from_id.first_name} {self.from_id.last_name}" <{settings.SYSTEM_EMAIL}>',
-                recipient_list=[self.to_id.email],
+        # Create context for basic_notification
+        context = {
+            "message_html": self.subject,
+        }
+        if self.action == "access_request":
+            context["action_text"] = "Go to Widget Collaboration Settings"
+            context["action_link"] = (
+                f"{settings.URLS["BASE_URL"]}my-widgets/#{self.item_id}-collab"
             )
+
+        # Send email
+        email_sent = EmailService.send_email(
+            template="basic_notification.html",
+            context=context,
+            plain_msg=self.subject,
+            sender=self.from_id,
+            to=self.to_id,
+        )
+
+        if email_sent:
             self.is_email_sent = True
             self.save()
-            return True
-        except SMTPException as e:
-            logger.error("Failed to send email. Exception follows:")
-            logger.error(e)
-            return False
 
     class Meta:
         db_table = "notification"
