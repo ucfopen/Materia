@@ -156,7 +156,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 				})
 				for (let score of scores) {
 					score.roundedPercent = parseFloat(score.percent).toFixed(2)
-					const d = new Date(score.created_at)
+					const d = new Date(parseInt(score.created_at) * 1000)
 					const date = d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
 					score.date = date
 				}
@@ -477,7 +477,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 	}
 
 	let playAgainBtn = null
-	if (!attributes.hidePlayAgain && attemptsLeft > 0) {
+	if (!attributes.hidePlayAgain && (attemptsLeft > 0 || attemptsLeft == -1)) {
 		playAgainBtn = (
 			<a id='play-again' className='action_button' href={attributes.href}>
 				{isPreview ? 'Preview' : 'Play'} Again

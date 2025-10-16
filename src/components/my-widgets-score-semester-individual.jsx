@@ -22,7 +22,7 @@ const initState = () => ({
 	filteredLogs: []
 })
 
-const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) => {
+const MyWidgetScoreSemesterIndividual = ({ semester, instId, context, setInvalidLogin }) => {
 	const [state, setState] = useState(initState())
 	const [page, setPage] = useState(1)
 	const [error, setError] = useState('')
@@ -32,7 +32,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 		refetch
 	} = useQuery(
 		['play-logs', instId, semester],
-		() => apiGetPlayLogs(instId, semester.term, semester.year, page),
+		() => apiGetPlayLogs(instId, semester.term, semester.year, context, page),
 		{
 			keepPreviousData: true,
 			enabled: !!instId && !!semester && !!semester.term && !!semester.year,

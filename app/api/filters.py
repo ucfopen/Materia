@@ -1,13 +1,12 @@
 import logging
 
 import django_filters
-
-from core.models import Asset, ObjectPermission, WidgetInstance, UserExtraAttempts
+from core.models import Asset, ObjectPermission, UserExtraAttempts, WidgetInstance
 from django.db.models import Q
+from django_filters import rest_framework
 from rest_framework import filters
 from util.perm_manager import PermManager
 from util.semester_util import SemesterUtil
-from django_filters import rest_framework
 
 logger = logging.getLogger("django")
 
@@ -84,11 +83,12 @@ class LogPlayFilterBackend(filters.BaseFilterBackend):
         elif inst_id is not None:
             semester = request.query_params.get("semester", None)
             year = request.query_params.get("year", None)
+            context_id = request.query_params.get("context_id", None)
 
             instance = WidgetInstance.objects.filter(id=inst_id).first()
             if instance is not None:
                 return instance.get_play_logs(
-                    semester=semester, year=year, context_id=None
+                    semester=semester, year=year, context_id=context_id
                 )
 
             # user wants ALL the logs

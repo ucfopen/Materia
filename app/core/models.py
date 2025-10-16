@@ -56,6 +56,7 @@ class ObjectPermission(models.Model):
     permission = models.CharField(max_length=20, choices=PERMISSION_CHOICES)
     expires_at = models.DateTimeField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    context_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         unique_together = ("user", "content_type", "object_id", "permission")
@@ -1053,6 +1054,10 @@ class WidgetInstance(models.Model):
 
     def attempts_left_for_user(self, user: User, context: str = ""):
         from util.semester_util import SemesterUtil
+
+        # short-circuit for guest users
+        if isinstance(user, AnonymousUser):
+            return -1
 
         semester = SemesterUtil.get_current_semester()
         attempts_used = LogPlay.objects.filter(

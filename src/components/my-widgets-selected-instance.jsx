@@ -357,6 +357,19 @@ const MyWidgetSelectedInstance = ({
 		)
 	}
 
+	let provisionalAccessRender = null
+	if (myPerms?.context != null) {
+		provisionalAccessRender = (
+			<div className='provisional-access-container'>
+				<h3>You have been granted limited access to this widget.</h3>
+				<p>
+					This widget will appear in My Widgets because it was embedded in a course in which you were an author.
+					Your provisional access means you do not have edit rights and can only view score data associated with your course.
+				</p>
+			</div>
+		)
+	}
+
 	let mainContentRender = null
 	if (error) {
 		mainContentRender = <div className='error'>{error}</div>
@@ -464,6 +477,8 @@ const MyWidgetSelectedInstance = ({
 				</div>
 			</div>
 
+			{provisionalAccessRender}
+
 			<div className={`share-widget-container closed ${inst.is_draft ? 'draft' : ''}`}>
 				<h3>
 					{inst.is_draft ? 'Publish to share' : 'Share'} with your students
@@ -513,7 +528,7 @@ const MyWidgetSelectedInstance = ({
 		{ warningDialogRender }
 		{ settingsDialogRender }
 		{ lockedDialogRender }
-		<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
+		<MyWidgetsScores inst={inst} context={myPerms?.context} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
 		</>
 	}
 

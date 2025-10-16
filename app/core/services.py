@@ -108,8 +108,9 @@ class WidgetPlayValidationService:
         if not instance_availability["is_open"]:
             return self.INVALID_NOT_YET_OPEN
 
-        if not instance.user_has_attempts(request.user, context_id):
-            return self.INVALID_NO_ATTEMPTS
+        if not is_demo and not is_preview:
+            if not instance.user_has_attempts(request.user, context_id):
+                return self.INVALID_NO_ATTEMPTS
 
         if not is_preview and instance.is_draft:
             return self.INVALID_DRAFT_NOT_PLAYABLE

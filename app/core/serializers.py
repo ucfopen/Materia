@@ -689,10 +689,16 @@ class ObjectPermissionSerializer(serializers.ModelSerializer):
     def get_content_type(self, obj):
         return obj.content_type.model
 
-    # TODO content_type is returning an integer value, it should give us the actual content type name?
     class Meta:
         model = ObjectPermission
-        fields = ["user", "content_type", "object_id", "permission", "expires_at"]
+        fields = [
+            "user",
+            "content_type",
+            "object_id",
+            "permission",
+            "expires_at",
+            "context_id",
+        ]
 
 
 class ScoresForUserSerializer(serializers.Serializer):

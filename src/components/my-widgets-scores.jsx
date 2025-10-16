@@ -7,7 +7,7 @@ import LoadingIcon from './loading-icon'
 import NoScoreContent from'./no-score-content'
 import './my-widgets-scores.scss'
 
-const MyWidgetsScores = ({inst, beardMode, setInvalidLogin}) => {
+const MyWidgetsScores = ({inst, context, beardMode, setInvalidLogin}) => {
 	const [state, setState] = useState({
 		isShowingAll: false,
 		hasScores: false,
@@ -83,6 +83,7 @@ const MyWidgetsScores = ({inst, beardMode, setInvalidLogin}) => {
 					semester={semester}
 					instId={inst.id}
 					hasScores={state.hasScores}
+					context={context}
 					setInvalidLogin={setInvalidLogin}
 				/>
 			))

@@ -5,11 +5,8 @@ import { iconUrl as getIconUrl } from '../../util/icon-url'
 
 const SelectItem = () => {
 	const [iconUrl, setIconUrl] = useState('')
-	const [userOwnsInstance, setUserOwnsInstance] = useState(false)
+	const [provisionalAccess, setProvisionalAccess] = useState(false)
 	const [previewEmbedUrl, setPreviewEmbedUrl] = useState('')
-	const [requestSuccess, setRequestSuccess] = useState(null)
-	const [requestSuccessID, setRequestSuccessID] = useState(null)
-	const [instanceOwners, setOwnerList] = useState([])
 
 	const instID = window.INST_ID
 
@@ -25,47 +22,20 @@ const SelectItem = () => {
 	})
 
 	useEffect(() => {
-		if (window && window.OWNER_LIST)
-		{
-			setOwnerList(window.OWNER_LIST)
-		}
-	}, [window.OWNER_LIST])
-
-	useEffect(() => {
 		if (window && window.PREVIEW_EMBED_URL) {
 			setPreviewEmbedUrl(window.PREVIEW_EMBED_URL)
 		}
 	}, [window.PREVIEW_EMBED_URL])
 
 	useEffect(() => {
-		if (window && window.CURRENT_USER_OWNS) {
-			setUserOwnsInstance(!!window.CURRENT_USER_OWNS)
+		if (window && window.PROVISIONAL_ACCESS) {
+			setProvisionalAccess(!!window.PROVISIONAL_ACCESS)
 		}
-	}, [window.CURRENT_USER_OWNS])
+	}, [window.PROVISIONAL_ACCESS])
 
-	const requestAccess = async (ownerID) => {
-		await apiRequestAccess(instID, ownerID).then((data) => {
-			setRequestSuccess('Request succeeded')
-			setRequestSuccessID(ownerID)
-		}).catch(err => {
-			setRequestSuccess('Request Failed')
-			setRequestSuccessID(ownerID)
-		})
-	}
-
-	let ownerList = null
-	if (instanceOwners && Array.isArray(instanceOwners)) {
-		ownerList = instanceOwners.map((owner, index) => {
-			return <li className="instance_owner" key={index}>
-				<span>{owner.first} {owner.last}</span>
-				<button id={'owner-' + owner.id} className="action_button request_widget_access" onClick={() => requestAccess(owner.id)} disabled={requestSuccess !== null && requestSuccessID == owner.id}>Request Access</button>
-				{requestSuccess !== null && requestSuccessID == owner.id ? <span className="request_success">{requestSuccess}</span> : <></>}
-			</li>
-		})
-	}
 
 	let sectionRender = null
-	if (userOwnsInstance)
+	if (!provisionalAccess)
 	{
 		sectionRender =
 			<section>
@@ -90,18 +60,17 @@ const SelectItem = () => {
 					</div>
 					<div className="widget_name">{instance.name}</div>
 				</div>
-				<h3>You don't own this widget!</h3>
-				<p>Don't worry: students will see the widget instead of this message, and it will continue to synchronize scores if configured to do so.</p>
-				<p>You may contact one of the widget owners listed below to request access to this widget. Clicking the Request Access option will notify them and provide them the option to add you as a collaborator.</p>
-				<ul>
-					{ownerList}
-				</ul>
+				<h3>You have been given provisional access to this widget</h3>
+				<p>Because you are an author in this course, you have been given limited access to this widget.</p>
+				<p>It will now show up in My Widgets and you can view scores associated with this course.
+					At any time, you can request full access by visiting the widget in My Widgets.</p>
+					<a className="action_button" href={`${window.BASE_URL}/my-widgets/#${instID}`} target="_blank">View in My Widgets</a>
 			</div>
 		</section>
 	}
 
 	return (<>
-		<header className={`${userOwnsInstance ? 'preview-success' : 'preview-warning'}`}>
+		<header className={`${provisionalAccess ? 'preview-warning' : 'preview-success'}`}>
 			<h1>Materia Widget Embedded</h1>
 			<div id="logo"></div>
 		</header>

@@ -700,6 +700,20 @@
 			font-size: 0.8em;
 		}
 
+		.provisional-access-container {
+			padding: 1em;
+			border-radius: 1em;
+
+			font-size: 10pt;
+			font-weight: 400;
+
+			background: $color-yellow-bg;
+
+			h3 {
+				margin: 0.5em 0;
+			}
+		}
+
 		.share-widget-container {
 			display: inline-block;
 			padding: 22px 20px 4px 20px;

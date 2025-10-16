@@ -71,8 +71,6 @@ class S3AssetStorageDriver:
             logger.error("S3: Failed to create S3 session.")
             logger.error(e)
 
-        logger.error(f"\ndriver settings:\n{s}\n")
-
         s3_config = {}
         # Endpoint config is only required for fakeS3 - the param is not required for actual S3 on AWS
         if "fakes3_enabled" in s and s["fakes3_enabled"]:
@@ -80,8 +78,6 @@ class S3AssetStorageDriver:
 
         if "force_path_style" in s and s["force_path_style"]:
             s3_config["s3"] = {"addressing_style": "path"}
-
-        logger.error(f"\nclient config:\n{s3_config}\n")
 
         if get_client:
             return session.client("s3", **s3_config)
