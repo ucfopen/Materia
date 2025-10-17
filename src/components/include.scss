@@ -358,15 +358,14 @@ header {
 		ul {
 			display: none;
 			background-color: #ffffff;
-			padding: 5px 15px;
-			height: 30px;
+			padding: 15px 15px;
 			position: absolute;
 			top: 100%;
 			left: 0;
 			border: 1px solid #d3d3d3;
 			border-radius: 5px;
 			margin-top: 5px;
-			gap: 30px;
+			gap: 15px;
 			box-shadow: 0 0 5px rgba(0,0,0,0.1);
 		}
 
@@ -385,10 +384,13 @@ header {
 
 		&:hover > ul {
 			display: flex;
+			flex-direction: column;
+
 			li {
 				display: flex;
 				padding: 0;
 				align-items: center;
+				height: 20px;
 
 				a {
 					text-wrap: nowrap;
