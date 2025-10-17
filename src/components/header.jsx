@@ -65,7 +65,7 @@ const Header = ({
 						<a className='elevated' href='/admin/instance'>Instances</a>
 					</li>
 					<li>
-						<a className='elevated' href='/admin/'>Django Admin</a>
+						<a className='elevated' href='/admin/' target="_blank">Django Admin</a>
 					</li>
 				</ul>
 			</li>
