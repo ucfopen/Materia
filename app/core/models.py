@@ -118,13 +118,13 @@ class Asset(models.Model):
     # Finds an available asset ID to avoid database collisions
     @staticmethod
     def get_unused_id():
-        from core.utils.hash_util import WidgetInstanceHash
+        from core.utils.hash_util import HashUtil
 
         asset_id = None
 
         # try 10 times to get an unused asset ID
         for i in range(10):
-            try_id = WidgetInstanceHash.generate_key_hash()
+            try_id = HashUtil.generate_key_hash()
             try:
                 Asset.objects.get(id=try_id)
                 continue
@@ -1104,7 +1104,7 @@ class WidgetInstance(models.Model):
 
         # ADDING A NEW INSTANCE
         if is_new:
-            from core.utils.hash_util import WidgetInstanceHash
+            from core.utils.hash_util import HashUtil
 
             tries = (
                 3  # try this many times to generate an instance ID to avoid collisions
@@ -1115,7 +1115,7 @@ class WidgetInstance(models.Model):
                     raise Exception("Unable to save new widget instance")
                 self.published_by = None if self.is_draft else self.user
                 try:
-                    hash = WidgetInstanceHash.generate_key_hash(length=10)
+                    hash = HashUtil.generate_key_hash()
                     self.id = hash
                     self.created_at = timezone.now()
                     super().save(*args, **kwargs)
@@ -1272,7 +1272,7 @@ class WidgetQset(models.Model):
     def set_data(self, data_dict: dict):
         self.data = Base64Util.encode(data_dict)
 
-    def process_and_create_questions(self):
+    def process_and_create_questions(self) -> list[Question]:
         """
         Older versions of Materia will not have Question model instances associated with a qset
         In this case, we unpack the qset, traverse it to identify individual questions, and create new question
@@ -1287,7 +1287,6 @@ class WidgetQset(models.Model):
             questions = []
 
             if isinstance(source, list):
-
                 for item in source:
                     if Question.is_question(item):
                         questions.append(item)
@@ -1295,7 +1294,6 @@ class WidgetQset(models.Model):
                         questions += find_questions(item)
 
             elif isinstance(source, dict):
-
                 if Question.is_question(source):
                     questions.append(source)
                 else:
@@ -1323,10 +1321,10 @@ class WidgetQset(models.Model):
 
         return questions_set
 
-    def get_questions(self):
+    def get_questions(self) -> list[Question]:
         questions = self.questions.all()
         if questions.exists():
-            return questions
+            return list(questions)
         else:
             return self.process_and_create_questions()
 

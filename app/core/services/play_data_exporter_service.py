@@ -3,7 +3,7 @@ import logging
 from types import FunctionType
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from core.models import DateRange, LogPlay, WidgetInstance, Question
+from core.models import DateRange, LogPlay, WidgetInstance
 from django.conf import settings
 from django.core.cache import cache
 from core.message_exception import MsgInvalidInput, MsgNotFound, MsgFailure
@@ -233,8 +233,7 @@ class PlayDataExporterService:
         play_logs_csv = PlayDataExporterService.build_csv(headers, play_log_data)
 
         # Get questions
-        qset = instance.get_latest_qset()
-        question_rows = Question.objects.filter(qset=qset)
+        question_rows = instance.get_latest_qset().get_questions()
 
         csv_questions = []
         csv_options = []
@@ -391,8 +390,7 @@ class PlayDataExporterService:
     def _export_questions_and_answers(
         instance: WidgetInstance, semesters: list[str]
     ) -> tuple[str, str]:
-        qset = instance.get_latest_qset()
-        question_rows = Question.objects.filter(qset=qset)
+        question_rows = instance.get_latest_qset().get_questions()
 
         headers = ["Question", "Answers"]
         data = []

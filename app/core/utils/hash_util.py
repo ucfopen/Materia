@@ -3,9 +3,9 @@ import string
 from uuid import uuid4
 
 
-class WidgetInstanceHash:
+class HashUtil:
     @staticmethod
-    def generate_key_hash(length=5):
+    def generate_key_hash(length=10):
         characters = string.ascii_letters + string.digits
         return "".join(random.choices(characters, k=length))
 
