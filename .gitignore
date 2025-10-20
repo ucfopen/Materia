@@ -31,29 +31,6 @@ nbproject/
 Thumbs.db
 desktop.ini
 
-# the composer package lock file and install directory
-/composer.lock
-/fuel/vendor
-
-# any of the fuel packages installed by default
-/docs/
-/fuel/core/
-/fuel/packages/auth/
-/fuel/packages/email/
-/fuel/packages/oil/
-/fuel/packages/orm/
-/fuel/packages/parser/
-/fuel/packages/ucfauth/
-/fuel/packages/materia-theme-ucf/
-
-
-# dynamically generated files
-/fuel/app/logs/**/*
-/fuel/app/logs/*
-/fuel/app/cache/**/*
-/fuel/app/config/asset_hash*
-/fuel/app/config/**/migrations.php
-
 # NPM modules
 node_modules
 
@@ -63,7 +40,7 @@ public/js/**/*
 webpack-stats.json
 
 # Installed Widgets
-public/widget
+public/widget/**/*
 spec/widgets/*
 
 # Any widget zip packages
@@ -71,20 +48,12 @@ spec/widgets/*
 *.wigt
 
 # media files
-fuel/packages/materia/media/*
-fuel/app/media/*
-
-fuel/app/tmp
-fuel/packages/materia/tests/widget_source/**/yarn.lock
-
-# Compiled assets
+media/
 
 # dont include coverage files
 coverage.txt
 coverage.xml
 coverage/*
-
-fuel/app/backend/*
 
 licenses/LICENSES_COMPOSER
 licenses/LICENSES_NPM
@@ -119,5 +88,5 @@ public/js/
 # docker override is now untracked as of v10.3.0
 docker/docker-compose.override.yml
 
-#  sql files that may contian sensitive information
+#  sql files that may contain sensitive information
 *.sql
