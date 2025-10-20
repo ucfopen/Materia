@@ -1,0 +1,14 @@
+{% extends "email/email_root.html" %}
+
+{% block content %}
+    <h2>You have a new notification</h2>
+    <p>{{ message_html|safe }}</p>
+
+    {% if action_link %}
+        <div id="gap3" style="height: 20px"></div>
+
+        <a class="action_button" href="{{ action_link }}">
+            {{ action_text|default:'Click here to view' }}
+        </a>
+    {% endif %}
+{% endblock %}

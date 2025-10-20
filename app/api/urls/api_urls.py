@@ -1,5 +1,6 @@
 from api.views import (
     assets,
+    extra_attempts,
     generation,
     notifications,
     playsessions,
@@ -22,6 +23,7 @@ router.register(
     r"instances", widget_instances.WidgetInstanceViewSet, basename="instances"
 )
 router.register(r"notifications", notifications.NotificationsViewSet)
+router.register(r"extra-attempts", extra_attempts.UserExtraAttemptsViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

@@ -41,14 +41,17 @@ class Msg:
         self.halt = halt
         self.status = status
 
+    def as_json(self):
+        return {
+            "title": self.title,
+            "msg": self.msg,
+            "type": self.severity.value,
+            "halt": self.halt,
+        }
+
     def as_json_response(self) -> JsonResponse:
         return JsonResponse(
-            {
-                "title": self.title,
-                "msg": self.msg,
-                "type": self.severity.value,
-                "halt": self.halt,
-            },
+            self.as_json(),
             status=self.status,
         )
 

@@ -1,6 +1,6 @@
 import logging
 
-from core.models import LogPlay, UserExtraAttempts, WidgetInstance
+from core.models import LogPlay, WidgetInstance
 from core.serializers import (
     QuestionSetSerializer,
     ScoreDetailsForPlaySerializer,
@@ -45,7 +45,7 @@ class ScoresView(APIView):
 
             instance = validated.get("inst_id")
             user = validated.get("user")
-            context = validated.get("context", None)
+            context = validated.get("context", "")
             """
             access perms require either:
             the user id in the API request matches the current user OR
@@ -85,23 +85,12 @@ class ScoresView(APIView):
                     }
                 )
 
-            attempts_used = 0 if not context else len(plays)
-
-            # TODO update filter params when we fix UserExtraAttempts fields
-            extra_attempts = UserExtraAttempts.objects.filter(
-                inst_id=instance.id,
-                user_id=user.id,
-                context_id=context,
-            ).first()
-
-            extra_attempts = 0 if extra_attempts is None else extra_attempts
+            attempts_left = instance.attempts_left_for_user(user, context)
 
             return Response(
                 {
                     "scores": scores,
-                    "attemptsLeft": (
-                        instance.attempts - attempts_used + extra_attempts
-                    ),
+                    "attemptsLeft": attempts_left,
                 }
             )
 

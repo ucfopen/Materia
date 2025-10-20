@@ -60,7 +60,7 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 
 			// Create a rich error object with all available info
 			const error = new Error(
-				errorData.message || errorData.title || `HTTP error ${response.status}`
+				errorData.msg || errorData.title || `HTTP error ${response.status}`
 			)
 
 			// Add extra properties to the error
@@ -106,14 +106,9 @@ export const apiGetInstancesFromContext = contextId => {
 	return handleRequest(methods.GET, `/api/lti/${contextId}/instances/`)
 }
 
-// TODO update or retire this
-export const apiGetWidgetsByType = (widgetType="default") => {
-	return handleRequest(methods.POST, '/api/widgets/get_by_type/', widgetType )
-}
-
 // Gets widget info
-export const apiGetWidget = (ids=[], type='default') => {
-	let params = `?type=${type}`
+export const apiGetWidget = (ids=[], widgetType='catalog') => {
+	let params = `?type=${widgetType}`
 
 	if (ids.length) {
 		const idsFilter = ids.toString()
@@ -463,37 +458,20 @@ export const apiRequestAccess = (instId, ownerId) => {
 /** Controller_Api_Admin **/
 
 export const apiGetExtraAttempts = instId => {
-	return handleRequest(methods.GET, `/api/admin/extra_attempts/${instId}`)
-	.then(attempts => {
-		const map = new Map()
-		for (const i in attempts) {
-			map.set(parseInt(attempts[i].id),
-				{
-					id: parseInt(attempts[i].id),
-					user_id: parseInt(attempts[i].user_id),
-					context_id: attempts[i].context_id,
-					extra_attempts: parseInt(attempts[i].extra_attempts)
-				})
-		}
-		//const userIds = Array.from(attemps, user => user.user_id)
-		return map
-	})
+	return handleRequest(methods.GET, `/api/extra-attempts/?instance=${instId}&semester=current`)
 }
 
-// TODO update or retire
-export const apiSetAttempts = ({ instId, attempts }) => {
-	return fetch(`/api/admin/extra_attempts/${instId}`,
-		{
-			method: methods.POST,
-			mode: 'cors',
-			credentials: 'include',
-			headers: {
-				pragma: 'no-cache',
-				'cache-control': 'no-cache',
-				'content-type': 'application/json; charset=UTF-8'
-			},
-			body: JSON.stringify(attempts)
-		}).then(handleErrors)
+// User Extra Attempts
+export const apiUpdateExtraAttempts = (attempt) => {
+  return handleRequest(methods.PUT, `/api/extra-attempts/${attempt.id}/`, attempt)
+}
+
+export const apiCreateExtraAttempts = (attempt) => {
+  return handleRequest(methods.POST, `/api/extra-attempts/`, attempt)
+}
+
+export const apiDeleteExtraAttempts = (extraAttemptsId) => {
+  return handleRequest(methods.DELETE, `/api/extra-attempts/${extraAttemptsId}/`)
 }
 
 export const apiUpdateWidgetEngine = widget => {
@@ -516,6 +494,18 @@ export const apiUnDeleteWidget = ({ instId }) => {
 
 export const apiWidgetPromptGenerate = (prompt) => {
 	return handleRequest(methods.POST, `/api/json/widget_prompt_generate/`,  prompt)
+}
+
+export const apiCheckWidgetForUpdate = (widgetId) => {
+	return handleRequest(methods.GET, `/api/widgets/${widgetId}/check_update/`)
+}
+
+export const apiInstallWidgetUpdate = (widgetId) => {
+	return handleRequest(methods.GET, `/api/widgets/${widgetId}/update_to_latest_version/`)
+}
+
+export const apiCheckAllWidgetsForUpdates = () => {
+	return handleRequest(methods.GET, `/api/widgets/check_updates/`)
 }
 
 export const apiLoginDirect = ( username, password ) => {

@@ -12,14 +12,12 @@ import os
 import types
 from datetime import datetime
 from pathlib import Path
-from smtplib import SMTPException
 from typing import Self
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.core.mail import send_mail
 from django.db import DatabaseError, models, transaction
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
@@ -30,6 +28,7 @@ from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 from lti_tool.models import LtiDeployment
+from util.email_util import EmailUtil
 from util.message_util import Msg, MsgBuilder
 from util.perm_manager import PermManager
 from util.user_util import UserUtil
@@ -628,21 +627,6 @@ class MapAssetToObject(models.Model):
         ]
 
 
-# Convert to be a through model for a many-to-many relationship between Question and WidgetQset
-# models ignoring related_names on foreign keys for now as it probably won't be used in this way
-class MapQuestionToQset(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    qset = models.ForeignKey(
-        "WidgetQset", on_delete=models.PROTECT, db_column="qset_id"
-    )
-    question = models.ForeignKey(
-        "Question", on_delete=models.PROTECT, db_column="question_id"
-    )
-
-    class Meta:
-        db_table = "map_question_to_qset"
-
-
 class Notification(models.Model):
     id = models.BigAutoField(primary_key=True)
     from_id = models.ForeignKey(
@@ -666,13 +650,12 @@ class Notification(models.Model):
     # can't foreign key it properly because we can't reliably expect every value to be valid
     # potentially sanitize data and revisit
     item_id = models.CharField(max_length=100, db_collation="utf8_bin")
-    # is_email_sent = models.CharField(max_length=1)  # convert to boolean field
     is_email_sent = models.BooleanField()  # was previously CharField, enum in DB
     created_at = models.DateTimeField(default=datetime.now)
     subject = models.CharField(max_length=511)
     # consider deleting this column & pulling the avatar from relevant user metadata just in time
     avatar = models.CharField(max_length=511)
-    updated_at = models.DateTimeField(default=datetime.now, null=True)
+    updated_at = models.DateTimeField(default=timezone.now, null=True)
     action = models.CharField(max_length=255)
 
     permissions = GenericRelation(ObjectPermission)
@@ -722,6 +705,7 @@ class Notification(models.Model):
                 perm_string = "Unknown"
 
         # Create message
+        action = ""
         match mode:
             case "disabled":
                 content = f"{user_link} is no longer sharing '{widget_name}' with you."
@@ -739,8 +723,9 @@ class Notification(models.Model):
                     f"{user_link} is requesting access to your widget '{widget_link}'.<br/>"
                     f"The widget is currently being used within a course in your LMS."
                 )
+                action = "access_request"
             case _:
-                return
+                return None
 
         # Create notification object
         notification = cls.objects.create(
@@ -751,41 +736,45 @@ class Notification(models.Model):
             is_email_sent=False,
             avatar=UserUtil.get_avatar_url(from_user),
             subject=content,
+            action=action,
         )
 
         return notification
 
-    def send_email(self, force_resend: bool = False) -> bool:
-        # Check if emails are enabled
-        if not settings.SEND_EMAILS:
-            return False
-
+    def send_email(self, force_resend: bool = False):
         # Check if sent already
         if self.is_email_sent and not force_resend:
-            return False
+            return
 
-        # Check if recipient has emails enabled
+        # Check if recipient has notification emails enabled
         user_settings = UserSettings.objects.filter(user=self.to_id).first()
         if user_settings is not None:
             notify = user_settings.get_profile_fields().get("notify", False)
             if not notify:
-                return False
+                return
 
-        try:
-            send_mail(
-                subject=f"{settings.NAME} Notification",
-                message=self.subject,
-                html_message=self.subject,
-                from_email=f'"{self.from_id.first_name} {self.from_id.last_name}" <{settings.SYSTEM_EMAIL}>',
-                recipient_list=[self.to_id.email],
+        # Create context for basic_notification
+        context = {
+            "message_html": self.subject,
+        }
+        if self.action == "access_request":
+            context["action_text"] = "Go to Widget Collaboration Settings"
+            context["action_link"] = (
+                f"{settings.URLS["BASE_URL"]}my-widgets/#{self.item_id}-collab"
             )
+
+        # Send email
+        email_sent = EmailUtil.send_email(
+            template="basic_notification.html",
+            context=context,
+            plain_msg=self.subject,
+            sender=self.from_id,
+            to=self.to_id,
+        )
+
+        if email_sent:
             self.is_email_sent = True
             self.save()
-            return True
-        except SMTPException as e:
-            logger.error("Failed to send email. Exception follows:")
-            logger.error(e)
-            return False
 
     class Meta:
         db_table = "notification"
@@ -794,55 +783,6 @@ class Notification(models.Model):
             models.Index(fields=["to_id"], name="notification_to_id"),
             models.Index(fields=["from_id"], name="notification_from_id"),
             models.Index(fields=["item_type"], name="notification_item_type"),
-        ]
-
-
-# We may want to use Django's built-in permissions and roles system instead of these perm models.
-# Will need a migration plan for them potential foreign key relationship re: object_id, object_type
-# for assets, questions, and widget instances
-class PermObjectToUser(models.Model):
-    # historically unused options commented out for now
-    class Perm(models.IntegerChoices):
-        VISIBLE = 1, gettext_lazy("Can see object and view scores")
-        # PLAY = 5, gettext_lazy("Can play object")
-        # SCORE = 10, gettext_lazy("Can receive a score for object")
-        # DATA = 15, gettext_lazy("Can see logs for object")
-        # EDIT = 20, gettext_lazy("Can edit the object")
-        # COPY = 25, gettext_lazy("Can copy the object")
-        FULL = 30, gettext_lazy("Full access to object")
-        # SHARE = 35, gettext_lazy("Can share rights to object with another user")
-
-    class ObjectType(models.IntegerChoices):
-        QUESTION = 1, gettext_lazy("Question")
-        ASSET = 2, gettext_lazy("Media asset")
-        WIDGET = 3, gettext_lazy("Widget engine")
-        INSTANCE = 4, gettext_lazy("Widget instance")
-
-    # Needs primary key
-    id = models.BigAutoField(primary_key=True)
-    # appears to be a generic relationship combined with object_type
-    object_id = models.CharField(max_length=10, db_collation="utf8_bin")
-    user = models.ForeignKey(
-        User,
-        related_name="object_permissions_deprecated",
-        on_delete=models.SET_NULL,
-        db_column="user_id",
-        blank=True,
-        null=True,
-    )
-    perm = models.IntegerField(choices=Perm.choices)
-    # appears to be a generic relationship combined with object_type
-    object_type = models.IntegerField(choices=ObjectType.choices)
-    # will be auto-nulled when the expiration date elapses
-    expires_at = models.DateTimeField(default=None, null=True)
-
-    class Meta:
-        db_table = "perm_object_to_user"
-        constraints = [
-            models.UniqueConstraint(
-                fields=["object_id", "user_id", "perm", "object_type"],
-                name="perm_object_to_user_main",
-            ),
         ]
 
 
@@ -908,7 +848,8 @@ class Question(models.Model):
             return False
 
         # Check if values are not empty
-        if not item["type"] or not item["questions"] or not item["answers"]:
+        # In some rare cases an empty answers array is acceptable, as with Adventure
+        if not item["type"] or not item["questions"]:
             return False
 
         # Check if questions and answers are lists
@@ -924,28 +865,36 @@ class Question(models.Model):
 
 
 class UserExtraAttempts(models.Model):
-    """
-    TODO this model requires reworks:
-    - change fields to foreign keys
-    - Enable admin operations to apply extra attempts
-    """
+    @staticmethod
+    def get_cur_semester():
+        from util.semester_util import SemesterUtil
 
-    # Needs primary key
-    inst_id = models.CharField(
-        max_length=100, db_collation="utf8_bin"
-    )  # foreign key to WidgetInstance model
-    user_id = models.PositiveBigIntegerField()  # foreign key to Users model
+        return SemesterUtil.get_current_semester()
+
+    instance = models.ForeignKey(
+        "WidgetInstance",
+        related_name="extra_attempts",
+        on_delete=models.CASCADE,
+        null=False,
+    )
+    user = models.ForeignKey(
+        User,
+        related_name="extra_attempts",
+        on_delete=models.CASCADE,
+        null=False,
+    )
     created_at = models.DateTimeField(default=datetime.now)
     extra_attempts = models.IntegerField()
     context_id = models.CharField(max_length=255)
-    semester = models.PositiveBigIntegerField()  # foreign key to DateRange model
+    semester = models.ForeignKey(
+        DateRange,
+        related_name="extra_attempts",
+        on_delete=models.CASCADE,
+        null=False,
+    )
 
     class Meta:
         db_table = "user_extra_attempts"
-        indexes = [
-            models.Index(fields=["user_id"], name="user_extra_attempts_user_id"),
-            models.Index(fields=["inst_id"], name="user_extra_attempts_inst_id"),
-        ]
 
 
 class Widget(models.Model):
@@ -958,6 +907,8 @@ class Widget(models.Model):
         ("CLIENT", "widget is scored on the client"),
         ("SERVER-CLIENT", "widget is partially scored in both server and client"),
     ]
+
+    UPDATE_METHODS = [("github", "Update via a Github releases API URL")]
 
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255, default="")
@@ -977,6 +928,7 @@ class Widget(models.Model):
     is_playable = models.BooleanField(default=True)
     is_scorable = models.BooleanField(default=True)
     in_catalog = models.BooleanField(default=True)
+    featured = models.BooleanField(default=False)
     is_generable = models.BooleanField(default=False)
     uses_prompt_generation = models.BooleanField(default=False)
     creator = models.CharField(max_length=255, default="")
@@ -988,26 +940,11 @@ class Widget(models.Model):
     restrict_publish = models.BooleanField(default=False)
     creator_guide = models.CharField(max_length=255, default="")
     player_guide = models.CharField(max_length=255, default="")
+    metadata = models.JSONField(default=dict)
 
     @property
     def dir(self):
         return f"{self.id}-{self.clean_name}{os.sep}"
-
-    def metadata_clean(self):
-        meta_raw = self.metadata.all()
-        meta_final = {}
-        for meta in meta_raw:
-            # special checks for metadata values that need to be tracked in lists
-            if meta.name in ["features", "supported_data", "playdata_exporters"]:
-                # initialize the list if needed
-                if meta.name not in meta_final:
-                    meta_final[meta.name] = []
-                meta_final[meta.name].append(meta.value)
-            else:
-                meta_final[meta.name] = meta.value
-        # set the 'meta_data' property of this Widget object for potential future reads
-        self.meta_data = meta_final
-        return self.meta_data
 
     def publishable_by(self, user: User) -> bool:
         if not self.restrict_publish:
@@ -1144,24 +1081,22 @@ class WidgetInstance(models.Model):
     def dir(self):
         return f"{self.id}-{self.clean_name}{os.sep}"
 
-    def status(self, context: str = None):
+    def attempts_left_for_user(self, user: User, context: str = ""):
         from util.semester_util import SemesterUtil
 
         semester = SemesterUtil.get_current_semester()
-
-        now = timezone.now()
-        start = self.open_at
-        end = self.close_at
         attempts_used = LogPlay.objects.filter(
+            user=user,
             instance=self,
             context_id=context,
             semester=semester,
+            is_complete=True,
         ).count()
 
         # Check to see if any extra attempts have been provided to the context. Decrement attempts_used if so.
-        # TODO this does not filter by user - we don't have access to user id here. Do we need it?
         extra_attempts_ref = UserExtraAttempts.objects.filter(
-            inst_id=self.id,
+            user=user,
+            instance=self,
             context_id=context,
             semester=semester.id,
         ).first()
@@ -1172,7 +1107,17 @@ class WidgetInstance(models.Model):
 
         attempts_used -= extra_attempts
 
-        has_attempts = self.attempts == -1 or attempts_used < self.attempts
+        return -1 if self.attempts == -1 else self.attempts - attempts_used
+
+    def user_has_attempts(self, user: User, context: str = ""):
+        attempts_left = self.attempts_left_for_user(user, context)
+
+        return self.attempts == -1 or attempts_left > 0
+
+    def availability_status(self):
+        now = timezone.now()
+        start = self.open_at
+        end = self.close_at
 
         does_open = start is not None
         does_close = end is not None
@@ -1192,7 +1137,6 @@ class WidgetInstance(models.Model):
             "will_open": will_open,
             "will_close": will_close,
             "always_open": always_open,
-            "has_attempts": has_attempts,
         }
 
     def create_qset(self, data, version=None):
@@ -1383,21 +1327,6 @@ class WidgetInstance(models.Model):
         ]
 
 
-class WidgetMetadata(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    widget = models.ForeignKey(
-        "Widget",
-        related_name="metadata",
-        on_delete=models.PROTECT,
-        db_column="widget_id",
-    )
-    name = models.CharField(max_length=255)
-    value = models.TextField()
-
-    class Meta:
-        db_table = "widget_metadata"
-
-
 class WidgetQset(models.Model):
     id = models.BigAutoField(primary_key=True)
     instance = models.ForeignKey(
@@ -1488,6 +1417,53 @@ class WidgetQset(models.Model):
             return questions
         else:
             return self.process_and_create_questions()
+
+    def apply_ids_to_questions(self, qset):
+        """
+        Individual questions within qsets should be submitted with null ids
+        Historically we've relied on Materia to provision ids to them
+        before being committed to the database
+
+        Note that in cases where a new qset is being saved for an
+        existing widget, previously saved questions will already have uuids
+        provisioned.
+        """
+        import copy
+        import uuid
+
+        def _process_item(item):
+            if isinstance(item, list):
+                return [_process_item(element) for element in item]
+
+            if isinstance(item, dict):
+                result = copy.deepcopy(item)
+
+                if Question.is_question(result):
+                    if "id" in result and (
+                        result["id"] is None or result["id"] == 0 or result["id"] == ""
+                    ):
+                        result["id"] = str(uuid.uuid4())
+
+                for key, value in result.items():
+                    if isinstance(value, (dict, list)):
+                        result[key] = _process_item(value)
+
+                return result
+
+            return item
+
+        result = _process_item(qset)
+        return result
+
+    def save(self, *args, **kwargs):
+
+        decoded = self.get_data()
+        applied_ids = self.apply_ids_to_questions(decoded)
+        self.set_data(applied_ids)
+
+        super().save(*args, **kwargs)
+
+        self.process_and_create_questions()
 
     class Meta:
         db_table = "widget_qset"

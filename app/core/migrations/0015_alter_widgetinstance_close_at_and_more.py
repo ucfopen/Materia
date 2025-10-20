@@ -2,23 +2,12 @@
 from datetime import datetime
 
 from django.db import migrations, models
-from django.db.models import F
-
-
-# class WidgetInstanceInMigration(models.Model):
-#     id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
-#     open_at_dt = models.DateTimeField(default=datetime.now)
-#     created_at_ts = models.IntegerField(default=0, db_column="created_at")
-#
-#     class Meta:
-#         managed = False
-#         db_table = "widget_instance"
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0014_alter_widget_is_generable_and_more'),
+        ("core", "0014_alter_widget_is_generable_and_more"),
     ]
 
     @staticmethod
@@ -30,11 +19,14 @@ class Migration(migrations.Migration):
         def timestamp_to_datetime(ts):
             if ts is None:
                 return None
+            if ts == -1:
+                return None
+
             from django.utils.timezone import make_aware
 
             return make_aware(datetime.fromtimestamp(ts))
 
-        WidgetInstance = apps.get_model('core', 'WidgetInstance')
+        WidgetInstance = apps.get_model("core", "WidgetInstance")
 
         logger.info("Converting additional WidgetInstance timestamps to datetimes")
         for instance in WidgetInstance.objects.all():
@@ -51,12 +43,13 @@ class Migration(migrations.Migration):
 
         def datetime_to_timestamp(dt):
             if dt is None:
-                return None
+                return -1
+
             from datetime import datetime
 
             return datetime.timestamp(dt)
 
-        WidgetInstance = apps.get_model('core', 'WidgetInstance')
+        WidgetInstance = apps.get_model("core", "WidgetInstance")
 
         logger.info("Converting additional WidgetInstance datetimes to timestamps")
         for asset in WidgetInstance.objects.all():
@@ -82,7 +75,6 @@ class Migration(migrations.Migration):
             old_name="updated_at",
             new_name="updated_at_ts",
         ),
-
         # Add datetime version of fields to models
         migrations.AddField(
             model_name="widgetinstance",
@@ -99,21 +91,10 @@ class Migration(migrations.Migration):
             name="updated_at",
             field=models.DateTimeField(default=None, null=True, db_column="updated_at"),
         ),
-
         # Run conversions, translating x_at_ts to x_at
         migrations.RunPython(translate_timestamps, translate_datetimes),
-
         # Remove the _ts fields
-        migrations.RemoveField(
-            model_name="widgetinstance",
-            name="close_at_ts"
-        ),
-        migrations.RemoveField(
-            model_name="widgetinstance",
-            name="open_at_ts"
-        ),
-        migrations.RemoveField(
-            model_name="widgetinstance",
-            name="updated_at_ts"
-        ),
+        migrations.RemoveField(model_name="widgetinstance", name="close_at_ts"),
+        migrations.RemoveField(model_name="widgetinstance", name="open_at_ts"),
+        migrations.RemoveField(model_name="widgetinstance", name="updated_at_ts"),
     ]

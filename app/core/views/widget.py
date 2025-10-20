@@ -6,7 +6,7 @@ from core.mixins import (
     MateriaLoginNeeded,
     MateriaWidgetPlayProcessor,
 )
-from core.models import ObjectPermission, Widget, WidgetInstance
+from core.models import ObjectPermission, User, Widget, WidgetInstance
 from core.services import WidgetPlayInitService, WidgetPlayValidationService
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -41,6 +41,7 @@ class WidgetDetailView(TemplateView):
                     self.request.user, "no_author"
                 ),
                 "WIDGET_HEIGHT": widget.height,
+                "MEDIA_URL": settings.URLS["MEDIA_URL"],
             },
             page_type="widget",
             request=self.request,
@@ -56,9 +57,8 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
     def dispatch(self, request, *args, **kwargs):
         widget_slug = kwargs.get("widget_slug")
         widget = Widget.objects.get(pk=_get_id_from_slug(widget_slug))
-        demo_id = widget.metadata_clean().get("demo")
+        demo_id = widget.metadata.get("demo")
         self.instance = WidgetInstance.objects.filter(pk=demo_id).first()
-
         self.validation = self.get_validation(request, self.instance)
 
         return super().dispatch(request, *args, **kwargs)
@@ -100,12 +100,18 @@ class WidgetPlayView(
 
     def get_validation(self, request, instance):
         validation_service = WidgetPlayValidationService()
+
+        context_id = ""
+        if self.launch is not None:
+            context_id = LTILaunchService.get_context_id(self.launch)
+
         validation = validation_service.validate_widget_context(
             request,
             instance,
             is_demo=False,
             is_preview=False,
             is_embedded=self.is_embedded,
+            context_id=context_id,
         )
 
         return validation
@@ -311,7 +317,7 @@ def _create_player_context(
 
     login_messages = []
     if validation == WidgetPlayValidationService.INVALID_NOT_YET_OPEN:
-        login_messages = _generate_widget_login_messages(instance)
+        login_messages = _generate_widget_login_messages(request.user, instance)
         return _create_widget_not_open_page(
             instance, request, login_messages, is_embedded
         )
@@ -524,21 +530,22 @@ def _create_lti_success_page(request: HttpRequest, instance: WidgetInstance):
 
 
 # Utils functions
-def _generate_widget_login_messages(instance: WidgetInstance) -> dict:
-    instance_status = instance.status()
+def _generate_widget_login_messages(user: User, instance: WidgetInstance) -> dict:
+    instance_availability = instance.availability_status()
+    has_attempts = instance.user_has_attempts(user)
 
     # Build actual summary/desc messages for user.
     # Leave datetimes to be filled in by frontend (this allows them to display in their own timezone)
-    if instance_status["is_closed"]:
+    if instance_availability["is_closed"]:
         summary = "Closed on {end_date}"
         desc = "This widget closed on {end_date} at {end_time} and cannot be accessed."
-    elif instance_status["is_open"] and instance_status["will_close"]:
+    elif instance_availability["is_open"] and instance_availability["will_close"]:
         summary = "Available until {end_date} at {end_time}"
         desc = ""
-    elif instance_status["will_open"] and not instance_status["will_close"]:
+    elif instance_availability["will_open"] and not instance_availability["will_close"]:
         summary = "Available after {start_date} at {start_time}"
         desc = "This widget cannot be accessed at this time. Please return on or after {start_date} at {start_time}."
-    elif instance_status["will_open"] and instance_status["will_close"]:
+    elif instance_availability["will_open"] and instance_availability["will_close"]:
         summary = (
             "Available from {start_date} at {start_time} until {end_date} at {end_time}"
         )
@@ -555,8 +562,8 @@ def _generate_widget_login_messages(instance: WidgetInstance) -> dict:
         "desc": desc,
         "start": instance.open_at.isoformat() if instance.open_at is not None else None,
         "end": instance.close_at.isoformat() if instance.close_at is not None else None,
-        "is_open": instance_status["is_open"],
-        "has_attempts": instance_status["has_attempts"],
+        "is_open": instance_availability["is_open"],
+        "has_attempts": has_attempts,
     }
 
 
