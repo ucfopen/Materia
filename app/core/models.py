@@ -306,61 +306,61 @@ class Log(models.Model):
             """
             match log_type_id:
                 case 1:
-                    return Log.LogType.WIDGET_START[0]
+                    return Log.LogType.WIDGET_START
                 case 2:
-                    return Log.LogType.WIDGET_END[0]
+                    return Log.LogType.WIDGET_END
                 case 4:
-                    return Log.LogType.WIDGET_RESTART[0]
+                    return Log.LogType.WIDGET_RESTART
                 case 5:
                     # return Log.LogType.ASSET_LOADING
-                    return Log.LogType.EMPTY[0]
+                    return Log.LogType.EMPTY
                 case 6:
                     # return Log.LogType.ASSET_LOADED
-                    return Log.LogType.EMPTY[0]
+                    return Log.LogType.EMPTY
                 case 7:
                     # return Log.LogType.FRAMEWORK_INIT
-                    return Log.LogType.WIDGET_CORE_INIT[0]
+                    return Log.LogType.WIDGET_CORE_INIT
                 case 8:
                     # return Log.LogType.PLAY_REQUEST
-                    return Log.LogType.WIDGET_PLAY_REQ[0]
+                    return Log.LogType.WIDGET_PLAY_REQ
                 case 9:
                     # return Log.LogType.PLAY_CREATED
-                    return Log.LogType.WIDGET_PLAY_START[0]
+                    return Log.LogType.WIDGET_PLAY_START
                 case 13:
                     # return Log.LogType.LOG_IN
-                    return Log.LogType.WIDGET_LOGIN[0]
+                    return Log.LogType.WIDGET_LOGIN
                 case 15:
                     # return Log.LogType.WIDGET_STATE_CHANGE
-                    return Log.LogType.WIDGET_STATE[0]
+                    return Log.LogType.WIDGET_STATE
                 case 500:
-                    return Log.LogType.KEY_PRESS[0]
+                    return Log.LogType.KEY_PRESS
                 case 1000:
-                    return Log.LogType.BUTTON_PRESS[0]
+                    return Log.LogType.BUTTON_PRESS
                 case 1001:
                     # return Log.LogType.WIDGET_INTERACTION
-                    return Log.LogType.SCORE_WIDGET_INTERACTION[0]
+                    return Log.LogType.SCORE_WIDGET_INTERACTION
                 case 1002:
                     # return Log.LogType.FINAL_SCORE_FROM_CLIENT
-                    return Log.LogType.SCORE_FINAL_FROM_CLIENT[0]
+                    return Log.LogType.SCORE_FINAL_FROM_CLIENT
                 case 1004:
                     # return Log.LogType.QUESTION_ANSWERED
-                    return Log.LogType.SCORE_QUESTION_ANSWERED[0]
+                    return Log.LogType.SCORE_QUESTION_ANSWERED
                 case 1006:
-                    return Log.LogType.SCORE_PARTICIPATION[0]
+                    return Log.LogType.SCORE_PARTICIPATION
                 case 1008:
                     # return Log.LogType.SCORE_FEEDBACK
-                    return Log.LogType.EMPTY[0]
+                    return Log.LogType.EMPTY
                 case 1009:
                     # return Log.LogType.SCORE_ALERT
-                    return Log.LogType.EMPTY[0]
+                    return Log.LogType.EMPTY
                 case 1500:
-                    return Log.LogType.ERROR_GENERAL[0]
+                    return Log.LogType.ERROR_GENERAL
                 case 1509:
-                    return Log.LogType.ERROR_TIME_VALIDATION[0]
+                    return Log.LogType.ERROR_TIME_VALIDATION
                 case 2000:
-                    return Log.LogType.DATA[0]
+                    return Log.LogType.DATA
                 case _:
-                    return Log.LogType.EMPTY[0]
+                    return Log.LogType.EMPTY
 
     id = models.BigAutoField(primary_key=True)
     # consider converting to UUID field. Note: there appear to be some non-UUID values in the table

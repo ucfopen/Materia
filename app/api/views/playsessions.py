@@ -158,7 +158,6 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         )
 
         if update_serializer.is_valid(raise_exception=True):
-
             try:
                 is_preview = update_serializer.validated_data["is_preview"]
                 logs = update_serializer.validated_data["logs"]
