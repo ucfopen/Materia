@@ -37,9 +37,8 @@ class LTILaunchService:
         if not uri_claim or re.search("/ltilaunch/", uri_claim):
             return "/lti/post_login/"
 
-        # widget launch
-        # TODO should we be doing something more robust here than a simple regex match?
-        elif re.search(r"embed/[A-Za-z0-9]{5}/[A-Za-z0-9\-]*/?$", uri_claim):
+        else:
+            # widget or score url redirect - do we need to verify this?
             return uri_claim
 
     @staticmethod

@@ -1,11 +1,14 @@
 import os
 
 from django.conf import settings
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from util.context_util import ContextUtil
 from util.widget.validator import ValidatorUtil
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def widget(request):
     context = ContextUtil.create(
         title="Widget Admin",
@@ -13,7 +16,7 @@ def widget(request):
         css_resources=settings.CSS_GROUPS["support"],
         js_globals={
             "UPLOAD_ENABLED": ValidatorUtil.validate_bool(
-                os.environ.get("BOOL_ADMIN_UPLOADER_ENABLE"), False
+                os.environ.get("ENABLE_ADMIN_UPLOADER"), True
             )
         },
         request=request,
@@ -22,6 +25,8 @@ def widget(request):
     return render(request, "react.html", context)
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser or u.groups.filter(name="support_user"))
 def instance(request):
     context = ContextUtil.create(
         title="Widget Admin",
@@ -33,6 +38,8 @@ def instance(request):
     return render(request, "react.html", context)
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser or u.groups.filter(name="support_user"))
 def user(request):
     context = ContextUtil.create(
         title="Widget Admin",

@@ -71,7 +71,7 @@ const MediaImporter = () => {
 		onSuccess: (data) => {
 			if (data) {
 				const list = data.map(asset => {
-					const creationDate = new Date(asset.created_at * 1000)
+					const creationDate = new Date(asset.created_at)
 					return {
 						id: asset.id,
 						type: asset.file_type,

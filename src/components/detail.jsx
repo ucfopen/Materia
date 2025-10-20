@@ -86,7 +86,7 @@ const Detail = ({widget, isFetching}) => {
 				supported_data: widget.meta_data.supported_data?.map(_tooltipObject),
 				features: widget.meta_data.features?.map(_tooltipObject),
 				accessibility: getAccessibilityData(widget.meta_data),
-				date: new Date(widget.created_at * 1000).toLocaleDateString(),
+				date: new Date(widget.created_at).toLocaleDateString(),
 				dataLoading: false,
 			})
 		}

@@ -64,6 +64,13 @@ module.exports = {
 					'sass-loader',
 				],
 			},
+			{
+				test: /\.mdx?$/,
+				use: [
+					{ loader: 'babel-loader', options: {} },
+					{ loader: '@mdx-js/loader', options: {} },
+				],
+			}
 		],
 	},
 	plugins: [
@@ -76,7 +83,9 @@ module.exports = {
 	resolve: {
 		extensions: ['.js', '.jsx'],
 		alias: {
-			'@': [path.resolve(__dirname, 'theme'), path.resolve(__dirname, 'src')]
+			'@': [path.resolve(__dirname, 'theme/src'), path.resolve(__dirname, 'src')],
+			'MateriaText': [path.resolve(__dirname, 'theme/text'), path.resolve(__dirname, 'src/text')],
+			'MateriaCommon': [path.resolve(__dirname, 'theme/common.json'), path.resolve(__dirname, 'src/common.json')],
 		},
 	},
 	optimization: {

@@ -40,7 +40,7 @@ def remove_featured_flag(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0026_merge_20250819_1026"),
+        ("core", "0025_remove_logplay_environment_data_logplay_lti_token"),
     ]
 
     operations = [

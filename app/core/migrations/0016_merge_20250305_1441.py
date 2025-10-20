@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0015_alter_widgetinstance_close_at_and_more'),
-        ('core', '0015_remove_usersettings_settings_and_more'),
+        ("core", "0015_alter_widgetinstance_close_at_and_more"),
+        ("core", "0015_remove_usersettings_settings_and_more"),
     ]
 
-    operations = [
-    ]
+    operations = []

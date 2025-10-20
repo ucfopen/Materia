@@ -40,7 +40,19 @@ class ApplicationLaunchView(LtiLaunchBaseView):
         return redirect("/lti/picker/")
 
     def handle_submission_review_launch(self, request, lti_launch):
-        # TODO this should render the score screen for a given play session/line item
+        """
+        Canvas does NOT support submission review launches
+        Instead, a score submission url is appended to the AGS Scores Service payload
+        as an optional claim extension. Canvas will perform an LTI launch to this URL
+        when viewing Submission Details or SpeedGrader. We use the same target_uri
+        redirection mechanism used for widget launches to pass the launch endpoint
+        and redirect to the score screen after launch init.
+
+        TODO do other LMSs support Submission Review Service?:
+        https://www.imsglobal.org/spec/lti-sr/v1p0
+
+        If so, we should implement this launch view.
+        """
         return None  # Optional.
 
     def handle_data_privacy_launch(self, request, lti_launch):

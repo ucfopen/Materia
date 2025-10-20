@@ -1,12 +1,9 @@
-import base64
-import json
 import logging
 import os
 from shutil import rmtree
 from urllib import request
 
 from core.models import LogPlay, Question, Widget, WidgetInstance, WidgetQset
-from core.serializers import QuestionSetSerializer
 from django.conf import settings
 from django.core.management import base
 from scoring.module_factory import ScoreModuleFactory
@@ -188,7 +185,9 @@ class Command(base.BaseCommand):
         # Check if an update is even needed
         update_needed = WidgetInstaller.needs_update(widget_id, new_ver)
         if not update_needed:
-            logger.warning("\nThis widget is already up to date. Do you want to continue the update anyway?")
+            logger.warning(
+                "\nThis widget is already up to date. Do you want to continue the update anyway?"
+            )
             result = input("y/n: ")
             while result.lower() != "y" and result.lower() != "n":
                 logger.warning("Please enter either 'y' for yes, or 'n' for no.")
@@ -218,7 +217,9 @@ class Command(base.BaseCommand):
             update_needed = WidgetInstaller.needs_update(widget_id, new_ver)
             if update_needed:
                 print(f"{widget_name} ({widget_id}): Update available ({new_ver})")
-                updates_pending.append((widget_id, widget_name, new_ver, wigt_url, checksum_url))
+                updates_pending.append(
+                    (widget_id, widget_name, new_ver, wigt_url, checksum_url)
+                )
             else:
                 print(f"{widget_name} ({widget_id}): Up to date")
 
@@ -230,7 +231,10 @@ class Command(base.BaseCommand):
 
         are = "are" if len(updates_pending) != 1 else "is"
         s = "s" if len(updates_pending) != 1 else ""
-        print(f"There {are} {len(updates_pending)} update{s} available. Proceed? (y/n): ", end="")
+        print(
+            f"There {are} {len(updates_pending)} update{s} available. Proceed? (y/n): ",
+            end="",
+        )
         result = input()
         while result.lower() != "y" and result.lower() != "n":
             print("Please enter either 'y' for yes, or 'n' for no:", end="")
@@ -247,40 +251,10 @@ class Command(base.BaseCommand):
 
     # applies ids to all demos
     def apply_ids_to_demos(self):
-        demos = WidgetInstance.objects.filter(user__isnull=True)
-        total = 0
-
-        for demo in demos:
-            latest_qset = demo.qsets.order_by("-created_at").first()
-            if not latest_qset:
-                continue
-
-            try:
-                decoded_data = WidgetQset.decode_data(latest_qset.data)
-                serializer = QuestionSetSerializer()
-                decoded_data, questions_list = serializer.apply_ids_to_questions(
-                    decoded_data
-                )
-
-                # save updated encoded data back into the qset
-                latest_qset.data = WidgetQset.encode_data(decoded_data)
-                latest_qset.save()
-
-                # wipe old questions and insert fresh ones
-                Question.objects.filter(qset=latest_qset).delete()
-                for q in questions_list:
-                    encoded = base64.b64encode(json.dumps(q).encode()).decode("utf-8")
-                    Question.objects.create(qset=latest_qset, data=encoded)
-
-                total += 1
-                print(
-                    f"Patched Qset {latest_qset.id} for Demo {demo.id} with {len(questions_list)} questions"
-                )
-
-            except Exception as e:
-                print(f"Failed to patch Demo {demo.id}: {e}")
-
-        print(f"\nDone. Updated {total} demo instances.")
+        """
+        This should no longer be required. Just reinstall the widget.
+        """
+        pass
 
     # get number of plays up to a number and run them through x widgets score module 4 validation
     def validate_plays_for_instance(self, instance_id: str, max_plays: int) -> None:
@@ -342,7 +316,25 @@ class Command(base.BaseCommand):
         """
         Completely deletes a widget - all database rows and installed files.
         If this widget engine has instances, this command will prompt to delete them all as well.
+        As you can imagine, this is an extremely destructive operation. Ask the user for confirmation first.
         """
+        print(
+            "\nThis operation will remove a widget engine from the database as well as all installed files."
+        )
+        print(
+            "\nAll widget instances created with this engine will be deleted as well."
+        )
+        print(
+            "\nAre you SURE you want to do this? This may cause significant data loss and errors."
+        )
+        confirmation = input(
+            "\nEnter 'Yes I am sure' EXACTLY to perform the delete operation:\n"
+        )
+
+        if confirmation != "Yes I am sure":
+            print("\nConfirmation did not match. Operation aborted.")
+            return False
+
         # Check if widget exists
         widget = Widget.objects.filter(pk=widget_id).first()
         if not widget:
@@ -351,10 +343,9 @@ class Command(base.BaseCommand):
 
         # Instance check - see if instances exist, ask if the user wants to continue with deleting them
         demo_id = widget.metadata.get("demo")
-        num_instances = (WidgetInstance.objects
-                         .filter(widget=widget)
-                         .exclude(pk=demo_id)
-                         .count())
+        num_instances = (
+            WidgetInstance.objects.filter(widget=widget).exclude(pk=demo_id).count()
+        )
         if num_instances > 0:
             print(
                 f"This widget engine has {num_instances} instance{'s' if num_instances != 1 else ''} associated with "

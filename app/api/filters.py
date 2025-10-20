@@ -1,9 +1,13 @@
 import logging
 
-from core.models import Asset, ObjectPermission, WidgetInstance
+import django_filters
+
+from core.models import Asset, ObjectPermission, WidgetInstance, UserExtraAttempts
 from django.db.models import Q
 from rest_framework import filters
 from util.perm_manager import PermManager
+from util.semester_util import SemesterUtil
+from django_filters import rest_framework
 
 logger = logging.getLogger("django")
 
@@ -91,3 +95,17 @@ class LogPlayFilterBackend(filters.BaseFilterBackend):
         elif pk is None and user_query is None:
             # NEVER return every play log in the DB !!!!!!
             return queryset.none()
+
+
+class UserExtraAttemptsFilter(rest_framework.FilterSet):
+    semester = django_filters.CharFilter(method="semester_filter", required=True)
+
+    class Meta:
+        model = UserExtraAttempts
+        fields = {"instance", "user"}
+
+    def semester_filter(self, queryset, name, value):
+        if value is None or value == "current":
+            return queryset.filter(semester=SemesterUtil.get_current_semester())
+        else:
+            return queryset.filter(semester=value)
