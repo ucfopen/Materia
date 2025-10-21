@@ -18,14 +18,13 @@ from core.models import (
     WidgetInstance,
     WidgetQset,
 )
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.utils.text import slugify
 from rest_framework import serializers
-from util.perm_manager import PermManager
-from util.semester_util import SemesterUtil
-from util.user_util import UserUtil
+from core.utils.b64_util import Base64Util
+from core.services.semester_service import SemesterService
+from core.services.perm_service import PermService
+from core.services.user_service import UserService
 
 logger = logging.getLogger("django")
 
@@ -44,7 +43,7 @@ class UserSerializer(serializers.ModelSerializer):
     is_student = serializers.SerializerMethodField()
 
     def get_is_student(self, user):
-        return PermManager.user_is_student(user)
+        return PermService.user_is_student(user)
 
     # remove sensitive information when requesting with non-privileged access
     def get_fields(self):
@@ -65,7 +64,7 @@ class UserSerializer(serializers.ModelSerializer):
         return fields
 
     def get_avatar(self, user):
-        return UserUtil.get_avatar_url(user)
+        return UserService.get_avatar_url(user)
 
     def get_profile_fields(self, user):
         user_profile, _ = UserSettings.objects.get_or_create(user=user)
@@ -115,17 +114,6 @@ class UserMetadataSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     f"Invalid profile field provided: {key}"
                 )
-
-            # TODO is this necessary? We're already enforcing booleans via BooleanField
-            if not isinstance(value, bool):
-                if value.lower() in ["true", "1"]:
-                    value = True
-                elif value.lower() in ["false", "0"]:
-                    value = False
-                else:
-                    raise serializers.ValidationError(
-                        f"Profile field {key} must provide boolean value."
-                    )
 
         return data["profile_fields"]
 
@@ -299,6 +287,20 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
     embed_url = serializers.CharField(read_only=True, allow_null=True)
     qset = QuestionSetSerializer(required=False)
 
+    # remove sensitive info if context flag set
+    def get_fields(self):
+        fields = super().get_fields()
+        hide_identifying_info = self.context.get("hide_identifying_info", True)
+
+        if hide_identifying_info:
+            for field in [
+                "user_id",
+            ]:
+                if fields[field]:
+                    fields.pop(field)
+
+        return fields
+
     def _handle_qset(self, qset, widget_instance):
         # handling the qset requires a couple steps:
         # the qset present in validated_data is the base64 blob. Decode it first
@@ -306,7 +308,7 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
         # once validated, save the qset
 
         if qset:
-            decoded_qset = WidgetQset.decode_data(qset["data"])
+            decoded_qset = Base64Util.decode(qset["data"])
             qset_serializer = QuestionSetSerializer(
                 data={**qset, "data": decoded_qset, "instance": widget_instance.id}
             )
@@ -362,40 +364,6 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "is_student_made",
             "widget",
             "widget_id",
-        ]
-
-
-class WidgetInstanceSerializerNoIdentifyingInfo(serializers.ModelSerializer):
-    preview_url = serializers.SerializerMethodField()
-    play_url = serializers.SerializerMethodField()
-
-    widget = WidgetSerializer(read_only=True)
-
-    def get_preview_url(self, instance):
-        return f"{settings.URLS["BASE_URL"]}preview/{instance.id}/{slugify(instance.name)}/"
-
-    def get_play_url(self, instance):
-        return (
-            f"{settings.URLS["BASE_URL"]}play/{instance.id}/{slugify(instance.name)}/"
-        )
-
-    class Meta:
-        model = WidgetInstance
-        fields = [
-            "id",
-            "name",
-            "is_student_made",
-            "guest_access",
-            "is_draft",
-            "created_at",
-            "open_at",
-            "close_at",
-            "attempts",
-            "is_deleted",
-            "embedded_only",
-            "widget",
-            "preview_url",
-            "play_url",
         ]
 
 
@@ -689,7 +657,6 @@ class ObjectPermissionSerializer(serializers.ModelSerializer):
     def get_content_type(self, obj):
         return obj.content_type.model
 
-    # TODO content_type is returning an integer value, it should give us the actual content type name?
     class Meta:
         model = ObjectPermission
         fields = ["user", "content_type", "object_id", "permission", "expires_at"]
@@ -722,7 +689,7 @@ class UserExtraAttemptsSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
     semester = serializers.PrimaryKeyRelatedField(
         queryset=DateRange.objects.all(),
-        default=lambda: SemesterUtil.get_current_semester(),
+        default=lambda: SemesterService.get_current_semester(),
     )
     context_id = serializers.CharField(allow_blank=True, required=False, default="")
 

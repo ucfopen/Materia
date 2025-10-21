@@ -54,7 +54,7 @@ const MyWidgetsPage = () => {
 	const validCode = useKonamiCode()
 	const deleteWidget = useDeleteWidget('me')
 
-	const { data: user } = useQuery({
+	const { data: user, isSuccess: userLoaded } = useQuery({
 		queryKey: ['user', 'me'],
 		queryFn: ({ queryKey }) => {
 			const [_key, user] = queryKey
@@ -114,7 +114,9 @@ const MyWidgetsPage = () => {
 
 	// hook associated with updates to the selected instance and perms associated with that instance
 	useEffect(() => {
-		const ownPerms = permUsers?.filter(perm => perm.user == user.id)
+		if (!userLoaded) return
+
+		const ownPerms = permUsers?.filter(perm => perm.user === user.id)
 
 		if (state.selectedInst && permUsers && user && ownPerms.length) {
 			const isEditable = state.selectedInst.widget.is_editable
@@ -129,7 +131,7 @@ const MyWidgetsPage = () => {
 		else if (state.selectedInst && permUsers) {
 			setState(state => ({...state, noAccess: true}))
 		}
-	}, [state.selectedInst, JSON.stringify(permUsers)])
+	}, [state.selectedInst, JSON.stringify(permUsers), userLoaded])
 
 	// hook associated with updates to the widget list OR an update to the widget hash
 	// if there is a widget hash present AND the selected instance does not match the hash, perform an update to the selected widget state info
@@ -199,14 +201,14 @@ const MyWidgetsPage = () => {
 	// hook to watch otherUserPerms (which despite the name also includes the current user perms)
 	// if the current user is no longer in the perms list, purge the selected instance & force a re-fetch of the list
 	useEffect(() => {
-		if (state.selectedInst && !state.otherUserPerms?.get(user.id)) {
+		if (state.selectedInst && userLoaded && !state.otherUserPerms?.get(user.id)) {
 			setState({
 				...state,
 				selectedInst: null,
 				widgetHash: null
 			})
 		}
-	},[state.otherUserPerms])
+	},[state.otherUserPerms, userLoaded])
 
 	// event listener to listen to hash changes in the URL, so the selected instance can be updated appropriately
 	const listenToHashChange = () => {

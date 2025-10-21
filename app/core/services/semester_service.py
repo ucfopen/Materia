@@ -3,7 +3,7 @@ from django.core.cache import cache
 from django.utils import timezone
 
 
-class SemesterUtil:
+class SemesterService:
     @staticmethod
     def get_current_semester() -> DateRange:
         # Check cache

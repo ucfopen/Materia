@@ -1,6 +1,6 @@
 from django.core.management import base
 
-from util.email_util import EmailUtil
+from core.services.email_service import EmailService
 
 
 class Command(base.BaseCommand):
@@ -48,7 +48,7 @@ class Command(base.BaseCommand):
             "action_text": kwargs["button_text"],
         }
 
-        EmailUtil.send_email(
+        EmailService.send_email(
             template="basic_notification.html",
             context=context,
             plain_msg="",

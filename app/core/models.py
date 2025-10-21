@@ -5,12 +5,11 @@
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
 #   * Remove `managed = False` lines to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
-import base64
-import json
+from __future__ import annotations
+
 import logging
 import os
 import types
-from datetime import datetime
 from pathlib import Path
 from typing import Self
 
@@ -25,15 +24,15 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.functional import classproperty
 from django.utils.text import slugify
-from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
 
-from util.email_util import EmailUtil
-from util.message_util import Msg, MsgBuilder
-from util.perm_manager import PermManager
-from util.user_util import UserUtil
-from util.widget.asset.manager import AssetManager
-from util.widget.validator import ValidatorUtil
+from core.services.email_service import EmailService
+from core.utils.b64_util import Base64Util
+from core.message_exception import MsgFailure
+from core.services.perm_service import PermService
+from core.services.user_service import UserService
+from core.services.asset_service import AssetService
+from core.utils.validator_util import ValidatorUtil
 
 logger = logging.getLogger("django")
 
@@ -92,7 +91,7 @@ class Asset(models.Model):
 
     id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
     file_type = models.CharField(max_length=10, default="")
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     title = models.CharField(max_length=300, default="")
     file_size = models.IntegerField(default=0)
     deleted_at = models.DateTimeField(default=None, null=True)
@@ -101,7 +100,7 @@ class Asset(models.Model):
     permissions = GenericRelation(ObjectPermission)
 
     def is_valid(self):
-        from util.widget.validator import ValidatorUtil
+        from core.utils.validator_util import ValidatorUtil
 
         return (
             ValidatorUtil.is_valid_hash(self.id)
@@ -119,13 +118,13 @@ class Asset(models.Model):
     # Finds an available asset ID to avoid database collisions
     @staticmethod
     def get_unused_id():
-        from util.widget.instance.hash import WidgetInstanceHash
+        from core.utils.hash_util import HashUtil
 
         asset_id = None
 
         # try 10 times to get an unused asset ID
         for i in range(10):
-            try_id = WidgetInstanceHash.generate_key_hash()
+            try_id = HashUtil.generate_key_hash()
             try:
                 Asset.objects.get(id=try_id)
                 continue
@@ -135,10 +134,8 @@ class Asset(models.Model):
 
         return asset_id
 
-    # TODO: make this more Django-y?
-    def db_store(self, user=None):
-        from django.utils.timezone import make_aware
-        from util.widget.validator import ValidatorUtil
+    def save(self, *args, **kwargs) -> bool:
+        from core.utils.validator_util import ValidatorUtil
 
         if ValidatorUtil.is_valid_hash(self.id) and not bool(self.file_type):
             return False
@@ -148,8 +145,8 @@ class Asset(models.Model):
         try:
             with transaction.atomic():
                 self.id = asset_id
-                self.created_at = make_aware(datetime.now())
-                self.save()
+                self.created_at = timezone.now()
+                super().save(*args, **kwargs)
 
             return True
 
@@ -160,13 +157,13 @@ class Asset(models.Model):
             logger.error(e)
             return False
 
-    def db_remove(self):
+    def delete(self, *args, **kwargs) -> bool:
         if len(str(self.id)) == 0:
             return False
 
         try:
             with transaction.atomic():
-                self.delete()
+                super().delete()
                 try:
                     ad_obj = AssetData.objects.get(id=self.id)
                     ad_obj.delete()
@@ -184,7 +181,7 @@ class Asset(models.Model):
             return False
 
     def render(self, size="original"):
-        return AssetManager.get_asset_storage_driver().render(self, size)
+        return AssetService.get_asset_storage_driver().render(self, size)
 
     def get_mime_type(self):
         return Asset.MIME_TYPE_FROM_EXTENSION[self.file_type]
@@ -203,11 +200,11 @@ class Asset(models.Model):
         asset.title = uploaded_file.name
         asset.file_size = uploaded_file.size
 
-        AssetManager.get_asset_storage_driver().handle_uploaded_file(
+        AssetService.get_asset_storage_driver().handle_uploaded_file(
             asset, uploaded_file
         )
 
-        asset.db_store(user)
+        asset.save()
 
         return asset
 
@@ -236,7 +233,7 @@ class AssetData(models.Model):
     size = models.CharField(max_length=20)
     bytes = models.IntegerField()  # consider using db_column to change the name
     hash = models.CharField(max_length=255)
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     data = LongBlobField()
 
     class Meta:
@@ -254,8 +251,8 @@ class DateRange(models.Model):
     id = models.BigAutoField(primary_key=True)
     semester = models.CharField(max_length=255)
     year = models.IntegerField()
-    start_at = models.DateTimeField(default=datetime.now)
-    end_at = models.DateTimeField(default=datetime.now)
+    start_at = models.DateTimeField(default=timezone.now)
+    end_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "date_range"
@@ -381,7 +378,7 @@ class Log(models.Model):
     item_id = models.CharField(max_length=255)
     text = models.TextField()
     value = models.CharField(max_length=255)
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     game_time = models.IntegerField()
     ip = models.CharField(max_length=20)
 
@@ -422,7 +419,7 @@ class LogActivity(models.Model):
     )
 
     type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     # item_id contains arbitrary values based on what 'type' of activity is being logged
     item_id = models.CharField(max_length=100, db_collation="utf8_bin")
     value_1 = models.CharField(max_length=255, blank=True, null=True)
@@ -449,7 +446,7 @@ class LogPlay(models.Model):
         db_column="inst_id",
     )
     is_valid = models.BooleanField()  # was previously CharField, enum in DB
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(
         User,
         related_name="play_logs",
@@ -486,7 +483,7 @@ class LogPlay(models.Model):
         return Log.objects.filter(play_id=self.id)
 
     def update_elapsed(self):
-        self.elapsed = (make_aware(datetime.now()) - self.created_at).total_seconds()
+        self.elapsed = (timezone.now() - self.created_at).total_seconds()
         self.save()
 
     def set_complete(self, score, possible, percent):
@@ -528,7 +525,7 @@ class LogStorage(models.Model):
         blank=True,
         null=True,
     )
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=64)
     data = models.TextField()
 
@@ -562,8 +559,8 @@ class Lti(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     context_id = models.CharField(max_length=255, blank=True, null=True)
     context_title = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(default=datetime.now)
-    updated_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "lti"
@@ -626,7 +623,7 @@ class Notification(models.Model):
     # potentially sanitize data and revisit
     item_id = models.CharField(max_length=100, db_collation="utf8_bin")
     is_email_sent = models.BooleanField()  # was previously CharField, enum in DB
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     subject = models.CharField(max_length=511)
     # consider deleting this column & pulling the avatar from relevant user metadata just in time
     avatar = models.CharField(max_length=511)
@@ -651,7 +648,7 @@ class Notification(models.Model):
         cls,
         from_user: User,
         to_user: User,
-        instance: "WidgetInstance",
+        instance: WidgetInstance,
         mode: str,
         new_perm: str = None,
     ) -> Self | None:
@@ -709,7 +706,7 @@ class Notification(models.Model):
             item_type=WidgetInstance.content_type.id,
             item_id=instance.id,
             is_email_sent=False,
-            avatar=UserUtil.get_avatar_url(from_user),
+            avatar=UserService.get_avatar_url(from_user),
             subject=content,
             action=action,
         )
@@ -739,7 +736,7 @@ class Notification(models.Model):
             )
 
         # Send email
-        email_sent = EmailUtil.send_email(
+        email_sent = EmailService.send_email(
             template="basic_notification.html",
             context=context,
             plain_msg=self.subject,
@@ -773,35 +770,21 @@ class Question(models.Model):
     # base 64 encoded json question
     _data = models.TextField(db_column="data")
     item_id = models.CharField(max_length=100, blank=True)
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     type = models.ForeignKey(
         "Widget", related_name="widget_type", on_delete=models.PROTECT, db_column="type"
     )
 
     @property
-    def data(self):
-        return self.decoded_data()
+    def data(self) -> dict:
+        return Base64Util.decode(self._data)
 
     @data.setter
-    def data(self, value):
+    def data(self, value: dict):
         if isinstance(value, dict):
-            self._data = self.encode_data(value)
+            self._data = Base64Util.encode(value)
         else:
             self._data = value
-
-    def decoded_data(self):
-        try:
-            decoded_bytes = base64.b64decode(self._data)
-            return json.loads(decoded_bytes.decode("utf-8"))
-        except Exception as e:
-            logger.error(f"Error decoding JSON in Question model: {str(e)}")
-            return {}
-
-    # TODO this is effectively a duplicate of WidgetQset's encode_data
-    @classmethod
-    def encode_data(cls, decoded_data) -> str:
-        json_str = json.dumps(decoded_data)
-        return base64.b64encode(json_str.encode("utf-8")).decode("utf-8")
 
     @staticmethod
     def is_question(item):
@@ -842,9 +825,9 @@ class Question(models.Model):
 class UserExtraAttempts(models.Model):
     @staticmethod
     def get_cur_semester():
-        from util.semester_util import SemesterUtil
+        from core.services.semester_service import SemesterService
 
-        return SemesterUtil.get_current_semester()
+        return SemesterService.get_current_semester()
 
     instance = models.ForeignKey(
         "WidgetInstance",
@@ -858,7 +841,7 @@ class UserExtraAttempts(models.Model):
         on_delete=models.CASCADE,
         null=False,
     )
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     extra_attempts = models.IntegerField()
     context_id = models.CharField(max_length=255)
     semester = models.ForeignKey(
@@ -887,7 +870,7 @@ class Widget(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255, default="")
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     flash_version = models.PositiveIntegerField(default=0)
     height = models.PositiveSmallIntegerField(default=0)
     width = models.PositiveSmallIntegerField(default=0)
@@ -924,46 +907,15 @@ class Widget(models.Model):
     def publishable_by(self, user: User) -> bool:
         if not self.restrict_publish:
             return True
-        return not PermManager.user_is_student(user)
+        return not PermService.user_is_student(user)
 
     @staticmethod
     def make_clean_name(name):
         return name.replace(" ", "-").lower()
 
-    @staticmethod
-    def load_script(script_path):
-        if not os.path.isfile(script_path):
-            raise Exception(f"Script not found: {script_path}")
-        # okay so this is kind of a weird one
-        # in PHP this function would open the file at the given path
-        #  and 'include' it - basically the same as importing it and
-        #  making all of its classes/methods/etc. available in the
-        #  scope in which this function is run
-        #
-
-    """
-    public static function load_script(string $script_path)
-    {
-        // closure helps to prevent the script poluting this and isolate scope
-        // in within the included script
-        $load_safer = function($file)
-        {
-            if ( ! file_exists($file))
-            {
-                trace("Script not found: {$file}");
-                return [];
-            }
-
-            return include($file);
-        };
-
-        return $load_safer($script_path);
-    }
-    """
-
     def get_playdata_exporter_methods(
         self, script_path: str = None
-    ) -> dict[str, types.FunctionType] | Msg:
+    ) -> dict[str, types.FunctionType]:
         # Check to see if methods are cached already
         if hasattr(Widget, "playdata_exporter_methods"):
             return Widget.playdata_exporter_methods
@@ -992,7 +944,7 @@ class Widget(models.Model):
                 f"Play data exporter for widget '{self.name}' ({self.id}) is invalid!"
             )
             logger.error(" - Missing top level dict object named 'mappings'.")
-            return MsgBuilder.failure(
+            raise MsgFailure(
                 msg="Play data exporter script is invalid; missing 'mappings' dict"
             )
 
@@ -1029,7 +981,7 @@ class WidgetInstance(models.Model):
         blank=True,
         null=True,
     )
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=100)
     is_draft = models.BooleanField(default=False)
     height = models.IntegerField(default=0)
@@ -1057,9 +1009,9 @@ class WidgetInstance(models.Model):
         return f"{self.id}-{self.clean_name}{os.sep}"
 
     def attempts_left_for_user(self, user: User, context: str = ""):
-        from util.semester_util import SemesterUtil
+        from core.services.semester_service import SemesterService
 
-        semester = SemesterUtil.get_current_semester()
+        semester = SemesterService.get_current_semester()
         attempts_used = LogPlay.objects.filter(
             user=user,
             instance=self,
@@ -1122,7 +1074,7 @@ class WidgetInstance(models.Model):
         )
         qset.save()
 
-    def get_latest_qset(self) -> "WidgetQset | None":
+    def get_latest_qset(self) -> WidgetQset | None:
         return self.qsets.order_by("-created_at").first()
 
     def get_qset_for_play(self, play_id=None, is_preview=False):
@@ -1152,7 +1104,7 @@ class WidgetInstance(models.Model):
 
         # ADDING A NEW INSTANCE
         if is_new:
-            from util.widget.instance.hash import WidgetInstanceHash
+            from core.utils.hash_util import HashUtil
 
             tries = (
                 3  # try this many times to generate an instance ID to avoid collisions
@@ -1163,9 +1115,9 @@ class WidgetInstance(models.Model):
                     raise Exception("Unable to save new widget instance")
                 self.published_by = None if self.is_draft else self.user
                 try:
-                    hash = WidgetInstanceHash.generate_key_hash()
+                    hash = HashUtil.generate_key_hash()
                     self.id = hash
-                    self.created_at = make_aware(datetime.now())
+                    self.created_at = timezone.now()
                     super().save(*args, **kwargs)
                     success = True
                 except DatabaseError as e:
@@ -1174,7 +1126,7 @@ class WidgetInstance(models.Model):
 
         # UPDATING AN EXISTING INSTANCE
         else:
-            self.updated_at = make_aware(datetime.now())
+            self.updated_at = timezone.now()
             super().save(*args, **kwargs)
 
         return
@@ -1204,11 +1156,11 @@ class WidgetInstance(models.Model):
         dupe.embedded_only = False
 
         # Manually update created_at
-        dupe.created_at = make_aware(datetime.now())
+        dupe.created_at = timezone.now()
 
         # If original widget is student made, verify that the new user is a student or not.
         if dupe.is_student_made:
-            can_new_owner_author = PermManager.does_user_have_roles(
+            can_new_owner_author = PermService.does_user_have_roles(
                 owner, ["author", "superuser"]
             )
             if can_new_owner_author:
@@ -1269,7 +1221,7 @@ class WidgetInstance(models.Model):
 
         if semester and not year:
             semesters = DateRange.objects.filter(
-                semester=semester, year=datetime.now().year
+                semester=semester, year=timezone.now().year
             )
             return queryset.filter(semester__in=semesters)
 
@@ -1310,32 +1262,17 @@ class WidgetQset(models.Model):
         on_delete=models.PROTECT,
         db_column="inst_id",
     )
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     data = models.TextField(db_column="data")
     version = models.CharField(max_length=10, blank=True, null=True)
 
-    @classmethod
-    def decode_data(cls, encoded_data) -> dict:
-        try:
-            decoded_bytes = base64.b64decode(encoded_data)
-            return json.loads(decoded_bytes.decode("utf-8"))
-        except Exception as e:
-            logger.error(f"Error decoding JSON in WidgetQset model: {str(e)}")
-            return {}
-
-    # TODO this might be better served as a utility method? Question needs it too
-    @classmethod
-    def encode_data(cls, decoded_data) -> str:
-        json_str = json.dumps(decoded_data)
-        return base64.b64encode(json_str.encode("utf-8")).decode("utf-8")
-
     def get_data(self) -> dict:
-        return self.decode_data(self.data)
+        return Base64Util.decode(self.data)
 
-    def set_data(self, data_dict):
-        self.data = self.encode_data(data_dict)
+    def set_data(self, data_dict: dict):
+        self.data = Base64Util.encode(data_dict)
 
-    def process_and_create_questions(self):
+    def process_and_create_questions(self) -> list[Question]:
         """
         Older versions of Materia will not have Question model instances associated with a qset
         In this case, we unpack the qset, traverse it to identify individual questions, and create new question
@@ -1343,14 +1280,13 @@ class WidgetQset(models.Model):
         This method will effectively be invoked once per qset at most,
         as subsequent requests for questions will be able to use the ORM
         """
-        decoded_data = self.decode_data(self.data)
+        decoded_data = Base64Util.decode(self.data)
         raw_items = decoded_data.get("items", [])
 
         def find_questions(source):
             questions = []
 
             if isinstance(source, list):
-
                 for item in source:
                     if Question.is_question(item):
                         questions.append(item)
@@ -1358,7 +1294,6 @@ class WidgetQset(models.Model):
                         questions += find_questions(item)
 
             elif isinstance(source, dict):
-
                 if Question.is_question(source):
                     questions.append(source)
                 else:
@@ -1386,10 +1321,10 @@ class WidgetQset(models.Model):
 
         return questions_set
 
-    def get_questions(self):
+    def get_questions(self) -> list[Question]:
         questions = self.questions.all()
         if questions.exists():
-            return questions
+            return list(questions)
         else:
             return self.process_and_create_questions()
 

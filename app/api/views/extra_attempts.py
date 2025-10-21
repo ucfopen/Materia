@@ -2,9 +2,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 
 from api.filters import UserExtraAttemptsFilter
+from api.permissions import IsSuperOrSupportUser
+from api.serializers import UserExtraAttemptsSerializer
 from core.models import UserExtraAttempts
-from core.permissions import IsSuperOrSupportUser
-from core.serializers import UserExtraAttemptsSerializer
 
 
 class UserExtraAttemptsViewSet(viewsets.ModelViewSet):
