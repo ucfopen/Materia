@@ -1,6 +1,6 @@
 import os
 
-from util.widget.validator import ValidatorUtil
+from core.utils.validator_util import ValidatorUtil
 
 # amount of kilobytes alloted to any individual user for media storage
 MEDIA_QUOTA = 5000
@@ -49,3 +49,28 @@ DRIVER_SETTINGS = {
         "cdn_domain": os.environ.get("ASSET_STORAGE_S3_CDN_DOMAIN", ""),
     },
 }
+
+ALLOWED_EXTENSIONS = (
+    os.environ.get("ALLOWED_EXTENSIONS", "jpg,jpeg,png,gif,wav,mp3,obj,m4a")
+    .replace(" ", "")
+    .split(",")
+)
+
+IMAGE_MIMETYPES = (
+    os.environ.get("IMAGE_MIMETYPES", "image/jpg,image/jpeg,image/gif,image/png")
+    .replace(" ", "")
+    .split(",")
+)
+
+AUDIO_MIMETYPES = (
+    os.environ.get(
+        "AUDIO_MIMETYPES",
+        "audio/mp3,audio/mpeg,audio/mpeg3,audio/mp4,audio/x-m4a,audio/wave,audio/wav,audio/x-wav,audio/m4a",
+    )
+    .replace(" ", "")
+    .split(",")
+)
+
+VIDEO_MIMETYPES = os.environ.get("VIDEO_MIMETYPES", "").replace(" ", "").split(",")
+
+MODEL_MIMETYPES = os.environ.get("MODEL_MIMETYPES", "obj").replace(" ", "").split(",")

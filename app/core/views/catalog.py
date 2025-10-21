@@ -2,7 +2,7 @@ from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
-from util.context_util import ContextUtil
+from core.utils.context_util import ContextUtil
 
 
 class CatalogView(TemplateView):

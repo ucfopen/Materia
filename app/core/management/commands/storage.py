@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.core.management import base
-from util.widget.asset.manager import AssetManager
+from core.services.asset_service import AssetService
 
 logger = logging.getLogger("django")
 
@@ -32,7 +32,7 @@ class Command(base.BaseCommand):
         if len(args) > 1 and args[1] == "cleanup":
             cleanup_delete = True
 
-        current_driver = AssetManager.get_asset_storage_driver()
+        current_driver = AssetService.get_asset_storage_driver()
         current_driver.migrate_to(driver, cleanup_delete)
 
     def migrate_from_driver_to_driver(self, *args):
@@ -44,5 +44,5 @@ class Command(base.BaseCommand):
         if len(args) > 2 and args[2] == "cleanup":
             cleanup_delete = True
 
-        origin_driver = AssetManager.get_asset_storage_driver(driver_from)
+        origin_driver = AssetService.get_asset_storage_driver(driver_from)
         origin_driver.migrate_to(driver_to, cleanup_delete)

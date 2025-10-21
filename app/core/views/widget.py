@@ -7,19 +7,24 @@ from core.mixins import (
     MateriaWidgetPlayProcessor,
 )
 from core.models import ObjectPermission, User, Widget, WidgetInstance
-from core.services import WidgetPlayInitService, WidgetPlayValidationService
+from core.services.perm_service import PermService
+from core.services.widget_play_services import (
+    WidgetPlayInitService,
+    WidgetPlayValidationService,
+)
+from core.utils.context_util import ContextUtil
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
 from django.http import Http404, HttpRequest
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from lti.mixins import LtiLaunchMixin
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from lti.views.lti import error_page as lti_error_page
-from util.context_util import ContextUtil
-from util.perm_manager import PermManager
 
 logger = logging.getLogger("django")
 
@@ -37,7 +42,7 @@ class WidgetDetailView(TemplateView):
             js_resources=settings.JS_GROUPS["detail"],
             css_resources=settings.CSS_GROUPS["detail"],
             js_globals={
-                "NO_AUTHOR": PermManager.does_user_have_roles(
+                "NO_AUTHOR": PermService.does_user_have_roles(
                     self.request.user, "no_author"
                 ),
                 "WIDGET_HEIGHT": widget.height,
@@ -48,6 +53,7 @@ class WidgetDetailView(TemplateView):
         )
 
 
+@method_decorator(never_cache, name="dispatch")
 class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView):
     template_name = "react.html"
     allow_all_by_default = True
@@ -69,8 +75,7 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
         return super().get_context_data(None, None, False)
 
     def get_validation(self, request, instance):
-        validation_service = WidgetPlayValidationService()
-        validation = validation_service.validate_widget_context(
+        validation = WidgetPlayValidationService.validate_widget_context(
             request,
             instance,
             is_demo=True,
@@ -91,6 +96,7 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
         return {"play_id": play.id, "lti_token": None}
 
 
+@method_decorator(never_cache, name="dispatch")
 class WidgetPlayView(
     LtiLaunchMixin, MateriaWidgetPlayProcessor, MateriaLoginMixin, TemplateView
 ):
@@ -99,13 +105,11 @@ class WidgetPlayView(
     # allow_all_by_default = True
 
     def get_validation(self, request, instance):
-        validation_service = WidgetPlayValidationService()
-
         context_id = ""
         if self.launch is not None:
             context_id = LTILaunchService.get_context_id(self.launch)
 
-        validation = validation_service.validate_widget_context(
+        validation = WidgetPlayValidationService.validate_widget_context(
             request,
             instance,
             is_demo=False,
@@ -182,14 +186,14 @@ class WidgetPlayView(
         return lti_error_page(request)
 
 
+@method_decorator(never_cache, name="dispatch")
 class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView):
     template_name = "react.html"
     login_title = "Login to preview this widget"
     login_message = "Login to preview this widget"
 
     def get_validation(self, request, instance):
-        validation_service = WidgetPlayValidationService()
-        validation = validation_service.validate_widget_context(
+        validation = WidgetPlayValidationService.validate_widget_context(
             request, instance, is_demo=False, is_preview=True, is_embedded=False
         )
 
@@ -206,13 +210,14 @@ class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateV
         return {"play_id": preview, "lti_token": None}
 
 
+@method_decorator(never_cache, name="dispatch")
 class WidgetCreatorView(MateriaLoginMixin, PermissionRequiredMixin, TemplateView):
     template_name = "react.html"
     login_message = "Please log in to create this widget."
     permission_denied_message = "You do not have permission to create widgets."
 
     def has_permission(self):
-        return not PermManager.does_user_have_roles(self.request.user, "no_author")
+        return not PermService.does_user_have_roles(self.request.user, "no_author")
 
     def get_context_data(self, widget_slug, instance_id=None):
         # Create the widget instance
@@ -360,8 +365,6 @@ def _display_widget(
 
 
 def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
-    # TODO $this->_disable_browser_cache = true;
-
     return ContextUtil.create(
         title=f"{title}",
         js_resources="dist/js/creator-page.js",
@@ -446,8 +449,6 @@ def _create_widget_retired_page(request: HttpRequest, is_embedded: bool = False)
 def _create_no_attempts_page(
     request: HttpRequest, instance: WidgetInstance, is_embedded
 ):
-    # TODO _disable_browser_cache = true
-
     return ContextUtil.create(
         title="Widget Unavailable",
         page_type="login",
@@ -465,8 +466,6 @@ def _create_no_attempts_page(
 
 
 def _create_pre_embed_placeholder_page(request: HttpRequest, instance: WidgetInstance):
-    # TODO _disable_browser_cache = true
-
     return ContextUtil.create(
         title=f"{instance.name} {instance.widget.name}",
         page_type="widget",

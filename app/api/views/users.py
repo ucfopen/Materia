@@ -1,9 +1,11 @@
 import json
 import logging
 
+from rest_framework.permissions import IsAuthenticated
+
 from core.models import ObjectPermission, UserSettings
-from core.permissions import IsSelfOrElevatedAccess, IsSuperOrSupportUser, IsSuperuser
-from core.serializers import (
+from api.permissions import IsUserSelf, IsSuperOrSupportUser, IsSuperuser, DenyAll
+from api.serializers import (
     ObjectPermissionSerializer,
     UserMetadataSerializer,
     UserRoleSerializer,
@@ -19,8 +21,8 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from util.custom_paginations import PageNumberWithTotalPagination
-from util.message_util import MsgBuilder
+from api.paginators import PageNumberWithTotalPagination
+from core.message_exception import MsgInvalidInput
 
 logger = logging.getLogger("django")
 
@@ -54,26 +56,30 @@ class UserViewSet(viewsets.ModelViewSet):
             "put",
             "patch",
         ]:  # only superusers or support users can modify a limited set of user properties
-            return [permissions.IsAuthenticated(), IsSuperOrSupportUser()]
+            permission_classes = [permissions.IsAuthenticated, IsSuperOrSupportUser]
         elif self.action == "roles":  # only superusers can modify another user's roles
-            return [permissions.IsAuthenticated(), IsSuperuser()]
+            permission_classes = [permissions.IsAuthenticated, IsSuperuser]
         elif self.action in ["perms", "profile_fields"]:
-            return [permissions.IsAuthenticated(), IsSelfOrElevatedAccess()]
+            permission_classes = [IsUserSelf | IsSuperOrSupportUser]
         elif (
             self.action == "list"
             and self.request.query_params.get("search") is not None
-        ):  # only users with elevated access can search for users carte blanche
-            return [permissions.IsAuthenticated(), IsSuperOrSupportUser()]
+        ):  # any authenticated user can search - required for collab dialog
+            permission_classes = [IsAuthenticated]
         elif (
             self.action == "list" and self.request.query_params.get("ids") is not None
         ):  # allow authenticated users to retrieve specific ids (required for collab)
-            return [permissions.IsAuthenticated()]
+            permission_classes = [IsAuthenticated]
         elif (
             self.action == "retrieve"
         ):  # allow authenticated users to retrieve specific user data
-            return [permissions.IsAuthenticated()]
+            permission_classes = [IsAuthenticated]
+        elif self.action == "me":
+            permission_classes = [IsAuthenticated]
         else:  # do not allow remaining actions (create, delete) under any circumstance
-            return []
+            permission_classes = [DenyAll]
+
+        return [permission() for permission in permission_classes]
 
     queryset = User.objects.none()
 
@@ -141,7 +147,6 @@ class UserViewSet(viewsets.ModelViewSet):
             user_profile.profile_fields = profile_fields
             user_profile.save()
 
-            # TODO try/catch required? at this point we've already validated input
             return Response(
                 {"success": True, "profile_fields": user_profile.profile_fields}
             )
@@ -152,7 +157,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         user = self.get_object()
         if not user:
-            return MsgBuilder.invalid_input().as_drf_response()
+            raise MsgInvalidInput()
 
         access_permissions = ObjectPermission.objects.filter(user=user)
 
@@ -164,7 +169,7 @@ class UserViewSet(viewsets.ModelViewSet):
                     content_type=content_type
                 )
             except ContentType.DoesNotExist:
-                return MsgBuilder.invalid_input().as_drf_response()
+                raise MsgInvalidInput()
 
         serialized = ObjectPermissionSerializer(access_permissions, many=True)
         return Response(serialized.data)

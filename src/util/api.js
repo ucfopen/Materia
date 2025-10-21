@@ -244,7 +244,7 @@ export const apiUpdateWidgetInstance = ({ args }) => {
 		guest_access: args?.guestAccess ?? undefined,
 		embedded_only: args?.embeddedOnly ?? undefined,
 	}
-	return handleRequest(methods.PATCH, `/api/instances/${args.instId}/`, body)
+	return handleRequest(methods.PATCH, `/api/instances/${args.id}/`, body)
 }
 
 export const apiGetWidgetLock = (id = null) => {
@@ -447,7 +447,6 @@ export const apiUpdateUser = (user) => {
 
 export const apiGetQuestionSetHistory = (instId) => {
 	return handleRequest('GET', `/api/instances/${instId}/question_sets/`)
-		.then(data => data['history'])
 }
 
 // Request access to widget

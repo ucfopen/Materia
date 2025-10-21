@@ -9,7 +9,7 @@ from django.http import (
 )
 from django.views.generic import TemplateView
 from lti.services.launch import LTILaunchService
-from util.context_util import ContextUtil
+from core.utils.context_util import ContextUtil
 
 
 class ScoresView(MateriaLoginMixin, TemplateView):

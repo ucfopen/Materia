@@ -5,12 +5,12 @@ import os
 import magic
 from core.models import User
 from django.conf import settings
-from util.widget.validator import ValidatorUtil
+from core.utils.validator_util import ValidatorUtil
 
 logger = logging.getLogger("django")
 
 
-class AssetManager:
+class AssetService:
     # old method for server upload storage
     # differences from PHP - including file path separate from file info
     #  as those data points are not part of the same source, also allowing
@@ -20,7 +20,7 @@ class AssetManager:
         from core.models import Asset
 
         # does this user still have storage space left?
-        if not AssetManager.user_has_space_for(user, file_info.st_size):
+        if not AssetService.user_has_space_for(user, file_info.st_size):
             return False
 
         mime_type = magic.from_file(file_path, mime=True)
@@ -35,10 +35,10 @@ class AssetManager:
         asset.file_size = file_info.st_size
 
         # try to save the asset and move it
-        if asset.db_store(user) and ValidatorUtil.is_valid_hash(asset.id):
+        if asset.save() and ValidatorUtil.is_valid_hash(asset.id):
             try:
                 # copy the file to its permanent home with an appropriate name
-                AssetManager.get_asset_storage_driver().store(
+                AssetService.get_asset_storage_driver().store(
                     asset, file_path, "original"
                 )
                 # remove the original
@@ -55,7 +55,7 @@ class AssetManager:
                 pass
 
             # something failed in the above block, remove the asset
-            asset.db_remove()
+            asset.delete()
 
         return asset
 
@@ -64,7 +64,7 @@ class AssetManager:
         # it isn't necessarily safe, and we may want to revisit this later
         if user is None:
             return True
-        stats = AssetManager.get_user_asset_stats(user.id)
+        stats = AssetService.get_user_asset_stats(user.id)
         return stats["kb_used"] + (number_bytes / 1024) < stats["kb_available"]
 
     def get_user_asset_stats(user_id):
@@ -72,7 +72,7 @@ class AssetManager:
 
         # NOTE: kb_available is the total amount any user may use, not what is left of their storage
         return {
-            "kb_used": floor(AssetManager.get_user_disk_usage(user_id) / 1024),
+            "kb_used": floor(AssetService.get_user_disk_usage(user_id) / 1024),
             "kb_available": settings.MEDIA_QUOTA * 1024,
         }
 
