@@ -275,7 +275,7 @@ class Command(base.BaseCommand):
             if module is None:
                 print(f"no score module for play: {play.id}")
 
-            module.validate_scores(timestamp=False)
+            module.validate_scores(in_process=False)
             details = module.get_score_report()
             scores.append(
                 {
