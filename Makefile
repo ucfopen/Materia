@@ -82,6 +82,14 @@ clean-volumes-image:  ## Stops and removes all existing containers and volumes a
 	@echo "${YELLOW}Removing app container image${RESET}"
 	@docker rmi materia-django-python
 
+clean-everything:
+	@echo "${YELLOW}Stopping containers and purging volumes${RESET}"
+	$(DOCKER_COMPOSE) down -v
+	@echo "${YELLOW}Removing app container image${RESET}"
+	@docker rmi materia-django-python
+	@echo "${YELLOW}Clearing public/widget directory${RESET}"
+	@rm -rf public/widget/*
+
 #================================================================================
 # Managing the Docker environment (e.g. starting, stopping, deleting containers)
 #================================================================================

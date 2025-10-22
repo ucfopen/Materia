@@ -1,10 +1,10 @@
 import logging
 
 from core.models import WidgetInstance
-from core.services import WidgetPlayValidationService
+from core.services.widget_play_services import WidgetPlayValidationService
 from django.contrib.auth.mixins import AccessMixin
 from django.http import HttpRequest, HttpResponse
-from util.context_util import ContextUtil
+from core.utils.context_util import ContextUtil
 
 logger = logging.getLogger("django")
 
@@ -85,7 +85,7 @@ class MateriaLoginMixin(AccessMixin):
 
 
 # Special exception that can be called from within the dispatch of a view
-# to redirect that user to the login screen on-demand. Must be used with MateriaLoginMixin/ByExceptionMixin
+# to redirect that user to the login screen on-demand. Must be used with MateriaLoginMixin
 class MateriaLoginNeeded(Exception):
     def __init__(
         self,

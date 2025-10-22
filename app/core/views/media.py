@@ -9,7 +9,7 @@ from django.core.validators import FileExtensionValidator
 from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from util.widget.asset.manager import AssetManager
+from core.services.asset_service import AssetService
 
 logger = logging.getLogger("django")
 
@@ -58,33 +58,19 @@ class MediaUpload:
         uploaded_file = request.FILES["file"]
 
         # Validate file extension
-        # TODO: PUT THIS IN SETTINGS
-        allowed_extension = ["jpg", "jpeg", "png", "gif", "wav", "mp3", "obj", "m4a"]
         try:
-            FileExtensionValidator(allowed_extension)(uploaded_file)
+            FileExtensionValidator(settings.ALLOWED_EXTENSIONS)(uploaded_file)
         except ValidationError:
             return JsonResponse(
                 {"error": "Uploaded file's extension is not valid"}, status=400
             )
 
         # Validate file MIME type
-        # TODO: PUT THESE IN SETTINGS, TOO
-        image_mimetypes = ["image/jpg", "image/jpeg", "image/gif", "image/png"]
-        audio_mimetypes = [
-            "audio/mp3",
-            "audio/mpeg",
-            "audio/mpeg3",
-            "audio/mp4",
-            "audio/x-m4a",
-            "audio/wave",
-            "audio/wav",
-            "audio/x-wav",
-            "audio/m4a",
-        ]
-        video_mimetypes = []  # placeholder
-        model_mimetypes = ["model/obj"]
         allowed_mime_types = (
-            image_mimetypes + audio_mimetypes + video_mimetypes + model_mimetypes
+            settings.IMAGE_MIMETYPES
+            + settings.AUDIO_MIMETYPES
+            + settings.VIDEO_MIMETYPES
+            + settings.MODEL_MIMETYPES
         )
         if uploaded_file.content_type not in allowed_mime_types:
             return JsonResponse(
@@ -97,7 +83,7 @@ class MediaUpload:
             return JsonResponse({"error": "Uploaded file is too large"}, status=400)
 
         # Make sure the user uploading the file hasn't hit their disk space limit
-        if not AssetManager.user_has_space_for(request.user, uploaded_file.size):
+        if not AssetService.user_has_space_for(request.user, uploaded_file.size):
             return JsonResponse(
                 {"error": "User does not have enough space for uploaded file"},
                 status=400,

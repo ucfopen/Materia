@@ -3,7 +3,7 @@ import logging
 from django.conf import settings as django_settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from util.context_util import ContextUtil
+from core.utils.context_util import ContextUtil
 
 # from pprint import pformat
 

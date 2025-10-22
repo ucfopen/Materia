@@ -1,7 +1,7 @@
 import logging
 
 from core.models import LogPlay, WidgetInstance
-from core.serializers import (
+from api.serializers import (
     QuestionSetSerializer,
     ScoreDetailsForPlaySerializer,
     ScoreDetailsForPreviewSerializer,
@@ -11,9 +11,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from scoring.module_factory import ScoreModuleFactory
-from util.message_util import MsgBuilder
-from util.perm_manager import PermManager
-from util.semester_util import SemesterUtil
+from core.message_exception import MsgNoPerm, MsgExpired
+from core.services.perm_service import PermService
+from core.services.semester_service import SemesterService
 
 logger = logging.getLogger(__name__)
 
@@ -55,9 +55,9 @@ class ScoresView(APIView):
             if (
                 request.user.id != user.id
                 and not instance.permissions.filter(user=request.user).exists()
-                and not PermManager.is_superuser_or_elevated(request.user)
+                and not PermService.is_superuser_or_elevated(request.user)
             ):
-                return MsgBuilder.no_perm().as_drf_response()
+                raise MsgNoPerm()
 
             plays = LogPlay.objects.filter(
                 user=user, instance=instance, is_complete=True
@@ -66,7 +66,7 @@ class ScoresView(APIView):
             if validated.get("context"):
                 plays = plays.filter(context_id=context)
             else:
-                semester = SemesterUtil.get_current_semester()
+                semester = SemesterService.get_current_semester()
                 plays = plays.filter(semester=semester)
 
             scores = []
@@ -133,7 +133,7 @@ class ScoresDetailView(APIView):
                 preview_inst = validated.get("preview_inst_id")
 
                 if len(preview_logs) == 0:
-                    return MsgBuilder.expired().as_drf_response()
+                    raise MsgExpired()
 
                 module = ScoreModuleFactory.create_score_module_for_preview(
                     instance=preview_inst,
@@ -174,9 +174,9 @@ class ScoresDetailView(APIView):
                     user_id != play_user_id
                     and play_user_id is not None
                     and not play.instance.permissions.filter(user=request.user).exists()
-                    and not PermManager.is_superuser_or_elevated(request.user)
+                    and not PermService.is_superuser_or_elevated(request.user)
                 ):
-                    return MsgBuilder.no_perm().as_drf_response()
+                    raise MsgNoPerm()
 
                 module = ScoreModuleFactory.create_score_module(
                     instance=play.instance, play=play

@@ -14,7 +14,7 @@ services:
     volumes:
       - ../public:/var/www/html/staticfiles:ro
       - ../theme/img:/var/www/html/staticfiles/theme/img:ro
-      - uploaded_widgets_django:/var/www/html/staticfiles/widget/:ro
+      - ../public/widget:/var/www/html/staticfiles/widget/:ro
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
       - frontend
@@ -46,7 +46,7 @@ services:
     volumes:
       - ../app:/var/www/html
       - uploaded_media:/var/www/html/media/
-      - uploaded_widgets_django:/var/www/html/staticfiles/widget/
+      - ../public/widget:/var/www/html/staticfiles/widget/:rw
       - ./config/uwsgi/:/etc/uwsgi
     # command: uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
     command: /wait_for_it.sh mysql:3306 -t 15 -- uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
@@ -90,4 +90,3 @@ volumes:
   # static_files: {} # compiled js/css and uploaded widgets
   uploaded_media: {} # uploaded media files
   s3_media: {}
-  uploaded_widgets_django: {}

@@ -1,9 +1,6 @@
 # BASE config file for Materia
 
-import os
 from pathlib import Path
-
-from util.widget.validator import ValidatorUtil
 
 from .css import *  # noqa: F401, F403
 from .generation import *  # noqa: F401, F403
@@ -215,6 +212,4 @@ EMAIL_SSL_CERTFILE = os.environ.get("EMAIL_SSL_CERTFILE")
 
 # Sendgrid config
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
-SENDGRID_SANDBOX_MODE_IN_DEBUG = (
-    False  # TODO when true, emails are not actually sent in debug mode
-)
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False

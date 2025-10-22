@@ -1,16 +1,16 @@
 import logging
-from datetime import datetime
+
+from django.utils import timezone
 
 from api.filters import AssetFilterBackend
 from core.models import Asset
-from core.permissions import HasPermsOrElevatedAccess
-from core.serializers import AssetSerializer
+from api.permissions import IsSuperOrSupportUser, HasAnyPerms
+from api.serializers import AssetSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from util.message_util import MsgBuilder
+from core.message_exception import MsgFailure
 
 logger = logging.getLogger("django")
 
@@ -18,7 +18,7 @@ logger = logging.getLogger("django")
 class AssetViewSet(viewsets.ModelViewSet):
     queryset = Asset.objects.all()
     serializer_class = AssetSerializer
-    permission_classes = [IsAuthenticated, HasPermsOrElevatedAccess]
+    permission_classes = [HasAnyPerms | IsSuperOrSupportUser]
 
     filter_backends = [AssetFilterBackend, DjangoFilterBackend]
 
@@ -27,13 +27,13 @@ class AssetViewSet(viewsets.ModelViewSet):
         try:
 
             asset.is_deleted = True
-            asset.deleted_at = datetime.now()
+            asset.deleted_at = timezone.now()
             asset.save()
 
             return Response({"detail": "Asset deleted.", "status": status.HTTP_200_OK})
 
         except Exception:
-            return MsgBuilder.failure().as_drf_response()
+            raise MsgFailure()
 
     @action(detail=True, methods=["POST"])
     def restore(self, request, pk=None):
@@ -46,4 +46,4 @@ class AssetViewSet(viewsets.ModelViewSet):
             return Response({"detail": "Asset restored.", "status": status.HTTP_200_OK})
 
         except Exception:
-            return MsgBuilder.failure().as_drf_response()
+            raise MsgFailure()

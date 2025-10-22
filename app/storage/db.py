@@ -2,9 +2,9 @@ import hashlib
 import io
 import logging
 import os
-from datetime import datetime
 
 from django.conf import settings
+from django.utils import timezone
 
 logger = logging.getLogger("django")
 
@@ -36,7 +36,7 @@ class DBAssetStorageDriver:
                 data_obj.bytes = os.path.getsize(asset_path)
                 data_obj.hash = hashlib.sha1(file_contents).hexdigest()
                 data_obj.data = file_contents
-                data_obj.created_at = datetime.now()
+                data_obj.created_at = timezone.now()
 
                 data_obj.save()
         except Exception as e:
@@ -89,7 +89,7 @@ class DBAssetStorageDriver:
             data_obj.bytes = len(uploaded_file)
             data_obj.hash = hashlib.sha1(file_contents).hexdigest()
             data_obj.data = file_contents
-            data_obj.created_at = datetime.now()
+            data_obj.created_at = timezone.now()
 
             data_obj.save()
         except Exception as e:

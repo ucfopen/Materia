@@ -1,13 +1,14 @@
 import logging
 import os
 import types
-from datetime import datetime
 from pathlib import Path
 from typing import Optional, Type
 
+from django.utils import timezone
+
 from core.models import Log, LogPlay, User, WidgetInstance
 from scoring.module import ScoreModule
-from util.semester_util import SemesterUtil
+from core.services.semester_service import SemesterService
 
 logger = logging.getLogger(__name__)
 
@@ -71,12 +72,12 @@ class ScoreModuleFactory:
             instance=instance,
             is_valid=True,
             is_complete=True,
-            created_at=datetime.now(),
+            created_at=timezone.now(),
             user=user,
             elapsed=0,
             qset=instance.get_latest_qset(),
             auth="",
-            semester=SemesterUtil.get_current_semester(),
+            semester=SemesterService.get_current_semester(),
         )
 
         module = cls.create_score_module(instance=instance, play=synthetic_play)

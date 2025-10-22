@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 logger = logging.getLogger("django")
 
 
-class EmailUtil:
+class EmailService:
     @staticmethod
     def send_email(
         template: str,

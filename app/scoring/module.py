@@ -48,7 +48,7 @@ class ScoreModule(ABC):
         """
         logs = self.play.get_logs()
         last_time = 0
-        from datetime import datetime
+        from django.utils import timezone
 
         for log in logs:
             game_time = log.game_time
@@ -61,7 +61,7 @@ class ScoreModule(ABC):
                         text=str(log.id) if hasattr(log, "id") else "preview_log",
                         value=str(last_time),
                         game_time=game_time,
-                        created_at=datetime.datetime.now(),
+                        created_at=timezone.now(),
                         play_id=self.play.id,
                     )
                     error_log.save()
