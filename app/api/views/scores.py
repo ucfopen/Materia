@@ -80,7 +80,7 @@ class ScoresView(APIView):
                 scores.append(
                     {
                         "id": play.id,
-                        "created_at": int(play.created_at.timestamp()),
+                        "created_at": play.created_at.isoformat(),
                         "percent": details.get("overview", {}).get("score", 0),
                     }
                 )

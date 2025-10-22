@@ -182,6 +182,16 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 	},[instanceScores, instanceScoresError])
 
 	/*
+	Set initial attempt if no play id was passed in
+  */
+	useEffect(() => {
+		if (instance?.guest_access || isSingle || isPreview) return
+		if (!playID && !currentAttempt && !!attempts) {
+			setCurrentAttempt(attempts.length)
+		}
+	}, [playID, currentAttempt, attempts])
+
+	/*
 	Setup state information based on play data
 		- Score overview
 		- Score table (which is passed to score screen)
@@ -279,7 +289,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 				setPlayID(attempts[hash - 1].id)
 			}
 		}
-	},[currentAttempt])
+	}, [currentAttempt])
 
 	/*
 	send postMessage to the score screen frame
