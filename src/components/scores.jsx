@@ -12,6 +12,7 @@ import './scores.scss'
 const STATE_RESTRICTED = 'restricted'
 const STATE_INVALID = 'invalid'
 const STATE_EXPIRED = 'expired'
+const STATE_NO_SCORES = 'no_scores'
 
 const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPreview, isSingle}) => {
 
@@ -146,8 +147,8 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 	*/
 	useEffect(() => {
 		if (!!instanceScores) {
-			if (instanceScores.length < 1) {
-				setErrorState(STATE_INVALID)
+			if (instanceScores.scores.length < 1) {
+				setErrorState(STATE_NO_SCORES)
 			} else {
 				const scores = Array.from(instanceScores.scores)
 				// Sort scores by created_at in ascending order (oldest first)
@@ -449,6 +450,21 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 							</ul>
 
 							<SupportInfo />
+						</section>
+					</div>
+				)
+				break
+			case STATE_NO_SCORES:
+				errorStateRender = (
+					<div className="no_scores container general">
+						<section className="page">
+							<h2 className="logo">No Scores</h2>
+							<p>
+								You don't have any scores recorded for this widget.
+							</p>
+							<p>
+								Play this widget to completion to record a score!
+							</p>
 						</section>
 					</div>
 				)

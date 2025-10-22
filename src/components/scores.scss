@@ -47,7 +47,7 @@ $preview-purple: #b944cc;
 		}
 	}
 
-	&.expired, &.invalid, &.score_restrict {
+	&.expired, &.invalid, &.score_restrict, &.no_scores {
 		min-height: 480px;
 		background: #fff;
 
@@ -80,6 +80,14 @@ $preview-purple: #b944cc;
 			.error-support {
 				padding-bottom: 1em;
 			}
+		}
+	}
+
+	&.no_scores {
+		min-height: unset;
+
+		.page {
+			padding-bottom: 1em;
 		}
 	}
 }
@@ -262,7 +270,7 @@ $preview-purple: #b944cc;
 
 	#overview-table {
 		background-color: $color-background-dark;
-		
+
 		table {
 			font-weight: 400;
 			color: #ccc;
@@ -439,7 +447,7 @@ article {
 							font-size: 0.9em;
 							font-weight: bold;
 						}
-		
+
 						.score {
 							color: #333;
 							font-weight: bold;
