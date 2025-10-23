@@ -10,6 +10,7 @@ from core.models import (
     DateRange,
     Log,
     LogPlay,
+    Lti,
     Notification,
     ObjectPermission,
     UserExtraAttempts,
@@ -18,13 +19,13 @@ from core.models import (
     WidgetInstance,
     WidgetQset,
 )
+from core.services.perm_service import PermService
+from core.services.semester_service import SemesterService
+from core.services.user_service import UserService
+from core.utils.b64_util import Base64Util
 from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import serializers
-from core.utils.b64_util import Base64Util
-from core.services.semester_service import SemesterService
-from core.services.perm_service import PermService
-from core.services.user_service import UserService
 
 logger = logging.getLogger("django")
 
@@ -683,6 +684,19 @@ class ScoreDetailsForPreviewSerializer(serializers.Serializer):
         queryset=WidgetInstance.objects.all(), required=True
     )
     play_id = serializers.UUIDField()
+
+
+class LtiSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lti
+        fields = [
+            "widget_instance",
+            "resource_link",
+            "lti_version",
+            "name",
+            "context_id",
+            "context_title",
+        ]
 
 
 class UserExtraAttemptsSerializer(serializers.ModelSerializer):

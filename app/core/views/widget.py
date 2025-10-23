@@ -1,31 +1,30 @@
 import json
 import logging
 
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import never_cache
-
 from core.mixins import (
     MateriaLoginMixin,
     MateriaLoginNeeded,
     MateriaWidgetPlayProcessor,
 )
 from core.models import ObjectPermission, User, Widget, WidgetInstance
+from core.services.perm_service import PermService
 from core.services.widget_play_services import (
     WidgetPlayInitService,
     WidgetPlayValidationService,
 )
+from core.utils.context_util import ContextUtil
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
 from django.http import Http404, HttpRequest
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from lti.mixins import LtiLaunchMixin
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from lti.views.lti import error_page as lti_error_page
-from core.utils.context_util import ContextUtil
-from core.services.perm_service import PermService
 
 logger = logging.getLogger("django")
 
@@ -167,8 +166,11 @@ class WidgetPlayView(
             if instance.guest_access:
                 return lti_error_page(request, "error_lti_guest_mode")
             else:
-                LTILaunchService.register_association(request, launch)
                 context = _create_lti_success_page(request, instance)
+
+        # LTI associations are registered during play view init, instead of deep linking
+        # This behavior is carried over from PHP Materia
+        LTILaunchService.register_association(launch, request.user, instance)
 
         if context:
             return render(request, "react.html", context)

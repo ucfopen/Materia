@@ -1,16 +1,15 @@
 import logging
 
 from api.filters import UserInstanceFilterBackend
-from core.models import LogActivity, LogPlay, Notification, WidgetInstance, WidgetQset
 from api.permissions import (
     CanCreateWidgetInstances,
     DenyAll,
-    IsSuperOrSupportUser,
-    ReadOnlyIfAuthenticated,
     HasAnyPerms,
     HasFullPerms,
     HasInstanceLock,
     InstanceHasGuestAccess,
+    IsSuperOrSupportUser,
+    ReadOnlyIfAuthenticated,
 )
 from api.serializers import (
     ObjectPermissionSerializer,
@@ -21,18 +20,19 @@ from api.serializers import (
     WidgetInstanceCopyRequestSerializer,
     WidgetInstanceSerializer,
 )
+from core.message_exception import MsgFailure, MsgInvalidInput
+from core.models import LogActivity, LogPlay, Notification, WidgetInstance, WidgetQset
+from core.services.instance_service import WidgetInstanceService
+from core.services.perm_service import PermService
+from core.services.play_data_exporter_service import PlayDataExporterService
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError, MethodNotAllowed
+from rest_framework.exceptions import MethodNotAllowed, ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from core.services.play_data_exporter_service import PlayDataExporterService
-from core.message_exception import MsgInvalidInput, MsgFailure
-from core.services.perm_service import PermService
-from core.services.instance_service import WidgetInstanceService
 
 logger = logging.getLogger("django")
 
@@ -409,8 +409,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 raise MsgFailure(
                     msg=f"Could not update {len(refusals)} out of {len(updates)} permissions."
                 )
-                # return MsgBuilder.student_collab().as_drf_response()
-                # TODO once error messages are better, make this more detailed
 
             # Otherwise, return success
             return Response({"success": True})

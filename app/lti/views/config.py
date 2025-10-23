@@ -1,5 +1,4 @@
 import json
-import os
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -8,20 +7,21 @@ from django.template.loader import render_to_string
 from lti_tool.models import LtiRegistration
 
 
-# TODO this will only render the first LTI registration with a domain that matches the canvas_domain value.
-# we should probably find a way to render multiple lti configs under different paths?
 def lti_config(request):
-
-    # TODO these values should come from settings.URLS instead of directly from env
+    """
+    The LTI config is currently configured to render values associated with a single registration
+    based on the matching platform_domain value written to env vars
+    While the underlying django-lti package supports multiple registrations,
+    the system is not currently built to support them.
+    """
     domain = urlparse(settings.LTI_URL_CONFIGS["tool_url"]).netloc or "localhost"
-    platform_domain = os.environ.get("PLATFORM_DOMAIN")
+    platform_domain = settings.LTI_URL_CONFIGS["platform_domain"]
 
     try:
         # Get registration by token_url domain that matches platform_domain env var
         registration = LtiRegistration.objects.filter(
             token_url__contains=platform_domain
         ).first()
-        print(f"Using registration: {registration}")
         registration_uuid = (
             registration.uuid if registration else "insert-registration-uuid-here"
         )

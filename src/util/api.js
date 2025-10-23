@@ -102,6 +102,10 @@ export const apiGetInstancesForUser = userId => {
 	return handleRequest(methods.GET, `/api/instances/?user=${userId}`)
 }
 
+export const apiGetInstancesFromContext = contextId => {
+	return handleRequest(methods.GET, `/api/lti/${contextId}/instances/`)
+}
+
 // Gets widget info
 export const apiGetWidget = (ids=[], widgetType='catalog') => {
 	let params = `?type=${widgetType}`
