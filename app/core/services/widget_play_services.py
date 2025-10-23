@@ -1,12 +1,11 @@
 import logging
 import uuid
-from datetime import datetime
 
 from core.models import Log, LogPlay
+from core.services.semester_service import SemesterService
+from core.utils.http_util import parse_bool
 from django.contrib.auth.models import AnonymousUser
-from django.utils.timezone import make_aware
-from util.http_util import parse_bool
-from util.semester_util import SemesterUtil
+from django.utils import timezone
 
 logger = logging.getLogger("django")
 
@@ -16,7 +15,7 @@ class WidgetPlayInitService:
     @staticmethod
     def init_play(request, instance, user):
 
-        created_at = make_aware(datetime.now())
+        created_at = timezone.now()
         ip = request.META.get("REMOTE_ADDR")
         if isinstance(user, AnonymousUser):
             user = None
@@ -37,7 +36,7 @@ class WidgetPlayInitService:
             qset=instance.get_latest_qset(),
             score=0,
             score_possible=0,
-            semester=SemesterUtil.get_current_semester(),
+            semester=SemesterService.get_current_semester(),
             user=user,
         )
 
@@ -57,6 +56,7 @@ class WidgetPlayInitService:
         start_log.save()
         return play
 
+    @staticmethod
     def init_preview(request):
         preview_key = str(uuid.uuid4())
         session_key = f"previewPlayLogs.{preview_key}"
@@ -86,8 +86,8 @@ class WidgetPlayValidationService:
     VALID_WITH_PRE_EMBED = "pre_embed"
     VALID = "valid"
 
+    @staticmethod
     def validate_widget_context(
-        self,
         request,
         instance,
         is_demo=False,
@@ -99,26 +99,26 @@ class WidgetPlayValidationService:
         autoplay = parse_bool(request.GET.get("autoplay", None), True)
 
         if not is_embedded and instance.embedded_only:
-            return self.INVALID_EMBEDDED_ONLY
+            return WidgetPlayValidationService.INVALID_EMBEDDED_ONLY
 
         if not instance.playable_by_current_user(request.user):
-            return self.INVALID_NOT_PLAYABLE
+            return WidgetPlayValidationService.INVALID_NOT_PLAYABLE
 
         instance_availability = instance.availability_status()
         if not instance_availability["is_open"]:
-            return self.INVALID_NOT_YET_OPEN
+            return WidgetPlayValidationService.INVALID_NOT_YET_OPEN
 
         if not is_demo and not is_preview:
             if not instance.user_has_attempts(request.user, context_id):
-                return self.INVALID_NO_ATTEMPTS
+                return WidgetPlayValidationService.INVALID_NO_ATTEMPTS
 
         if not is_preview and instance.is_draft:
-            return self.INVALID_DRAFT_NOT_PLAYABLE
+            return WidgetPlayValidationService.INVALID_DRAFT_NOT_PLAYABLE
 
         if not instance.widget.is_playable:
-            return self.INVALID_RETIRED_WIDGET
+            return WidgetPlayValidationService.INVALID_RETIRED_WIDGET
 
         if autoplay is False:
-            return self.VALID_WITH_PRE_EMBED
+            return WidgetPlayValidationService.VALID_WITH_PRE_EMBED
 
-        return self.VALID
+        return WidgetPlayValidationService.VALID

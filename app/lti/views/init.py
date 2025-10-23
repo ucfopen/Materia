@@ -19,11 +19,11 @@ class MateriaOIDCLoginInitView(OIDCLoginInitView):
 
     def requires_redirect(self, target_link_uri: str) -> bool:
 
-        if re.search(r"embed/[A-Za-z0-9]{5}/[A-Za-z0-9\-]*/?$", target_link_uri):
+        if re.search(r"embed/[A-Za-z0-9]{5,}/[A-Za-z0-9\-]*/?$", target_link_uri):
             return True
 
         elif re.search(
-            r"scores/single/[A-Za-z0-9]{5}/[A-Za-z0-9\-]*/?$", target_link_uri
+            r"scores/single/[A-Za-z0-9]{5,}/[A-Za-z0-9\-]*/?$", target_link_uri
         ):
             return True
 

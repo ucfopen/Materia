@@ -1,18 +1,56 @@
 import React, { useState, useEffect } from 'react'
+import { useQuery } from 'react-query'
+
+import { apiGetInstancesFromContext } from '../../util/api'
+import { iconUrl as getIconUrl } from '../../util/icon-url'
 
 const PostLogin = () => {
 	const [staticURL, setStaticURL] = useState('')
+	const [contextID, setContextID] = useState(null)
 
 	useEffect(() => {
 		waitForWindow().then(() => {
 			setStaticURL(window.STATIC_CROSSDOMAIN)
+			setContextID(window.CONTEXT_ID)
 		})
 	}, [])
 
 	const waitForWindow = async () => {
-		while (!window.hasOwnProperty('STATIC_CROSSDOMAIN')) {
+		while (
+			!window.hasOwnProperty('STATIC_CROSSDOMAIN') &&
+			!window.hasOwnProperty('CONTEXT_ID')
+		) {
 			await new Promise(resolve => setTimeout(resolve, 500))
 		}
+	}
+
+	const { isLoading, data: instances } = useQuery({
+		queryKey: ['lti-widgets', contextID],
+		queryFn: () => apiGetInstancesFromContext(contextID),
+		enabled: !!contextID,
+		staleTime: Infinity
+	})
+
+	let instancesRender = null
+	if (!!instances) {
+		instancesRender = instances.map((instance, index) => {
+			const iconUrl = getIconUrl('/widget/', instance.widget.dir, 92)
+
+			const resource_links = instance.lti_data.map(
+				(resource, r_index) => <span key={r_index}>{resource.lti_resource_name}</span>
+			)
+
+			return <li key={index} className="instance">
+				<img src={iconUrl} alt={instance.name}></img>
+				<h3>{instance.name}</h3>
+				<section className="instance-quick-links">
+					<a href={instance.preview_url} target="_blank">Preview</a>
+					<a href={`${window.BASE_URL}my-widgets#${instance.id}`} target="_blank">Manage in Materia</a>
+				</section>
+				<span className="widget-located-in">This widget is embedded in the following assignments:</span>
+				{resource_links}
+			</li>
+		})
 	}
 
 	return (
@@ -22,35 +60,19 @@ const PostLogin = () => {
 				Materia: Enhance Your Course with Widgets
 			</h1>
 		</header>
-		<section className="content">
-			<div>
-				<img src={staticURL + "img/materia-post-login-banner-1.svg"}/>
-				<p>
-					<span className='subheader'>Browse the Widget Catalog</span>
-					Peruse our catalog for a widget applicable to your course content. Some widgets are specialized for
-					particular disciplines, while others can be applied to just about any subject matter.
-				</p>
-			</div>
-			<div>
-				<img src={staticURL + "img/materia-post-login-banner-2.svg"}/>
-				<p>
-					<span className='subheader'>Build Your Widget</span>
-					Every widget includes a powerful creator interface to customize it to suit your needs, no technical expertise required.
-					Most widgets can be authored in just minutes.
-				</p>
-			</div>
-			<div>
-				<img src={staticURL + "img/materia-post-login-banner-3.svg"}/>
-				<p><span className='subheader'>Share With Your Students</span>
-				Widgets can be shared directly or embedded as an assignment in your LMS. When set up as an external tool in an assignment, scores
-				will be automatically sent to the gradebook.
-				</p>
-			</div>
-			<div className='action_buttons'>
-				<a className="action_button" target='_blank' href="/my-widgets">Go to Materia</a>
-				<a className="action_button" target='_blank' href="http://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html">Learn More</a>
-			</div>
+		<section className="instructor-intro">
+			Materia can power-up your course with bite-size, interactive, gamified learning. 
+			Select a widget, customize it in minutes, and share it with students. Widgets are great for
+			supplemental learning, study aids, and low-stakes assessment. When embedded in your course,
+			widgets will automatically sync scores with the gradebook.
 		</section>
+		<section className="instructor-instance-list">
+			<p>The following widgets are currently detected in your course:</p>
+			<ul className="instances">
+				{instancesRender}
+			</ul>
+		</section>
+
 	</section>
 	)
 }

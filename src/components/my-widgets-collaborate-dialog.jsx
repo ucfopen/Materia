@@ -151,7 +151,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			// Only send a request to update current user perms so that it doesn't get no-perm'd by the server
 			let currentUserPerms = state.updatedAllUserPerms.get(currentUser.id);
 			permsObj.push({
-				user_id: currentUser.id,
+				user: currentUser.id,
 				expiration: currentUserPerms.expireTime,
 				perm_level: currentUserPerms.remove ? null : currentUserPerms.accessLevel
 			})

@@ -1,23 +1,23 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
 from typing import TYPE_CHECKING, Type
 
 from django.contrib.auth.models import AnonymousUser, User
 from django.db import models
 from django.db.models import QuerySet
+from django.utils import timezone
 
 logger = logging.getLogger("django")
 
 if TYPE_CHECKING:
-    from core.models import WidgetInstance
+    from core.models import WidgetInstance, ObjectPermission
 
 
-class PermManager:
+class PermService:
     @staticmethod
     def user_is_student(user: User):
-        return not PermManager.does_user_have_roles(
+        return not PermService.does_user_have_roles(
             user, ["basic_author", "super_user"]
         )
 
@@ -42,18 +42,16 @@ class PermManager:
         return user.groups.filter(name__in=roles).exists()
 
     @staticmethod
-    def get_all_objects_of_type_for_user[T: Type[models.Model]](
-        obj: T, user: User | str | int, perms: list[str]
-    ) -> QuerySet[T]:
+    def get_all_objects_of_type_for_user[
+        T: Type[models.Model]
+    ](obj: T, user: User | int, perms: list[str]) -> QuerySet[T]:
         if len(perms) <= 0:
             return obj.objects.none()
 
-        from core.models import ObjectPermission
-
-        all_ids = ObjectPermission.objects.filter(
-            user=user, content_type=obj.content_type, permission__in=perms
-        ).values("object_id")
-        return obj.objects.filter(pk__in=all_ids)
+        return obj.objects.filter(
+            permissions__user=user,
+            permissions__permission__in=perms,
+        )
 
     @staticmethod
     def clear_all_perms_for_object(obj: Type[models.Model]):
@@ -84,7 +82,7 @@ class PermManager:
     def check_and_expire_user_object_perms():
         from core.models import Notification, ObjectPermission, WidgetInstance
 
-        now = datetime.now()
+        now = timezone.now()
         expired_perms = ObjectPermission.objects.filter(expires_at__lte=now)
 
         for expired_perm in expired_perms:
@@ -99,3 +97,26 @@ class PermManager:
 
             # Delete perm
             expired_perm.delete()
+
+    @staticmethod
+    def compare_perms(left_side: str, right_side: str) -> int:
+        """
+        Compares two permissions.
+        - Returns negative number if left_side is higher than right_side
+        - Returns 0 if equal
+        - Returns positive number if right_side is higher than left_side
+        """
+        from core.models import ObjectPermission
+
+        permission_value_map = {
+            ObjectPermission.PERMISSION_FULL: 50,
+            ObjectPermission.PERMISSION_VISIBLE: 0,
+        }
+
+        left_value = permission_value_map.get(left_side)
+        right_value = permission_value_map.get(right_side)
+
+        if left_value is None or right_value is None:
+            raise ValueError("Invalid permission")
+
+        return right_value - left_value

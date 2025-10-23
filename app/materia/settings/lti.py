@@ -33,10 +33,5 @@ LTI_SAVE_ASSOCIATIONS = True
 LTI_URL_CONFIGS = {
     "tool_url": os.environ.get("BASE_URL", "").rstrip("/"),
     "platform_iss": os.environ.get("PLATFORM_ISS"),
+    "platform_domain": os.environ.get("PLATFORM_DOMAIN"),
 }
-
-LTI_PLATFORM_DOMAIN = os.environ.get("CANVAS_DOMAIN")
-
-# CANVAS_OAUTH_CLIENT_ID = os.environ.get("CANVAS_OAUTH_CLIENT_ID")
-# CANVAS_OAUTH_CLIENT_SECRET = os.environ.get("CANVAS_OAUTH_CLIENT_SECRET")
-# CANVAS_OAUTH_CANVAS_DOMAIN = os.environ.get("CANVAS_DOMAIN")
