@@ -170,7 +170,6 @@ class WidgetPlayView(
 
         # LTI associations are registered during play view init, instead of deep linking
         # This behavior is carried over from PHP Materia
-        # Does it make more sense to perform the registration during deep linking?
         LTILaunchService.register_association(launch, request.user, instance)
 
         if context:

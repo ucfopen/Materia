@@ -1,8 +1,8 @@
 import logging
 
+from api.serializers import LtiSerializer, WidgetInstanceSerializer
 from core.message_exception import MsgFailure, MsgNotFound
 from core.models import WidgetInstance
-from core.serializers import LtiSerializer, WidgetInstanceSerializer
 from lti.ags.client import AGSClient
 from lti.services.launch import LTILaunchService
 from rest_framework.response import Response

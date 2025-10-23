@@ -3,8 +3,7 @@ from datetime import datetime
 
 from .oauth import AGSOauth
 from .request import AGSRequest
-from .services.line_items import AGSLineItemService
-from .services.scores import AGSScoreBuilder
+from .score_builder import AGSScoreBuilder
 from .util import AGSUtil
 
 logger = logging.getLogger("django")
@@ -15,7 +14,7 @@ class AGSClient:
     Client for abstracting AGS operations into straightforward instance methods
     Handles acquisition and rotation of access token from the current registration
     Handles user ID acquisition from launch data
-    Exposes score builder for Scores service and (@TODO) additional AGS functionality
+    Exposes score builder for Scores service as well as certain Line Items operations
     """
 
     def __init__(self, launch_data):
@@ -37,7 +36,7 @@ class AGSClient:
         return self._user_id
 
     def line_items(self):
-        line_items = AGSLineItemService.get_line_items_from_launch(self.launch_data)
+        line_items = AGSUtil.list_line_items_from_launch(self.launch_data)
         request = AGSRequest(self.access_token)
 
         fetch = request.get(line_items)
@@ -52,7 +51,7 @@ class AGSClient:
             timespec="milliseconds"
         )
 
-        line_item = AGSLineItemService.get_from_launch(self.launch_data)
+        line_item = AGSUtil.get_line_item_from_launch(self.launch_data)
         url = f"{line_item}/scores"
         request = AGSRequest(self.access_token)
 

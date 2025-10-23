@@ -3,9 +3,9 @@ import logging
 import os
 
 import magic
-from core.models import User
-from django.conf import settings
 from core.utils.validator_util import ValidatorUtil
+from django.conf import settings
+from django.contrib.auth.models import User
 
 logger = logging.getLogger("django")
 

@@ -1,10 +1,10 @@
 import logging
-import os
 import time
 import uuid
 
 import jwt
 import requests
+from django.conf import settings
 from lti_tool.models import Key, LtiRegistration
 
 logger = logging.getLogger("django")
@@ -16,9 +16,7 @@ class AGSOauth:
         """
         Initialize the OAuth2 handler.
         """
-
-        # TODO make platform selection more robust
-        platform_domain = os.environ.get("PLATFORM_DOMAIN")
+        platform_domain = settings.LTI_URL_CONFIGS["platform_domain"]
         registration = LtiRegistration.objects.filter(
             token_url__contains=platform_domain
         ).first()
