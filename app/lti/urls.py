@@ -22,7 +22,7 @@ urlpatterns = [
         MateriaOIDCLoginInitView.as_view(),
         name="init",
     ),
-    path("lticonfig/", lti_config, name="lti_config"),
+    path("lticonfig/<slug:provider>", lti_config, name="lti_config"),
     path("ltilaunch/", ApplicationLaunchView.as_view(), name="ltilaunch"),
     path("lti/error/", error_page, name="error_page"),
 ]
