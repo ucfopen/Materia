@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime
 
+from lti.services.launch import LTILaunchService
+
 from .oauth import AGSOauth
 from .request import AGSRequest
 from .score_builder import AGSScoreBuilder
@@ -19,7 +21,10 @@ class AGSClient:
 
     def __init__(self, launch_data):
         self.launch_data = launch_data
-        self._oauth = AGSOauth()
+
+        registration = LTILaunchService.get_registration(self.launch_data)
+
+        self._oauth = AGSOauth(registration)
         self._access_token = None
         self._user_id = None
 
