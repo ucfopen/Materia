@@ -133,6 +133,11 @@ urlpatterns = [
         name="scores",
     ),
     path(
+        "scores/<slug:widget_instance_id>/",
+        ScoresView.as_view(),
+        name="scores",
+    ),
+    path(
         "scores/embed/<slug:widget_instance_id>/<slug:play_id>/",
         ScoresView.as_view(),
         name="scores",

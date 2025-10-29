@@ -11,7 +11,7 @@ const ScorePage = () => {
 	let playID = null
 	let token = null
 
-	const urlElements = window.location.pathname.match(/\/scores\/(single\/)?(preview\/)?(embed\/)?([a-z0-9\-_]+)\/([a-z0-9\-_]+)/i)
+	const urlElements = window.location.pathname.match(/\/scores\/(single\/)?(preview\/)?(embed\/)?([a-z0-9\-_]+)(?:\/([a-z0-9\-_]+))?/i)
 	if (urlElements) {
 		isSingle = urlElements[1] == "single/"
 		isPreview = urlElements[2] == "preview/"
@@ -61,7 +61,7 @@ const ScorePage = () => {
 
 	let bodyRender = null
 	if (state.ready) {
-		bodyRender = <Scores 
+		bodyRender = <Scores
 		instID={state.instanceID}
 		playID={state.playID}
 		userID={state.userID}
