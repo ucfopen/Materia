@@ -351,22 +351,22 @@ header {
 
 	.nav_expandable {
 		color: #0093e7;
-		font-size: 17px;
 		font-weight: bold;
-		height: 27px;
 		position: relative;
-		margin-left: 20px;
+		margin-left: 10px;
 
 		ul {
 			display: none;
 			background-color: #ffffff;
-			padding: 0;
+			padding: 15px 15px;
 			position: absolute;
-			bottom: -140%;
-			left: -10px;
-			border-left: 1px solid #d3d3d3;
-			border-right: 1px solid #d3d3d3;
-			border-bottom: 1px solid #d3d3d3;
+			top: 100%;
+			left: 0;
+			border: 1px solid #d3d3d3;
+			border-radius: 5px;
+			margin-top: 5px;
+			gap: 15px;
+			box-shadow: 0 0 5px rgba(0,0,0,0.1);
 		}
 
 		&:hover > span {
@@ -384,10 +384,17 @@ header {
 
 		&:hover > ul {
 			display: flex;
+			flex-direction: column;
 
 			li {
-				padding: 0 10px 5px;
-				height: auto;
+				display: flex;
+				padding: 0;
+				align-items: center;
+				height: 20px;
+
+				a {
+					text-wrap: nowrap;
+				}
 			}
 		}
 	}
