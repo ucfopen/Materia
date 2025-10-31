@@ -39,10 +39,8 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 	const [filteredWidgets, isFiltered] = useMemo(() => {
 		let isFiltered = false
 
-		// create initial set of widgets to filter from - only including playable widgets
-		let results = widgets.filter(w => {
-			return w.is_playable
-		})
+		// all filter types now remove non-playable widgets by default
+		let results = [...widgets]
 
 		// filters are active, only match active filters
 		if(state.activeFilters.length){

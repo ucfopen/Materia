@@ -84,6 +84,13 @@ module.exports = {
 				]
 			},
 			{
+				test: /\.mdx?$/,
+				use: [
+					{ loader: 'babel-loader', options: {} },
+					{ loader: '@mdx-js/loader', options: {} },
+				],
+			},
+			{
 				test: /homepage.jsx$/,
 				use: {
 					loader: 'string-replace-loader',

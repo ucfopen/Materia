@@ -126,37 +126,32 @@ const ProfilePage = () => {
 	if (!isFetching && !isFetchingActivity && currentUser) {
 		mainContentRender = (
 			<section className="page user">
-
-					<ul className="main_navigation" role="menu">
-						<div className="avatar_big">
-							<img src={currentUser.avatar} />
+				<ul className="main_navigation" role="menu">
+					<div className="avatar_big">
+						<img src={currentUser.avatar} />
 					</div>
-
-						<ul>
-							<li className="selected_profile">
-								<a href="/profile" role="menuitem">Profile</a>
-							</li>
-							<li className="settings">
-								<a href="/settings" role="menuitem">Settings</a>
-							</li>
-						</ul>
+					<ul>
+						<li className="selected_profile">
+							<a href="/profile" role="menuitem">Profile</a>
+						</li>
+						<li className="settings">
+							<a href="/settings" role="menuitem">Settings</a>
+						</li>
+					</ul>
 				</ul>
 				<div className="profile_content">
 					<header>
 						<div className="profile_status">
 							<span>Profile</span>
-
 							<span>
 								<ul className="user_information">
-									<li className={`user_type ${currentUser.is_student == true ? '' : 'staff'}`}>{`${
-										currentUser.is_student == true ? 'Student' : 'Staff'
-									}`}</li>
+									<li className={`user_type ${currentUser.is_student == true ? '' : 'staff'}`}>
+										{`${currentUser.is_student == true ? 'Student' : 'Staff'}`}
+									</li>
 									{currentUser.is_support_user ? (
-										<li
-											className={`user_type ${
-												currentUser.is_support_user == true ? 'support' : ''
-											}`}
-										>{`${currentUser.is_support_user == true ? 'Support' : ''}`}</li>
+										<li className={`user_type ${currentUser.is_support_user == true ? 'support' : ''}`}>
+											{`${currentUser.is_support_user == true ? 'Support' : ''}`}
+										</li>
 									) : (
 										<></>
 									)}
@@ -164,13 +159,10 @@ const ProfilePage = () => {
 							</span>
 						</div>
 						<h2>
-						{`${currentUser.first_name} ${currentUser.last_name}`}
+							{`${currentUser.first_name} ${currentUser.last_name}`}
 						</h2>
-					</div>
 					</header>
-
 					<span className="activity_subheader">Activity</span>
-
 					<div className="activity">
 						<div className={`loading-icon-holder ${isFetchingActivity ? 'loading' : ''}`}>
 							<LoadingIcon />
