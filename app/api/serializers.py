@@ -204,6 +204,7 @@ class WidgetSerializer(serializers.ModelSerializer):
     def update(self, widget, validated_data):
         allowed_fields = [
             "clean_name",
+            "featured",
             "in_catalog",
             "is_editable",
             "is_scorable",

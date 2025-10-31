@@ -88,7 +88,6 @@ const ProfilePage = () => {
 
 	let noActivityRender = <p className='no_logs'>You don't have any activity! Once you play a widget, your score history will appear here.</p>
 
-	// let activityContentRender = <></>
 	let activityContentRender = activityData.map((record) => {
 			return <li className={`activity_log ${record.is_complete == 1 ? 'complete' : 'incomplete'} ${record.score == 100 ? 'perfect_score' : ''}`} key={record.play_id}>
 				<a className='score-link' href={record.link}>
@@ -123,7 +122,7 @@ const ProfilePage = () => {
 			</div>
 		</section>
 	)
-	if (!isFetching && !isFetchingActivity && currentUser) {
+	if (!isFetching && !userActivity?.isFetching && currentUser) {
 		mainContentRender = (
 			<section className="page user">
 				<ul className="main_navigation" role="menu">
@@ -164,15 +163,15 @@ const ProfilePage = () => {
 					</header>
 					<span className="activity_subheader">Activity</span>
 					<div className="activity">
-						<div className={`loading-icon-holder ${isFetchingActivity ? 'loading' : ''}`}>
+						<div className={`loading-icon-holder ${userActivity?.isFetching ? 'loading' : ''}`}>
 							<LoadingIcon />
 						</div>
 						<ul className="activity_list">
-							{userActivity?.pages[0]?.activity.length ? activityContentRender : noActivityRender}
+							{activityData.length ? activityContentRender : noActivityRender}
 						</ul>
 					</div>
 
-					{hasNextPage ? (
+					{userActivity?.hasNextPage ? (
 						<button className="show_more_activity action_button" onClick={_getMoreLogs}>
 							{isFetchingNextActivityPage ? (
 								<span className="message_loading">Loading...</span>

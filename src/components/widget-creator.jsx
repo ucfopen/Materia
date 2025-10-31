@@ -240,7 +240,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 	useEffect(() => {
 		if (instance.widget) {
-			let creatorPath = instance.widget.creator.substring(0, 4) === 'http' ? instance.widget.creator : window.WIDGET_URL + instance.widget.dir + instance.widget.creator
+			let creatorPath = instance.widget.creator.substring(0, 4) === 'http' ? 
+				instance.widget.creator : 
+				window.WIDGET_URL.replace(/\/$/, '') + '/' + instance.widget.dir + instance.widget.creator
 
 			setCreatorState({
 				...creatorState,
