@@ -39,7 +39,10 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 	const [filteredWidgets, isFiltered] = useMemo(() => {
 		let isFiltered = false
 
-		let results = [...widgets]
+		// create initial set of widgets to filter from - only including playable widgets
+		let results = widgets.filter(w => {
+			return w.is_playable
+		})
 
 		// filters are active, only match active filters
 		if(state.activeFilters.length){
@@ -303,14 +306,12 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 						</div>
 					</div>
 					{ mobileFilterRender }
-					<div id='filters-container'
-						className={`ready ${state.showingFilters ? 'open' : 'closed'}`} aria-hidden={!state.showingFilters}>
+					<div className={`filters-container ready ${state.showingFilters ? 'open' : 'closed'}`} aria-hidden={!state.showingFilters}>
 						<div className='filter-labels-container' disabled={!state.showingFilters}>
 							{ filterOptionsRender }
 						</div>
 					</div>
-					<div id='filters-container'
-						className={`ready ${state.showingAccessibility ? 'open' : 'closed'}`} aria-hidden={!state.showingAccessibility}>
+					<div className={`filters-container ready ${state.showingAccessibility ? 'open' : 'closed'}`} aria-hidden={!state.showingAccessibility}>
 						<div className='filter-labels-container accessibility' disabled={!state.showingAccessibility}>
 							{ accessibilityOptionsRender }
 						</div>
