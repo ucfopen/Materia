@@ -627,6 +627,9 @@ header {
 }
 
 .darkMode header {
+
+	background: #1d1f25;
+
 	&.logged_in {
 		background: #1d1f25 url(/img/header_border_alt.png) 0% 100% repeat-x;
 	}
@@ -642,6 +645,14 @@ header {
 	{
 		a {
 			color: $color-text-light-gray;
+		}
+	}
+
+	button#mobile-menu-toggle div {
+		background: #dbdbdb;
+
+		&:before, &:after {
+			background: #dbdbdb;
 		}
 	}
 
