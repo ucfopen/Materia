@@ -153,7 +153,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 				const scores = Array.from(instanceScores.scores)
 				// Sort scores by created_at in ascending order (oldest first)
 				scores.sort((a, b) => {
-					return a.created_at - b.created_at
+					return new Date(a.created_at) - new Date(b.created_at)
 				})
 				for (let score of scores) {
 					score.roundedPercent = parseFloat(score.percent).toFixed(2)
@@ -162,7 +162,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 					score.date = date
 				}
 				setAttempts(scores)
-				setAttemptsLeft(scores.attemptsLeft)
+				setAttemptsLeft(instanceScores.attemptsLeft)
 				const hash = getAttemptNumberFromHash()
 				if (hash && scores.length >= hash) {
 					setCurrentAttempt(parseInt(hash))
@@ -503,7 +503,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 	}
 
 	let playAgainBtn = null
-	if (!attributes.hidePlayAgain && attemptsLeft > 0) {
+	if ((!attributes.hidePlayAgain && attemptsLeft > 0) || attemptsLeft == -1) {
 		playAgainBtn = (
 			<a id='play-again' className='action_button' href={attributes.href}>
 				{isPreview ? 'Preview' : 'Play'} Again
