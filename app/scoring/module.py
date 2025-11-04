@@ -101,6 +101,8 @@ class ScoreModule(ABC):
 
     def process_score_logs(self):
         """Processes logs to determine score"""
+        self.verified_score = 0
+        self.total_questions = 0
         for log in self.logs:
             if log.log_type == Log.LogType.WIDGET_END:
                 self.finished = True

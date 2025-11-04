@@ -3,12 +3,12 @@ import os
 from shutil import rmtree
 from urllib import request
 
+from core.message_exception import MsgException
 from core.models import LogPlay, Question, Widget, WidgetInstance, WidgetQset
+from core.services.widget_installer_service import WidgetInstallerService
 from django.conf import settings
 from django.core.management import base
 from scoring.module_factory import ScoreModuleFactory
-from core.message_exception import MsgException
-from core.services.widget_installer_service import WidgetInstallerService
 
 logger = logging.getLogger("django")
 
@@ -303,7 +303,7 @@ class Command(base.BaseCommand):
                 )
                 (
                     print(
-                        f"play.score is {play.score} but should be {scores[-1]['score']}"
+                        f"play.score(database) is {play.score=} but should be {scores[-1]['score']=},"
                     )
                     if play.score != scores[-1]["score"]
                     else ""
