@@ -281,6 +281,7 @@ class Command(base.BaseCommand):
             )
             if module is None:
                 print(f"no score module for play: {play.id}")
+                return
 
             module.validate_scores(in_process=False)
             details = module.get_score_report()
@@ -291,23 +292,17 @@ class Command(base.BaseCommand):
                 }
             )
 
-            if not math.isclose(
-                play.percent, scores[-1]["percent"]
-            ) or not math.isclose(play.score, scores[-1]["score"]):
-                (
+            percents_not_close = not math.isclose(play.percent, scores[-1]["percent"])
+            scores_not_close = not math.isclose(play.score, scores[-1]["score"])
+            if percents_not_close or scores_not_close:
+                if percents_not_close:
                     print(
                         f"play.percent is {play.percent} but should be {scores[-1]["percent"]}"
                     )
-                    if not math.isclose(play.percent, scores[-1]["percent"])
-                    else ""
-                )
-                (
+                if scores_not_close:
                     print(
                         f"play.score(database) is {play.score=} but should be {scores[-1]['score']=},"
                     )
-                    if not math.isclose(play.score, scores[-1]["score"])
-                    else ""
-                )
                 print(f"play.id: {play.id}\n")
 
                 mismatches.append(play)
