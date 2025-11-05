@@ -1,4 +1,5 @@
 import logging
+import math
 import os
 from shutil import rmtree
 from urllib import request
@@ -290,22 +291,21 @@ class Command(base.BaseCommand):
                 }
             )
 
-            if (
-                play.percent != scores[-1]["percent"]
-                or play.score != scores[-1]["score"]
-            ):
+            if not math.isclose(
+                play.percent, scores[-1]["percent"]
+            ) or not math.isclose(play.score, scores[-1]["score"]):
                 (
                     print(
                         f"play.percent is {play.percent} but should be {scores[-1]["percent"]}"
                     )
-                    if play.percent != scores[-1]["percent"]
+                    if not math.isclose(play.percent, scores[-1]["percent"])
                     else ""
                 )
                 (
                     print(
                         f"play.score(database) is {play.score=} but should be {scores[-1]['score']=},"
                     )
-                    if play.score != scores[-1]["score"]
+                    if not math.isclose(play.score, scores[-1]["score"])
                     else ""
                 )
                 print(f"play.id: {play.id}\n")
