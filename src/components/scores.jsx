@@ -58,6 +58,10 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 		staleTime: Infinity,
 	})
 
+  console.log("AAAA")
+  console.log(instanceIsLoading)
+  console.log(instance['guest_access'])
+
 	/*
 	Grab instance score data for a given user
 		Only requested for score screens displayed at end-of-play flow
@@ -68,7 +72,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 		queryFn: () => {
 			return apiGetWidgetInstanceScores(instID, userID)
 		},
-		enabled: !isPreview && !isSingle && !!userID && !!instID,
+		enabled: !isPreview && !isSingle && !instanceIsLoading && !instance['guest_access'] && !!userID && !!instID,
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
 		retry: false,
