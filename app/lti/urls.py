@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from lti.views.config import lti_config
 from lti.views.deep_linking import lti_deep_link_selection
 from lti.views.init import MateriaOIDCLoginInitView
@@ -22,7 +23,12 @@ urlpatterns = [
         MateriaOIDCLoginInitView.as_view(),
         name="init",
     ),
-    path("lticonfig/", lti_config, name="lti_config"),
+    path(
+        "lticonfig/",
+        RedirectView.as_view(url="/404", permanent=False),
+        name="lti_config_no_provider",
+    ),
+    path("lticonfig/<slug:provider>", lti_config, name="lti_config"),
     path("ltilaunch/", ApplicationLaunchView.as_view(), name="ltilaunch"),
     path("lti/error/", error_page, name="error_page"),
 ]

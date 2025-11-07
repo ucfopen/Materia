@@ -33,6 +33,7 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
                 user,
                 [ObjectPermission.PERMISSION_FULL, ObjectPermission.PERMISSION_VISIBLE],
             )
+            queryset = queryset.filter(is_deleted=False)
         elif user_query is not None:
             if (
                 user.is_superuser

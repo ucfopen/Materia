@@ -89,7 +89,7 @@ const Homepage = () => (
 					If you have an idea for a new widget or simply would like to give us feedback, we'd love to hear from you on <a href='https://github.com/ucfopen' target='_blank'>Github</a>.
 				</p>
 				<p className='copyright'>
-					&copy; {new Date().getFullYear()} University of Central Florida
+					__APP_VERSION_PLACEHOLDER__ &copy; {new Date().getFullYear()} University of Central Florida
 				</p>
 			</section>
 		</section>

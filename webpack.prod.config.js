@@ -9,6 +9,9 @@ const jsPath = path.join(__dirname, 'src')
 const packageJsPath = path.join(__dirname, 'fuel', 'packages')
 const cssPath = path.join(__dirname, 'src', 'css')
 
+// 
+const packageJSON = require('./package.json')
+
 /*
  *   Template Production webpack config for Materia
  *   This can be modified to suit your needs. By default it is run when building the materia-app image using the materia-app.Dockerfile
@@ -70,8 +73,18 @@ module.exports = {
 					{ loader: 'babel-loader', options: {} },
 					{ loader: '@mdx-js/loader', options: {} },
 				],
+			},
+			{
+				test: /homepage.jsx$/,
+				use: {
+					loader: 'string-replace-loader',
+					options: {
+						search: '__APP_VERSION_PLACEHOLDER__',
+						replace: `v${packageJSON.version}`
+					}
+				}
 			}
-		],
+		]
 	},
 	plugins: [
 		new BundleTracker({ filename: './webpack-stats.json' }),

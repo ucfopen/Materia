@@ -32,6 +32,4 @@ LTI_SAVE_ASSOCIATIONS = True
 
 LTI_URL_CONFIGS = {
     "tool_url": os.environ.get("BASE_URL", "").rstrip("/"),
-    "platform_iss": os.environ.get("PLATFORM_ISS"),
-    "platform_domain": os.environ.get("PLATFORM_DOMAIN"),
 }

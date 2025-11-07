@@ -4,7 +4,6 @@ import uuid
 
 import jwt
 import requests
-from django.conf import settings
 from lti_tool.models import Key, LtiRegistration
 
 logger = logging.getLogger("django")
@@ -12,15 +11,10 @@ logger = logging.getLogger("django")
 
 class AGSOauth:
 
-    def __init__(self, scope=None):
+    def __init__(self, registration: LtiRegistration, scope=None):
         """
-        Initialize the OAuth2 handler.
+        Initialize the OAuth2 handler. Requires an LtiRegistration model instance to be provided.
         """
-        platform_domain = settings.LTI_URL_CONFIGS["platform_domain"]
-        registration = LtiRegistration.objects.filter(
-            token_url__contains=platform_domain
-        ).first()
-
         self.client_id = registration.client_id
         self.issuer = registration.issuer
         self.token_url = registration.token_url

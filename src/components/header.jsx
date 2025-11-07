@@ -30,7 +30,7 @@ const Header = ({
 
 	useEffect(() => {
 		if (userPerms != undefined) {
-			
+
 			setVerified(!!userPerms.isAuthenticated)
 			setPermLevel(userPerms.permLevel ?? 'anonymous')
 		}
@@ -63,6 +63,9 @@ const Header = ({
 					</li>
 					<li>
 						<a className='elevated' href='/admin/instance'>Instances</a>
+					</li>
+					<li>
+						<a className='elevated' href='/admin/' target="_blank">Django Admin</a>
 					</li>
 				</ul>
 			</li>
@@ -112,10 +115,10 @@ const Header = ({
 			userAvatarRender = (
 				<>
 					<div className="profile-bar-options">
-						<a href='/profile'>{`${user.first_name} ${user.last_name}`}</a>
+						<a href='/profile' aria-label='Visit your profile page.'>{`${user.first_name} ${user.last_name}`}</a>
 						<a onClick={logoutUser}>Logout</a>
 					</div>
-					<a href='/profile'><img src={user.avatar} onClick={showUserOptions}/></a>
+					<a href='/profile' aria-label='User avatar. Click to visit your profile page.'><img src={user.avatar} onClick={showUserOptions}/></a>
 				</>
 			)
 
@@ -169,6 +172,7 @@ const Header = ({
 				{ notificationRender }
 			</div>
 			<button id='mobile-menu-toggle'
+				aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
 				className={menuOpen ? 'expanded' : ''}
 				onClick={toggleMobileNavMenu}>
 				<div/>

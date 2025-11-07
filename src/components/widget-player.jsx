@@ -257,7 +257,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 				enginePath = inst.widget.player
 			} else {
 				// link to the static widget
-				enginePath = window.WIDGET_URL + inst.widget.dir + inst.widget.player
+				enginePath = window.WIDGET_URL.replace(/\/$/, '') + '/' + inst.widget.dir + inst.widget.player
 			}
 
 			// Starts up the demo with the htmlPath

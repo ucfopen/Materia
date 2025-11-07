@@ -66,6 +66,7 @@ class LTILaunchService:
                 new_association.save()
             return new_association
 
+    @staticmethod
     def get_resource_link(launch_data):
         resource_link_claim = launch_data.get(
             "https://purl.imsglobal.org/spec/lti/claim/resource_link", None
@@ -76,6 +77,7 @@ class LTILaunchService:
             else None
         )
 
+    @staticmethod
     def get_resource_link_1p1(launch_data):
         lti_1p1_claim = launch_data.get(
             "https://purl.imsglobal.org/spec/lti/claim/lti1p1", None
@@ -86,10 +88,17 @@ class LTILaunchService:
             else None
         )
 
+    @staticmethod
     def get_deployment(launch_data):
         return launch_data.get(
             "https://purl.imsglobal.org/spec/lti/claim/deployment_id", None
         )
+
+    @staticmethod
+    def get_registration(launch_data):
+        deployment_id = LTILaunchService.get_deployment(launch_data)
+        deployment = LtiDeployment.objects.get(deployment_id=deployment_id)
+        return deployment.registration if deployment is not None else None
 
     @staticmethod
     def get_launch_redirect(launch_data):

@@ -28,7 +28,7 @@ class S3AssetStorageDriver:
 
         # assets served from cloudfront
         if settings.DRIVER_SETTINGS["s3"]["use_cdn"]:
-            return f"{settings.DRIVER_SETTINGS["s3"]["cdn_domain"]}/{id}_{size}"
+            return f"https://{settings.DRIVER_SETTINGS["s3"]["cdn_domain"]}/{id}_{size}"
 
         # assets served directly from the s3 bucket via presigned URLs
         try:
