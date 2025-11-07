@@ -79,7 +79,10 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         # must have (any) access to instance or elevated perms
         # TODO: question_sets can't be restricted in this way, but we may want more context-sensitive authorization
-        elif self.action == "copy" or self.action == "export_playdata":
+        elif self.action == "copy":
+            permission_classes = [HasFullPerms | IsSuperOrSupportUser]
+
+        elif self.action == "export_playdata":
             permission_classes = [HasAnyPerms | IsSuperOrSupportUser]
 
         elif self.action == "undelete":
