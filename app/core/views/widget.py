@@ -162,7 +162,7 @@ class WidgetPlayView(
         if instance is None:
             return lti_error_page(request, "error_unknown_assignment")
 
-        if LTIAuthService.is_user_author(launch):
+        if LTIAuthService.is_user_course_author(launch):
             if instance.guest_access:
                 return lti_error_page(request, "error_lti_guest_mode")
             else:
