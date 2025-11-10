@@ -18,7 +18,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 
 	const [playID, setPlayID] = useState(playIDProp)
 	const [errorState, setErrorState] = useState(null)
-	const [attemptsLeft, setAttemptsLeft] = useState(0)
+	const [attemptsLeft, setAttemptsLeft] = useState(-1)
 	const [currentAttempt, setCurrentAttempt] = useState(null)
 
 	const [attempts, setAttempts] = useState([])
