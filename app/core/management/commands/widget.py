@@ -44,6 +44,9 @@ class Command(base.BaseCommand):
             if install_all or str(w["id"]) in list(args):
                 self.install_from_url(w["package"], w["checksum"], w["id"])
 
+    def install_from_file(self, wigt_location):
+        self.install(wigt_location)
+
     def install_from_url(self, package_url, checksum_url, desired_id=None):
         local_package = self.download_package(package_url)
         local_checksum = self.download_package(checksum_url)

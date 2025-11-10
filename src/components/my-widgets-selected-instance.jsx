@@ -140,7 +140,7 @@ const MyWidgetSelectedInstance = ({
 
 	const onEditClick = inst => {
 		if (inst.widget.is_editable && state.perms.editable && editPerms && editPerms.can_edit && !permsFetching) {
-			const editUrl = `${window.location.origin}/widgets/${inst.widget.dir}create#${inst.id}`
+			const editUrl = `${window.location.origin}/widgets/${inst.widget.dir}create/${inst.id}`
 
 			if(editPerms.is_locked){
 				setShowLocked(true)
@@ -193,7 +193,7 @@ const MyWidgetSelectedInstance = ({
 	const deleteConfirmClickHandler = () => onDelete(inst)
 
 	const editWidget = () => {
-		const editUrl = window.location.origin + `/widgets/${inst.widget.dir}create#${inst.id}`
+		const editUrl = window.location.origin + `/widgets/${inst.widget.dir}create/${inst.id}`
 		window.location = editUrl
 	}
 

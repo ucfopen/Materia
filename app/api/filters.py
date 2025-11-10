@@ -1,13 +1,12 @@
 import logging
 
 import django_filters
-
-from core.models import Asset, ObjectPermission, WidgetInstance, UserExtraAttempts
-from django.db.models import Q
-from rest_framework import filters
+from core.models import Asset, ObjectPermission, UserExtraAttempts, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
+from django.db.models import Q
 from django_filters import rest_framework
+from rest_framework import filters
 
 logger = logging.getLogger("django")
 
@@ -34,6 +33,7 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
                 user,
                 [ObjectPermission.PERMISSION_FULL, ObjectPermission.PERMISSION_VISIBLE],
             )
+            queryset = queryset.filter(is_deleted=False)
         elif user_query is not None:
             if (
                 user.is_superuser
