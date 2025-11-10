@@ -1,13 +1,15 @@
 import logging
+import math
 import os
 from shutil import rmtree
 from urllib import request
 
-from core.models import Question, Widget, WidgetInstance, WidgetQset
+from core.message_exception import MsgException
+from core.models import LogPlay, Question, Widget, WidgetInstance, WidgetQset
+from core.services.widget_installer_service import WidgetInstallerService
 from django.conf import settings
 from django.core.management import base
-from core.message_exception import MsgException
-from core.services.widget_installer_service import WidgetInstallerService
+from scoring.module_factory import ScoreModuleFactory
 
 logger = logging.getLogger("django")
 
@@ -41,6 +43,9 @@ class Command(base.BaseCommand):
         for w in widgets:
             if install_all or str(w["id"]) in list(args):
                 self.install_from_url(w["package"], w["checksum"], w["id"])
+
+    def install_from_file(self, wigt_location):
+        self.install(wigt_location)
 
     def install_from_url(self, package_url, checksum_url, desired_id=None):
         local_package = self.download_package(package_url)
@@ -260,6 +265,56 @@ class Command(base.BaseCommand):
         This should no longer be required. Just reinstall the widget.
         """
         pass
+
+    # get number of plays up to a number and run them through x widgets score module 4 validation
+    def validate_plays_for_instance(self, instance_id: str, max_plays: int) -> None:
+        scores = []
+        mismatches = []
+        plays = LogPlay.objects.filter(instance=instance_id, is_complete=True).order_by(
+            "-id"
+        )[: int(max_plays)]
+
+        if not plays.exists():
+            print(f"no plays for widget instance: {instance_id}")
+            return
+
+        for play in plays:
+            module = ScoreModuleFactory.create_score_module(
+                instance=play.instance, play=play
+            )
+            if module is None:
+                print(f"no score module for play: {play.id}")
+                return
+
+            module.validate_scores(in_process=False)
+            details = module.get_score_report()
+            scores.append(
+                {
+                    "percent": details.get("overview", {}).get("score", 0),
+                    "score": module.verified_score,
+                }
+            )
+
+            percents_not_close = not math.isclose(play.percent, scores[-1]["percent"])
+            scores_not_close = not math.isclose(play.score, scores[-1]["score"])
+            if percents_not_close or scores_not_close:
+                if percents_not_close:
+                    print(
+                        f"play.percent is {play.percent} but should be {scores[-1]["percent"]}"
+                    )
+                if scores_not_close:
+                    print(
+                        f"play.score(database) is {play.score=} but should be {scores[-1]['score']=},"
+                    )
+                print(f"play.id: {play.id}\n")
+
+                mismatches.append(play)
+                continue
+
+        if len(mismatches) > 0:
+            print(f"Mismatches: {len(mismatches)}")
+        else:
+            print("all plays are valid")
 
     def remove(self, widget_id):
         """

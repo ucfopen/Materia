@@ -88,7 +88,6 @@ const ProfilePage = () => {
 
 	let noActivityRender = <p className='no_logs'>You don't have any activity! Once you play a widget, your score history will appear here.</p>
 
-	// let activityContentRender = <></>
 	let activityContentRender = activityData.map((record) => {
 			return <li className={`activity_log ${record.is_complete == 1 ? 'complete' : 'incomplete'} ${record.score == 100 ? 'perfect_score' : ''}`} key={record.play_id}>
 				<a className='score-link' href={record.link}>
@@ -110,61 +109,91 @@ const ProfilePage = () => {
 				fatal={alertDialog.fatal}
 				showLoginButton={alertDialog.enableLoginButton}
 				onCloseCallback={() => {
-					setAlertDialog({...alertDialog, enabled: false})
-				}} />
+					setAlertDialog({ ...alertDialog, enabled: false })
+				}}
+			/>
 		)
 	}
 
-	let mainContentRender = <section className='page'><div className='loading-icon-holder'><LoadingIcon /></div></section>
-	if ( !isFetching && !userActivity?.isFetching && currentUser) {
-		mainContentRender =
+	let mainContentRender = (
+		<section className="page loading">
+			<div className="loading-icon-holder">
+				<LoadingIcon />
+			</div>
+		</section>
+	)
+	if (!isFetching && !userActivity?.isFetching && currentUser) {
+		mainContentRender = (
 			<section className="page user">
-
-				<ul className="main_navigation">
-					<li className="selected profile"><a href="/profile">Profile</a></li>
-					<li className="settings"><a href="/settings">Settings</a></li>
+				<ul className="main_navigation" role="menu">
+					<div className="avatar_big">
+						<img src={currentUser.avatar} />
+					</div>
+					<ul>
+						<li className="selected_profile">
+							<a href="/profile" role="menuitem">Profile</a>
+						</li>
+						<li className="settings">
+							<a href="/settings" role="menuitem">Settings</a>
+						</li>
+					</ul>
 				</ul>
-
-				<div className="avatar_big">
-					<img src={currentUser.avatar} />
-				</div>
-
-					<div>
+				<div className="profile_content">
+					<header>
 						<div className="profile_status">
 							<span>Profile</span>
 							<span>
 								<ul className="user_information">
-									<li className={`user_type ${currentUser.is_student == true ? '' : 'staff'}`}>{`${currentUser.is_student == true ? 'Student' : 'Staff'}`}</li>
-									{currentUser.is_support_user ? <li className={`user_type ${currentUser.is_support_user == true ? 'support' : ''}`}>{`${currentUser.is_support_user == true ? 'Support' : ''}`}</li> : <></>}
+									<li className={`user_type ${currentUser.is_student == true ? '' : 'staff'}`}>
+										{`${currentUser.is_student == true ? 'Student' : 'Staff'}`}
+									</li>
+									{currentUser.is_support_user ? (
+										<li className={`user_type ${currentUser.is_support_user == true ? 'support' : ''}`}>
+											{`${currentUser.is_support_user == true ? 'Support' : ''}`}
+										</li>
+									) : (
+										<></>
+									)}
 								</ul>
 							</span>
 						</div>
 						<h2>
-						{`${currentUser.first_name} ${currentUser.last_name}`}
+							{`${currentUser.first_name} ${currentUser.last_name}`}
 						</h2>
+					</header>
+					<span className="activity_subheader">Activity</span>
+					<div className="activity">
+						<div className={`loading-icon-holder ${userActivity?.isFetching ? 'loading' : ''}`}>
+							<LoadingIcon />
+						</div>
+						<ul className="activity_list">
+							{activityData.length ? activityContentRender : noActivityRender}
+						</ul>
 					</div>
 
-				<span className="activity_subheader">Activity</span>
-
-				<div className='activity'>
-					<div className={`loading-icon-holder ${userActivity?.isFetching ? 'loading' : ''}`}><LoadingIcon /></div>
-					<ul className='activity_list'>
-						{activityData.length ? activityContentRender : noActivityRender}
-					</ul>
+					{userActivity?.hasNextPage ? (
+						<button className="show_more_activity action_button" onClick={_getMoreLogs}>
+							{isFetchingNextActivityPage ? (
+								<span className="message_loading">Loading...</span>
+							) : (
+								<span>Show more</span>
+							)}
+						</button>
+					) : (
+						''
+					)}
 				</div>
-
-				{ userActivity?.hasNextPage ? <a className="show_more_activity action_button" onClick={_getMoreLogs}>{ userActivity.isFetching ? <span className='message_loading'>Loading...</span> : <span>Show more</span>}</a> : '' }
-
 			</section>
+		)
 	}
 
 	return (
 		<>
 			<Header />
-			<div className='profile-page'>
-				<div className='user'>
-					{ alertDialogRender }
-					{ mainContentRender }
+			<div className="profile-page">
+				<div className="user">
+					{alertDialogRender}
+					{mainContentRender}
 				</div>
 			</div>
 		</>

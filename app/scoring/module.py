@@ -3,6 +3,7 @@
 import logging
 from abc import ABC, abstractmethod
 
+from core.message_exception import MsgInvalidInput
 from core.models import Log, LogPlay
 
 logger = logging.getLogger(__name__)
@@ -101,6 +102,8 @@ class ScoreModule(ABC):
 
     def process_score_logs(self):
         """Processes logs to determine score"""
+        self.verified_score = 0
+        self.total_questions = 0
         for log in self.logs:
             if log.log_type == Log.LogType.WIDGET_END:
                 self.finished = True
@@ -111,7 +114,12 @@ class ScoreModule(ABC):
             elif log.log_type == Log.LogType.SCORE_WIDGET_INTERACTION:
                 self.handle_log_widget_interaction(log)
             elif log.log_type == Log.LogType.SCORE_PARTICIPATION:
-                self.verified_score = log.value
+                try:
+                    self.verified_score = int(log.value)
+                except ValueError:
+                    raise MsgInvalidInput(
+                        msg="Invalid participation log value - must be a number."
+                    )
 
     def handle_log_widget_interaction(self, log):
         """abstract method for handling widget interactions"""
@@ -276,4 +284,9 @@ class ScoreModule(ABC):
         This method is deprecated. Retaining the reference to prevent
         widget score modules from using it.
         """
+        pass
+
+
+class EmptyScoreModule(ScoreModule):
+    def check_answer(self, log):
         pass

@@ -1,31 +1,30 @@
 import json
 import logging
 
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import never_cache
-
 from core.mixins import (
     MateriaLoginMixin,
     MateriaLoginNeeded,
     MateriaWidgetPlayProcessor,
 )
 from core.models import ObjectPermission, User, Widget, WidgetInstance
+from core.services.perm_service import PermService
 from core.services.widget_play_services import (
     WidgetPlayInitService,
     WidgetPlayValidationService,
 )
+from core.utils.context_util import ContextUtil
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
 from django.http import Http404, HttpRequest
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from lti.mixins import LtiLaunchMixin
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from lti.views.lti import error_page as lti_error_page
-from core.utils.context_util import ContextUtil
-from core.services.perm_service import PermService
 
 logger = logging.getLogger("django")
 
@@ -167,8 +166,11 @@ class WidgetPlayView(
             if instance.guest_access:
                 return lti_error_page(request, "error_lti_guest_mode")
             else:
-                LTILaunchService.register_association(request, launch)
                 context = _create_lti_success_page(request, instance)
+
+        # LTI associations are registered during play view init, instead of deep linking
+        # This behavior is carried over from PHP Materia
+        LTILaunchService.register_association(launch, request.user, instance)
 
         if context:
             return render(request, "react.html", context)
@@ -203,7 +205,6 @@ class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateV
 
     def before_play_init(self, instance):
         preview = WidgetPlayInitService.init_preview(self.request)
-
         return {"play_id": preview, "lti_token": None}
 
 
@@ -221,6 +222,14 @@ class WidgetCreatorView(MateriaLoginMixin, PermissionRequiredMixin, TemplateView
         widget = Widget.objects.filter(pk=_get_id_from_slug(widget_slug)).first()
         if not widget:
             raise Http404("Could not find widget instance")
+
+        if instance_id is not None:
+            widget_instance = WidgetInstance.objects.get(id=instance_id)
+            can_edit = widget_instance.editable_by_current_user(self.request.user)
+            if not can_edit and not PermService.is_superuser_or_elevated(
+                self.request.user
+            ):
+                return _create_widget_no_permission_page(self.request)
 
         return _create_editor_page("Create Widget", widget, self.request)
 
@@ -420,6 +429,15 @@ def _create_widget_login_vars(
     }
 
     return js_globals
+
+
+def _create_widget_no_permission_page(request: HttpRequest):
+    return ContextUtil.create(
+        title="No Permission",
+        js_resources=settings.JS_GROUPS["no-permission"],
+        css_resources=settings.CSS_GROUPS["no-permission"],
+        request=request,
+    )
 
 
 def _create_draft_not_playable_page(request: HttpRequest):

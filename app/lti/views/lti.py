@@ -1,9 +1,12 @@
 import logging
 
+from core.utils.context_util import ContextUtil
 from django.conf import settings as django_settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from core.utils.context_util import ContextUtil
+
+# from lti.ags.client import AGSClient
+from lti.services.launch import LTILaunchService
 
 # from pprint import pformat
 
@@ -13,11 +16,20 @@ logger = logging.getLogger("django")
 
 @login_required
 def post_login(request):
+
+    launch = LTILaunchService.get_or_recover_launch(request)
+    context_id = None
+
+    if launch is not None:
+        context_id = LTILaunchService.get_context_id(launch)
+        LTILaunchService.store_session_launch(request, context_id, launch)
+
     context = ContextUtil.create(
         title="Profile",
         js_resources=django_settings.JS_GROUPS["post-login"],
         css_resources=django_settings.CSS_GROUPS["lti"],
         request=request,
+        js_globals={"CONTEXT_ID": context_id},
     )
 
     return render(request, "react.html", context)

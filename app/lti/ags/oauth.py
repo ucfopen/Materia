@@ -1,5 +1,4 @@
 import logging
-import os
 import time
 import uuid
 
@@ -12,17 +11,10 @@ logger = logging.getLogger("django")
 
 class AGSOauth:
 
-    def __init__(self, scope=None):
+    def __init__(self, registration: LtiRegistration, scope=None):
         """
-        Initialize the OAuth2 handler.
+        Initialize the OAuth2 handler. Requires an LtiRegistration model instance to be provided.
         """
-
-        # TODO make platform selection more robust
-        platform_domain = os.environ.get("PLATFORM_DOMAIN")
-        registration = LtiRegistration.objects.filter(
-            token_url__contains=platform_domain
-        ).first()
-
         self.client_id = registration.client_id
         self.issuer = registration.issuer
         self.token_url = registration.token_url

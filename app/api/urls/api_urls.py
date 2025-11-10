@@ -10,6 +10,7 @@ from api.views import (
     widget_instances,
     widgets,
 )
+from api.views.lti import LtiWidgetInstancesInCourseView
 from django.urls import include, path
 from rest_framework import routers
 
@@ -35,4 +36,5 @@ urlpatterns = [
     # AI generation
     path("generate/qset/", generation.GenerateQsetView.as_view()),
     path("generate/from_prompt/", generation.GenerateFromPromptView.as_view()),
+    path("lti/<slug:context_id>/instances/", LtiWidgetInstancesInCourseView.as_view()),
 ]

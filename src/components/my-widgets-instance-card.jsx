@@ -20,12 +20,21 @@ const MyWidgetsInstanceCard = ({inst, indexVal, hidden = false, selected = false
 		widgetNameTextRender = createHighlightSpan(widgetNameTextRender, searchText)
 	}
 
-	const clickHandler = () => onClick(inst, indexVal)
+	const clickHandler = () => {
+		return onClick(inst, indexVal)
+	}
+
+	const keyInputHandler = (evt) => {
+		if (evt.key == 'Enter' || evt.key == ' ') return onClick(inst, indexVal)
+	}
 
 	return (
 		<div id={`widget_${id}`}
+			role='tab'
+			tabIndex='0'
 			className={classes.join(' ')}
-			onClick={clickHandler}>
+			onClick={clickHandler}
+			onKeyDown={keyInputHandler}>
 			<img className='icon' src={img} />
 			<ul>
 				<li className='title searchable'

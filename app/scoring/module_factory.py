@@ -7,7 +7,7 @@ from typing import Optional, Type
 from django.utils import timezone
 
 from core.models import Log, LogPlay, User, WidgetInstance
-from scoring.module import ScoreModule
+from scoring.module import ScoreModule, EmptyScoreModule
 from core.services.semester_service import SemesterService
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,10 @@ class ScoreModuleFactory:
     def create_score_module(
         cls, instance: WidgetInstance, play: LogPlay
     ) -> Optional[ScoreModule]:
+
+        if not instance.widget.is_scorable:
+            # Return default empty score module if this widget isn't scorable
+            return EmptyScoreModule(play=play)
 
         try:
             widget_folder = f"staticfiles/widget/{instance.widget.id}-{instance.widget.clean_name}/_score-modules"

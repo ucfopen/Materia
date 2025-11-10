@@ -12,6 +12,7 @@ import './scores.scss'
 const STATE_RESTRICTED = 'restricted'
 const STATE_INVALID = 'invalid'
 const STATE_EXPIRED = 'expired'
+const STATE_NO_SCORES = 'no_scores'
 
 const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPreview, isSingle}) => {
 
@@ -146,13 +147,13 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 	*/
 	useEffect(() => {
 		if (!!instanceScores) {
-			if (instanceScores.length < 1) {
-				setErrorState(STATE_INVALID)
+			if (instanceScores.scores.length < 1) {
+				setErrorState(STATE_NO_SCORES)
 			} else {
 				const scores = Array.from(instanceScores.scores)
 				// Sort scores by created_at in ascending order (oldest first)
 				scores.sort((a, b) => {
-					return a.created_at - b.created_at
+					return new Date(a.created_at) - new Date(b.created_at)
 				})
 				for (let score of scores) {
 					score.roundedPercent = parseFloat(score.percent).toFixed(2)
@@ -161,7 +162,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 					score.date = date
 				}
 				setAttempts(scores)
-				setAttemptsLeft(scores.attemptsLeft)
+				setAttemptsLeft(instanceScores.attemptsLeft)
 				const hash = getAttemptNumberFromHash()
 				if (hash && scores.length >= hash) {
 					setCurrentAttempt(parseInt(hash))
@@ -180,6 +181,16 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 		}
 		// @TODO handle errors
 	},[instanceScores, instanceScoresError])
+
+	/*
+	Set initial attempt if no play id was passed in
+  */
+	useEffect(() => {
+		if (instance?.guest_access || isSingle || isPreview) return
+		if (!playID && !currentAttempt && !!attempts) {
+			setCurrentAttempt(attempts.length)
+		}
+	}, [playID, currentAttempt, attempts])
 
 	/*
 	Setup state information based on play data
@@ -279,7 +290,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 				setPlayID(attempts[hash - 1].id)
 			}
 		}
-	},[currentAttempt])
+	}, [currentAttempt])
 
 	/*
 	send postMessage to the score screen frame
@@ -442,6 +453,21 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 						</section>
 					</div>
 				)
+				break
+			case STATE_NO_SCORES:
+				errorStateRender = (
+					<div className="no_scores container general">
+						<section className="page">
+							<h2 className="logo">No Scores</h2>
+							<p>
+								You don't have any scores recorded for this widget.
+							</p>
+							<p>
+								Play this widget to completion to record a score!
+							</p>
+						</section>
+					</div>
+				)
 		}
 	}
 
@@ -477,7 +503,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 	}
 
 	let playAgainBtn = null
-	if (!attributes.hidePlayAgain && attemptsLeft > 0) {
+	if ((!attributes.hidePlayAgain && attemptsLeft > 0) || attemptsLeft == -1) {
 		playAgainBtn = (
 			<a id='play-again' className='action_button' href={attributes.href}>
 				{isPreview ? 'Preview' : 'Play'} Again
