@@ -68,7 +68,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 		queryFn: () => {
 			return apiGetWidgetInstanceScores(instID, userID)
 		},
-		enabled: !isPreview && !isSingle && !!userID && !!instID,
+		enabled: !isPreview && !isSingle && !instanceIsLoading && !instance['guest_access'] && !!userID && !!instID,
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
 		retry: false,
