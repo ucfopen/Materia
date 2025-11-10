@@ -123,6 +123,18 @@ class Command(base.BaseCommand):
 
         By default, this command specifically targets UCF-created Materia widgets
         A separate .json file containing clean_name -> repo pairings can be passed in to use as well.
+        The JSON should look something like:
+        {
+            "my-widget": "github/repo",  // automatically assumed to use 'github' update method
+            "my-other-widget": {  // use a dict for non-github update methods
+                "method": "method that is not github",
+                "params": {
+                    // parameters that will get inserted into the metadata
+                    // for 'github', that would be 'repo'
+                    "other-param": "value"
+                }
+            }
+        }
         """
 
         # Determine target widgets
