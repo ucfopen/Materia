@@ -58,10 +58,6 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 		staleTime: Infinity,
 	})
 
-  console.log("AAAA")
-  console.log(instanceIsLoading)
-  console.log(instance['guest_access'])
-
 	/*
 	Grab instance score data for a given user
 		Only requested for score screens displayed at end-of-play flow
