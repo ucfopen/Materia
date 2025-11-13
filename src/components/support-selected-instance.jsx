@@ -328,7 +328,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 				</div>
 				<div className='inst-action-buttons'>
 					<button className='action_button'
-						onClick={() => {window.location = `/widgets/${updatedInst.widget.dir}create#${updatedInst.id}`}}>
+						onClick={() => {window.location = `/widgets/${updatedInst.widget.dir}create/${updatedInst.id}`}}>
 						<span>Edit Widget</span>
 					</button>
 					<button className='action_button'
