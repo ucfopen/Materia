@@ -260,6 +260,11 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		)
 	}
 
+	const fullPermHolders = Array.from(state.updatedAllUserPerms.values())
+		.filter(u => u.accessLevel === access.FULL && !u.remove)
+		.length;
+	const onlyOneFullPermHolder = fullPermHolders === 1
+	const removedCurrentUser = state.updatedAllUserPerms.get(currentUser.id)?.remove === true
 	let mainContentRender = <LoadingIcon />
 	if (!isFetching) {
 		mainContentRender = <NoContentIcon />
@@ -282,6 +287,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					perms={userPerms}
 					myPerms={myPerms}
 					isCurrentUser={currentUser.id === user.id}
+					onlyOneFullPermHolder={onlyOneFullPermHolder}
+					removedCurrentUser={removedCurrentUser}
 					onChange={(userId, perms) => updatePerms(userId, perms)}
 					readOnly={myPerms?.can?.share === false}
 				/>
@@ -335,6 +342,11 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 						Users with full access can edit or copy this widget and can
 						add or remove people in this list.
 					</p>
+					{onlyOneFullPermHolder && myPerms.accessLevel == access.FULL && (
+						<p className='warning'>
+							Note: There must be at least one user with full access.
+						</p>
+					)}
 					<div className='btn-box'>
 						<a tabIndex='0'
 							className='cancel_button'
