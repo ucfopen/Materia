@@ -492,7 +492,7 @@ export const apiUnDeleteWidget = ({ instId }) => {
 }
 
 export const apiWidgetPromptGenerate = (prompt) => {
-	return handleRequest(methods.POST, `/api/json/widget_prompt_generate/`,  prompt)
+	return handleRequest(methods.POST, `/api/generate/from_prompt/`, {prompt})
 }
 
 export const apiCheckWidgetForUpdate = (widgetId) => {

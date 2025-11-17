@@ -48,8 +48,8 @@ class GenerationUtil:
 
         # Grab custom prompt from the widget engine if it's available
         custom_engine_prompt = (
-            widget.meta_data["custom_engine_prompt"]
-            if "custom_engine_prompt" in widget.meta_data
+            widget.metadata["custom_engine_prompt"]
+            if "custom_engine_prompt" in widget.metadata
             else None
         )
 
