@@ -340,13 +340,13 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					<div id='calendar-portal' />
 					<p className='disclaimer'>
 						Users with full access can edit or copy this widget and can
-						add or remove people in this list.
+						add or remove people in this list. 
+						{onlyOneFullPermHolder && myPerms.accessLevel == access.FULL && (
+							<em>
+								{'\u00A0'}Note: There must be at least one user with full access.
+							</em>
+						)}
 					</p>
-					{onlyOneFullPermHolder && myPerms.accessLevel == access.FULL && (
-						<p className='warning'>
-							Note: There must be at least one user with full access.
-						</p>
-					)}
 					<div className='btn-box'>
 						<a tabIndex='0'
 							className='cancel_button'

@@ -6,6 +6,7 @@
 	box-sizing: border-box;
 
 	font-family: 'Lato', arial, serif;
+	font-weight: 400;
 
 	.title {
 		margin: 0;
@@ -168,10 +169,7 @@
 	}
 
 	.warning {
-		color: #FF9800;
 		font-weight: bold;
-		margin-top: 10px;
-		text-align: center;
 	}
 
 	.access-list {
