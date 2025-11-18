@@ -21,7 +21,14 @@ from api.serializers import (
     WidgetInstanceSerializer,
 )
 from core.message_exception import MsgFailure, MsgInvalidInput
-from core.models import LogActivity, LogPlay, Notification, WidgetInstance, WidgetQset
+from core.models import (
+    LogActivity,
+    LogPlay,
+    Notification,
+    ObjectPermission,
+    WidgetInstance,
+    WidgetQset,
+)
 from core.services.instance_service import WidgetInstanceService
 from core.services.perm_service import PermService
 from core.services.play_data_exporter_service import PlayDataExporterService
@@ -328,9 +335,24 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             request_serializer = PermsUpdateRequestListSerializer(data=request.data)
             request_serializer.is_valid(raise_exception=True)
 
-            # Go through each perm request and process it
             refusals = []
             updates = request_serializer.validated_data.get("updates", [])
+
+            # Don't update perms if user is the only full perm holder
+            full_perm_holders = [
+                update
+                for update in updates
+                if update["perm_level"] == ObjectPermission.PERMISSION_FULL
+            ]
+            if (
+                requester_perm == ObjectPermission.PERMISSION_FULL
+                and len(full_perm_holders) == 0
+            ):
+                raise MsgFailure(
+                    msg="Cannot remove permissions from the only full permission holder."
+                )
+
+            # Go through each perm request and process it
             for update in updates:
                 perm_level = update["perm_level"]
                 expiration = update["expiration"]
@@ -370,6 +392,14 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                     user_existing_perm is not None
                     and PermService.compare_perms(requester_perm, user_existing_perm)
                     > 0
+                ):
+                    refusals.append(user)
+                    continue
+
+                # Make sure requester can't grant perms lower than their own
+                if (
+                    user == requester
+                    and PermService.compare_perms(requester_perm, perm_level) < 0
                 ):
                     refusals.append(user)
                     continue
