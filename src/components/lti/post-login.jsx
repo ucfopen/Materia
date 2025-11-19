@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
-import { waitForWindow } from '../util/wait-for-window'
+import { waitForWindow } from '../../util/wait-for-window'
 
 import { apiGetInstancesFromContext } from '../../util/api'
 import { iconUrl as getIconUrl } from '../../util/icon-url'
