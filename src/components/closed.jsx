@@ -2,7 +2,8 @@ import React, {useEffect, useMemo, useState} from 'react';
 import Header from './header'
 import Summary from './widget-summary'
 import './login-page.scss'
-import EmbedFooter from './widget-embed-footer';
+import EmbedFooter from './widget-embed-footer'
+import { waitForWindow } from '../util/wait-for-window'
 
 const Closed = () => {
 
@@ -16,21 +17,8 @@ const Closed = () => {
 		end: ''
 	})
 
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('IS_EMBEDDED')
-		&& !window.hasOwnProperty('NAME')
-		&& !window.hasOwnProperty('WIDGET_NAME')
-		&& !window.hasOwnProperty('ICON_DIR')
-		&& !window.hasOwnProperty('SUMMARY')
-		&& !window.hasOwnProperty('DESC')
-		&& !window.hasOwnProperty('START')
-		&& !window.hasOwnProperty('END')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
-
 	useEffect(() => {
-		waitForWindow()
+		waitForWindow(['IS_EMBEDDED', 'NAME', 'WIDGET_NAME', 'ICON_DIR', 'SUMMARY', 'DESC', 'START', 'END'])
 		.then(() => {
 			setState({
 				isEmbedded: window.IS_EMBEDDED,
