@@ -79,7 +79,7 @@ jobs:
         run: |
           cd docker
           IMAGE_NAME=$(docker compose images -q python | xargs docker inspect --format='{{index .RepoTags 0}}')
-          for tag in ${{ steps.meta_python.outputs.tags }}; do
+          echo "${{ steps.meta_python.outputs.tags }}" | while IFS= read -r tag; do
             docker tag "$IMAGE_NAME" "$tag"
             docker push "$tag"
           done
@@ -88,7 +88,7 @@ jobs:
         run: |
           cd docker
           IMAGE_NAME=$(docker compose images -q nginx | xargs docker inspect --format='{{index .RepoTags 0}}')
-          for tag in ${{ steps.meta_nginx.outputs.tags }}; do
+          echo "${{ steps.meta_nginx.outputs.tags }}" | while IFS= read -r tag; do
             docker tag "$IMAGE_NAME" "$tag"
             docker push "$tag"
           done
@@ -97,7 +97,7 @@ jobs:
         run: |
           cd docker
           IMAGE_NAME=$(docker compose images -q fakes3 | xargs docker inspect --format='{{index .RepoTags 0}}')
-          for tag in ${{ steps.meta_fakes3.outputs.tags }}; do
+          echo "${{ steps.meta_fakes3.outputs.tags }}" | while IFS= read -r tag; do
             docker tag "$IMAGE_NAME" "$tag"
             docker push "$tag"
           done
