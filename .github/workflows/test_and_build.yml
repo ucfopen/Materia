@@ -77,22 +77,25 @@ jobs:
 
       - name: Tag and Push Python Images
         run: |
+          IMAGE_NAME=$(docker compose images -q python | xargs docker inspect --format='{{index .RepoTags 0}}')
           for tag in ${{ steps.meta_python.outputs.tags }}; do
-            docker tag materia-django-python "$tag"
+            docker tag "$IMAGE_NAME" "$tag"
             docker push "$tag"
           done
 
       - name: Tag and Push Nginx Images
         run: |
+          IMAGE_NAME=$(docker compose images -q nginx | xargs docker inspect --format='{{index .RepoTags 0}}')
           for tag in ${{ steps.meta_nginx.outputs.tags }}; do
-            docker tag materia-django-nginx "$tag"
+            docker tag "$IMAGE_NAME" "$tag"
             docker push "$tag"
           done
 
       - name: Tag and Push FakeS3 Images
         run: |
+          IMAGE_NAME=$(docker compose images -q fakes3 | xargs docker inspect --format='{{index .RepoTags 0}}')
           for tag in ${{ steps.meta_fakes3.outputs.tags }}; do
-            docker tag materia-django-fakes3 "$tag"
+            docker tag "$IMAGE_NAME" "$tag"
             docker push "$tag"
           done
 
