@@ -12,7 +12,6 @@ jobs:
 
   build_and_upload_images:
     needs: ci_tests
-    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: write
