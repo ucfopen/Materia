@@ -458,13 +458,12 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 				errorStateRender = (
 					<div className="no_scores container general">
 						<section className="page">
-							<h2 className="logo">No Scores</h2>
+							<h2 className="logo">Widget Instance Invalid</h2>
 							<p>
 								You don't have any scores recorded for this widget.
 							</p>
-							<p>
-								Play this widget to completion to record a score!
-							</p>
+
+							<SupportInfo />
 						</section>
 					</div>
 				)

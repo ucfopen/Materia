@@ -1,5 +1,6 @@
 from core.mixins import MateriaLoginMixin, MateriaLoginNeeded
 from core.models import LogPlay, WidgetInstance
+from core.utils.context_util import ContextUtil
 from django.conf import settings
 from django.http import (
     Http404,
@@ -9,7 +10,6 @@ from django.http import (
 )
 from django.views.generic import TemplateView
 from lti.services.launch import LTILaunchService
-from core.utils.context_util import ContextUtil
 
 
 class ScoresView(MateriaLoginMixin, TemplateView):
@@ -75,6 +75,17 @@ class ScoresViewSingle(MateriaLoginMixin, TemplateView):
 
         # if redirect:
         #     return HttpResponseRedirect(redirect)
+
+        # allow lti launches from only authors or staff
+        if LTILaunchService.is_lti_launch(request):
+            launch = LTILaunchService.get_launch_data(request)
+            is_author_or_staff = LTILaunchService.is_user_course_author(
+                launch
+            ) or LTILaunchService.is_user_staff(launch)
+            if not is_author_or_staff:
+                raise MateriaLoginNeeded(
+                    login_message="You do not have permission to view this score."
+                )
 
         context = _get_context_data(request, widget_instance_id, token)
         return self.render_to_response(context)
