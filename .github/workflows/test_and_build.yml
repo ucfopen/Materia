@@ -78,27 +78,24 @@ jobs:
       - name: Tag and Push Python Images
         run: |
           cd docker
-          IMAGE_NAME=$(docker compose images -q python | xargs docker inspect --format='{{index .RepoTags 0}}')
+          IMAGE_NAME=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "materia-django-python")
           echo "${{ steps.meta_python.outputs.tags }}" | while IFS= read -r tag; do
-            docker tag "$IMAGE_NAME" "$tag"
-            docker push "$tag"
+            [ -n "$tag" ] && docker tag "$IMAGE_NAME" "$tag" && docker push "$tag"
           done
 
       - name: Tag and Push Nginx Images
         run: |
           cd docker
-          IMAGE_NAME=$(docker compose images -q nginx | xargs docker inspect --format='{{index .RepoTags 0}}')
+          IMAGE_NAME=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "materia-django-nginx")
           echo "${{ steps.meta_nginx.outputs.tags }}" | while IFS= read -r tag; do
-            docker tag "$IMAGE_NAME" "$tag"
-            docker push "$tag"
+            [ -n "$tag" ] && docker tag "$IMAGE_NAME" "$tag" && docker push "$tag"
           done
 
       - name: Tag and Push FakeS3 Images
         run: |
           cd docker
-          IMAGE_NAME=$(docker compose images -q fakes3 | xargs docker inspect --format='{{index .RepoTags 0}}')
+          IMAGE_NAME=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -E "fakes3|fake-s3")
           echo "${{ steps.meta_fakes3.outputs.tags }}" | while IFS= read -r tag; do
-            docker tag "$IMAGE_NAME" "$tag"
-            docker push "$tag"
+            [ -n "$tag" ] && docker tag "$IMAGE_NAME" "$tag" && docker push "$tag"
           done
 
