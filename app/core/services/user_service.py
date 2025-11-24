@@ -9,7 +9,7 @@ class UserService:
     @staticmethod
     def get_avatar_url(user: User) -> str:
         profile_settings = user.profile_settings
-        use_gravatar = profile_settings.get_profile_fields().get("useGravatar")
+        use_gravatar = profile_settings.get_profile_fields().get("useGravatar", False)
         if not use_gravatar:
             return f"{settings.STATIC_URL}img/default-avatar.jpg"
 
