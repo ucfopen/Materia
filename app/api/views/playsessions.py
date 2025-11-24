@@ -2,28 +2,29 @@ import logging
 import traceback
 
 from api.filters import LogPlayFilterBackend
-from core.models import Log, LogPlay, WidgetInstance
+from api.paginators import PageNumberWithTotalPagination
 from api.permissions import PlaySessionInstancePermissions
 from api.serializers import (
     PlayLogUpdateSerializer,
     PlaySessionCreateSerializer,
     PlaySessionSerializer,
 )
+from core.message_exception import MsgFailure, MsgInvalidInput
+from core.models import Log, LogPlay, WidgetInstance
+from core.services.perm_service import PermService
 from core.services.widget_play_services import WidgetPlayInitService
+from core.utils.validator_util import ValidatorUtil
 from django.conf import settings
 from django.db.models import Max
 from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from lti.ags.client import AGSClient
+from lti.ags.exceptions.ags_claim_not_defined import AGSClaimNotDefined
 from lti.services.launch import LTILaunchService
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from scoring.module_factory import ScoreModuleFactory
-from api.paginators import PageNumberWithTotalPagination
-from core.message_exception import MsgInvalidInput, MsgFailure
-from core.services.perm_service import PermService
-from core.utils.validator_util import ValidatorUtil
 
 logger = logging.getLogger("django")
 
@@ -243,21 +244,25 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
                                 score_url = f"{settings.URLS["BASE_URL"]}scores/single/{play.instance.id}/{play.id}"
 
-                                ags = AGSClient(launch)
-                                completion = (
-                                    ags.score_builder()
-                                    .score_given(max_score)
-                                    .score_maximum(100)
-                                    .activity_progress("Completed")
-                                    .grading_progress("FullyGraded")
-                                    .timestamp(completed_time)
-                                    .submission_url(score_url)
-                                    .submit()
-                                )
+                                try:
+                                    ags = AGSClient(launch)
+                                    completion = (
+                                        ags.score_builder()
+                                        .score_given(max_score)
+                                        .score_maximum(100)
+                                        .activity_progress("Completed")
+                                        .grading_progress("FullyGraded")
+                                        .timestamp(completed_time)
+                                        .submission_url(score_url)
+                                        .submit()
+                                    )
 
-                                # TODO we should really have some kind of message provided to users
-                                # when LTI completion is successful
-                                logger.error(f"\ncompletion!\n{completion}\n")
+                                    # TODO we should really have some kind of message provided to users
+                                    # when LTI completion is successful
+                                    logger.error(f"\ncompletion!\n{completion}\n")
+                                except AGSClaimNotDefined:
+                                    # no AGS claim defined in the launch data, proceed as normal
+                                    pass
 
                             else:
                                 logger.error(
