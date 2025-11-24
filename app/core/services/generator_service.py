@@ -4,7 +4,7 @@ from datetime import datetime
 
 from core.models import Widget, WidgetInstance
 from django.conf import settings
-from openai import NOT_GIVEN, AzureOpenAI, OpenAI, OpenAIError
+from openai import NOT_GIVEN, OpenAI, OpenAIError
 from openai.types.chat import ChatCompletion
 from core.message_exception import (
     MsgInvalidInput,
@@ -297,20 +297,18 @@ class GenerationUtil:
         if settings.AI_GENERATION["PROVIDER"] == "azure_openai":
             api_key = settings.AI_GENERATION["API_KEY"]
             endpoint = settings.AI_GENERATION["ENDPOINT"]
-            api_version = settings.AI_GENERATION["API_VERSION"]
             model = settings.AI_GENERATION["MODEL"]
 
-            if not api_key or not endpoint or not api_version or not model:
+            if not api_key or not endpoint or not model:
                 logger.error(
                     "GENERATION ERROR: Azure OpenAI question generation configs missing."
                 )
                 return None
 
             try:
-                client = AzureOpenAI(
+                client = OpenAI(
                     api_key=api_key,
-                    api_version=api_version,
-                    azure_endpoint=endpoint,
+                    base_url=endpoint + "openai/v1",
                 )
             except Exception as e:
                 logger.error(
