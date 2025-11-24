@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Header from './header'
+import { waitForWindow } from '../util/wait-for-window'
 
 const Retired = () => {
 
@@ -7,14 +8,8 @@ const Retired = () => {
 		isEmbedded: ''
 	})
 
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('IS_EMBEDDED')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
-
 	useEffect(() => {
-		waitForWindow()
+		waitForWindow(['IS_EMBEDDED'])
 		.then(() => {
 			setState({
 				isEmbedded: window.IS_EMBEDDED

@@ -5,6 +5,7 @@ import DetailFeatureList from './detail-feature-list'
 import LoadingIcon from './loading-icon'
 import AccessibilityIndicator from './accessibility-indicator'
 import { WIDGET_URL } from './materia-constants'
+import { waitForWindow } from '../util/wait-for-window'
 
 const initWidgetData = () => ({
 	hasPlayerGuide: false,
@@ -94,18 +95,12 @@ const Detail = ({widget, isFetching}) => {
 
 	// Waits for window value to load from server then sets it
 	useEffect(() => {
-		waitForWindow()
+		waitForWindow(['NO_AUTHOR', 'WIDGET_HEIGHT'])
 		.then(() => {
-			setNoAuthor(window.NO_AUTHOR === '1' ? true : false)
-			setHeight(window.WIDGET_HEIGHT === '0' ? '' : window.WIDGET_HEIGHT) // Preloads height to avoid detail window resizing
+			setNoAuthor( !!window.NO_AUTHOR )
+			setHeight( window.WIDGET_HEIGHT == '0' ? '' : window.WIDGET_HEIGHT) // Preloads height to avoid detail window resizing
 		})
 	}, [])
-
-	// Used to wait for window data to load
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('NO_AUTHOR') || !window.hasOwnProperty('WIDGET_HEIGHT'))
-			await new Promise(resolve => setTimeout(resolve, 500))
-	}
 
 	let iconRender = null
 	let contentRender = <div className='loading-icon-holder'><LoadingIcon size='lrg'/></div>

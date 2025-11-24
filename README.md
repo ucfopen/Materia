@@ -54,11 +54,29 @@ $ docker compose build
 $ docker compose up
 ```
 
+#### Compile front-end assets
+
+You'll need `yarn` 1.x to compile front-end assets if you're building images from source:
+```
+$ yarn install
+$ yarn build
+```
+
+You can also run `yarn dev` to enable auto-compilation of asset files with webpack dev server:
+```
+$ yarn dev
+```
+
 #### Run post-install commands
 
-Use bash for shell access to the python container:
+Run the `post-install` make command to quickly perform post-install server configurations:
 ```
-$ make bash
+$ make post-install
+```
+
+Alternatively, you can manually use `docker exec` to get shell access to the python container:
+```
+$ docker exec -it materia-django-python-1 sh
 ```
 
 Then run the following manage commands:

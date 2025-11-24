@@ -162,7 +162,7 @@ class WidgetPlayView(
         if instance is None:
             return lti_error_page(request, "error_unknown_assignment")
 
-        if LTIAuthService.is_user_author(launch):
+        if LTIAuthService.is_user_course_author(launch):
             if instance.guest_access:
                 return lti_error_page(request, "error_lti_guest_mode")
             else:
@@ -205,7 +205,6 @@ class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateV
 
     def before_play_init(self, instance):
         preview = WidgetPlayInitService.init_preview(self.request)
-
         return {"play_id": preview, "lti_token": None}
 
 
@@ -223,6 +222,14 @@ class WidgetCreatorView(MateriaLoginMixin, PermissionRequiredMixin, TemplateView
         widget = Widget.objects.filter(pk=_get_id_from_slug(widget_slug)).first()
         if not widget:
             raise Http404("Could not find widget instance")
+
+        if instance_id is not None:
+            widget_instance = WidgetInstance.objects.get(id=instance_id)
+            can_edit = widget_instance.editable_by_current_user(self.request.user)
+            if not can_edit and not PermService.is_superuser_or_elevated(
+                self.request.user
+            ):
+                return _create_widget_no_permission_page(self.request)
 
         return _create_editor_page("Create Widget", widget, self.request)
 
@@ -422,6 +429,15 @@ def _create_widget_login_vars(
     }
 
     return js_globals
+
+
+def _create_widget_no_permission_page(request: HttpRequest):
+    return ContextUtil.create(
+        title="No Permission",
+        js_resources=settings.JS_GROUPS["no-permission"],
+        css_resources=settings.CSS_GROUPS["no-permission"],
+        request=request,
+    )
 
 
 def _create_draft_not_playable_page(request: HttpRequest):

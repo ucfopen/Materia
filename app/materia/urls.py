@@ -36,6 +36,7 @@ from core.views.widget import (
     WidgetQsetGenerateView,
     WidgetQsetHistoryView,
 )
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, re_path
 from lti.urls import urlpatterns as lti_urlpatterns
@@ -170,6 +171,20 @@ urlpatterns = [
 ]
 
 urlpatterns.extend(lti_urlpatterns)
+
+# enable additional routes to be added from custom packages based on app settings
+try:
+    # this assumes/requires each package's routes to be defined as urlpatterns
+    #  that are importable from a given include path
+    # also assumes that they're all valid with an empty starting path, which isn't
+    #  great but at least allows this to work
+    package_routes = settings.ADDITIONAL_PACKAGE_URL_PATTERNS
+    if package_routes and len(package_routes) > 0:
+        for routes in package_routes:
+            urlpatterns.extend([path("", include(routes))])
+except AttributeError:
+    # the setting is optional and has no default value
+    pass
 
 handler403 = "core.views.exception_handlers.forbidden"
 handler404 = "core.views.main.handler404"

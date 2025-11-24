@@ -308,9 +308,7 @@ class WidgetInstallerService:
 
         # 5. Make sure the 'score' section is correct
         score = manifest_data["score"]
-        WidgetInstallerService.validate_keys_exist(
-            score, ["is_scorable", "score_module"]
-        )
+        WidgetInstallerService.validate_keys_exist(score, ["is_scorable"])
         WidgetInstallerService.validate_boolean_values(score, ["is_scorable"])
 
         # 6. Make sure the 'meta_data' section is correct
@@ -318,15 +316,21 @@ class WidgetInstallerService:
         WidgetInstallerService.validate_keys_exist(metadata, ["about", "excerpt"])
 
         # 7. Make sure the score_module.py/php ((test file?)and the score module test files both exist)
-        if not os.path.isfile(
-            os.path.join(dir, "_score-modules/score_module.php")
-        ) and not os.path.isfile(os.path.join(dir, "_score-modules/score_module.py")):
-            raise Exception("Missing score module file")
-        if not os.path.isfile(
-            os.path.join(dir, "_score-modules/test_score_module.php")
-        ):
-            # raise Exception("Missing score module tests")
-            print("missing tests...continuing")
+        if score["is_scorable"]:
+            WidgetInstallerService.validate_keys_exist(score, ["score_module"])
+
+            if not os.path.isfile(
+                os.path.join(dir, "_score-modules/score_module.php")
+            ) and not os.path.isfile(
+                os.path.join(dir, "_score-modules/score_module.py")
+            ):
+                raise Exception("Missing score module file")
+
+            if not os.path.isfile(
+                os.path.join(dir, "_score-modules/test_score_module.php")
+            ):
+                # raise Exception("Missing score module tests")
+                print("missing tests...continuing")
 
         return manifest_data
 
@@ -419,7 +423,11 @@ class WidgetInstallerService:
             "clean_name": clean_name,
             "api_version": int(manifest_data["general"]["api_version"]),
             "package_hash": package_hash,
-            "score_module": manifest_data["score"]["score_module"],
+            "score_module": (
+                manifest_data["score"]["score_module"]
+                if manifest_data["score"]["is_scorable"]
+                else ""
+            ),
             "is_generable": (
                 bool(manifest_data["general"]["is_generable"])
                 if "is_generable" in manifest_data["general"]

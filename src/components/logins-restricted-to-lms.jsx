@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import Header from './header'
 import Summary from './widget-summary'
-import EmbedFooter from './widget-embed-footer';
+import EmbedFooter from './widget-embed-footer'
+import { waitForWindow } from '../util/wait-for-window'
+
 
 const LoginsRestrictedToLMS = () => {
 
@@ -9,14 +11,8 @@ const LoginsRestrictedToLMS = () => {
 		context: ''
 	})
 
-	const waitForWindow = async () => {
-		while (!window.hasOwnProperty('CONTEXT')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
-
 	useEffect(() => {
-		waitForWindow()
+		waitForWindow(['CONTEXT'])
 		.then(() => {
 			setState({
 				context: window.CONTEXT,

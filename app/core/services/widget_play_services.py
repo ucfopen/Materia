@@ -1,12 +1,11 @@
 import logging
 import uuid
 
-from django.utils import timezone
-
 from core.models import Log, LogPlay
-from django.contrib.auth.models import AnonymousUser
-from core.utils.http_util import parse_bool
 from core.services.semester_service import SemesterService
+from core.utils.http_util import parse_bool
+from django.contrib.auth.models import AnonymousUser
+from django.utils import timezone
 
 logger = logging.getLogger("django")
 
@@ -109,8 +108,9 @@ class WidgetPlayValidationService:
         if not instance_availability["is_open"]:
             return WidgetPlayValidationService.INVALID_NOT_YET_OPEN
 
-        if not instance.user_has_attempts(request.user, context_id):
-            return WidgetPlayValidationService.INVALID_NO_ATTEMPTS
+        if not is_demo:
+            if not instance.user_has_attempts(request.user, context_id):
+                return WidgetPlayValidationService.INVALID_NO_ATTEMPTS
 
         if not is_preview and instance.is_draft:
             return WidgetPlayValidationService.INVALID_DRAFT_NOT_PLAYABLE

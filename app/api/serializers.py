@@ -5,6 +5,8 @@ import json
 import logging
 import os
 
+from django.conf import settings
+
 from core.models import (
     Asset,
     DateRange,
@@ -164,6 +166,17 @@ class WidgetMetadataDictField(serializers.Field):
 class WidgetSerializer(serializers.ModelSerializer):
     meta_data = serializers.JSONField(source="metadata", required=False)
     dir = serializers.CharField(read_only=True)
+    creator = serializers.SerializerMethodField()
+
+    def get_creator(self, widget):
+        """
+        Checks if the widget uses the default creator - if so, returns the path for that
+        Otherwise, returns the value the widget has set.
+        """
+        if widget.creator == "default" or widget.creator == "":
+            return settings.URLS["STATIC_CROSSDOMAIN"] + "default-creator/creator.html"
+        else:
+            return widget.creator
 
     class Meta:
         model = Widget

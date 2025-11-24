@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { apiLoginDirect } from '../util/api'
+import { waitForWindow } from '../util/wait-for-window'
 
 import Header from './header'
 import Summary from './widget-summary'
@@ -20,17 +21,8 @@ const LoginPage = () => {
 		context: 'login',
 	})
 
-	const waitForWindow = async () => {
-		// window properties on the login page are highly variable, WFW can only watch for the default ones
-		while(!window.hasOwnProperty('BASE_URL')
-		&& !window.hasOwnProperty('WIDGET_URL')
-		&& !window.hasOwnProperty('STATIC_CROSSDOMAIN')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
-
 	useEffect(() => {
-		waitForWindow()
+		waitForWindow(['BASE_URL', 'WIDGET_URL', 'STATIC_CROSSDOMAIN'])
 		.then(() => {
 
 			let actionRedirect = window.location.search && window.location.search.split("?next=").length > 1 ? window.location.search.split("?next=")[1] : ''

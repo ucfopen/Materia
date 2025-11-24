@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
+import { waitForWindow } from '../../util/wait-for-window'
 
 import { apiGetInstancesFromContext } from '../../util/api'
 import { iconUrl as getIconUrl } from '../../util/icon-url'
@@ -9,20 +10,11 @@ const PostLogin = () => {
 	const [contextID, setContextID] = useState(null)
 
 	useEffect(() => {
-		waitForWindow().then(() => {
+		waitForWindow(['STATIC_CROSSDOMAIN', 'CONTEXT_ID']).then(() => {
 			setStaticURL(window.STATIC_CROSSDOMAIN)
 			setContextID(window.CONTEXT_ID)
 		})
 	}, [])
-
-	const waitForWindow = async () => {
-		while (
-			!window.hasOwnProperty('STATIC_CROSSDOMAIN') &&
-			!window.hasOwnProperty('CONTEXT_ID')
-		) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
 
 	const { isLoading, data: instances } = useQuery({
 		queryKey: ['lti-widgets', contextID],

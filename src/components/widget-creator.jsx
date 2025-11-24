@@ -478,6 +478,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					case 'save':
 						setSaveWidgetComplete(saveModeRef.current)
 						if (!instIdRef.current) instIdRef.current = inst.id
+
+						const parts = window.location.pathname.split('/');
+						parts[parts.length - 1] = inst.id;
+						window.history.replaceState(null, '', parts.join('/'));
+
 						setInstance(currentInstance => ({ ...currentInstance, ...inst }))
 						apiGetQuestionSet(inst.id).then((qset) => {
 							sendToCreator('onSaveComplete', [
