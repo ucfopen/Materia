@@ -1,6 +1,7 @@
 import React, { useState, useEffect} from 'react'
 import Summary from './widget-summary'
 import EmbedFooter from './widget-embed-footer'
+import { waitForWindow } from '../util/wait-for-window'
 
 import './pre-embed-common-styles.scss'
 
@@ -11,18 +12,11 @@ const PreEmbedPlaceholder = () => {
 	const [context, setContext] = useState(null)
 
 	useEffect(() => {
-		waitForWindow().then(() => {
+		waitForWindow(['INST_ID', 'CONTEXT']).then(() => {
 			setInstId(window.INST_ID)
 			setContext(window.CONTEXT)
 		})
 	})
-
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('INST_ID')
-		&& !window.hasOwnProperty('CONTEXT')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
 
 	let bodyRender = null
 		bodyRender = (
