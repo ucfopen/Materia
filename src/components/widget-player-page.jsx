@@ -96,7 +96,7 @@ const WidgetPlayerPage = () => {
 
 	// Used to wait for window data to load
 	const waitForWindow = async () => {
-		while(!!window.hasOwnProperty('WIDGET_HEIGHT')
+		while(!window.hasOwnProperty('WIDGET_HEIGHT')
 		&& !window.hasOwnProperty('WIDGET_WIDTH')
 		&& !window.hasOwnProperty('PLAY_ID')
 		&& !window.hasOwnProperty('DEMO_ID')) {
