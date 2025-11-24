@@ -3,6 +3,7 @@ from datetime import datetime
 
 from lti.services.launch import LTILaunchService
 
+from .exceptions.ags_claim_not_defined import AGSClaimNotDefined
 from .oauth import AGSOauth
 from .request import AGSRequest
 from .score_builder import AGSScoreBuilder
@@ -21,6 +22,12 @@ class AGSClient:
 
     def __init__(self, launch_data):
         self.launch_data = launch_data
+
+        # raise an exception if an AGS claim was not defined in the launch data
+        if not launch_data.get(
+            "https://purl.imsglobal.org/spec/lti-ags/claim/endpoint"
+        ):
+            raise AGSClaimNotDefined()
 
         registration = LTILaunchService.get_registration(self.launch_data)
 
