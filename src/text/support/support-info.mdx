@@ -4,18 +4,18 @@ import Common from 'MateriaCommon'
   ### Helpdesk
 
   <div className="supportItem">
-    **Website**\
-    [{Common.supportWebsite}]({Common.supportWebsite})
+    **Website**
+    <a href={Common.supportWebsite}>{Common.supportWebsite}</a>
   </div>
 
   <div className="supportItem">
     **Email**
-    {Common.supportEmail}
+    <a href={"mailto:" + Common.supportEmail}>{Common.supportEmail}</a>
   </div>
 
   <div className="supportItem">
     **Phone**
-    {Common.supportPhoneNumber}
+    <a href={"tel:" + Common.supportPhoneNumberHref}>{Common.supportPhoneNumber}</a>
   </div>
 </div>
 
@@ -25,12 +25,12 @@ import Common from 'MateriaCommon'
 
   <div className="supportItem">
     **Email**
-    {Common.accessibilityEmail}
+    <a href={"mailto:" + Common.accessibilityEmail}>{Common.accessibilityEmail}</a>
   </div>
 
-  <div className="supporItem">
+  <div className="supportItem">
     **Report Issues**
-    {Common.accessibilityReportLink}
+    <a href={Common.accessibilityReportLink}>{Common.accessibilityReportLink}</a>
   </div>
 </div>
 
