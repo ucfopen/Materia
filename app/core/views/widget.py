@@ -78,7 +78,7 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
         validation = WidgetPlayValidationService.validate_widget_context(
             request,
             instance,
-            is_demo=True,
+            has_guest_access=True,
             is_preview=False,
             is_embedded=False,
         )
@@ -87,7 +87,7 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
 
     def process_context(self, validation):
         return _create_player_context(
-            validation, self.instance, self.request, is_demo=True, is_preview=False
+            validation, self.instance, self.request, is_preview=False
         )
 
     def before_play_init(self, instance):
@@ -109,10 +109,13 @@ class WidgetPlayView(
         if self.launch is not None:
             context_id = LTILaunchService.get_context_id(self.launch)
 
+        # Check if this instance is a guest/demo instance
+        has_guest_access = instance.guest_access
+
         validation = WidgetPlayValidationService.validate_widget_context(
             request,
             instance,
-            is_demo=False,
+            has_guest_access=has_guest_access,
             is_preview=False,
             is_embedded=self.is_embedded,
             context_id=context_id,
@@ -122,7 +125,7 @@ class WidgetPlayView(
 
     def process_context(self, validation):
         return _create_player_context(
-            validation, self.instance, self.request, is_demo=False, is_preview=False
+            validation, self.instance, self.request, is_preview=False
         )
 
     def before_play_init(self, instance):
@@ -193,14 +196,18 @@ class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateV
 
     def get_validation(self, request, instance):
         validation = WidgetPlayValidationService.validate_widget_context(
-            request, instance, is_demo=False, is_preview=True, is_embedded=False
+            request,
+            instance,
+            has_guest_access=False,
+            is_preview=True,
+            is_embedded=False,
         )
 
         return validation
 
     def process_context(self, validation):
         return _create_player_context(
-            validation, self.instance, self.request, is_demo=False, is_preview=True
+            validation, self.instance, self.request, is_preview=True
         )
 
     def before_play_init(self, instance):
@@ -310,7 +317,6 @@ def _create_player_context(
     validation: str,
     instance: WidgetInstance,
     request: HttpRequest,
-    is_demo: bool = False,
     is_preview: bool = False,
     is_embedded: bool = False,
 ):

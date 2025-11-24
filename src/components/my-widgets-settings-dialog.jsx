@@ -249,7 +249,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 		// Submits the form if there are no errors
 		if (errMsg.length === 0) {
 			let args = {
-				instId: form.inst_id,
+				id: form.inst_id,
 				openAt: form.open_at,
 				closeAt: form.close_at,
 				attempts: form.attempts,
