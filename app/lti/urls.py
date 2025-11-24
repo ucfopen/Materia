@@ -1,3 +1,4 @@
+from core.views.widget import WidgetPreviewView
 from django.urls import path
 from django.views.generic import RedirectView
 from lti.views.config import lti_config
@@ -31,4 +32,9 @@ urlpatterns = [
     path("lticonfig/<slug:provider>", lti_config, name="lti_config"),
     path("ltilaunch/", ApplicationLaunchView.as_view(), name="ltilaunch"),
     path("lti/error/", error_page, name="error_page"),
+    path(
+        "preview-embed/<slug:widget_instance_id>/",
+        WidgetPreviewView.as_view(),
+        name="embedded widget preview",
+    ),
 ]
