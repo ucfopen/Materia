@@ -49,7 +49,7 @@ CSRF_COOKIE_SECURE = True
 SECRET_KEY = "materia-local-dev-secret-key"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_ENV", "prod") == "dev"
 
 ALLOWED_HOSTS = ["*", "localhost", "127.0.0.1"]
 

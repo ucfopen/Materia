@@ -1,4 +1,4 @@
-name: Run Tests
+name: Test, Build, and Push Images
 on: [push, pull_request]
 jobs:
   ci_tests:
