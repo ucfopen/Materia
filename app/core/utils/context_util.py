@@ -27,6 +27,10 @@ class ContextUtil:
             [css_resources] if type(css_resources) is str else css_resources
         )
 
+        # prepend commons files to js/css resources, which are required in every page
+        processed_js_resources.insert(0, settings.JS_BASEURL + "commons.js")
+        processed_css_resources.insert(0, settings.CSS_BASEURL + "commons.css")
+
         # Create and return context
         return {
             "title": title,
