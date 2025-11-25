@@ -24,10 +24,9 @@
 
 		{% if css_resources %}
 			{% for css in css_resources %}
-				<link rel="stylesheet" type="text/css" href="{% static css %}">
+				<link rel="stylesheet" type="text/css" href="{% static css %}" />
 			{% endfor %}
 		{% endif %}
-		<link rel="stylesheet" type="text/css" href="{% static 'dist/css/commons.css' %}" />
 
 	</head>
 	<body class="{{ page_type|default:'' }} {% if darkMode %}darkMode{% endif %}">
@@ -39,7 +38,6 @@
 				<script type="text/javascript" src="{% static js %}"></script>
 			{% endfor %}
 		{% endif %}
-		<script type="text/javascript" src="{% static 'dist/js/commons.js' %}"></script>
 		{% if js_global_variables %}
 			<script>
 				{% for key, value in js_global_variables.items %}

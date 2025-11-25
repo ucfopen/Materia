@@ -1,6 +1,8 @@
+import os
+
 # CSS group definition configs
 
-CSS_BASEURL = "dist/css/"
+CSS_BASEURL = os.environ.get("CSS_BASEURL", "dist/css/")
 FONTS_BASEURL = "https://fonts.googleapis.com/"
 
 FONTS_DEFAULT = [
@@ -16,6 +18,7 @@ CSS_GROUPS = {
     "catalog": [CSS_BASEURL + "catalog.css"],
     "detail": [CSS_BASEURL + "detail.css"],
     "player": [CSS_BASEURL + "player-page.css"],
+    "creator": [CSS_BASEURL + "creator-page.css"],
     "login": [CSS_BASEURL + "login.css"],
     "profile": [CSS_BASEURL + "profile.css"],
     "settings": [CSS_BASEURL + "settings.css"],
@@ -30,4 +33,8 @@ CSS_GROUPS = {
         CSS_BASEURL + "lti-select-item.css",
         CSS_BASEURL + "lti-error.css",
     ],
+    "404": [CSS_BASEURL + "404.css"],
+    "guides": [CSS_BASEURL + "guides.css"],
+    "qset-history": [CSS_BASEURL + "qset-history.css"],
+    "qset-generator": [CSS_BASEURL + "qset-generator.css"],
 }

@@ -1,8 +1,9 @@
 import logging
-from django.http import HttpResponseNotFound
-from django.conf import settings
-from django.shortcuts import render
+
 from core.utils.context_util import ContextUtil
+from django.conf import settings
+from django.http import HttpResponseNotFound
+from django.shortcuts import render
 
 
 def index(request, *args, **kwargs):
@@ -35,8 +36,8 @@ def handler404(request, exception):
 
     context = ContextUtil.create(
         title="404 Page Not Found",
-        js_resources="dist/js/404.js",
-        css_resources="dist/css/404.css",
+        js_resources=settings.JS_GROUPS["404"],
+        css_resources=settings.CSS_GROUPS["404"],
         request=request,
     )
 
