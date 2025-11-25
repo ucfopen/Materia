@@ -264,8 +264,8 @@ class WidgetGuideView(TemplateView):
 
         return ContextUtil.create(
             title=title,
-            js_resources="dist/js/guides.js",
-            css_resources="dist/css/guides.css",
+            js_resources=settings.JS_GROUPS["guides"],
+            css_resources=settings.CSS_GROUPS["guides"],
             page_type="guide",
             js_globals={
                 "NAME": widget.name,
@@ -290,8 +290,8 @@ class WidgetQsetHistoryView(MateriaLoginMixin, TemplateView):
         return ContextUtil.create(
             title="Qset Catalog",
             page_type="import",
-            js_resources="dist/js/qset-history.js",
-            css_resources="dist/css/qset-history.css",
+            js_resources=settings.JS_GROUPS["qset-history"],
+            css_resources=settings.CSS_GROUPS["qset-history"],
             request=self.request,
         )
 
@@ -303,8 +303,8 @@ class WidgetQsetGenerateView(MateriaLoginMixin, TemplateView):
         return ContextUtil.create(
             title="Qset Generation",
             page_type="generate",
-            js_resources="dist/js/qset-generator.js",
-            css_resources="dist/css/qset-generator.css",
+            js_resources=settings.JS_GROUPS["qset-generator"],
+            css_resources=settings.CSS_GROUPS["qset-generator"],
             request=self.request,
         )
 
@@ -379,8 +379,8 @@ def _display_widget(
 def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
     return ContextUtil.create(
         title=f"{title}",
-        js_resources="dist/js/creator-page.js",
-        css_resources="dist/css/creator-page.css",
+        js_resources=settings.JS_GROUPS["creator"],
+        css_resources=settings.CSS_GROUPS["creator"],
         js_globals={
             "WIDGET_HEIGHT": widget.height,
             "WIDGET_WIDTH": widget.width,
