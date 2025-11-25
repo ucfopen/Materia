@@ -108,7 +108,7 @@ Namespace('Materia').CreatorCore = (() => {
 		if (mediaId.startsWith('data:')) {
 			return mediaId
 		}
-		return `${_mediaUrl}/${mediaId}`
+		return _mediaUrl.replace(/\/$/, '') + '/' + mediaId
 	}
 
 	const showMediaImporter = (types) => {
