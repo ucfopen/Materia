@@ -201,7 +201,7 @@ const SelectItem = () => {
 		noInstanceRender = <div id="no-widgets-container">
 			<div id="no-instances">
 				<p>You don't have any widgets yet. Click this button to create a widget, then return to this tab/window and select your new widget.</p>
-				<a role="button" id="create-widget-button" onClick={() => setShowRefreshArrow(true)} className="external action_button" target="_blank" href={window.BASE_URL + "/widgets"}>Create a widget at Materia</a>
+				<a role="button" id="create-widget-button" onClick={() => setShowRefreshArrow(true)} className="external action_button" target="_blank" href={window.BASE_URL + "widgets"}>Create a widget at Materia</a>
 			</div>
 		</div>
 	} else {
