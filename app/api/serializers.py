@@ -5,8 +5,6 @@ import json
 import logging
 import os
 
-from django.conf import settings
-
 from core.models import (
     Asset,
     DateRange,
@@ -25,6 +23,7 @@ from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
 from core.services.user_service import UserService
 from core.utils.b64_util import Base64Util
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import serializers
@@ -451,29 +450,6 @@ class PlayLogUpdateSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 f"Play ID {self.context["play_id"]} invalid."
             )
-
-
-class PlaySessionCreateSerializer(serializers.Serializer):
-    instanceId = serializers.CharField()
-    is_preview = serializers.BooleanField(required=False)
-
-    def validate(self, data):
-        is_preview = data.get("is_preview", False)
-        if is_preview is True:
-            raise serializers.ValidationError(
-                "Invalid session creation for preview play."
-            )
-
-        instance = WidgetInstance.objects.get(pk=data["instanceId"])
-        if not instance:
-            raise serializers.ValidationError(
-                f"Instance ID {data["InstanceId"]} invalid."
-            )
-
-        if not instance.playable_by_current_user(self.context["request"].user):
-            raise serializers.ValidationError("Instance not playable by current user.")
-
-        return {"instance": instance, "is_preview": is_preview}
 
 
 # play session model (kinda) serializer (outbound)
