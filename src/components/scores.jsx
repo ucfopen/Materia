@@ -318,7 +318,6 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 					showResultsTable: true
 				})
 			}
-			console.log("calling sendToWidget")
 			sendToWidget('initWidget', [playData.qset, playData.details.table, instance, isPreview, window.MEDIA_URL])
 		}
 	}
@@ -502,10 +501,8 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 		)
 	}
 
-	console.log(attemptsLeft)
-
 	let playAgainBtn = null
-	if (!attributes.hidePlayAgain && attemptsLeft > 0) {
+	if (!attributes.hidePlayAgain && (attemptsLeft > 0 || attemptsLeft == -1)) {
 		playAgainBtn = (
 			<a id='play-again' className='action_button' href={attributes.href}>
 				{isPreview ? 'Preview' : 'Play'} Again
