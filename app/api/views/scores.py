@@ -1,19 +1,19 @@
 import logging
 
-from core.models import LogPlay, WidgetInstance
 from api.serializers import (
     QuestionSetSerializer,
     ScoreDetailsForPlaySerializer,
     ScoreDetailsForPreviewSerializer,
     ScoresForUserSerializer,
 )
+from core.message_exception import MsgExpired, MsgNoPerm
+from core.models import LogPlay, WidgetInstance
+from core.services.perm_service import PermService
+from core.services.semester_service import SemesterService
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from scoring.module_factory import ScoreModuleFactory
-from core.message_exception import MsgNoPerm, MsgExpired
-from core.services.perm_service import PermService
-from core.services.semester_service import SemesterService
 
 logger = logging.getLogger(__name__)
 
@@ -63,11 +63,7 @@ class ScoresView(APIView):
                 user=user, instance=instance, is_complete=True
             )
 
-            if validated.get("context"):
-                plays = plays.filter(context_id=context)
-            else:
-                semester = SemesterService.get_current_semester()
-                plays = plays.filter(semester=semester)
+            semester = SemesterService.get_current_semester()
 
             scores = []
             for play in plays.order_by("-created_at"):
@@ -82,6 +78,7 @@ class ScoresView(APIView):
                         "id": play.id,
                         "created_at": play.created_at.isoformat(),
                         "percent": details.get("overview", {}).get("score", 0),
+                        "current_semester": play.semester == semester,
                     }
                 )
 

@@ -308,6 +308,11 @@ article {
 		border-top-right-radius: 5px;
 		border-bottom: 1px $light-gray-bg solid;
 
+		&.justify-left {
+			justify-content: flex-start;
+			gap: 2em;
+		}
+
 		&.preview {
 			margin-top: 65px;
 			border-top: 4px $preview-purple solid;
@@ -418,7 +423,18 @@ article {
 					padding: 0.5em 1em;
 					list-style: none;
 
-					border-radius: 15px;
+					&:first-child {
+						border-top-right-radius: 15px;
+					}
+					
+					&:last-child {
+						border-bottom-left-radius: 15px;
+						border-bottom-right-radius: 15px;
+					}
+
+					&.previous-semester {
+						background: #eee;
+					}
 
 					&:hover {
 						background-color: #d0eeff;
