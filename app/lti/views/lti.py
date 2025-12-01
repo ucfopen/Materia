@@ -4,12 +4,7 @@ from core.utils.context_util import ContextUtil
 from django.conf import settings as django_settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-
-# from lti.ags.client import AGSClient
 from lti.services.launch import LTILaunchService
-
-# from pprint import pformat
-
 
 logger = logging.getLogger("django")
 
