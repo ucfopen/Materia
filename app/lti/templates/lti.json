@@ -14,7 +14,7 @@
             {
               "enabled": true,
               "default": "disabled",
-              "windowTarget": "_blank",
+              "display_type": "in_nav_context",
               "placement": "course_navigation",
               "message_type": "LtiResourceLinkRequest",
               "target_link_uri": "{{ app_hostname }}/ltilaunch/"
@@ -23,6 +23,8 @@
               "text":"Materia Widget",
               "enabled":true,
               "placement":"assignment_selection",
+              "selection_width":"800",
+              "selection_height":"600",
               "message_type":"LtiDeepLinkingRequest",
               "target_link_uri": "{{ app_hostname }}/ltilaunch/"
            }
