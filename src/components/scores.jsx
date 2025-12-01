@@ -474,7 +474,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	if (!attributes.hidePreviousAttempts) {
 		let attemptList = attempts.map((attempt, index) => {
 			return (
-				<li key={index} className={ !!attempt.current_semester ? 'current-semester' : 'previous-semester' }>
+				<li key={index} className={ !!attempt.current_context ? 'current-context' : 'previous-context' }>
 					<a href={`#attempt-${index + 1}`}
 						onClick={() => setKeepPrevOpen(false)}
 					>

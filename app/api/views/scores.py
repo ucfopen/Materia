@@ -73,12 +73,16 @@ class ScoresView(APIView):
 
                 details = module.get_score_report()
 
+                current_context = (
+                    play.context_id == context and play.semester == semester
+                )
+
                 scores.append(
                     {
                         "id": play.id,
                         "created_at": play.created_at.isoformat(),
                         "percent": details.get("overview", {}).get("score", 0),
-                        "current_semester": play.semester == semester,
+                        "current_context": current_context,
                     }
                 )
 
