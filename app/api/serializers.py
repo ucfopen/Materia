@@ -5,8 +5,6 @@ import json
 import logging
 import os
 
-from django.conf import settings
-
 from core.models import (
     Asset,
     DateRange,
@@ -25,6 +23,7 @@ from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
 from core.services.user_service import UserService
 from core.utils.b64_util import Base64Util
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import serializers
@@ -570,6 +569,7 @@ class ScoreSummarySerializer(serializers.Serializer):
             return []
 
         summary = {}
+        unique_students = {}
 
         for log in logs:
 
@@ -586,6 +586,8 @@ class ScoreSummarySerializer(serializers.Serializer):
                     else:
                         distribution[i] = 0
 
+                unique_students[semester_key] = [log.user.id]
+
                 summary[semester_key] = {
                     "id": log.semester.id,
                     "term": log.semester.semester,
@@ -596,9 +598,12 @@ class ScoreSummarySerializer(serializers.Serializer):
                 }
 
             else:
-                summary[semester_key]["students"] += 1
-                summary[semester_key]["total"] += log.percent
 
+                if log.user.id not in unique_students[semester_key]:
+                    unique_students[semester_key].append(log.user.id)
+                    summary[semester_key]["students"] += 1
+
+                summary[semester_key]["total"] += log.percent
                 summary[semester_key]["distribution"][
                     int(log.percent / 10) if int(log.percent / 10) < 10 else 9
                 ] += 1
