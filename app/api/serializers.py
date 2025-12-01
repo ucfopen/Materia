@@ -452,29 +452,6 @@ class PlayLogUpdateSerializer(serializers.Serializer):
             )
 
 
-class PlaySessionCreateSerializer(serializers.Serializer):
-    instanceId = serializers.CharField()
-    is_preview = serializers.BooleanField(required=False)
-
-    def validate(self, data):
-        is_preview = data.get("is_preview", False)
-        if is_preview is True:
-            raise serializers.ValidationError(
-                "Invalid session creation for preview play."
-            )
-
-        instance = WidgetInstance.objects.get(pk=data["instanceId"])
-        if not instance:
-            raise serializers.ValidationError(
-                f"Instance ID {data["InstanceId"]} invalid."
-            )
-
-        if not instance.playable_by_current_user(self.context["request"].user):
-            raise serializers.ValidationError("Instance not playable by current user.")
-
-        return {"instance": instance, "is_preview": is_preview}
-
-
 # play session model (kinda) serializer (outbound)
 class PlaySessionSerializer(serializers.ModelSerializer):
     inst_name = serializers.CharField(source="instance.name", read_only=True)

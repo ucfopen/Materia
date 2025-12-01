@@ -4,6 +4,7 @@ from datetime import datetime
 from lti.services.launch import LTILaunchService
 
 from .exceptions.ags_claim_not_defined import AGSClaimNotDefined
+from .exceptions.ags_no_line_item import AGSNoLineItem
 from .oauth import AGSOauth
 from .request import AGSRequest
 from .score_builder import AGSScoreBuilder
@@ -64,6 +65,9 @@ class AGSClient:
         )
 
         line_item = AGSUtil.get_line_item_from_launch(self.launch_data)
+        if line_item is None:
+            raise AGSNoLineItem()
+
         url = f"{line_item}/scores"
         request = AGSRequest(self.access_token)
 

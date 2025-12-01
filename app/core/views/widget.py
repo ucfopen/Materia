@@ -153,6 +153,10 @@ class WidgetPlayView(
             play.lti_token = lti_token
             play.save()
 
+            logger.error(
+                f"LTI: session initialization for user {play.user.id} with play {play.id} in context {play.context_id}"
+            )
+
         return {"play_id": play.id, "lti_token": lti_token}
 
     # overrides the baseline LTILaunchMixin's launch success method
