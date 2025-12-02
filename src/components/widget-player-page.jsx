@@ -12,7 +12,7 @@ const LEGACY_EMBED = 'legacy-embed'
 
 const getWidgetType = path => {
 	switch(true) {
-		case (path.includes('/embed/') || !!state.ltiToken): return EMBED
+		case (path.includes('/embed/') || !!window.LTI_TOKEN): return EMBED
 		case path.includes('/play/'): return PLAY
 		case path.includes('/preview/'): return PREVIEW
 		case path.includes('/demo'): return DEMO
