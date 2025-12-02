@@ -551,6 +551,7 @@ class ScoreSummarySerializer(serializers.Serializer):
         for log in logs:
 
             semester_key = f"{log.created_at.year}-{log.semester.semester}"
+            user_id = 0 if log.user is None else log.user.id
 
             if semester_key not in summary:
 
@@ -563,7 +564,7 @@ class ScoreSummarySerializer(serializers.Serializer):
                     else:
                         distribution[i] = 0
 
-                unique_students[semester_key] = [log.user.id]
+                unique_students[semester_key] = [user_id]
 
                 summary[semester_key] = {
                     "id": log.semester.id,
@@ -576,8 +577,8 @@ class ScoreSummarySerializer(serializers.Serializer):
 
             else:
 
-                if log.user.id not in unique_students[semester_key]:
-                    unique_students[semester_key].append(log.user.id)
+                if user_id not in unique_students[semester_key]:
+                    unique_students[semester_key].append(user_id)
                     summary[semester_key]["students"] += 1
 
                 summary[semester_key]["total"] += log.percent
