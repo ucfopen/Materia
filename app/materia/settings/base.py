@@ -41,6 +41,7 @@ SESSION_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"
 CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = [os.environ.get("BASE_URL").rstrip("/")]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -49,7 +50,7 @@ CSRF_COOKIE_SECURE = True
 SECRET_KEY = "materia-local-dev-secret-key"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_ENV", "prod") == "dev"
 
 ALLOWED_HOSTS = ["*", "localhost", "127.0.0.1"]
 

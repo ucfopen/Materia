@@ -78,7 +78,7 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
         validation = WidgetPlayValidationService.validate_widget_context(
             request,
             instance,
-            is_demo=True,
+            has_guest_access=True,
             is_preview=False,
             is_embedded=False,
         )
@@ -87,7 +87,7 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
 
     def process_context(self, validation):
         return _create_player_context(
-            validation, self.instance, self.request, is_demo=True, is_preview=False
+            validation, self.instance, self.request, is_preview=False
         )
 
     def before_play_init(self, instance):
@@ -109,10 +109,13 @@ class WidgetPlayView(
         if self.launch is not None:
             context_id = LTILaunchService.get_context_id(self.launch)
 
+        # Check if this instance is a guest/demo instance
+        has_guest_access = instance.guest_access
+
         validation = WidgetPlayValidationService.validate_widget_context(
             request,
             instance,
-            is_demo=False,
+            has_guest_access=has_guest_access,
             is_preview=False,
             is_embedded=self.is_embedded,
             context_id=context_id,
@@ -122,7 +125,7 @@ class WidgetPlayView(
 
     def process_context(self, validation):
         return _create_player_context(
-            validation, self.instance, self.request, is_demo=False, is_preview=False
+            validation, self.instance, self.request, is_preview=False
         )
 
     def before_play_init(self, instance):
@@ -149,6 +152,10 @@ class WidgetPlayView(
 
             play.lti_token = lti_token
             play.save()
+
+            logger.error(
+                f"LTI: session initialization for user {play.user.id} with play {play.id} in context {play.context_id}"
+            )
 
         return {"play_id": play.id, "lti_token": lti_token}
 
@@ -193,14 +200,18 @@ class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateV
 
     def get_validation(self, request, instance):
         validation = WidgetPlayValidationService.validate_widget_context(
-            request, instance, is_demo=False, is_preview=True, is_embedded=False
+            request,
+            instance,
+            has_guest_access=False,
+            is_preview=True,
+            is_embedded=False,
         )
 
         return validation
 
     def process_context(self, validation):
         return _create_player_context(
-            validation, self.instance, self.request, is_demo=False, is_preview=True
+            validation, self.instance, self.request, is_preview=True
         )
 
     def before_play_init(self, instance):
@@ -257,8 +268,8 @@ class WidgetGuideView(TemplateView):
 
         return ContextUtil.create(
             title=title,
-            js_resources="dist/js/guides.js",
-            css_resources="dist/css/guides.css",
+            js_resources=settings.JS_GROUPS["guides"],
+            css_resources=settings.CSS_GROUPS["guides"],
             page_type="guide",
             js_globals={
                 "NAME": widget.name,
@@ -283,8 +294,8 @@ class WidgetQsetHistoryView(MateriaLoginMixin, TemplateView):
         return ContextUtil.create(
             title="Qset Catalog",
             page_type="import",
-            js_resources="dist/js/qset-history.js",
-            css_resources="dist/css/qset-history.css",
+            js_resources=settings.JS_GROUPS["qset-history"],
+            css_resources=settings.CSS_GROUPS["qset-history"],
             request=self.request,
         )
 
@@ -296,8 +307,8 @@ class WidgetQsetGenerateView(MateriaLoginMixin, TemplateView):
         return ContextUtil.create(
             title="Qset Generation",
             page_type="generate",
-            js_resources="dist/js/qset-generator.js",
-            css_resources="dist/css/qset-generator.css",
+            js_resources=settings.JS_GROUPS["qset-generator"],
+            css_resources=settings.CSS_GROUPS["qset-generator"],
             request=self.request,
         )
 
@@ -310,7 +321,6 @@ def _create_player_context(
     validation: str,
     instance: WidgetInstance,
     request: HttpRequest,
-    is_demo: bool = False,
     is_preview: bool = False,
     is_embedded: bool = False,
 ):
@@ -373,8 +383,8 @@ def _display_widget(
 def _create_editor_page(title: str, widget: Widget, request: HttpRequest):
     return ContextUtil.create(
         title=f"{title}",
-        js_resources="dist/js/creator-page.js",
-        css_resources="dist/css/creator-page.css",
+        js_resources=settings.JS_GROUPS["creator"],
+        css_resources=settings.CSS_GROUPS["creator"],
         js_globals={
             "WIDGET_HEIGHT": widget.height,
             "WIDGET_WIDTH": widget.width,

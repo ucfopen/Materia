@@ -103,7 +103,7 @@ const MyWidgetsPage = () => {
 
 	// checks whether "-collab" is contained in hash id
 	const hashContainsCollab = () => {
-		const match = window.location.hash.match(/#(?:[A-Za-z0-9]{5})(-collab)*$/)
+		const match = window.location.hash.match(/#(?:[A-Za-z0-9]{5,})(-collab)*$/)
 
 		if (match != null && match[1] != null)
 		{

@@ -162,12 +162,12 @@ urlpatterns = [
     path("users/logout/", UsersApi.logout, name="logout"),
     # Media
     path("media/import", MediaImportView.index, name="media importer"),
+    path("media/upload/", MediaUpload.index),
     # matches media/asset_id, media/asset_id/thumbnail and media/asset_id/large
     re_path(
         r"^media/(?P<asset_id>[\w-]+)(?:/(?P<size>thumbnail|large))?/$",
         MediaRender.index,
     ),
-    path("media/upload", MediaUpload.index),
 ]
 
 urlpatterns.extend(lti_urlpatterns)

@@ -1,3 +1,5 @@
+import logging
+
 from core.mixins import MateriaLoginMixin, MateriaLoginNeeded
 from core.models import LogPlay, WidgetInstance
 from core.utils.context_util import ContextUtil
@@ -11,6 +13,8 @@ from django.http import (
 from django.views.generic import TemplateView
 from lti.services.launch import LTILaunchService
 
+logger = logging.getLogger(__name__)
+
 
 class ScoresView(MateriaLoginMixin, TemplateView):
     template_name = "react.html"
@@ -18,29 +22,21 @@ class ScoresView(MateriaLoginMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         widget_instance_id = kwargs.get("widget_instance_id")
+        token = request.GET.get("token")
 
         instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
         if not instance:
             return HttpResponseNotFound()
+        context = _get_context_data(request, widget_instance_id, token)
 
         if not instance.playable_by_current_user(self.request.user):
-            return ContextUtil.create(
+            context = ContextUtil.create(
                 request=request,
                 title="Forbidden",
                 js_resources=settings.JS_GROUPS["no-permission"],
                 css_resources=settings.CSS_GROUPS["no-permission"],
                 js_globals={},
             )
-
-        context = ContextUtil.create(
-            title="Score Results",
-            js_resources=settings.JS_GROUPS["scores"],
-            css_resources=settings.CSS_GROUPS["scores"],
-            js_globals={
-                "USER_ID": request.user.id,
-            },
-            request=self.request,
-        )
 
         return self.render_to_response(context)
 
@@ -56,7 +52,7 @@ class ScoresViewSingle(MateriaLoginMixin, TemplateView):
         # Get url args
         play_id = kwargs.get("play_id")
         widget_instance_id = kwargs.get("widget_instance_id")
-        token = self.kwargs.get("token")  # TODO verify if token is visible here
+        token = request.GET.get("token")
 
         # Grab and verify play
         play = LogPlay.objects.get(pk=play_id)
@@ -105,16 +101,20 @@ def _get_context_data(
     if not instance.playable_by_current_user(request.user):
         raise MateriaLoginNeeded(login_message="Please log in to view your scores.")
 
-    # Set up context and return
+    # configure JS globals, USER_ID is always required
     js_globals = {
         "USER_ID": request.user.id,
     }
 
+    # if there is a token param present, append additional globals to communicate LTI context
     if token:
         js_globals["LTI_TOKEN"] = token
-
-    if LTILaunchService.is_lti_launch(request):
-        js_globals["LTI_EMBEDDED"] = True
+        launch = LTILaunchService.get_session_launch(request, token)
+        if launch:
+            js_globals["CONTEXT_ID"] = LTILaunchService.get_context_id(launch)
+    else:
+        if LTILaunchService.is_lti_launch(request):
+            js_globals["LTI_EMBEDDED"] = True
 
     return ContextUtil.create(
         title="Score Results",

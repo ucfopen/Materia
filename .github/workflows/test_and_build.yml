@@ -1,97 +1,102 @@
-name: Run Tests
+name: Test, Build, and Push Images
 on: [push, pull_request]
 jobs:
   ci_tests:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Run Tests
       run: echo "Tests disabled temporarily"
 
-  docker_images_and_release_zip:
+  build_and_upload_images:
     needs: ci_tests
-    if: false
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
-      - name: Capture Tag Name
-        id: tag_name
-        run: echo ::set-output name=GIT_TAG::${GITHUB_REF#refs/tags/}
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Docker meta for Python
+        id: meta_python
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/materia-django/python
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=dev,enable=${{ startsWith(github.ref, 'refs/tags/v') && (contains(github.ref, '-alpha') || contains(github.ref, '-rc')) }}
+
+      - name: Docker meta for Nginx
+        id: meta_nginx
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/materia-django/nginx
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=dev,enable=${{ startsWith(github.ref, 'refs/tags/v') && (contains(github.ref, '-alpha') || contains(github.ref, '-rc')) }}
+
+      - name: Docker meta for FakeS3
+        id: meta_fakes3
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/materia-django/fakes3
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=dev,enable=${{ startsWith(github.ref, 'refs/tags/v') && (contains(github.ref, '-alpha') || contains(github.ref, '-rc')) }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ secrets.CR_USER }}
-          password: ${{ secrets.CR_PAT }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Create .env.local to satisfy build requirements
+      - name: Create .env to satisfy build requirements
         run: |
           cd docker
-          if [ ! -f .env.local ]; then
-            touch .env.local
+          if [ ! -f .env ]; then
+            touch .env
           fi
 
-      - name: Build App and Webserver Images
+      - name: Build Images
         run: |
           cd docker
-          docker compose build --no-cache webserver app
-          docker compose -f docker-compose.yml -f docker-compose.development.yml build --no-cache fakes3
+          docker compose build --no-cache nginx python fakes3
 
-      - name: Push Dev App and Webserver Images
-        if: ${{ startsWith(github.ref, 'refs/tags/v') && (contains(github.ref, '-alpha') || contains(github.ref, '-rc')) }}
+      - name: Tag and Push Python Images
         run: |
-          docker push ghcr.io/${{ github.repository_owner }}/materia:app-dev
-          docker push ghcr.io/${{ github.repository_owner }}/materia:webserver-dev
-          docker push ghcr.io/${{ github.repository_owner }}/materia:fake-s3-dev
+          cd docker
+          IMAGE_NAME=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "materia-django-python")
+          echo "${{ steps.meta_python.outputs.tags }}" | while IFS= read -r tag; do
+            [ -n "$tag" ] && docker tag "$IMAGE_NAME" "$tag" && docker push "$tag"
+          done
 
-      - name: Push Stable App and Webserver Images
-        if: ${{ startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-alpha') && !contains(github.ref, '-rc') }}
+      - name: Tag and Push Nginx Images
         run: |
-          docker tag ghcr.io/${{ github.repository_owner }}/materia:app-dev ghcr.io/${{ github.repository_owner }}/materia:app-stable
-          docker tag ghcr.io/${{ github.repository_owner }}/materia:webserver-dev ghcr.io/${{ github.repository_owner }}/materia:webserver-stable
-          docker push ghcr.io/${{ github.repository_owner }}/materia:app-stable
-          docker push ghcr.io/${{ github.repository_owner }}/materia:webserver-stable
+          cd docker
+          IMAGE_NAME=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "materia-django-nginx")
+          echo "${{ steps.meta_nginx.outputs.tags }}" | while IFS= read -r tag; do
+            [ -n "$tag" ] && docker tag "$IMAGE_NAME" "$tag" && docker push "$tag"
+          done
 
-      - name: Push Versioned App and Webserver Images
+      - name: Tag and Push FakeS3 Images
         run: |
-          docker tag ghcr.io/${{ github.repository_owner }}/materia:app-dev ghcr.io/${{ github.repository_owner }}/materia:app-${{ github.sha }}
-          docker tag ghcr.io/${{ github.repository_owner }}/materia:app-dev ghcr.io/${{ github.repository_owner }}/materia:app-${{ steps.tag_name.outputs.GIT_TAG }}
-          docker tag ghcr.io/${{ github.repository_owner }}/materia:webserver-dev ghcr.io/${{ github.repository_owner }}/materia:webserver-${{ github.sha }}
-          docker tag ghcr.io/${{ github.repository_owner }}/materia:webserver-dev ghcr.io/${{ github.repository_owner }}/materia:webserver-${{ steps.tag_name.outputs.GIT_TAG }}
-          docker push ghcr.io/${{ github.repository_owner }}/materia:app-${{ github.sha }}
-          docker push ghcr.io/${{ github.repository_owner }}/materia:app-${{ steps.tag_name.outputs.GIT_TAG }}
-          docker push ghcr.io/${{ github.repository_owner }}/materia:webserver-${{ github.sha }}
-          docker push ghcr.io/${{ github.repository_owner }}/materia:webserver-${{ steps.tag_name.outputs.GIT_TAG }}
+          cd docker
+          IMAGE_NAME=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -E "fakes3|fake-s3")
+          echo "${{ steps.meta_fakes3.outputs.tags }}" | while IFS= read -r tag; do
+            [ -n "$tag" ] && docker tag "$IMAGE_NAME" "$tag" && docker push "$tag"
+          done
 
-      # run_build_github_release_package.sh relies on the current git user info
-      - name: Build Package
-        run: |
-          git config --global user.email "lst@ucf.edu"
-          git config --global user.name "ucfcdl-robot"
-          cd docker && ./run_build_github_release_package.sh ghcr.io/${{ github.repository_owner }}/materia:app-${{ steps.tag_name.outputs.GIT_TAG }}
-
-      - name: Upload to Release
-        if: ${{ startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-alpha') && !contains(github.ref, '-rc') }}
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: materia-pkg*
-          file_glob: true
-          tag: ${{ github.ref }}
-          overwrite: true
-
-      - name: Upload to Pre-Release
-        if: ${{ startsWith(github.ref, 'refs/tags/v') && contains(github.ref, '-alpha') || contains(github.ref, '-rc') }}
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: materia-pkg*
-          file_glob: true
-          tag: ${{ github.ref }}
-          overwrite: true
-          prerelease: true

@@ -31,3 +31,13 @@ class AGSUtil:
             user_id = launch_data.get(settings.LTI_USERDATA["ags_identifier"])
 
         return int(user_id)
+
+    @staticmethod
+    def is_ags_scoring_available(launch):
+        ags_claim = launch.get("https://purl.imsglobal.org/spec/lti-ags/claim/endpoint")
+        if ags_claim:
+            scope = ags_claim.get("scope")
+            if scope and "https://purl.imsglobal.org/spec/lti-ags/scope/score" in scope:
+                return True
+
+        return False

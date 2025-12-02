@@ -90,7 +90,7 @@ class WidgetPlayValidationService:
     def validate_widget_context(
         request,
         instance,
-        is_demo=False,
+        has_guest_access=False,
         is_preview=False,
         is_embedded=False,
         context_id=None,
@@ -108,7 +108,7 @@ class WidgetPlayValidationService:
         if not instance_availability["is_open"]:
             return WidgetPlayValidationService.INVALID_NOT_YET_OPEN
 
-        if not is_demo:
+        if not has_guest_access:
             if not instance.user_has_attempts(request.user, context_id):
                 return WidgetPlayValidationService.INVALID_NO_ATTEMPTS
 

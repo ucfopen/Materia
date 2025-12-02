@@ -30,7 +30,7 @@ In `.env`, be sure to update the following values:
 ```
 BASE_URL = http://127.0.0.1/
 MEDIA_URL = http://127.0.0.1/media/
-MEDIA_UPLOAD_URL = http://127.0.0.1/media/upload
+MEDIA_UPLOAD_URL = http://127.0.0.1/media/upload/
 WIDGET_URL = http://127.0.0.1/widget/
 STATIC_CROSSDOMAIN = http://127.0.0.1/
 SESSION_DRIVER="redis"

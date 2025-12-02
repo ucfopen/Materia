@@ -261,10 +261,9 @@ export const apiSearchInstances = (input, pageParam = 1, include_deleted = false
 	return handleRequest(methods.GET, `/api/instances/?search=${input}&page=${pageParam}&include_deleted=${include_deleted}`)
 }
 
-// TODO update or retire
-export const apiGetWidgetInstanceScores = (instId, userId) => {
-	console.log(`inst id: ${instId}, user id: ${userId}`)
-	return handleRequest(methods.GET, `/api/scores/?inst_id=${instId}&user=${userId}`)
+export const apiGetWidgetInstanceScores = (instId, userId, contextId=null) => {
+	const url = `/api/scores/?inst_id=${instId}&user=${userId}${contextId != null ? '&context=' + contextId : ''}`
+	return handleRequest(methods.GET, url)
 }
 
 export const apiGetWidgetInstancePlayScores = (playId) => {

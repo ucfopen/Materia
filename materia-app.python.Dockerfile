@@ -16,8 +16,7 @@ RUN apk add --no-cache --virtual .build-deps \
 COPY ./app/requirements.txt /tmp/requirements.txt
 
 # Build wheels for all dependencies including uwsgi
-RUN pip wheel --no-cache-dir --wheel-dir /wheels -r /tmp/requirements.txt \
-    && pip wheel --no-cache-dir --wheel-dir /wheels uwsgi
+RUN pip wheel --no-cache-dir --wheel-dir /wheels -r /tmp/requirements.txt
 
 # =====================================================================================================
 # Node/Yarn stage - build frontend assets
@@ -70,9 +69,6 @@ RUN mkdir -p /var/www/html
 # Copy wait script
 COPY docker/dockerfiles/wait_for_it.sh /wait_for_it.sh
 RUN chmod +x /wait_for_it.sh
-
-# Copy default uwsgi configuration
-COPY docker/config/uwsgi /etc/uwsgi
 
 # Copy application code
 COPY --chown=www-data:www-data ./app /var/www/html/

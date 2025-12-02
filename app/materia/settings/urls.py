@@ -23,25 +23,43 @@ LOGIN_LINKS = [
 #     os.path.join(BASE_DIR, "public"),
 # ]
 
+
+def enforce_trailing_slash(url_in):
+    # if the last character in a URL is not a slash, add one
+    if url_in[-1] != "/":
+        return f"{url_in}/"
+    return url_in
+
+
 URLS = {
-    "BASE_URL": os.environ.get(
-        "BASE_URL",
-        "http://localhost/",
+    "BASE_URL": enforce_trailing_slash(
+        os.environ.get(
+            "BASE_URL",
+            "http://localhost/",
+        )
     ),
-    "MEDIA_URL": os.environ.get(
-        "MEDIA_URL",
-        "http://localhost/media/",
+    "MEDIA_URL": enforce_trailing_slash(
+        os.environ.get(
+            "MEDIA_URL",
+            "http://localhost/media/",
+        )
     ),
-    "MEDIA_UPLOAD_URL": os.environ.get(
-        "MEDIA_UPLOAD_URL",
-        "http://localhost/media/upload",
+    "MEDIA_UPLOAD_URL": enforce_trailing_slash(
+        os.environ.get(
+            "MEDIA_UPLOAD_URL",
+            "http://localhost/media/upload/",
+        )
     ),
-    "WIDGET_URL": os.environ.get(
-        "WIDGET_URL",
-        "http://localhost/widget/",
+    "WIDGET_URL": enforce_trailing_slash(
+        os.environ.get(
+            "WIDGET_URL",
+            "http://localhost/widget/",
+        )
     ),
-    "STATIC_CROSSDOMAIN": os.environ.get(
-        "STATIC_CROSSDOMAIN",
-        "http://localhost/",
+    "STATIC_CROSSDOMAIN": enforce_trailing_slash(
+        os.environ.get(
+            "STATIC_CROSSDOMAIN",
+            "http://localhost/",
+        )
     ),
 }
