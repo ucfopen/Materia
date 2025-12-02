@@ -61,28 +61,6 @@ class ScoresViewSingle(MateriaLoginMixin, TemplateView):
         if play.instance.id != widget_instance_id:
             return HttpResponseBadRequest()
 
-        # TODO
-        # Revisit this redirect: this event trigger was associated LTI 1.1
-
-        # Allow event listeners to redirect users
-        # This is mostly to redirect them to failure status pages
-        # $results = \Event::trigger('before_single_score_review',
-        # ['play_id' => $play_id, 'content_id' => $play->context_id], 'array');
-
-        # if redirect:
-        #     return HttpResponseRedirect(redirect)
-
-        # allow lti launches from only authors or staff
-        if LTILaunchService.is_lti_launch(request):
-            launch = LTILaunchService.get_launch_data(request)
-            is_author_or_staff = LTILaunchService.is_user_course_author(
-                launch
-            ) or LTILaunchService.is_user_staff(launch)
-            if not is_author_or_staff:
-                raise MateriaLoginNeeded(
-                    login_message="You do not have permission to view this score."
-                )
-
         context = _get_context_data(request, widget_instance_id, token)
         return self.render_to_response(context)
 
