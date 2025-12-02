@@ -52,7 +52,7 @@ class ScoresView(APIView):
             the user id in the API request matches the current user OR
             the current user has authorship permissions to the instance OR
             the current user is a support user OR
-            the current user is an authr or staff that is launched from LTI
+            the current user is an author or staff where request is launched from LTI
             """
             is_author_or_staff = False
             if LTILaunchService.is_lti_launch(request):
