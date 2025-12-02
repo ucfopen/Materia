@@ -35,6 +35,7 @@ urlpatterns = [
     path(
         "preview-embed/<slug:widget_instance_id>/",
         WidgetPreviewView.as_view(),
+        {"is_embed": True},
         name="embedded widget preview",
     ),
 ]

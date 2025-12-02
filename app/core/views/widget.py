@@ -125,7 +125,11 @@ class WidgetPlayView(
 
     def process_context(self, validation):
         return _create_player_context(
-            validation, self.instance, self.request, is_preview=False
+            validation,
+            self.instance,
+            self.request,
+            is_preview=False,
+            is_embedded=self.is_embedded,
         )
 
     def before_play_init(self, instance):
@@ -211,7 +215,11 @@ class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateV
 
     def process_context(self, validation):
         return _create_player_context(
-            validation, self.instance, self.request, is_preview=True
+            validation,
+            self.instance,
+            self.request,
+            is_preview=True,
+            is_embedded=self.is_embedded,
         )
 
     def before_play_init(self, instance):
@@ -507,7 +515,6 @@ def _create_pre_embed_placeholder_page(request: HttpRequest, instance: WidgetIns
 
 
 def _create_embedded_only_page(request: HttpRequest, instance: WidgetInstance):
-    # TODO 'before_embedded_only' event trigger occurred here
 
     return ContextUtil.create(
         title="Widget Unavailable",

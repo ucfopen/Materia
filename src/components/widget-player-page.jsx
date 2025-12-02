@@ -1,7 +1,6 @@
 import React, { useState, useEffect} from 'react'
 import Header from './header'
 import WidgetPlayer from './widget-player'
-import useCreatePlaySession from './hooks/useCreatePlaySession'
 import { waitForWindow } from '../util/wait-for-window'
 
 const EMBED = 'embed'
@@ -13,7 +12,7 @@ const LEGACY_EMBED = 'legacy-embed'
 
 const getWidgetType = path => {
 	switch(true) {
-		case path.includes('/embed/'): return EMBED
+		case (path.includes('/embed/') || !!state.ltiToken): return EMBED
 		case path.includes('/play/'): return PLAY
 		case path.includes('/preview/'): return PREVIEW
 		case path.includes('/demo'): return DEMO
@@ -24,8 +23,6 @@ const getWidgetType = path => {
 }
 
 const WidgetPlayerPage = () => {
-
-	const createPlaySession = useCreatePlaySession()
 
 	const type = getWidgetType(window.location.pathname)
 	const nameArr = window.location.pathname.replace(`/${type}/`, '').split('/')
