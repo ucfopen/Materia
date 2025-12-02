@@ -13,7 +13,7 @@ const WidgetAdminPage = () => {
 
 	const { data, isLoading, refetch: refetchWidgets} = useQuery({
 		queryKey: ['widgets'],
-		queryFn: () => apiGetWidget([], 'all'),
+		queryFn: () => apiGetWidget([], 'admin'),
 		staleTime: Infinity,
 		retry: false,
 		onSuccess: (widgetData) => {
