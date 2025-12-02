@@ -1,6 +1,8 @@
 import React, {useState, useEffect, useMemo} from 'react'
 import Header from './header'
 import Scores from './scores'
+import LoadingIcon from './loading-icon'
+import { waitForWindow } from '../util/wait-for-window'
 
 const ScorePage = () => {
 
@@ -35,24 +37,20 @@ const ScorePage = () => {
 	})
 
 	useEffect(() => {
-		waitForWindow()
+		waitForWindow(['USER_ID'])
 		.then(() => {
 			setState({
 				...state,
 				userID: window.USER_ID ?? null,
 				playID: playID,
-				token: token,
+				token: token ?? null,
+				contextID: window.CONTEXT_ID ?? null,
 				isEmbedded: isEmbed || !!token || !!window.LTI_EMBEDDED,
 				ready: true
 			})
 		})
 	}, [])
 
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('USER_ID')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
 
 	let headerRender = null
 	if (!state.isEmbedded) {
@@ -66,9 +64,13 @@ const ScorePage = () => {
 		playID={state.playID}
 		userID={state.userID}
 		token={state.token}
+		contextID={state.contextID}
 		isEmbedded={state.isEmbedded}
 		isPreview={state.isPreview}
 		isSingle={state.isSingle}/>
+	}
+	else {
+		bodyRender = <LoadingIcon size='med' />
 	}
 
 	if (state.isEmbedded) document.body.classList.add('embedded')

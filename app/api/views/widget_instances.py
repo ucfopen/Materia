@@ -304,7 +304,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
 
         logs_for_user = (
-            LogPlay.objects.filter(instance=instance)
+            LogPlay.objects.filter(instance=instance, is_complete=True)
             .order_by("-created_at", "semester")
             .select_related("semester")
         )
