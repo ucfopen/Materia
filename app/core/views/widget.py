@@ -526,7 +526,7 @@ def _create_lti_success_page(request: HttpRequest, instance: WidgetInstance):
     """
     TODO should this be under the LTI app?
     """
-    is_owner = instance.editable_by_current_user(request.user)
+    is_owner = instance.permissions.filter(user=request.user).exists()
     owner_list = instance.permissions.filter(
         permission=ObjectPermission.PERMISSION_FULL
     )
