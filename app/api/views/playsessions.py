@@ -2,28 +2,26 @@ import logging
 import traceback
 
 from api.filters import LogPlayFilterBackend
-from core.models import Log, LogPlay, WidgetInstance
+from api.paginators import PageNumberWithTotalPagination
 from api.permissions import PlaySessionInstancePermissions
-from api.serializers import (
-    PlayLogUpdateSerializer,
-    PlaySessionCreateSerializer,
-    PlaySessionSerializer,
-)
-from core.services.widget_play_services import WidgetPlayInitService
+from api.serializers import PlayLogUpdateSerializer, PlaySessionSerializer
+from core.message_exception import MsgFailure, MsgInvalidInput
+from core.models import Log, LogPlay, WidgetInstance
+from core.services.perm_service import PermService
+from core.utils.validator_util import ValidatorUtil
 from django.conf import settings
 from django.db.models import Max
-from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from lti.ags.client import AGSClient
+from lti.ags.exceptions.ags_claim_not_defined import AGSClaimNotDefined
+from lti.ags.exceptions.ags_no_line_item import AGSNoLineItem
+from lti.ags.util import AGSUtil
 from lti.services.launch import LTILaunchService
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
 from scoring.module_factory import ScoreModuleFactory
-from api.paginators import PageNumberWithTotalPagination
-from core.message_exception import MsgInvalidInput, MsgFailure
-from core.services.perm_service import PermService
-from core.utils.validator_util import ValidatorUtil
 
 logger = logging.getLogger("django")
 
@@ -113,41 +111,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         return PlaySessionSerializer
 
     def create(self, request):
-        serializer = PlaySessionCreateSerializer(
-            data=request.data, context={"request": request}
-        )
-        if serializer.is_valid(raise_exception=True):
-            validated = serializer.validated_data
-
-            if validated["is_preview"] is True:
-
-                preview_id = WidgetPlayInitService.init_preview(request)
-                return JsonResponse({"playId": preview_id})
-
-            else:
-                user = (
-                    request.user
-                    if validated["instance"].guest_access is False
-                    else None
-                )
-
-                # disallow plays for non-playable widget engines
-                if not validated["instance"].widget.is_playable:
-                    raise MsgFailure(
-                        "Failed to Create Play Session", "This widget is not playable."
-                    )
-
-                # init the new play
-                new_play = WidgetPlayInitService.init_play(
-                    request, validated["instance"], user
-                )
-                if not new_play.id:
-                    raise MsgFailure(
-                        "Failed to Create Play Session",
-                        "There was an error starting your play session. Please try again.",
-                    )
-
-                return JsonResponse({"playId": new_play.id})
+        raise MethodNotAllowed("POST")
 
     def update(self, request, pk=None):
         if not pk:
@@ -225,7 +189,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                                 request, play.lti_token
                             )
 
-                            if launch:
+                            if launch and AGSUtil.is_ags_scoring_available(launch):
                                 context_history = LogPlay.objects.filter(
                                     instance=play.instance,
                                     user=play.user,
@@ -243,26 +207,50 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
                                 score_url = f"{settings.URLS["BASE_URL"]}scores/single/{play.instance.id}/{play.id}"
 
-                                ags = AGSClient(launch)
-                                completion = (
-                                    ags.score_builder()
-                                    .score_given(max_score)
-                                    .score_maximum(100)
-                                    .activity_progress("Completed")
-                                    .grading_progress("FullyGraded")
-                                    .timestamp(completed_time)
-                                    .submission_url(score_url)
-                                    .submit()
-                                )
+                                try:
+                                    ags = AGSClient(launch)
+                                    (
+                                        ags.score_builder()
+                                        .score_given(max_score)
+                                        .score_maximum(100)
+                                        .activity_progress("Completed")
+                                        .grading_progress("FullyGraded")
+                                        .timestamp(completed_time)
+                                        .submission_url(score_url)
+                                        .submit()
+                                    )
 
-                                # TODO we should really have some kind of message provided to users
-                                # when LTI completion is successful
-                                logger.error(f"\ncompletion!\n{completion}\n")
+                                    logger.error(
+                                        f"LTI-AGS: successfully transmitted "
+                                        f"completion for play {play.id}"
+                                    )
 
+                                except AGSClaimNotDefined:
+                                    logger.error(
+                                        f"LTI-AGS: AGS claim not defined "
+                                        f"for play {play.id}"
+                                    )
+                                except AGSNoLineItem:
+                                    logger.error(
+                                        f"LTI-AGS: no AGS operations performed; "
+                                        f"a line item was not provided for play {play.id}"
+                                    )
+                                except Exception as e:
+                                    logger.error(
+                                        f"LTI-AGS: failed to transmit completion "
+                                        f"for play {play.id}: {str(e)}"
+                                    )
                             else:
-                                logger.error(
-                                    "\nCould NOT recover launch from session!\n"
-                                )
+                                if launch is None:
+                                    logger.error(
+                                        f"LTI-AGS: launch recovery failure: unable to "
+                                        f"retrieve launch for play {play.id}"
+                                    )
+                                else:
+                                    logger.error(
+                                        f"LTI-AGS: no AGS operations performed; "
+                                        f"AGS scoring unavailable for play {play.id}"
+                                    )
                                 pass
                 else:
                     preview_play_id = update_serializer.validated_data[
@@ -282,13 +270,8 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 logger.error(f"\ntraceback: {tbString}")
                 raise MsgFailure("Failed to Save", "Your play logs could not be saved.")
 
-    def destroy(self, request, *args, **kwargs):
-        return Response(
-            {
-                "detail": "This operation is not allowed.",
-                "status": status.HTTP_403_FORBIDDEN,
-            }
-        )
+    def destroy(self, request):
+        raise MethodNotAllowed("DELETE")
 
     @action(detail=True, methods=["get"])
     def verify(self, request, pk=None):

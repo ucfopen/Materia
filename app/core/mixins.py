@@ -2,9 +2,9 @@ import logging
 
 from core.models import WidgetInstance
 from core.services.widget_play_services import WidgetPlayValidationService
+from core.utils.context_util import ContextUtil
 from django.contrib.auth.mixins import AccessMixin
 from django.http import HttpRequest, HttpResponse
-from core.utils.context_util import ContextUtil
 
 logger = logging.getLogger("django")
 
@@ -116,7 +116,6 @@ class MateriaWidgetPlayProcessor:
         if inst_id is not None:
             self.instance = WidgetInstance.objects.filter(pk=inst_id).first()
             self.is_embedded = kwargs.get("is_embed", False)
-
             self.validation = self.get_validation(request, self.instance)
 
         return super().dispatch(request, *args, **kwargs)

@@ -35,8 +35,8 @@ def handler404(request, exception):
 
     context = ContextUtil.create(
         title="404 Page Not Found",
-        js_resources="dist/js/404.js",
-        css_resources="dist/css/404.css",
+        js_resources=settings.JS_GROUPS["404"],
+        css_resources=settings.CSS_GROUPS["404"],
         request=request,
     )
 
@@ -54,8 +54,8 @@ def handler500(request):
 
     context = ContextUtil.create(
         title="500 Server Error",
-        js_resources="dist/js/500.js",
-        css_resources="dist/css/500.css",
+        js_resources=settings.JS_GROUPS["500"],
+        css_resources=settings.CSS_GROUPS["500"],
         request=request,
     )
 

@@ -1,4 +1,5 @@
 import logging
+import json
 import re
 import traceback
 
@@ -115,49 +116,80 @@ class Command(base.BaseCommand):
 
             year_counter = year_counter + 1
 
-    def sync_widgets(self):
+    def sync_widgets(self, sync_file=None):
         """
         Updates currently installed widgets that do not have update support enabled to the latest version.
         Latest versions will have the new python score modules, and update support enabled.
 
-        This command specifically targets UCF-created Materia widgets
+        By default, this command specifically targets UCF-created Materia widgets
+        A separate .json file containing clean_name -> repo pairings can be passed in to use as well.
+        The JSON should look something like:
+        {
+            "my-widget": "github/repo",  // automatically assumed to use 'github' update method
+            "my-other-widget": {  // use a dict for non-github update methods
+                "method": "method that is not github",
+                "params": {
+                    // parameters that will get inserted into the metadata
+                    // for 'github', that would be 'repo'
+                    "other-param": "value"
+                }
+            }
+        }
         """
 
-        target_widgets = {
-            # TODO - update this list to match all widgets we are bringing into the django world
-            #      - also, some of these widgets are in private repos (ucdcdl)
-            "adventure": "ucfopen/adventure-materia-widget",
-            # "associations": "ucfcdl/associations-materia-widget",
-            # "category-climb": "ucfcdl/category-climb-materia-widget",
-            "crossword": "ucfopen/crossword-materia-widget",
-            "enigma": "ucfopen/enigma-materia-widget",
-            "equation-sandbox": "ucfopen/equation-sandbox-materia-widget",
-            "flash-cards": "ucfopen/flash-cards-materia-widget",
-            "guess-the-phrase": "ucfopen/guess-the-phrase-materia-widget",
-            "labeling": "ucfopen/labeling-materia-widget",
-            "last-chance-cadet": "ucfopen/last-chance-cadet-materia-widget",
-            "matching": "ucfopen/matching-materia-widget",
-            # "node-graph": "ucfcdl/node-graph-widget",
-            "normal-distribution-calculator": "ucfopen/normal-distribution-calculator-materia-widget",
-            "nursing-simulation-builder": "ucfopen/nursing-space-simulator-materia-widget",
-            "privilege-walk": "ucfopen/privilege-walk-materia-widget",
-            "proof-reading-symbols": "ucfopen/proof-reading-symbols-materia-widget",
-            "radar-grapher": "ucfopen/radar-grapher-materia-widget",
-            "secret-spreadsheet": "ucfopen/secret-spreadsheet-materia-widget",
-            "sequencer": "ucfopen/sequencer-materia-widget",
-            "simple-survey": "ucfopen/survey-materia-widget",
-            "slope-finder": "ucfopen/slope-finder-materia-widget",
-            "sort-it-out": "ucfopen/sort-it-out-materia-widget",
-            "syntax-sorter": "ucfopen/syntax-sorter-materia-widget",
-            "this-or-that": "ucfopen/this-or-that-materia-widget",
-            "word-search": "ucfopen/word-search-materia-widget",
-            "be-finder": "ucfopen/be-finder-materia-widget",
-            "concentration": "ucfopen/active-voice-verb-concentration-materia-widget",
-            "dodgeball": "ucfopen/infinity-dodgeball-materia-widget",
-            "roulette": "ucfopen/adverbial-clause-roulette-materia-widget",
-            "word-guess": "ucfopen/word-guess-materia-widget",
-        }
+        # Determine target widgets
+        if sync_file is not None:
+            # Load in sync file and use that instead of the default list
+            print(f"Using custom sync file: {sync_file}")
+            with open(sync_file, "r") as f:
+                try:
+                    target_widgets = json.loads(f.read())
+                except Exception as e:
+                    print(
+                        f"Error parsing custom sync file - it is likely not valid JSON: {e}"
+                    )
+                    traceback.print_exc()
+                    return
+        else:
+            # Use default list
+            print("Using default sync file")
 
+            target_widgets = {
+                # TODO - update this list to match all widgets we are bringing into the django world
+                #      - also, some of these widgets are in private repos (ucfcdl)
+                "adventure": "ucfopen/adventure-materia-widget",
+                # "associations": "ucfcdl/associations-materia-widget",
+                # "category-climb": "ucfcdl/category-climb-materia-widget",
+                "crossword": "ucfopen/crossword-materia-widget",
+                "enigma": "ucfopen/enigma-materia-widget",
+                "equation-sandbox": "ucfopen/equation-sandbox-materia-widget",
+                "flash-cards": "ucfopen/flash-cards-materia-widget",
+                "guess-the-phrase": "ucfopen/guess-the-phrase-materia-widget",
+                "labeling": "ucfopen/labeling-materia-widget",
+                "last-chance-cadet": "ucfopen/last-chance-cadet-materia-widget",
+                "matching": "ucfopen/matching-materia-widget",
+                # "node-graph": "ucfcdl/node-graph-widget",
+                "normal-distribution-calculator": "ucfopen/normal-distribution-calculator-materia-widget",
+                "nursing-simulation-builder": "ucfopen/nursing-space-simulator-materia-widget",
+                "privilege-walk": "ucfopen/privilege-walk-materia-widget",
+                "proof-reading-symbols": "ucfopen/proof-reading-symbols-materia-widget",
+                "radar-grapher": "ucfopen/radar-grapher-materia-widget",
+                "secret-spreadsheet": "ucfopen/secret-spreadsheet-materia-widget",
+                "sequencer": "ucfopen/sequencer-materia-widget",
+                "simple-survey": "ucfopen/survey-materia-widget",
+                "slope-finder": "ucfopen/slope-finder-materia-widget",
+                "sort-it-out": "ucfopen/sort-it-out-materia-widget",
+                "syntax-sorter": "ucfopen/syntax-sorter-materia-widget",
+                "this-or-that": "ucfopen/this-or-that-materia-widget",
+                "word-search": "ucfopen/word-search-materia-widget",
+                "be-finder": "ucfopen/be-finder-materia-widget",
+                "concentration": "ucfopen/active-voice-verb-concentration-materia-widget",
+                "dodgeball": "ucfopen/infinity-dodgeball-materia-widget",
+                "roulette": "ucfopen/adverbial-clause-roulette-materia-widget",
+                "word-guess": "ucfopen/word-guess-materia-widget",
+            }
+
+        # Start update process - go through each widget
         widgets = Widget.objects.all()
 
         no_matches = []
@@ -165,7 +197,7 @@ class Command(base.BaseCommand):
         failed_updates = []
 
         for widget in widgets:
-            # See if widget is in out list of updatable widgets
+            # See if widget is in our list of updatable widgets
             print()
             print(f"Syncing {widget.name} ({widget.id})...")
             if widget.clean_name not in target_widgets.keys():
@@ -174,8 +206,21 @@ class Command(base.BaseCommand):
                 continue
 
             print(" -> Is a syncable widget! Injecting update metadata...")
-            widget.metadata["update_method"] = "github"
-            widget.metadata["repo"] = target_widgets[widget.clean_name]
+            update_metadata = target_widgets[widget.clean_name]
+            if isinstance(update_metadata, str):
+                # When update_metadata is just a string, it's assumed it is just a github repo
+                widget.metadata["update_method"] = "github"
+                widget.metadata["repo"] = update_metadata
+            elif isinstance(update_metadata, dict):
+                # Otherwise, when it's an object, allow for custom needs
+                widget.metadata["update_method"] = update_metadata["method"]
+                for key, value in update_metadata["params"].items():
+                    widget.metadata[key] = value
+            else:
+                print(" -> Invalid update metadata, skipping")
+                failed_updates.append((widget.id, widget.name))
+                continue
+
             widget.save()
 
             print(" -> Getting latest version... ", end="")
@@ -193,15 +238,16 @@ class Command(base.BaseCommand):
                 print(" -> Done!")
                 synced.append((widget.id, widget.name))
             except MsgException as e:
-                print(" -> Failed to update:")
-                print(f"      - {e.title}")
-                print(f"      - {e.msg}")
+                print("Failed to update:")
+                print(f"     - {e.title}")
+                print(f"     - {e.msg}")
                 failed_updates.append((widget.id, widget.name))
             except Exception:
                 failed_updates.append((widget.id, widget.name))
-                print("\n -> Failed to update, traceback follows")
+                print("Failed to update, traceback follows")
                 traceback.print_exc()
 
+        # Print summary
         print("\nFinished syncing widgets! Results:")
 
         print("\nThe following widgets were synced successfully:")

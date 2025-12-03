@@ -40,7 +40,7 @@ const CalendarContainer = ({children}) => {
 	)
 }
 
-const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, readOnly}) => {
+const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPermHolder, removedCurrentUser, onChange, readOnly}) => {
 	const [state, setState] = useState({...initRowState(), ...perms, expireDate: new Date(perms.expireTime)})
 	const ref = useRef()
 
@@ -126,10 +126,10 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 			)
 		} else {
 			expirationSettingRender = (
-				<button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'}
+				<button className={readOnly || isCurrentUser || removedCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'}
 					data-testid={`${user.id}-never-expire`}
 					onClick={toggleShowExpire}
-					disabled={readOnly || isCurrentUser}>
+					disabled={readOnly || isCurrentUser || removedCurrentUser}>
 					Never
 				</button>
 			)
@@ -141,8 +141,8 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 			<button tabIndex='0'
 				onClick={checkForWarning}
 				className='remove'
-				disabled={readOnly && !isCurrentUser}
-				aria-hidden={readOnly && !isCurrentUser}
+				disabled={onlyOneFullPermHolder && (perms.accessLevel === access.FULL)}
+				aria-hidden={onlyOneFullPermHolder && (perms.accessLevel === access.FULL)}
 				data-testid={`${user.id}-delete-user`}>
 				X
 			</button>
@@ -156,7 +156,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 			</div>
 			{ selfDemoteWarningRender }
 			<div className='options'>
-				<select disabled={readOnly}
+				<select disabled={readOnly || isCurrentUser || removedCurrentUser}
 					data-testid={`${user.id}-select`}
 					tabIndex='0'
 					className='perm'

@@ -13,17 +13,24 @@ LTI_USERDATA = {
     ),
 }
 
-LTI_ROLES = {
+LTI_COURSE_ROLES = {
     "staff": [
-        "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator",
-        "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor",
         "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor",
         "http://purl.imsglobal.org/vocab/lis/v2/membership/Instructor#TeachingAssistant",
         "http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper",
     ],
     "student": [
-        "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student",
         "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner",
+    ],
+}
+
+LTI_INSTITUTION_ROLES = {
+    "staff": [
+        "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator",
+        "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor",
+    ],
+    "student": [
+        "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student",
     ],
 }
 

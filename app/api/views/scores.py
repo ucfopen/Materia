@@ -1,19 +1,20 @@
 import logging
 
-from core.models import LogPlay, WidgetInstance
 from api.serializers import (
     QuestionSetSerializer,
     ScoreDetailsForPlaySerializer,
     ScoreDetailsForPreviewSerializer,
     ScoresForUserSerializer,
 )
+from core.message_exception import MsgExpired, MsgNoPerm
+from core.models import LogPlay, WidgetInstance
+from core.services.perm_service import PermService
+from core.services.semester_service import SemesterService
+from lti.services.launch import LTILaunchService
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from scoring.module_factory import ScoreModuleFactory
-from core.message_exception import MsgNoPerm, MsgExpired
-from core.services.perm_service import PermService
-from core.services.semester_service import SemesterService
 
 logger = logging.getLogger(__name__)
 
@@ -50,12 +51,21 @@ class ScoresView(APIView):
             access perms require either:
             the user id in the API request matches the current user OR
             the current user has authorship permissions to the instance OR
-            the current user is a support user
+            the current user is a support user OR
+            the current user is an author or staff where request is launched from LTI
             """
+            is_author_or_staff = False
+            if LTILaunchService.is_lti_launch(request):
+                launch = LTILaunchService.get_launch_data(request)
+                is_author_or_staff = LTILaunchService.is_user_course_author(
+                    launch
+                ) or LTILaunchService.is_user_staff(launch)
+
             if (
                 request.user.id != user.id
                 and not instance.permissions.filter(user=request.user).exists()
                 and not PermService.is_superuser_or_elevated(request.user)
+                and not is_author_or_staff
             ):
                 raise MsgNoPerm()
 
@@ -63,11 +73,7 @@ class ScoresView(APIView):
                 user=user, instance=instance, is_complete=True
             )
 
-            if validated.get("context"):
-                plays = plays.filter(context_id=context)
-            else:
-                semester = SemesterService.get_current_semester()
-                plays = plays.filter(semester=semester)
+            semester = SemesterService.get_current_semester()
 
             scores = []
             for play in plays.order_by("-created_at"):
@@ -77,11 +83,16 @@ class ScoresView(APIView):
 
                 details = module.get_score_report()
 
+                current_context = (
+                    play.context_id == context and play.semester == semester
+                )
+
                 scores.append(
                     {
                         "id": play.id,
                         "created_at": play.created_at.isoformat(),
                         "percent": details.get("overview", {}).get("score", 0),
+                        "current_context": current_context,
                     }
                 )
 
@@ -128,7 +139,7 @@ class ScoresDetailView(APIView):
             if serializer.is_valid(raise_exception=True):
                 validated = serializer.validated_data
 
-                logs_key = f"previewPlayLogs.{validated.get("play_id")}"
+                logs_key = f"previewPlayLogs.{validated.get('play_id')}"
                 preview_logs = request.session.get(logs_key, [])
                 preview_inst = validated.get("preview_inst_id")
 
@@ -170,11 +181,19 @@ class ScoresDetailView(APIView):
                 )
                 play_user_id = None if play.user is None else play.user.id
 
+                is_author_or_staff = False
+                if LTILaunchService.is_lti_launch(request):
+                    launch = LTILaunchService.get_launch_data(request)
+                    is_author_or_staff = LTILaunchService.is_user_course_author(
+                        launch
+                    ) or LTILaunchService.is_user_staff(launch)
+
                 if (
                     user_id != play_user_id
                     and play_user_id is not None
                     and not play.instance.permissions.filter(user=request.user).exists()
                     and not PermService.is_superuser_or_elevated(request.user)
+                    and not is_author_or_staff
                 ):
                     raise MsgNoPerm()
 

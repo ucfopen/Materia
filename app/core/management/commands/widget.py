@@ -286,7 +286,6 @@ class Command(base.BaseCommand):
                 print(f"no score module for play: {play.id}")
                 return
 
-            module.validate_scores(in_process=False)
             details = module.get_score_report()
             scores.append(
                 {
