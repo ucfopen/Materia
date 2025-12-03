@@ -10,6 +10,7 @@ from core.message_exception import MsgExpired, MsgNoPerm
 from core.models import LogPlay, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
+from lti.services.launch import LTILaunchService
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -50,12 +51,21 @@ class ScoresView(APIView):
             access perms require either:
             the user id in the API request matches the current user OR
             the current user has authorship permissions to the instance OR
-            the current user is a support user
+            the current user is a support user OR
+            the current user is an author or staff where request is launched from LTI
             """
+            is_author_or_staff = False
+            if LTILaunchService.is_lti_launch(request):
+                launch = LTILaunchService.get_launch_data(request)
+                is_author_or_staff = LTILaunchService.is_user_course_author(
+                    launch
+                ) or LTILaunchService.is_user_staff(launch)
+
             if (
                 request.user.id != user.id
                 and not instance.permissions.filter(user=request.user).exists()
                 and not PermService.is_superuser_or_elevated(request.user)
+                and not is_author_or_staff
             ):
                 raise MsgNoPerm()
 
@@ -129,7 +139,7 @@ class ScoresDetailView(APIView):
             if serializer.is_valid(raise_exception=True):
                 validated = serializer.validated_data
 
-                logs_key = f"previewPlayLogs.{validated.get("play_id")}"
+                logs_key = f"previewPlayLogs.{validated.get('play_id')}"
                 preview_logs = request.session.get(logs_key, [])
                 preview_inst = validated.get("preview_inst_id")
 
@@ -171,11 +181,19 @@ class ScoresDetailView(APIView):
                 )
                 play_user_id = None if play.user is None else play.user.id
 
+                is_author_or_staff = False
+                if LTILaunchService.is_lti_launch(request):
+                    launch = LTILaunchService.get_launch_data(request)
+                    is_author_or_staff = LTILaunchService.is_user_course_author(
+                        launch
+                    ) or LTILaunchService.is_user_staff(launch)
+
                 if (
                     user_id != play_user_id
                     and play_user_id is not None
                     and not play.instance.permissions.filter(user=request.user).exists()
                     and not PermService.is_superuser_or_elevated(request.user)
+                    and not is_author_or_staff
                 ):
                     raise MsgNoPerm()
 
