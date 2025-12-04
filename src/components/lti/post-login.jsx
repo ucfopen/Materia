@@ -15,7 +15,7 @@ const PostLogin = () => {
 	const instructor_page = (
 		<>
 			<header className="header-for-instructors">
-				<h1>Enhance Your Course</h1>
+				<h1>Enhance Your Course With Widgets</h1>
 				<p>Create interactive learning content in minutes. No coding required. Select a widget, customize it, and share it with students.</p>
 				<ul>
 					<li>
@@ -171,7 +171,7 @@ const PostLogin = () => {
 						What if I need help getting started?
 					</dt>
 					<dd>
-						Go get some help
+						Check out our <a href={`${window.BASE_URL}help#instructors`} target="_blank">help page for instructors</a> or visit additional support resources below!
 					</dd>
 				</dl>
 			</section>
