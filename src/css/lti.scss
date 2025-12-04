@@ -998,10 +998,14 @@ html {
 					width: 80%;
 					margin: 0 auto;
 
-					// a.regular_button {
-					// 	color: #fff;
-					// 	border: solid 1px #fff;
-					// }
+					a.regular_button {
+						color: #fff;
+						border: solid 1px #fff;
+
+						&:hover {
+							background: #97dbff;
+						}
+					}
 				}
 				}
 
@@ -1046,7 +1050,7 @@ html {
 			ul {
 				display: flex;
 				flex-direction: row;
-				justify-content: space-around;
+				justify-content: center;
 				gap: 1em;
 				list-style-type: none;
 				padding: 0 1em;
