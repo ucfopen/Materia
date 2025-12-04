@@ -176,7 +176,6 @@ class LTILaunchService:
             recovery = LTILaunchService.get_session_launch(request, token_param)
             if recovery is not None:
                 recovery["materia_launch_state"] = "RECOVERY"
-                logger.error("\nLaunch RECOVERED from get param!\n")
 
             return recovery
 

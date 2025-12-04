@@ -106,8 +106,9 @@ class WidgetPlayView(
 
     def get_validation(self, request, instance):
         context_id = ""
-        if self.launch is not None:
-            context_id = LTILaunchService.get_context_id(self.launch)
+        launch = LTILaunchService.get_or_recover_launch(request)
+        if launch is not None:
+            context_id = LTILaunchService.get_context_id(launch)
 
         # Check if this instance is a guest/demo instance
         has_guest_access = instance.guest_access
@@ -139,17 +140,15 @@ class WidgetPlayView(
         lti_token = None
 
         # do we have an LTI launch?
-        # at this point the launch is recovered from either request or session
         # if it is - update the play with LTI flags and pass the token to context
-        if self.launch and not instance.guest_access:
+        launch = LTILaunchService.get_or_recover_launch(self.request)
+        if launch and not instance.guest_access:
             play.auth = "lti"
-            play.context_id = LTILaunchService.get_context_id(self.launch)
+            play.context_id = LTILaunchService.get_context_id(launch)
 
             # if it's a first-time launch, store in session
-            if LTILaunchService.get_launch_state(self.launch) == "INITIAL":
-                LTILaunchService.store_session_launch(
-                    self.request, play.id, self.launch
-                )
+            if LTILaunchService.get_launch_state(launch) == "INITIAL":
+                LTILaunchService.store_session_launch(self.request, play.id, launch)
                 lti_token = play.id
             else:
                 lti_token = self.request.GET.get("token")
@@ -185,10 +184,6 @@ class WidgetPlayView(
 
         if context:
             return render(request, "react.html", context)
-
-        # assign launch object as an instance attribute so before_play_init can use it
-        # we only do this once confirming it's an appropriate widget launch
-        self.launch = launch
 
         return None
 
