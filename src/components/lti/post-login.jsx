@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react'
-// import { useQuery } from 'react-query'
 import { waitForWindow } from '../../util/wait-for-window'
 
-// import { apiGetInstancesFromContext } from '../../util/api'
-// import { iconUrl as getIconUrl } from '../../util/icon-url'
 
 const PostLogin = () => {
 
+	const [isAuthor, setIsAuthor] = useState(false)
+
 	useEffect(() => {
-		waitForWindow(['STATIC_CROSSDOMAIN', 'CONTEXT_ID']).then(() => {
-			setStaticURL(window.STATIC_CROSSDOMAIN)
-			setContextID(window.CONTEXT_ID)
+		waitForWindow(['IS_AUTHOR']).then(() => {
+			setIsAuthor(window.IS_AUTHOR)
 		})
 	}, [])
 
-	return (
-		<section id="lti-login-section">
+	const instructor_page = (
+		<>
 			<header className="header-for-instructors">
 				<h1>Enhance Your Course</h1>
 				<p>Create interactive learning content in minutes. No coding required. Select a widget, customize it, and share it with students.</p>
@@ -187,6 +185,55 @@ const PostLogin = () => {
 					</section>
 				</div>
 			</footer>
+		</>
+	)
+
+	const student_page = (
+		<>
+			<header className="header-for-students">
+				<img src="/static/img/lti/for_students_kogneato_header.svg" alt="Kogneato the robot playing a game of hopscotch" />
+				<h1>Turn Studying Into Play!</h1>
+			</header>
+			<section className="student-intro">
+				<p>Master your coursework with Materia's interactive widgets. Create your own study games or play widgets from your instructor.</p>
+				<div className="intro-links">
+					<a className="action_button" href={`${window.BASE_URL}widgets`} target="_blank">Browse Widget Catalog</a>
+					<a className="regular_button" href={`${window.BASE_URL}profile`} target="_blank">My Play History</a>
+				</div>
+			</section>
+			<section className="widget-play-timeline">
+				<ul>
+					<li>
+						<h3>From Instructors</h3>
+						Play widgets your instructor has created and embedded in your course.
+					</li>
+					<li>
+						<h3>Play & Practice</h3>
+						Test yourself with instant scoring and feedback.
+						<img src="/static/img/lti/students-timeline-play-and-practice.svg" alt="A stylized graphic of a user interface receiving a 84% score." />
+					</li>
+					<li>
+						<h3>Create Your Own</h3>
+						Build your own study games in just a couple minutes.
+						<img src="/static/img/lti/students-timeline-create-your-own.svg" alt="A stylized image of a series of UI panels stacked on top of each other." />
+					</li>
+				</ul>
+			</section>
+			<footer>
+				<div className="footer-content">
+					<h3>Ran into an issue? <a href={`${window.BASE_URL}help`} target="_blank">Get Support</a></h3>
+					<p>Materia was created with &hearts; at the University of Central Florida.</p>
+					<section className="footer-links">
+						{/* <a className="action_button" href={`${window.BASE_URL}widgets`} target="_blank">Browse Widget Catalog</a> */}
+					</section>
+				</div>
+			</footer>
+		</>
+	)
+
+	return (
+		<section id="lti-login-section">
+			{isAuthor ? instructor_page : student_page}
 		</section>
 	)
 }

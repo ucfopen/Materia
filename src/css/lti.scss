@@ -486,7 +486,7 @@ html {
 				display: flex;
 				justify-content: center;
 				align-items: center;
-				padding: 0.25em 0.75em;
+				padding: 0.5em 1em;
 				
 				background: rgba(255,255,255,0.15);
 				border: solid 1px $gray;
@@ -498,7 +498,7 @@ html {
 
 				&:hover {
 					text-decoration: none;
-					background: $light-gray;
+					background: $color-blue-light-bg;
 				}
 			}
 
@@ -573,6 +573,27 @@ html {
 					display: flex;
 					flex-direction: row;
 					gap: 1em;
+				}
+			}
+
+			header.header-for-students {
+				display: flex;
+				flex-direction: column;
+
+				img {
+					width: auto;
+					height: 400px;
+				}
+
+				h1 {
+					margin: 1em 0;
+					padding: 0;
+					color: #000;
+					background: none;
+
+					font-size: 2em;
+					
+					text-align: center;
 				}
 			}
 
@@ -742,6 +763,7 @@ html {
 
 				ul.widget-types {
 					margin: 1em 0;
+					padding: 0;
 					list-style-type: none;
 
 					li.widget-type-row {
@@ -927,7 +949,7 @@ html {
 				padding-top: 75px;
 
 				color: #fff;
-				background: linear-gradient(to bottom, #fff 50px, rgb(90,166,224) 50px);
+				background: linear-gradient(to bottom, #fff 50px, #38A8E5 50px);
 
 
 				&:before {
@@ -976,10 +998,10 @@ html {
 					width: 80%;
 					margin: 0 auto;
 
-					a.regular_button {
-						color: #fff;
-						border: solid 1px #fff;
-					}
+					// a.regular_button {
+					// 	color: #fff;
+					// 	border: solid 1px #fff;
+					// }
 				}
 				}
 
@@ -987,7 +1009,80 @@ html {
 			}
 		}
 
-		@media (max-width: 720px) {
+		section.student-intro {
+
+			p {
+				width: 80%;
+				margin: 1em auto 2em auto;
+				font-size: 1.1em;
+				text-align: center;
+				color: $color-background-dark-gray;
+			}
+
+			div.intro-links {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 1em;
+				width: 50%;
+				margin: 0 auto;
+
+				a {
+					width: fit-content;
+
+					&.secondary-link {
+						color: #000;
+						font-size: 1.1em;
+						font-weight: 700;
+					}
+				}
+			}
+		}
+
+		section.widget-play-timeline {
+
+			margin: 3em 0;
+
+			ul {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-around;
+				gap: 1em;
+				list-style-type: none;
+				padding: 0 1em;
+
+				li {
+					max-width: 250px;
+					min-height: 300px;
+					padding: 2em;
+					border-radius: 12px;
+
+					text-align: center;
+
+					img {
+						margin-top: 1.5em;
+					}
+
+					&:nth-child(1) {
+						background-color: $color-blue-light-bg;
+						background-image: url('/static/img/lti/students-timeline-from-instructors.svg');
+						background-repeat: no-repeat;
+						background-position: bottom right;
+						background-size: 75%;
+					}
+
+					&:nth-child(2) {
+						background: $color-purple-light-bg;
+					}
+
+					&:nth-child(3) {
+						background: #FFEFDC;
+					}
+				}
+			}
+		}
+
+		@media (max-width: 800px) {
 			#lti-login-section {
 				header.header-for-instructors {
 					align-items: center;
@@ -1170,6 +1265,13 @@ html {
 								}
 							}
 						}
+					}
+				}
+
+				section.widget-play-timeline {
+					ul {
+						flex-direction: column;
+						align-items: center;
 					}
 				}
 
