@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { useQuery } from 'react-query'
+// import { useQuery } from 'react-query'
 import { waitForWindow } from '../../util/wait-for-window'
 
-import { apiGetInstancesFromContext } from '../../util/api'
-import { iconUrl as getIconUrl } from '../../util/icon-url'
+// import { apiGetInstancesFromContext } from '../../util/api'
+// import { iconUrl as getIconUrl } from '../../util/icon-url'
 
 const PostLogin = () => {
-	const [staticURL, setStaticURL] = useState('')
-	const [contextID, setContextID] = useState(null)
 
 	useEffect(() => {
 		waitForWindow(['STATIC_CROSSDOMAIN', 'CONTEXT_ID']).then(() => {
@@ -16,56 +14,180 @@ const PostLogin = () => {
 		})
 	}, [])
 
-	const { isLoading, data: instances } = useQuery({
-		queryKey: ['lti-widgets', contextID],
-		queryFn: () => apiGetInstancesFromContext(contextID),
-		enabled: !!contextID,
-		staleTime: Infinity
-	})
-
-	let instancesRender = null
-	if (!!instances) {
-		instancesRender = instances.map((instance, index) => {
-			const iconUrl = getIconUrl('/widget/', instance.widget.dir, 92)
-
-			const resource_links = instance.lti_data.map(
-				(resource, r_index) => <span key={r_index}>{resource.lti_resource_name}</span>
-			)
-
-			return <li key={index} className="instance">
-				<img src={iconUrl} alt={instance.name}></img>
-				<h3>{instance.name}</h3>
-				<section className="instance-quick-links">
-					<a href={instance.preview_url} target="_blank">Preview</a>
-					<a href={`${window.BASE_URL}my-widgets#${instance.id}`} target="_blank">Manage in Materia</a>
-				</section>
-				<span className="widget-located-in">This widget is embedded in the following assignments:</span>
-				{resource_links}
-			</li>
-		})
-	}
-
 	return (
 		<section id="lti-login-section">
-		<header id="h1-div">
-			<h1>
-				Materia: Enhance Your Course with Widgets
-			</h1>
-		</header>
-		<section className="instructor-intro">
-			Materia can power-up your course with bite-size, interactive, gamified learning. 
-			Select a widget, customize it in minutes, and share it with students. Widgets are great for
-			supplemental learning, study aids, and low-stakes assessment. When embedded in your course,
-			widgets will automatically sync scores with the gradebook.
+			<header className="header-for-instructors">
+				<h1>Enhance Your Course</h1>
+				<p>Create interactive learning content in minutes. No coding required. Select a widget, customize it, and share it with students.</p>
+				<ul>
+					<li>
+						<h3>Quick to Create</h3>
+						Build widgets in minutes.
+					</li>
+					<li>
+						<h3>Auto-Grading</h3>
+						Scores sync to your gradebook when you use a widget as an assignment.
+					</li>
+					<li>
+						<h3>Enhance Student Engagement</h3>
+						Gamified learning experiences enhance learning outcomes.
+					</li>
+				</ul>
+				<section class="instructors-header-nav">
+					<a className="action_button" href={`${window.BASE_URL}widgets`} target="_blank">Browse Widget Catalog</a>
+					<a className="regular_button" href="https://www.youtube.com/watch?v=sYrBW7LHOh8" target="_blank">Watch Demo</a>
+				</section>
+			</header>
+			<section className="widget-creation-timeline">
+				<h2>Creating a Widget is Easy</h2>
+				<span>Follow these simple steps to engage your students</span>
+				<ul>
+					<li className="widget-creation-card">
+						<img src="/static/img/lti/creating-widgets-icon-choose.svg" alt="Icon of a white paint palette on a purple background" />
+						<h3>Choose</h3>
+						Select a widget type from our catalog
+					</li>
+					<li className="widget-creation-card">
+						<img src="/static/img/lti/creating-widgets-icon-customize.svg" alt="Icon of a white pencil on a blue background" />
+						<h3>Customize</h3>
+						Customize the widget with your course content
+					</li>
+					<li className="widget-creation-card">
+						<img src="/static/img/lti/creating-widgets-icon-preview.svg" alt="Icon of a white eye on a green background" />
+						<h3>Preview</h3>
+						Take your wiget for a test drive!
+					</li>
+					<li className="widget-creation-card">
+						<img src="/static/img/lti/creating-widgets-icon-publish.svg" alt="Icon of a white share icon on an orange background" />
+						<h3>Publish</h3>
+						Your widget is ready to be embedded in your course
+					</li>
+				</ul>
+			</section>
+			<section className="widget-types-list">
+				<header>
+					<h4><span>20+ WIDGET TYPES</span></h4>
+					<h2>Built for Your Discipline</h2>
+					<span>
+						From STEM labs to language practice, find the perfect interactive tool for your teaching needs.
+						Every widget in our catalog was designed in collaboration with faculty members just like you.
+					</span>
+				</header>
+				<ul className="widget-types">
+					<li className="widget-type-row">
+						<div className="widget-type-card">
+							<header>
+								<h3>STEM</h3>
+								Interactive Learning Tools
+							</header>
+							<p>Labeling diagrams, equations, physics simulations</p>
+						</div>
+						<ul className="widget-type-examples">
+						<li>
+							<img src="/static/img/lti/example-widget-icons/slope-finder.png" alt="Slope Finder widget icon" />
+							Slope Finder
+							</li>
+						<li>
+							<img src="/static/img/lti/example-widget-icons/node-graph.png" alt="Node Graph widget icon" />
+							Node Graph
+						</li>
+						<li>
+							<img src="/static/img/lti/example-widget-icons/equation-sandbox.png" alt="Equation Sandbox widget icon" />
+							Equation Sandbox
+						</li>
+						</ul>
+					</li>
+					<li className="widget-type-row">
+						<div className="widget-type-card">
+							<header>
+								<h3>Languages</h3>
+								Interactive Learning Tools
+							</header>
+							<p>Vocabulary flashcards and word searches</p>
+						</div>
+					<ul className="widget-type-examples">
+						<li>
+							<img src="/static/img/lti/example-widget-icons/syntax-sorter.png" alt="Syntax Sorter widget icon" />
+							Syntax Sorter
+						</li>
+						<li>
+							<img src="/static/img/lti/example-widget-icons/crossword.png" alt="Crossword widget icon" />
+							Crossword
+						</li>
+						<li>
+							<img src="/static/img/lti/example-widget-icons/word-search.png" alt="Word Search widget icon" />
+							Word Search
+						</li>
+					</ul>
+					</li>
+					<li className="widget-type-row">
+						<div className="widget-type-card">
+							<header>
+								<h3>Business and Social Science</h3>
+								Interactive Learning Tools
+							</header>
+							<p>Case study matching, concept sorting, scenario analysis</p>
+						</div>
+					<ul className="widget-type-examples">
+						<li>
+							<img src="/static/img/lti/example-widget-icons/adventure.png" alt="Adventure widget icon" />
+							Adventure
+						</li>
+						<li>
+							<img src="/static/img/lti/example-widget-icons/enigma.png" alt="Enigma widget icon" />
+							Enigma
+						</li>
+						<li>
+							<img src="/static/img/lti/example-widget-icons/guess-the-phrase.png" alt="Guess the Phrase widget icon" />
+							Guess the Phrase
+						</li>
+					</ul>
+					</li>
+				</ul>
+			</section>
+			<section className="faq">
+				<h2>Frequently Asked Questions</h2>
+				<dl>
+					<dt>
+						How long does it take to create a widget?
+					</dt>
+					<dd>
+						You can customize a widget in a manner of minutes! Every widget contains a bespoke authoring interface that's designed to
+						be easy and intuitive.
+					</dd>
+					<dt>
+						Will my students' grades sync automatically?
+					</dt>
+					<dd>
+						If your widget is embedded as an external tool in an assignment, it will seamlessly sync the student's score
+						with the gradebook for that assignment. Bear in mind that some widgets do not have a scoring component; these 
+						work best as study tools or for supplemental learning.
+					</dd>
+					<dt>
+						Can I reuse widgets across courses?
+					</dt>
+					<dd>
+						Yes you can! Widgets can be used in multiple courses, or even outside of your course completely.
+					</dd>
+					<dt>
+						What if I need help getting started?
+					</dt>
+					<dd>
+						Go get some help
+					</dd>
+				</dl>
+			</section>
+			<footer>
+				<div className="footer-content">
+					<h3>Ran into an issue? <a href={`${window.BASE_URL}help`} target="_blank">Get Support</a></h3>
+					<p>Join thousands of instructors making learning fun with Materia.</p>
+					<section className="footer-links">
+						<a className="action_button" href={`${window.BASE_URL}widgets`} target="_blank">Browse Widget Catalog</a>
+						<a className="regular_button" href="https://www.youtube.com/watch?v=sYrBW7LHOh8" target="_blank">Watch Tutorial</a>
+					</section>
+				</div>
+			</footer>
 		</section>
-		<section className="instructor-instance-list">
-			<p>The following widgets are currently detected in your course:</p>
-			<ul className="instances">
-				{instancesRender}
-			</ul>
-		</section>
-
-	</section>
 	)
 }
 

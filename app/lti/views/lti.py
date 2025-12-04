@@ -28,7 +28,7 @@ def post_login(request):
     # =============================================
 
     context = ContextUtil.create(
-        title="Profile",
+        title="Course Navigation",
         js_resources=django_settings.JS_GROUPS["post-login"],
         css_resources=django_settings.CSS_GROUPS["lti"],
         request=request,
