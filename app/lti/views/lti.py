@@ -4,9 +4,8 @@ from core.utils.context_util import ContextUtil
 from django.conf import settings as django_settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-
-# from lti.services.launch import LTILaunchService
-
+from lti.services.auth import LTIAuthService
+from lti.services.launch import LTILaunchService
 
 logger = logging.getLogger("django")
 
@@ -26,12 +25,17 @@ def post_login(request):
     #     context_id = LTILaunchService.get_context_id(launch)
     #     LTILaunchService.store_session_launch(request, context_id, launch)
     # =============================================
+    is_author = False
+    launch = LTILaunchService.get_or_recover_launch(request)
+    if launch is not None:
+        is_author = LTIAuthService.is_user_course_author(launch)
 
     context = ContextUtil.create(
-        title="Profile",
+        title="Course Navigation",
         js_resources=django_settings.JS_GROUPS["post-login"],
         css_resources=django_settings.CSS_GROUPS["lti"],
         request=request,
+        js_globals={"IS_AUTHOR": is_author},
         # js_globals={"CONTEXT_ID": context_id},
     )
 
