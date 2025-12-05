@@ -1,9 +1,8 @@
 import logging
-
-from core.utils.context_util import ContextUtil
+from django.http import HttpResponseNotFound, HttpResponseServerError
 from django.conf import settings
-from django.http import HttpResponseNotFound
 from django.shortcuts import render
+from core.utils.context_util import ContextUtil
 
 
 def index(request, *args, **kwargs):
@@ -49,4 +48,19 @@ def handler404(request, exception):
 
 
 def handler500(request):
-    return "ADSFASDF"
+    # Log the 500 URL
+    logger = logging.getLogger(__name__)
+    logger.warning("500 URL: %s", request.path)
+
+    context = ContextUtil.create(
+        title="500 Server Error",
+        js_resources=settings.JS_GROUPS["500"],
+        css_resources=settings.CSS_GROUPS["500"],
+        request=request,
+    )
+
+    # Render the template with context
+    content = render(request, "react.html", context)
+
+    # Return a 500 response with the rendered content
+    return HttpResponseServerError(content)

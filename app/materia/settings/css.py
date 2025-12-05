@@ -34,6 +34,7 @@ CSS_GROUPS = {
         CSS_BASEURL + "lti-error.css",
     ],
     "404": [CSS_BASEURL + "404.css"],
+    "500": [CSS_BASEURL + "500.css"],
     "guides": [CSS_BASEURL + "guides.css"],
     "qset-history": [CSS_BASEURL + "qset-history.css"],
     "qset-generator": [CSS_BASEURL + "qset-generator.css"],

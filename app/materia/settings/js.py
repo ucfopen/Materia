@@ -32,6 +32,7 @@ JS_GROUPS = {
     "open-preview": [JS_BASEURL + "lti-open-preview.js"],
     "lti-error": [JS_BASEURL + "lti-error.js"],
     "404": [JS_BASEURL + "404.js"],
+    "500": [JS_BASEURL + "500.js"],
     "guides": [JS_BASEURL + "guides.js"],
     "qset-history": [JS_BASEURL + "qset-history.js"],
     "qset-generator": [JS_BASEURL + "qset-generator.js"],
