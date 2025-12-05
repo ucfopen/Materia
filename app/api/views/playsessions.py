@@ -4,13 +4,19 @@ import traceback
 from api.filters import LogPlayFilterBackend
 from api.paginators import PageNumberWithTotalPagination
 from api.permissions import PlaySessionInstancePermissions
-from api.serializers import PlayLogUpdateSerializer, PlaySessionSerializer
+from api.serializers import (
+    PlayLogUpdateSerializer,
+    PlaySessionCreateSerializer,
+    PlaySessionSerializer,
+)
 from core.message_exception import MsgFailure, MsgInvalidInput
 from core.models import Log, LogPlay, WidgetInstance
 from core.services.perm_service import PermService
+from core.services.widget_play_services import WidgetPlayInitService
 from core.utils.validator_util import ValidatorUtil
 from django.conf import settings
 from django.db.models import Max
+from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from lti.ags.client import AGSClient
 from lti.ags.exceptions.ags_claim_not_defined import AGSClaimNotDefined
@@ -111,7 +117,43 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         return PlaySessionSerializer
 
     def create(self, request):
-        raise MethodNotAllowed("POST")
+        """
+        Note that while the play sessions API supports POST requests for play session init,
+        this endpoint is only intended for use by embedded demos in the detail carousel.
+        """
+        serializer = PlaySessionCreateSerializer(
+            data=request.data, context={"request": request}
+        )
+
+        if serializer.is_valid(raise_exception=True):
+            validated = serializer.validated_data
+            if validated["is_preview"] is True:
+                preview_id = WidgetPlayInitService.init_preview(request)
+                return JsonResponse({"playId": preview_id})
+            else:
+                user = (
+                    request.user
+                    if validated["instance"].guest_access is False
+                    else None
+                )
+
+                # disallow plays for non-playable widget engines
+                if not validated["instance"].widget.is_playable:
+                    raise MsgFailure(
+                        "Failed to Create Play Session", "This widget is not playable."
+                    )
+
+                # init the new play
+                new_play = WidgetPlayInitService.init_play(
+                    request, validated["instance"], user
+                )
+                if not new_play.id:
+                    raise MsgFailure(
+                        "Failed to Create Play Session",
+                        "There was an error starting your play session. Please try again.",
+                    )
+
+                return JsonResponse({"playId": new_play.id})
 
     def update(self, request, pk=None):
         if not pk:
