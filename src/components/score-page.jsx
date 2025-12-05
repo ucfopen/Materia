@@ -20,6 +20,12 @@ const ScorePage = () => {
 		isEmbed = urlElements[3] == "embed/"
 		instID = urlElements[4]
 		playID = urlElements[5]
+
+		// edge case handler for /scores/single/playID/instID
+		// required to support previous score submissions in LMSs; these URIs are stored by the LMS so we need to continue to support them
+		if (playID && instID && playID.length < instID.length) {
+			[instID, playID] = [playID, instID]
+		}
 	}
 
 
