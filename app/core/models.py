@@ -1308,7 +1308,7 @@ class WidgetQset(models.Model):
         decoded_data = Base64Util.decode(self.data)
         # in most cases the top level key in a qset will be 'items'
         # sometimes it won't be - this should work no matter what it is
-        raw_items = decoded_data.get(iter(decoded_data), [])
+        raw_items = decoded_data.get(next(iter(decoded_data)), [])
 
         def find_questions(source):
             questions = []
