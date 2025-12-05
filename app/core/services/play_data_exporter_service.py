@@ -9,7 +9,7 @@ from django.core.cache import cache
 from core.message_exception import MsgInvalidInput, MsgNotFound, MsgFailure
 from core.utils.validator_util import ValidatorUtil
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class PlayDataExporterService:

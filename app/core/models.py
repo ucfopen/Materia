@@ -34,7 +34,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy
 from lti_tool.models import LtiDeployment
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class ObjectPermission(models.Model):

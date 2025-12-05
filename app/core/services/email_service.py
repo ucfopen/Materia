@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class EmailService:

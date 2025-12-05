@@ -4,7 +4,7 @@ import re
 from django.conf import settings
 from lti_tool.views import OIDCLoginInitView
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class MateriaOIDCLoginInitView(OIDCLoginInitView):

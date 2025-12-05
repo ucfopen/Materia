@@ -29,7 +29,7 @@ from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
 from scoring.module_factory import ScoreModuleFactory
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class PlaySessionPagination(PageNumberWithTotalPagination):

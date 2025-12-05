@@ -7,7 +7,7 @@ from core.utils.http_util import parse_bool
 from django.contrib.auth.models import AnonymousUser
 from django.utils import timezone
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class WidgetPlayInitService:

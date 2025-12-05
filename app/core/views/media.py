@@ -12,7 +12,7 @@ from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class MediaImportView(TemplateView):

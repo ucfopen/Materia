@@ -2,7 +2,7 @@ import logging
 
 from django.core.management import base
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class Command(base.BaseCommand):
@@ -53,4 +53,6 @@ class Command(base.BaseCommand):
                         f"creating ObjectPermission record for user "
                         f"{notification.to_id.id} for notification {notification.id}\n"
                     )
-                    notification.permissions.create(user=notification.to_id, permission="full")
+                    notification.permissions.create(
+                        user=notification.to_id, permission="full"
+                    )

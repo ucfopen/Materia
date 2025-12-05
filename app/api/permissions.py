@@ -13,7 +13,7 @@ from rest_framework import permissions
 from core.services.perm_service import PermService
 from core.services.instance_service import WidgetInstanceService
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class DenyAll(permissions.BasePermission):

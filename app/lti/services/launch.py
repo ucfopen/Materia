@@ -7,7 +7,7 @@ from lti_tool.models import LtiDeployment, LtiLaunch
 # from pprint import pformat
 
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class LTILaunchService:

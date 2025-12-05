@@ -10,7 +10,7 @@ from .request import AGSRequest
 from .score_builder import AGSScoreBuilder
 from .util import AGSUtil
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class AGSClient:

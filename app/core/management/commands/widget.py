@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.management import base
 from scoring.module_factory import ScoreModuleFactory
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class Command(base.BaseCommand):

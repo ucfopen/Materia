@@ -4,7 +4,7 @@ from django.contrib.auth import logout
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class LtiLaunchMixin:

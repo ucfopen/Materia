@@ -6,7 +6,7 @@ import jwt
 import requests
 from lti_tool.models import Key, LtiRegistration
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class AGSOauth:

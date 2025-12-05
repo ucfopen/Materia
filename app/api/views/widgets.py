@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from core.message_exception import MsgFailure, MsgException
 from core.services.widget_installer_service import WidgetInstallerService
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class WidgetViewSet(viewsets.ModelViewSet):

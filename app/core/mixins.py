@@ -6,7 +6,7 @@ from core.utils.context_util import ContextUtil
 from django.contrib.auth.mixins import AccessMixin
 from django.http import HttpRequest, HttpResponse
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 # Special login mixin that allows you to conditionally define whether a login is required
