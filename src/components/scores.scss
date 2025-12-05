@@ -522,6 +522,9 @@ article {
 				}
 
 				li {
+					&.previous-context {
+						background: #111317;
+					}
 					&:hover {
 						background-color: #1b304b;
 					}
