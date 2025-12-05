@@ -616,7 +616,7 @@ class ScoreSummarySerializer(serializers.Serializer):
                 }
             )
 
-        return sorted(results, key=lambda x: (x["year"], x["term"]))
+        return sorted(results, key=lambda x: (x["year"], x["term"]), reverse=True)
 
 
 # Used for incoming requests for qset generation. Does NOT map to a model.
