@@ -41,9 +41,6 @@ class ScoresView(MateriaLoginMixin, TemplateView):
         return self.render_to_response(context)
 
 
-# Allow LTI launches to score screens
-# In Canvas, this is shown on the grade review
-# enabled by launch param ext_outcome_data_values_accepted=url
 class ScoresViewSingle(MateriaLoginMixin, TemplateView):
     template_name = "react.html"
     allow_all_by_default = True
@@ -53,6 +50,11 @@ class ScoresViewSingle(MateriaLoginMixin, TemplateView):
         play_id = kwargs.get("play_id")
         widget_instance_id = kwargs.get("widget_instance_id")
         token = request.GET.get("token")
+
+        # Swap if play_id is shorter than widget_instance_id
+        # Why? Because the LTI 1.1 implementation provided /scores/single/play_id/inst_id/ as the score submission URI
+        if len(play_id) < len(widget_instance_id):
+            play_id, widget_instance_id = widget_instance_id, play_id
 
         # Grab and verify play
         play = LogPlay.objects.get(pk=play_id)

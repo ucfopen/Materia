@@ -298,17 +298,16 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             {"lock_obtained": WidgetInstanceService.get_lock(instance.id, request.user)}
         )
 
-    # TODO should this be under /instances or /scores ?
     @action(detail=True, methods=["get"])
     def performance(self, request, pk=None):
         instance = self.get_object()
 
-        logs_for_user = (
+        logs = (
             LogPlay.objects.filter(instance=instance, is_complete=True)
             .order_by("-created_at", "semester")
             .select_related("semester")
         )
-        summary = ScoreSummarySerializer.create_from_plays(logs_for_user)
+        summary = ScoreSummarySerializer.create_from_plays(logs)
 
         serialized = ScoreSummarySerializer(data=summary, many=True)
         serialized.is_valid(raise_exception=True)

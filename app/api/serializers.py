@@ -452,6 +452,23 @@ class PlayLogUpdateSerializer(serializers.Serializer):
             )
 
 
+class PlaySessionCreateSerializer(serializers.Serializer):
+    instanceId = serializers.CharField()
+    is_preview = serializers.BooleanField(required=False)
+
+    def validate(self, data):
+        is_preview = data.get("is_preview", False)
+        instance = WidgetInstance.objects.get(pk=data["instanceId"])
+        if not instance:
+            raise serializers.ValidationError(
+                f"Instance ID {data["InstanceId"]} invalid."
+            )
+
+        if not instance.playable_by_current_user(self.context["request"].user):
+            raise serializers.ValidationError("Instance not playable by current user.")
+        return {"instance": instance, "is_preview": is_preview}
+
+
 # play session model (kinda) serializer (outbound)
 class PlaySessionSerializer(serializers.ModelSerializer):
     inst_name = serializers.CharField(source="instance.name", read_only=True)
@@ -599,7 +616,7 @@ class ScoreSummarySerializer(serializers.Serializer):
                 }
             )
 
-        return sorted(results, key=lambda x: (x["year"], x["term"]))
+        return sorted(results, key=lambda x: (x["year"], x["term"]), reverse=True)
 
 
 # Used for incoming requests for qset generation. Does NOT map to a model.
