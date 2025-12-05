@@ -173,7 +173,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 				}
 			}
 		} else if (!!instanceScoresError) {
-			if (instanceScoresError.message == "Permission Denied") {
+			if (instanceScoresError.status == 401) {
 				setErrorState(STATE_RESTRICTED)
 			} else {
 				setErrorState(STATE_INVALID)
@@ -238,9 +238,17 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 			}))
 		}
 		else if (!!playScoresError) {
-			if (playScoresError.message == "Permission Denied") setErrorState(STATE_RESTRICTED)
-			else if (isPreview) setErrorState(STATE_EXPIRED)
-			else setErrorState(STATE_INVALID)
+			switch (playScoresError.status) {
+				case 410:
+					setErrorState(STATE_EXPIRED)
+					break
+				case 401:
+					setErrorState(STATE_RESTRICTED)
+					break
+				default:
+					setErrorState(STATE_INVALID)
+					break
+			}
 		}
 		// @TODO handle errors
 	}, [playScores, playScoresError])
@@ -424,9 +432,10 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 				errorStateRender = (
 					<div className="invalid container general">
 						<section className="page score_restrict">
-							<h2 className="logo">Play ID Invalid</h2>
-							<p>Well, that's awkward. We couldn't find any play scores to show you. Some common issues associated with this message:</p>
+							<h2 className="logo">Something Went Wrong</h2>
+							<p>Well, that's awkward. Something is preventing us from showing you this score. Some common issues associated with this message:</p>
 							<ul>
+								<li>You accessed this score in a way Materia didn't expect.</li>
 								<li>Materia doesn't think you have the right permissions to view this score.</li>
 								<li>There was an issue with displaying the score screen in this particular context - have you tried accessing it from the widget's Student Activity section or your profile page?</li>
 							</ul>
