@@ -6,7 +6,7 @@ import os
 from django.conf import settings
 from django.utils import timezone
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class DBAssetStorageDriver:

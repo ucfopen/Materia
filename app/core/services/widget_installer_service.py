@@ -17,7 +17,7 @@ from django.core.management import color_style
 from urllib3.exceptions import MaxRetryError
 from core.message_exception import MsgNotFound, MsgFailure
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class WidgetInstallerService:

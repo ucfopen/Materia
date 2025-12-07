@@ -26,7 +26,7 @@ from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from lti.views.lti import error_page as lti_error_page
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class WidgetDetailView(TemplateView):

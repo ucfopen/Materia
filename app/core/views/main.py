@@ -4,6 +4,8 @@ from django.conf import settings
 from django.shortcuts import render
 from core.utils.context_util import ContextUtil
 
+logger = logging.getLogger(__name__)
+
 
 def index(request, *args, **kwargs):
     context = ContextUtil.create(
@@ -30,7 +32,6 @@ def help(request):
 
 def handler404(request, exception):
     # Log the 404 URL
-    logger = logging.getLogger(__name__)
     logger.warning("404 URL: %s", request.path)
 
     context = ContextUtil.create(
@@ -49,7 +50,6 @@ def handler404(request, exception):
 
 def handler500(request):
     # Log the 500 URL
-    logger = logging.getLogger(__name__)
     logger.warning("500 URL: %s", request.path)
 
     context = ContextUtil.create(

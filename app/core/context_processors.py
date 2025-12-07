@@ -3,7 +3,7 @@ import logging
 from core.models import UserSettings
 from django.conf import settings
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 def fonts(request):

@@ -2,7 +2,7 @@ import logging
 
 import requests
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class AGSRequest:

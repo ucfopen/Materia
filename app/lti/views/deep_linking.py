@@ -7,7 +7,7 @@ from pylti1p3.deep_link_resource import DeepLinkResource
 # from pprint import pformat
 
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 # this isn't really a "view" - it's the endpoint for deep link content selection

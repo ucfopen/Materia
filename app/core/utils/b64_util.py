@@ -2,7 +2,7 @@ import base64
 import json
 import logging
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class Base64Util:

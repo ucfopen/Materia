@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import Group, User
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class LTIAuthService:

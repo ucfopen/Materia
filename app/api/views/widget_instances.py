@@ -41,7 +41,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class WidgetInstancePagination(PageNumberPagination):

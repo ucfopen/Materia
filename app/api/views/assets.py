@@ -12,7 +12,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from core.message_exception import MsgFailure
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class AssetViewSet(viewsets.ModelViewSet):

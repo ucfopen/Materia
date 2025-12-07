@@ -146,6 +146,14 @@ LOGGING = {
         },
     },
     "loggers": {
+        "api": {"handlers": ["file", "console"], "level": "INFO", "propagate": True},
+        "core": {"handlers": ["file", "console"], "level": "INFO", "propagate": True},
+        "lti": {"handlers": ["file", "console"], "level": "INFO", "propagate": True},
+        "storage": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": True,
+        },
         "django": {"handlers": ["file", "console"], "level": "INFO", "propagate": True},
         "django.db": {
             "handlers": ["file", "console"],

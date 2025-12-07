@@ -13,7 +13,7 @@ from core.message_exception import MsgException
 from core.models import Widget
 from core.services.widget_installer_service import WidgetInstallerService
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class Command(base.BaseCommand):
