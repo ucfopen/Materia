@@ -588,6 +588,7 @@ class ScoreSummarySerializer(serializers.Serializer):
                     "term": log.semester.semester,
                     "year": log.created_at.year,
                     "students": 1,
+                    "count": 1,
                     "total": log.percent,
                     "distribution": distribution,
                 }
@@ -598,6 +599,7 @@ class ScoreSummarySerializer(serializers.Serializer):
                     unique_students[semester_key].append(user_id)
                     summary[semester_key]["students"] += 1
 
+                summary[semester_key]["count"] += 1
                 summary[semester_key]["total"] += log.percent
                 summary[semester_key]["distribution"][
                     int(log.percent / 10) if int(log.percent / 10) < 10 else 9
@@ -611,7 +613,7 @@ class ScoreSummarySerializer(serializers.Serializer):
                     "term": data["term"],
                     "year": data["year"],
                     "students": data["students"],
-                    "average": round(data["total"] / data["students"], 2),
+                    "average": round(data["total"] / data["count"], 2),
                     "distribution": data["distribution"],
                 }
             )
