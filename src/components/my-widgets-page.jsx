@@ -69,15 +69,12 @@ const MyWidgetsPage = () => {
 
 	const { data: permUsers } = useQuery({
 		queryKey: ['user-perms', state.selectedInst?.id, state.widgetHash],
-		queryFn: () => apiGetUserPermsForInstance(state.selectedInst?.id),
+		queryFn: () => apiGetUserPermsForInstance(state.selectedInst.id),
 		enabled: !!state.selectedInst && !!state.selectedInst.id && state.selectedInst?.id !== undefined,
-		placeholderData: null,
 		staleTime: Infinity,
 		retry: false,
 		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setInvalidLogin(true)
-			}
+			setInvalidLogin(true)
 		}
 	})
 
@@ -201,6 +198,7 @@ const MyWidgetsPage = () => {
 	// hook to watch otherUserPerms (which despite the name also includes the current user perms)
 	// if the current user is no longer in the perms list, purge the selected instance & force a re-fetch of the list
 	useEffect(() => {
+		if (state.otherUserPerms == null) return
 		if (state.selectedInst && userLoaded && !state.otherUserPerms?.get(user.id)) {
 			setState({
 				...state,
