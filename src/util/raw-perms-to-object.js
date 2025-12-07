@@ -14,7 +14,7 @@ const rawPermsToObj = (perm, isEditable) => {
 		accessLevel: perm.permission,
 		expireTime: perm.expires_at ? new Date(perm.expires_at) : null,
 		editable: perm.permission != access.VISIBLE && isEditable,
-		context: perm.context_id ?? null,
+		contexts: perm.context_ids[0] != null ? perm.context_ids : null,
 		can: {
 			view: true, // implicit with all access types
 			copy: perm.permission == access.FULL,

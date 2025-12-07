@@ -15,6 +15,7 @@ from core.utils.context_util import ContextUtil
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
+from django.db.models import Q
 from django.http import Http404, HttpRequest
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
@@ -175,10 +176,19 @@ class WidgetPlayView(
             if instance.guest_access:
                 return lti_error_page(request, "error_lti_guest_mode")
 
+            # check to see if the current user has either:
+            # a. unrestricted permissions to the instance (context_id == None) OR
+            # b. restricted permission to the instance for the current context ID
+            context_id = LTILaunchService.get_context_id(launch)
+            has_visibility = (
+                instance.permissions.filter(user=request.user)
+                .filter(Q(context_id__isnull=True) | Q(context_id=context_id))
+                .exists()
+            )
+
             # current user IS an author in the course but does NOT have access
             # grant them implicit access and provide the provisional flag to the frontend
-            elif not instance.permissions.filter(user=request.user).exists():
-                context_id = LTILaunchService.get_context_id(launch)
+            if not has_visibility:
                 instance.permissions.create(
                     user=request.user, permission="visible", context_id=context_id
                 )

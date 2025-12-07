@@ -22,7 +22,7 @@ const initState = () => ({
 	filteredLogs: []
 })
 
-const MyWidgetScoreSemesterIndividual = ({ semester, instId, context, setInvalidLogin }) => {
+const MyWidgetScoreSemesterIndividual = ({ semester, instId, contexts, setInvalidLogin }) => {
 	const [state, setState] = useState(initState())
 	const [page, setPage] = useState(1)
 	const [error, setError] = useState('')
@@ -32,7 +32,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, context, setInvalid
 		refetch
 	} = useQuery(
 		['play-logs', instId, semester],
-		() => apiGetPlayLogs(instId, semester.term, semester.year, context, page),
+		() => apiGetPlayLogs(instId, semester.term, semester.year, contexts, page),
 		{
 			keepPreviousData: true,
 			enabled: !!instId && !!semester && !!semester.term && !!semester.year,
@@ -51,6 +51,9 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, context, setInvalid
 					})
 
 					setState({ ...state, logs: newLogs, filteredLogs: newLogs })
+				} else if (result.length == 0) {
+					setState({ ...state, logs: [], isLoading: false })
+					setError("Unfortunately, we don't have any play information to show you.")
 				}
 			},
 			onError: (err) => {

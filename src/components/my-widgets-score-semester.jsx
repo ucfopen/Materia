@@ -7,7 +7,7 @@ const TAB_GRAPH = 'TAB_GRAPH'
 const TAB_INDIVIDUAL = 'TAB_INDIVIDUAL'
 const TAB_STORAGE = 'TAB_STORAGE'
 
-const MyWidgetScoreSemester = ({semester, instId, hasScores, context, setInvalidLogin}) => {
+const MyWidgetScoreSemester = ({semester, instId, hasScores, contexts, setInvalidLogin}) => {
 	const initData = hasScores ? TAB_GRAPH : TAB_STORAGE
 	const [scoreTab, setScoreTab] = useState(initData)
 
@@ -40,7 +40,7 @@ const MyWidgetScoreSemester = ({semester, instId, hasScores, context, setInvalid
 			case TAB_INDIVIDUAL:
 				return (
 					<MyWidgetScoreSemesterIndividual semester={semester}
-						instId={instId} context={context} setInvalidLogin={setInvalidLogin}
+						instId={instId} contexts={contexts} setInvalidLogin={setInvalidLogin}
 					/>
 				)
 

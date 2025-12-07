@@ -12,7 +12,8 @@ const accessLevels = {
 const initRowState = () => {
 	return({
 		remove: false,
-		showDemoteDialog: false
+		showDemoteDialog: false,
+		provisionalAccessRemoved: false
 	})
 }
 
@@ -51,6 +52,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 			expireTime: state.expireTime,
 			editable: state.editable,
 			can: state.can,
+			contexts: state.contexts,
 			remove: state.remove
 		})
 	}, [state])
@@ -78,6 +80,8 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 	const onExpireChange = date => {
 		setState({...state, expireDate: date, expireTime: date})
 	}
+
+	const removeContexts = () => setState({...state, contexts: null, provisionalAccessRemoved: true})
 
 	let selfDemoteWarningRender = null
 	if (state.showDemoteDialog) {
@@ -117,7 +121,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 	} else {
 		if (state.expireTime !== null) {
 			expirationSettingRender = (
-				<button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'}
+				<button className={(readOnly || isCurrentUser || perms.contexts != null) ? 'expire-open-button-disabled' : 'expire-open-button'}
 					data-testid={`${user.id}-expire`}
 					onClick={toggleShowExpire}
 					disabled={readOnly}>
@@ -126,25 +130,47 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 			)
 		} else {
 			expirationSettingRender = (
-				<button className={readOnly || isCurrentUser || removedCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'}
+				<button className={(readOnly || isCurrentUser || removedCurrentUser || perms.contexts != null) ? 'expire-open-button-disabled' : 'expire-open-button'}
 					data-testid={`${user.id}-never-expire`}
 					onClick={toggleShowExpire}
-					disabled={readOnly || isCurrentUser || removedCurrentUser}>
+					disabled={readOnly || isCurrentUser || removedCurrentUser || perms.contexts != null}>
 					Never
 				</button>
 			)
 		}
 	}
 
+	let provisionalAccess = null
+	if ((state.contexts != null || state.provisionalAccessRemoved == true) && !readOnly ) {
+		provisionalAccess = (
+			<div className='provisional-access-container'>
+				{ state.provisionalAccessRemoved == false ? (
+					<>
+						<span>
+							This user has provisional access due to the widget being embedded in their course. They can only see scores associated
+							with courses the widget was embedded in. Removing provisional access grants the user normal View Scores permissions.
+						</span>
+						<button className='action_button' onClick={removeContexts}>
+							Remove Provisional Access
+						</button>
+					</>
+				) : (
+					<span>Provisional access removed, you can change permissions further and select Save when ready.</span>
+				)}
+			</div>
+		)
+	}
+
 	return (
-		<div className={`user-perm ${state.remove ? 'deleted' : ''}`}>
+		<div className={`user-perm ${state.remove ? 'deleted' : ''} ${ (state.contexts != null || state.provisionalAccessRemoved == true) ? 'provisional' : ''}`}>
 			<button tabIndex='0'
 				onClick={checkForWarning}
 				className='remove'
 				disabled={onlyOneFullPermHolder && (perms.accessLevel === access.FULL)}
 				aria-hidden={onlyOneFullPermHolder && (perms.accessLevel === access.FULL)}
+				aria-label="Remove user access"
 				data-testid={`${user.id}-delete-user`}>
-				X
+				&#10799;
 			</button>
 
 			<div className='about'>
@@ -156,7 +182,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 			</div>
 			{ selfDemoteWarningRender }
 			<div className='options'>
-				<select disabled={readOnly || isCurrentUser || removedCurrentUser}
+				<select disabled={readOnly || isCurrentUser || removedCurrentUser || state.contexts != null}
 					data-testid={`${user.id}-select`}
 					tabIndex='0'
 					className='perm'
@@ -169,6 +195,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 					{ expirationSettingRender }
 				</div>
 			</div>
+			{ provisionalAccess }
 		</div>
 	)
 }

@@ -109,6 +109,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					accessLevel: access.VISIBLE,
 					expireTime: null,
 					editable: false,
+					contexts: null,
 					can: {
 						view: true,
 						copy: false,
@@ -153,7 +154,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			permsObj.push({
 				user: currentUser.id,
 				expiration: currentUserPerms.expireTime,
-				perm_level: currentUserPerms.remove ? null : currentUserPerms.accessLevel
+				perm_level: currentUserPerms.remove ? null : currentUserPerms.accessLevel,
+				has_contexts: currentUserPerms.contexts != null
 			})
 		}
 		else
@@ -163,7 +165,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 				return {
 					user: userId,
 					expiration: userPerms.expireTime,
-					perm_level: userPerms.remove ? null : userPerms.accessLevel
+					perm_level: userPerms.remove ? null : userPerms.accessLevel,
+					has_contexts: userPerms.contexts != null
 				}
 			})
 		}

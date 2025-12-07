@@ -662,28 +662,55 @@ class PermsUpdateRequestItemSerializer(serializers.Serializer):
     perm_level = serializers.ChoiceField(
         choices=ObjectPermission.PERMISSION_CHOICES, allow_null=True
     )
+    has_contexts = serializers.BooleanField()
 
 
 class PermsUpdateRequestListSerializer(serializers.Serializer):
     updates = serializers.ListField(child=PermsUpdateRequestItemSerializer())
 
 
-class ObjectPermissionSerializer(serializers.ModelSerializer):
-    content_type = serializers.SerializerMethodField()
+class ObjectPermissionSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    content_type = serializers.CharField()
+    object_id = serializers.CharField()
+    permission = serializers.CharField()
+    expires_at = serializers.DateTimeField(allow_null=True)
+    context_ids = serializers.ListField(child=serializers.CharField(allow_null=True))
 
-    def get_content_type(self, obj):
-        return obj.content_type.model
+    @classmethod
+    def from_queryset(cls, queryset):
+        """
+        Converts a queryset of ObjectPermission instances into grouped, serialized representations.
+        Each unique combination of (user, content_type, object_id, permission) is returned
+        as a single item with context_ids as a list.
+        """
+        grouped = {}
 
-    class Meta:
-        model = ObjectPermission
-        fields = [
-            "user",
-            "content_type",
-            "object_id",
-            "permission",
-            "expires_at",
-            "context_id",
-        ]
+        for perm in queryset:
+            key = (
+                perm.user.id,
+                perm.content_type.model,
+                perm.object_id,
+                perm.permission,
+                perm.expires_at,
+            )
+
+            if key not in grouped:
+                grouped[key] = {
+                    "user": perm.user.id,
+                    "content_type": perm.content_type.model,
+                    "object_id": perm.object_id,
+                    "permission": perm.permission,
+                    "expires_at": perm.expires_at,
+                    "context_ids": [],
+                }
+
+            grouped[key]["context_ids"].append(perm.context_id)
+
+        # Serialize and validate the grouped data
+        serializer = cls(data=list(grouped.values()), many=True)
+        serializer.is_valid(raise_exception=True)
+        return serializer.data
 
 
 class ScoresForUserSerializer(serializers.Serializer):

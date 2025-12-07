@@ -362,7 +362,7 @@ const MyWidgetSelectedInstance = ({
 	}
 
 	let provisionalAccessRender = null
-	if (myPerms?.context != null) {
+	if (myPerms?.contexts != null) {
 		provisionalAccessRender = (
 			<div className='provisional-access-container'>
 				<h3>You have been granted limited access to this widget.</h3>
@@ -553,10 +553,9 @@ const MyWidgetSelectedInstance = ({
 		{ warningDialogRender }
 		{ settingsDialogRender }
 		{ lockedDialogRender }
-		<MyWidgetsScores inst={inst} context={myPerms?.context} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
+		<MyWidgetsScores inst={inst} contexts={myPerms?.contexts} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
 		</>
 	}
-
 
 	return (
 		<section className='page' role='tabpanel'>

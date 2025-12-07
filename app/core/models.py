@@ -38,6 +38,7 @@ logger = logging.getLogger(__name__)
 
 
 class ObjectPermission(models.Model):
+    PERMISSION_ADMIN = "admin"
     PERMISSION_VISIBLE = "visible"
     PERMISSION_FULL = "full"
     PERMISSION_CHOICES = [
@@ -1224,7 +1225,7 @@ class WidgetInstance(models.Model):
 
         return dupe
 
-    def get_play_logs(self, semester=None, year=None, context_id=None):
+    def get_play_logs(self, semester=None, year=None, context_ids=None):
         """
         Returns a filtered queryset of play logs for the current instance
         Accepts semester, year, and context ID.
@@ -1238,8 +1239,9 @@ class WidgetInstance(models.Model):
         semester = None if semester == "all" else semester
         year = None if year == "all" else year
 
-        if context_id:
-            return queryset.filter(context_id=context_id)
+        if context_ids:
+            context_id_list = [ctx.strip() for ctx in context_ids.split(",")]
+            return queryset.filter(context_id__in=context_id_list)
 
         if semester and year:
             date = DateRange.objects.filter(semester=semester, year=year).first()
