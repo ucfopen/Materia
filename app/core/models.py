@@ -34,7 +34,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy
 from lti_tool.models import LtiDeployment
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class ObjectPermission(models.Model):
@@ -689,7 +689,7 @@ class Notification(models.Model):
         widget_name = instance.name
         widget_type = instance.widget.name
         widget_link = (
-            f"<a href='{settings.URLS["BASE_URL"]}my-widgets#{instance.id}' target='_blank'>"
+            f"<a href='{settings.URLS['BASE_URL']}my-widgets#{instance.id}' target='_blank'>"
             f"{widget_name}</a>"
         )
 
@@ -758,7 +758,7 @@ class Notification(models.Model):
         if self.action == "access_request":
             context["action_text"] = "Go to Widget Collaboration Settings"
             context["action_link"] = (
-                f"{settings.URLS["BASE_URL"]}my-widgets/#{self.item_id}-collab"
+                f"{settings.URLS['BASE_URL']}my-widgets/#{self.item_id}-collab"
             )
 
         # Send email
@@ -1259,17 +1259,17 @@ class WidgetInstance(models.Model):
 
     @property
     def play_url(self):
-        return f"{settings.URLS["BASE_URL"]}play/{self.id}/{slugify(self.name)}/"
+        return f"{settings.URLS['BASE_URL']}play/{self.id}/{slugify(self.name)}/"
 
     @property
     def preview_url(self):
-        return f"{settings.URLS["BASE_URL"]}preview/{self.id}/{slugify(self.name)}/"
+        return f"{settings.URLS['BASE_URL']}preview/{self.id}/{slugify(self.name)}/"
 
     @property
     def embed_url(self):
         if self.is_draft:
             return None
-        return f"{settings.URLS["BASE_URL"]}embed/{self.id}/{slugify(self.name)}/"
+        return f"{settings.URLS['BASE_URL']}embed/{self.id}/{slugify(self.name)}/"
 
     @classproperty
     def content_type(cls):
@@ -1414,7 +1414,7 @@ class WidgetQset(models.Model):
 
 class UserSettings(models.Model):
 
-    DEFAULT_PROFILE_FIELDS = {"useGravatar": False, "darkMode": False}
+    DEFAULT_PROFILE_FIELDS = {"useGravatar": True, "darkMode": False}
 
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="profile_settings"

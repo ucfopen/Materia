@@ -1,9 +1,8 @@
 import logging
-from pprint import pformat
 
 import requests
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class AGSRequest:
@@ -24,7 +23,6 @@ class AGSRequest:
 
         response = requests.get(url, headers=self.headers())
         body = response.json()
-        logger.error(f"\nAGSRequest GET:\n{pformat(body)}\n")
         response.raise_for_status()
 
         return body
@@ -32,7 +30,6 @@ class AGSRequest:
     def post(self, url, body):
         response = requests.post(url, json=body, headers=self.headers())
         body = response.json()
-        logger.error(f"\nAGSRequest POST:\n{pformat(body)}\n")
         response.raise_for_status()
 
         return body

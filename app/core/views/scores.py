@@ -1,5 +1,8 @@
+import logging
+
 from core.mixins import MateriaLoginMixin, MateriaLoginNeeded
 from core.models import LogPlay, WidgetInstance
+from core.utils.context_util import ContextUtil
 from django.conf import settings
 from django.http import (
     Http404,
@@ -9,7 +12,8 @@ from django.http import (
 )
 from django.views.generic import TemplateView
 from lti.services.launch import LTILaunchService
-from core.utils.context_util import ContextUtil
+
+logger = logging.getLogger(__name__)
 
 
 class ScoresView(MateriaLoginMixin, TemplateView):
@@ -18,13 +22,15 @@ class ScoresView(MateriaLoginMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         widget_instance_id = kwargs.get("widget_instance_id")
+        token = request.GET.get("token")
 
         instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
         if not instance:
             return HttpResponseNotFound()
+        context = _get_context_data(request, widget_instance_id, token)
 
         if not instance.playable_by_current_user(self.request.user):
-            return ContextUtil.create(
+            context = ContextUtil.create(
                 request=request,
                 title="Forbidden",
                 js_resources=settings.JS_GROUPS["no-permission"],
@@ -32,22 +38,9 @@ class ScoresView(MateriaLoginMixin, TemplateView):
                 js_globals={},
             )
 
-        context = ContextUtil.create(
-            title="Score Results",
-            js_resources=settings.JS_GROUPS["scores"],
-            css_resources=settings.CSS_GROUPS["scores"],
-            js_globals={
-                "USER_ID": request.user.id,
-            },
-            request=self.request,
-        )
-
         return self.render_to_response(context)
 
 
-# Allow LTI launches to score screens
-# In Canvas, this is shown on the grade review
-# enabled by launch param ext_outcome_data_values_accepted=url
 class ScoresViewSingle(MateriaLoginMixin, TemplateView):
     template_name = "react.html"
     allow_all_by_default = True
@@ -56,7 +49,12 @@ class ScoresViewSingle(MateriaLoginMixin, TemplateView):
         # Get url args
         play_id = kwargs.get("play_id")
         widget_instance_id = kwargs.get("widget_instance_id")
-        token = self.kwargs.get("token")  # TODO verify if token is visible here
+        token = request.GET.get("token")
+
+        # Swap if play_id is shorter than widget_instance_id
+        # Why? Because the LTI 1.1 implementation provided /scores/single/play_id/inst_id/ as the score submission URI
+        if len(play_id) < len(widget_instance_id):
+            play_id, widget_instance_id = widget_instance_id, play_id
 
         # Grab and verify play
         play = LogPlay.objects.get(pk=play_id)
@@ -64,17 +62,6 @@ class ScoresViewSingle(MateriaLoginMixin, TemplateView):
             return HttpResponseNotFound()
         if play.instance.id != widget_instance_id:
             return HttpResponseBadRequest()
-
-        # TODO
-        # Revisit this redirect: this event trigger was associated LTI 1.1
-
-        # Allow event listeners to redirect users
-        # This is mostly to redirect them to failure status pages
-        # $results = \Event::trigger('before_single_score_review',
-        # ['play_id' => $play_id, 'content_id' => $play->context_id], 'array');
-
-        # if redirect:
-        #     return HttpResponseRedirect(redirect)
 
         context = _get_context_data(request, widget_instance_id, token)
         return self.render_to_response(context)
@@ -94,16 +81,20 @@ def _get_context_data(
     if not instance.playable_by_current_user(request.user):
         raise MateriaLoginNeeded(login_message="Please log in to view your scores.")
 
-    # Set up context and return
+    # configure JS globals, USER_ID is always required
     js_globals = {
         "USER_ID": request.user.id,
     }
 
+    # if there is a token param present, append additional globals to communicate LTI context
     if token:
         js_globals["LTI_TOKEN"] = token
-
-    if LTILaunchService.is_lti_launch(request):
-        js_globals["LTI_EMBEDDED"] = True
+        launch = LTILaunchService.get_session_launch(request, token)
+        if launch:
+            js_globals["CONTEXT_ID"] = LTILaunchService.get_context_id(launch)
+    else:
+        if LTILaunchService.is_lti_launch(request):
+            js_globals["LTI_EMBEDDED"] = True
 
     return ContextUtil.create(
         title="Score Results",

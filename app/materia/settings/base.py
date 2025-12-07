@@ -1,8 +1,16 @@
 # BASE config file for Materia
 
+import os
 from pathlib import Path
 
+from core.utils.validator_util import ValidatorUtil
+
+from .apps import *  # noqa: F401, F403
 from .css import *  # noqa: F401, F403
+from .db import *  # noqa: F401, F403
+
+# empty by default - override with environment/implementation-specific settings
+from .extra import *  # noqa: F401, F403
 from .generation import *  # noqa: F401, F403
 from .js import *  # noqa: F401, F403
 from .lti import *  # noqa: F401, F403
@@ -33,6 +41,7 @@ SESSION_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"
 CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = [os.environ.get("BASE_URL").rstrip("/")]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -41,27 +50,9 @@ CSRF_COOKIE_SECURE = True
 SECRET_KEY = "materia-local-dev-secret-key"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_ENV", "prod") == "dev"
 
 ALLOWED_HOSTS = ["*", "localhost", "127.0.0.1"]
-
-
-# Application definition
-
-INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "django_filters",
-    "rest_framework",
-    # apps
-    "core",
-    "lti_tool",
-    "lti",
-]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -104,21 +95,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "materia.wsgi.application"
-
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": os.environ.get("MYSQL_DATABASE"),
-        "USER": os.environ.get("MYSQL_USER"),
-        "PASSWORD": os.environ.get("MYSQL_PASSWORD"),
-        "HOST": os.environ.get("MYSQL_HOST"),
-        "PORT": os.environ.get("MYSQL_PORT"),
-    },
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -170,6 +146,14 @@ LOGGING = {
         },
     },
     "loggers": {
+        "api": {"handlers": ["file", "console"], "level": "INFO", "propagate": True},
+        "core": {"handlers": ["file", "console"], "level": "INFO", "propagate": True},
+        "lti": {"handlers": ["file", "console"], "level": "INFO", "propagate": True},
+        "storage": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": True,
+        },
         "django": {"handlers": ["file", "console"], "level": "INFO", "propagate": True},
         "django.db": {
             "handlers": ["file", "console"],

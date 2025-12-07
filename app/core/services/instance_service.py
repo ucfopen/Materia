@@ -6,7 +6,7 @@ from django.core.cache import cache
 
 from core.models import WidgetInstance
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class WidgetInstanceService:

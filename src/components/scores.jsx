@@ -14,11 +14,11 @@ const STATE_INVALID = 'invalid'
 const STATE_EXPIRED = 'expired'
 const STATE_NO_SCORES = 'no_scores'
 
-const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPreview, isSingle}) => {
+const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedded, isPreview, isSingle}) => {
 
 	const [playID, setPlayID] = useState(playIDProp)
 	const [errorState, setErrorState] = useState(null)
-	const [attemptsLeft, setAttemptsLeft] = useState(0)
+	const [attemptsLeft, setAttemptsLeft] = useState(-1)
 	const [currentAttempt, setCurrentAttempt] = useState(null)
 
 	const [attempts, setAttempts] = useState([])
@@ -64,11 +64,11 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 		Also disabled for guest plays, preview plays
 	*/
 	const { isLoading: scoresAreLoading, data: instanceScores, error: instanceScoresError, refetch: loadInstanceScores } = useQuery({
-		queryKey: ['inst-scores', instID],
+		queryKey: ['inst-scores', instID, contextID],
 		queryFn: () => {
-			return apiGetWidgetInstanceScores(instID, userID)
+			return apiGetWidgetInstanceScores(instID, userID, contextID)
 		},
-		enabled: !isPreview && !isSingle && !!userID && !!instID,
+		enabled: !isPreview && !isSingle && !instanceIsLoading && !instance['guest_access'] && !!userID && !!instID,
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
 		retry: false,
@@ -173,7 +173,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 				}
 			}
 		} else if (!!instanceScoresError) {
-			if (instanceScoresError.message == "Permission Denied") {
+			if (instanceScoresError.status == 401) {
 				setErrorState(STATE_RESTRICTED)
 			} else {
 				setErrorState(STATE_INVALID)
@@ -238,9 +238,17 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 			}))
 		}
 		else if (!!playScoresError) {
-			if (playScoresError.message == "Permission Denied") setErrorState(STATE_RESTRICTED)
-			else if (isPreview) setErrorState(STATE_EXPIRED)
-			else setErrorState(STATE_INVALID)
+			switch (playScoresError.status) {
+				case 410:
+					setErrorState(STATE_EXPIRED)
+					break
+				case 401:
+					setErrorState(STATE_RESTRICTED)
+					break
+				default:
+					setErrorState(STATE_INVALID)
+					break
+			}
 		}
 		// @TODO handle errors
 	}, [playScores, playScoresError])
@@ -318,7 +326,6 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 					showResultsTable: true
 				})
 			}
-			console.log("calling sendToWidget")
 			sendToWidget('initWidget', [playData.qset, playData.details.table, instance, isPreview, window.MEDIA_URL])
 		}
 	}
@@ -425,9 +432,10 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 				errorStateRender = (
 					<div className="invalid container general">
 						<section className="page score_restrict">
-							<h2 className="logo">Play ID Invalid</h2>
-							<p>Well, that's awkward. We couldn't find any play scores to show you. Some common issues associated with this message:</p>
+							<h2 className="logo">Something Went Wrong</h2>
+							<p>Well, that's awkward. Something is preventing us from showing you this score. Some common issues associated with this message:</p>
 							<ul>
+								<li>You accessed this score in a way Materia didn't expect.</li>
 								<li>Materia doesn't think you have the right permissions to view this score.</li>
 								<li>There was an issue with displaying the score screen in this particular context - have you tried accessing it from the widget's Student Activity section or your profile page?</li>
 							</ul>
@@ -475,7 +483,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 	if (!attributes.hidePreviousAttempts) {
 		let attemptList = attempts.map((attempt, index) => {
 			return (
-				<li key={index}>
+				<li key={index} className={ !!attempt.current_context ? 'current-context' : 'previous-context' }>
 					<a href={`#attempt-${index + 1}`}
 						onClick={() => setKeepPrevOpen(false)}
 					>
@@ -503,19 +511,20 @@ const Scores = ({ instID, playID: playIDProp, userID, token, isEmbedded, isPrevi
 	}
 
 	let playAgainBtn = null
-	if ((!attributes.hidePlayAgain && attemptsLeft > 0) || attemptsLeft == -1) {
+	if (!attributes.hidePlayAgain && (attemptsLeft > 0 || attemptsLeft == -1)) {
 		playAgainBtn = (
 			<a id='play-again' className='action_button' href={attributes.href}>
 				{isPreview ? 'Preview' : 'Play'} Again
-				{attemptsLeft > 0 ? <span>({attemptsLeft} Left)</span> : <></>}
+				{attemptsLeft > 0 ? <span>{`(${attemptsLeft} Left)`}</span> : <></>}
 			</a>
 		)
 	}
 
 	let scoreHeaderRender = null
 	if (!errorState) {
+		const headerClass = playAgainBtn == null ? 'justify-left' : 'justify-center'
 		scoreHeaderRender = (
-			<header className={`header score-header ${isPreview ? 'preview' : ''}`}>
+			<header className={`header score-header ${headerClass} ${isPreview ? 'preview' : ''}`}>
 				{priorAttempts}
 				<h1 className='widget-title'>{attributes.title ? attributes.title : ''}</h1>
 				{playAgainBtn}

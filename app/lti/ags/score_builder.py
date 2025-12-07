@@ -1,6 +1,6 @@
 import logging
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class AGSScoreBuilder:

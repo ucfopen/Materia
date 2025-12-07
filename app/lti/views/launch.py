@@ -6,10 +6,7 @@ from lti.services.launch import LTILaunchService
 from lti.views.lti import error_page
 from lti_tool.views import LtiLaunchBaseView
 
-# from pprint import pformat
-
-
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class ApplicationLaunchView(LtiLaunchBaseView):

@@ -21,11 +21,15 @@ class ContextUtil:
 
         # Process JS and CSS resources
         processed_js_resources = (
-            [js_resources] if type(js_resources) is str else js_resources
+            [js_resources] if type(js_resources) is str else js_resources.copy()
         )
         processed_css_resources = (
-            [css_resources] if type(css_resources) is str else css_resources
+            [css_resources] if type(css_resources) is str else css_resources.copy()
         )
+
+        # prepend commons files to js/css resources, which are required in every page
+        processed_js_resources.insert(0, settings.JS_BASEURL + "commons.js")
+        processed_css_resources.insert(0, settings.CSS_BASEURL + "commons.css")
 
         # Create and return context
         return {

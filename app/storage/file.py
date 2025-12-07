@@ -4,7 +4,7 @@ import shutil
 
 from django.conf import settings
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class FileAssetStorageDriver:

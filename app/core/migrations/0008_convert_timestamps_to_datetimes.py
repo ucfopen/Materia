@@ -9,7 +9,7 @@ from django.utils import timezone
 def translate_timestamps(apps, schema_editor):
     import logging
 
-    logger = logging.getLogger("django")
+    logger = logging.getLogger(__name__)
 
     def timestamp_to_datetime(ts):
         if ts is None:
@@ -119,7 +119,7 @@ def translate_timestamps(apps, schema_editor):
 def translate_datetimes(apps, schema_editor):
     import logging
 
-    logger = logging.getLogger("django")
+    logger = logging.getLogger(__name__)
 
     def datetime_to_timestamp(dt):
         if dt is None:

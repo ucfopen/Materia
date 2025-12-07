@@ -8,7 +8,7 @@ import botocore
 from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseRedirect
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class S3AssetStorageDriver:

@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.management import base
 from scoring.module_factory import ScoreModuleFactory
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class Command(base.BaseCommand):
@@ -286,7 +286,6 @@ class Command(base.BaseCommand):
                 print(f"no score module for play: {play.id}")
                 return
 
-            module.validate_scores(in_process=False)
             details = module.get_score_report()
             scores.append(
                 {

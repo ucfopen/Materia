@@ -1095,11 +1095,12 @@ h1.logo {
 	}
 }
 
-.darkMode .page, .widget {
+.darkMode {
 	.alert-wrapper {
 		background: rgba(0,0,0,0.66);
 
 		.alert-dialog {
+			color: #fff;
 			background: #21232a;
 		}
 	}

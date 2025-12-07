@@ -7,7 +7,7 @@ from lti_tool.models import LtiDeployment, LtiLaunch
 # from pprint import pformat
 
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class LTILaunchService:
@@ -176,7 +176,6 @@ class LTILaunchService:
             recovery = LTILaunchService.get_session_launch(request, token_param)
             if recovery is not None:
                 recovery["materia_launch_state"] = "RECOVERY"
-                logger.error("\nLaunch RECOVERED from get param!\n")
 
             return recovery
 

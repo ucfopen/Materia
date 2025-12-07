@@ -5,6 +5,7 @@
 from enum import Enum
 
 from django.http import HttpRequest, JsonResponse
+from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 
 
@@ -14,7 +15,7 @@ class MsgSeverity(Enum):
     WARN = "warn"
 
 
-class MsgException(Exception):
+class MsgException(APIException):
     def __init__(
         self,
         title: str,
@@ -23,6 +24,7 @@ class MsgException(Exception):
         halt: bool = False,
         status: int = 403,
     ):
+        super().__init__(msg, status)
         self.title = title
         self.msg = msg
         self.severity = severity

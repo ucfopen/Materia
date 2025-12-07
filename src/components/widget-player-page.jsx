@@ -1,7 +1,7 @@
 import React, { useState, useEffect} from 'react'
 import Header from './header'
 import WidgetPlayer from './widget-player'
-import useCreatePlaySession from './hooks/useCreatePlaySession'
+import { waitForWindow } from '../util/wait-for-window'
 
 const EMBED = 'embed'
 const PLAY = 'play'
@@ -12,7 +12,7 @@ const LEGACY_EMBED = 'legacy-embed'
 
 const getWidgetType = path => {
 	switch(true) {
-		case path.includes('/embed/'): return EMBED
+		case (path.includes('/embed/') || !!window.LTI_TOKEN): return EMBED
 		case path.includes('/play/'): return PLAY
 		case path.includes('/preview/'): return PREVIEW
 		case path.includes('/demo'): return DEMO
@@ -23,8 +23,6 @@ const getWidgetType = path => {
 }
 
 const WidgetPlayerPage = () => {
-
-	const createPlaySession = useCreatePlaySession()
 
 	const type = getWidgetType(window.location.pathname)
 	const nameArr = window.location.pathname.replace(`/${type}/`, '').split('/')
@@ -40,7 +38,7 @@ const WidgetPlayerPage = () => {
 	useEffect(() => {
 		if (type == EMBED || type == PREVIEW_EMBED || type == LEGACY_EMBED) document.body.classList.add('embedded')
 
-		waitForWindow()
+		waitForWindow(['WIDGET_HEIGHT', 'WIDGET_WIDTH', 'PLAY_ID', 'DEMO_ID'])
 		.then(() => {
 			switch(type) {
 				case PREVIEW_EMBED:
@@ -93,16 +91,6 @@ const WidgetPlayerPage = () => {
 			history.pushState(null, '', `${window.location.pathname}?token=${state.ltiToken}`)
 		}
 	},[state.ltiToken])
-
-	// Used to wait for window data to load
-	const waitForWindow = async () => {
-		while(!!window.hasOwnProperty('WIDGET_HEIGHT')
-		&& !window.hasOwnProperty('WIDGET_WIDTH')
-		&& !window.hasOwnProperty('PLAY_ID')
-		&& !window.hasOwnProperty('DEMO_ID')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
 
 	let headerRender = <Header />
 	// No header for embedded widgets

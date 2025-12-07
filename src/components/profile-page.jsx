@@ -19,7 +19,7 @@ const ProfilePage = () => {
 	let userActivity =  useGetPlaySessions("me", false)
 
 	const mounted = useRef(false)
-	const { data: currentUser, isFetching} = useQuery({
+	const { data: currentUser, isFetching } = useQuery({
 		queryKey: ['user', 'me'],
 		queryFn: ({ queryKey }) => {
 			const [_key, user] = queryKey
@@ -173,7 +173,7 @@ const ProfilePage = () => {
 
 					{userActivity?.hasNextPage ? (
 						<button className="show_more_activity action_button" onClick={_getMoreLogs}>
-							{isFetchingNextActivityPage ? (
+							{userActivity?.isFetching ? (
 								<span className="message_loading">Loading...</span>
 							) : (
 								<span>Show more</span>

@@ -24,7 +24,7 @@ from rest_framework.response import Response
 from api.paginators import PageNumberWithTotalPagination
 from core.message_exception import MsgInvalidInput
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class UserPagination(PageNumberWithTotalPagination):

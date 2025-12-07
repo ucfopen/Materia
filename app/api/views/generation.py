@@ -74,7 +74,6 @@ class GenerateFromPromptView(APIView):
     http_method_names = ["post"]
     permission_classes = [CanCreateWidgetInstances]
 
-    @staticmethod
     def post(self, request):
         # Check if generation is available
         if not GenerationUtil.is_enabled():

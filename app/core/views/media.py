@@ -2,6 +2,8 @@ import logging
 from time import gmtime, strftime
 
 from core.models import Asset
+from core.services.asset_service import AssetService
+from core.utils.context_util import ContextUtil
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -9,24 +11,23 @@ from django.core.validators import FileExtensionValidator
 from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from core.services.asset_service import AssetService
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class MediaImportView(TemplateView):
     @login_required
     def index(request):
-        context = {
-            "title": "Media Catalog",
-            "js_resources": settings.JS_GROUPS["media"],
-            "css_resources": settings.CSS_GROUPS["media"],
-            "fonts": settings.FONTS_DEFAULT,
-            "js_global_variables": {
+        context = ContextUtil.create(
+            title="Media Catalog",
+            js_resources=settings.JS_GROUPS["media"],
+            css_resources=settings.CSS_GROUPS["media"],
+            request=request,
+            js_globals={
                 "MEDIA_URL": settings.URLS["MEDIA_URL"],
                 "MEDIA_UPLOAD_URL": settings.URLS["MEDIA_UPLOAD_URL"],
             },
-        }
+        )
 
         return render(request, "react.html", context)
 

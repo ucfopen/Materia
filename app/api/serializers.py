@@ -28,7 +28,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import serializers
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 # Asset model serializer
@@ -458,11 +458,6 @@ class PlaySessionCreateSerializer(serializers.Serializer):
 
     def validate(self, data):
         is_preview = data.get("is_preview", False)
-        if is_preview is True:
-            raise serializers.ValidationError(
-                "Invalid session creation for preview play."
-            )
-
         instance = WidgetInstance.objects.get(pk=data["instanceId"])
         if not instance:
             raise serializers.ValidationError(
@@ -471,7 +466,6 @@ class PlaySessionCreateSerializer(serializers.Serializer):
 
         if not instance.playable_by_current_user(self.context["request"].user):
             raise serializers.ValidationError("Instance not playable by current user.")
-
         return {"instance": instance, "is_preview": is_preview}
 
 
@@ -569,10 +563,12 @@ class ScoreSummarySerializer(serializers.Serializer):
             return []
 
         summary = {}
+        unique_students = {}
 
         for log in logs:
 
             semester_key = f"{log.created_at.year}-{log.semester.semester}"
+            user_id = 0 if log.user is None else log.user.id
 
             if semester_key not in summary:
 
@@ -585,19 +581,26 @@ class ScoreSummarySerializer(serializers.Serializer):
                     else:
                         distribution[i] = 0
 
+                unique_students[semester_key] = [user_id]
+
                 summary[semester_key] = {
                     "id": log.semester.id,
                     "term": log.semester.semester,
                     "year": log.created_at.year,
                     "students": 1,
+                    "count": 1,
                     "total": log.percent,
                     "distribution": distribution,
                 }
 
             else:
-                summary[semester_key]["students"] += 1
-                summary[semester_key]["total"] += log.percent
 
+                if user_id not in unique_students[semester_key]:
+                    unique_students[semester_key].append(user_id)
+                    summary[semester_key]["students"] += 1
+
+                summary[semester_key]["count"] += 1
+                summary[semester_key]["total"] += log.percent
                 summary[semester_key]["distribution"][
                     int(log.percent / 10) if int(log.percent / 10) < 10 else 9
                 ] += 1
@@ -610,12 +613,12 @@ class ScoreSummarySerializer(serializers.Serializer):
                     "term": data["term"],
                     "year": data["year"],
                     "students": data["students"],
-                    "average": round(data["total"] / data["students"], 2),
+                    "average": round(data["total"] / data["count"], 2),
                     "distribution": data["distribution"],
                 }
             )
 
-        return sorted(results, key=lambda x: (x["year"], x["term"]))
+        return sorted(results, key=lambda x: (x["year"], x["term"]), reverse=True)
 
 
 # Used for incoming requests for qset generation. Does NOT map to a model.

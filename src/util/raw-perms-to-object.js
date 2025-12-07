@@ -17,7 +17,7 @@ const rawPermsToObj = (perm, isEditable) => {
 		context: perm.context_id ?? null,
 		can: {
 			view: true, // implicit with all access types
-			copy: true, // implicit with all access types
+			copy: perm.permission == access.FULL,
 			edit: perm.permission == access.FULL,
 			delete: perm.permission == access.FULL,
 			share: perm.permission == access.FULL, // Refers to the ability to share with collaborators

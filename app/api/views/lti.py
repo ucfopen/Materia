@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 # from pprint import pformat
 
 
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
 class LtiWidgetInstancesInCourseView(APIView):

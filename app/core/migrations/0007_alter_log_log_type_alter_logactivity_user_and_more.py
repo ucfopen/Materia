@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
 
         from django.contrib.auth.models import User
 
-        logger = logging.getLogger("django")
+        logger = logging.getLogger(__name__)
 
         OldNotification = apps.get_model("core", "Notification")
 

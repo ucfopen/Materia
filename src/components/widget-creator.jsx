@@ -19,6 +19,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		editable: true
 	})
 
+	const guideReplaceExpr = /(create\/[a-zA-Z0-9-]{5,}\/?)/
+
 	// state information about the creator
 	const [creatorState, setCreatorState] = useState({
 		mode: 'edit', // 'edit' is for new or draft widgets; 'update' is for existing widgets
@@ -28,7 +30,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		dialogType: 'embed_dialog',
 		heartbeatEnabled: true,
 		hasCreatorGuide: false,
-		creatorGuideUrl: window.location.pathname.replace('create/', '') + 'creators-guide/',
+		creatorGuideUrl: window.location.pathname.replace(guideReplaceExpr, 'creators-guide/'),
 		showActionBar: true,
 		showRollbackConfirm: false,
 		showGenerationConfirm: false,
@@ -478,6 +480,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					case 'save':
 						setSaveWidgetComplete(saveModeRef.current)
 						if (!instIdRef.current) instIdRef.current = inst.id
+
+						const parts = window.location.pathname.split('/');
+						parts[parts.length - 1] = inst.id;
+						window.history.replaceState(null, '', parts.join('/'));
+
 						setInstance(currentInstance => ({ ...currentInstance, ...inst }))
 						apiGetQuestionSet(inst.id).then((qset) => {
 							sendToCreator('onSaveComplete', [
