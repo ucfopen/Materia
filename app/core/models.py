@@ -58,7 +58,7 @@ class ObjectPermission(models.Model):
     context_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        unique_together = ("user", "content_type", "object_id", "permission")
+        unique_together = ("user", "content_type", "object_id", "context_id")
         indexes = [
             models.Index(fields=["content_type", "object_id"]),
             models.Index(fields=["user", "permission"]),

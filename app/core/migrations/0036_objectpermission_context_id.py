@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0034_delete_permroletouser_delete_permroletouserbackup_and_more"),
+        ("core", "0035_lti_deployment_lti_lti_version_alter_lti_consumer_and_more"),
     ]
 
     operations = [
@@ -14,5 +14,9 @@ class Migration(migrations.Migration):
             model_name="objectpermission",
             name="context_id",
             field=models.CharField(blank=True, max_length=255, null=True),
+        ),
+        migrations.AlterUniqueTogether(
+            name="objectpermission",
+            unique_together={("user", "content_type", "object_id", "context_id")},
         ),
     ]

@@ -357,12 +357,15 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 expiration = update["expiration"]
                 user = update["user"]
                 user_existing_perm = None
+                user_existing_perm_obj = None
+
+                # Check for existing global permission (context_id is null)
                 if user_existing_perm_obj := instance.permissions.filter(
-                    user=user
+                    user=user, context_id__isnull=True
                 ).first():
                     user_existing_perm = user_existing_perm_obj.permission
 
-                # If perm_level is null, delete the perm entry
+                # If perm_level is null, delete all perm entries for this user
                 if perm_level is None:
                     if user_existing_perm is None:
                         # user already doesnt have perms
@@ -376,6 +379,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                         refusals.append(user)
                         continue
 
+                    # Delete all permissions (both global and context-specific) for this user
                     instance.permissions.filter(user=user).delete()
                     # Send deletion notif
                     Notification.create_instance_notification(
@@ -419,14 +423,21 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                         user, instance, perm_level
                     )
 
-                # Check if perm is about to be created *or* updated (.update_or_create only returns True if created)
+                # Check if a global perm already exists with this permission level
                 will_update_or_create = not instance.permissions.filter(
-                    user=user, permission=perm_level
+                    user=user, permission=perm_level, context_id__isnull=True
                 ).exists()
 
-                # Update or create that perm
+                # Delete any context-specific permissions for this user
+                # This elevates context-limited permissions to global permissions
+                instance.permissions.filter(
+                    user=user, context_id__isnull=False
+                ).delete()
+
+                # Update or create the global permission (context_id=None)
                 instance.permissions.update_or_create(
                     user=user,
+                    context_id=None,
                     defaults={"permission": perm_level, "expires_at": expiration},
                 )
 
