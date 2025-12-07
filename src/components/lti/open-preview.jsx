@@ -62,8 +62,7 @@ const SelectItem = () => {
 				</div>
 				<h3>You have been given provisional access to this widget</h3>
 				<p>Because you are an author in this course, you have been given limited access to this widget.</p>
-				<p>It will now show up in My Widgets and you can view scores associated with this course.
-					At any time, you can request full access by visiting the widget in My Widgets.</p>
+				<p>It will now show up in My Widgets and you can view scores associated with this course.</p>
 					<a className="action_button" href={`${window.BASE_URL}my-widgets/#${instID}`} target="_blank">View in My Widgets</a>
 			</div>
 		</section>
