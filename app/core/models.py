@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import types
 from pathlib import Path
 from typing import Self
@@ -936,7 +937,8 @@ class Widget(models.Model):
 
     @staticmethod
     def make_clean_name(name):
-        return name.replace(" ", "-").lower()
+        base = name.replace(" ", "-").lower()
+        return re.sub(r"[^a-z0-9-]", "", base)
 
     def get_playdata_exporter_methods(
         self, script_path: str = None
