@@ -1305,10 +1305,6 @@ class WidgetQset(models.Model):
         This method will effectively be invoked once per qset at most,
         as subsequent requests for questions will be able to use the ORM
         """
-        decoded_data = Base64Util.decode(self.data)
-        # in most cases the top level key in a qset will be 'items'
-        # sometimes it won't be - this should work no matter what it is
-        raw_items = decoded_data.get(next(iter(decoded_data)), [])
 
         def find_questions(source):
             questions = []
@@ -1334,7 +1330,8 @@ class WidgetQset(models.Model):
 
             return questions
 
-        questions = find_questions(raw_items)
+        decoded_data = Base64Util.decode(self.data)
+        questions = find_questions(decoded_data)
         questions_set = []
         for question in questions:
             new_question = Question(
