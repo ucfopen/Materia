@@ -9,7 +9,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 		const result = new Set()
 		if (searchText == '') return result
 
-		const re = RegExp(searchText, 'i')
+		const re = RegExp(RegExp.escape(searchText), 'i')
 		instances.forEach(i => {
 			if (!re.test(`${i.name} ${i.widget.name} ${i.id}`)) {
 				result.add(i.id)
@@ -40,7 +40,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 
 	let searchBoxRender = null
 	if (isFetching) {
-		searchBoxRender = 
+		searchBoxRender =
 		<div className='search loading'>
 			<LoadingIcon size='sm' width='20px' left='10px'/>
 			<span className='loading-message'>Loading Widgets...</span>
