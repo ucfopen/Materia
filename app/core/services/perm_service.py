@@ -11,7 +11,7 @@ from django.utils import timezone
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from core.models import WidgetInstance, ObjectPermission
+    from core.models import ObjectPermission, WidgetInstance
 
 
 class PermService:
@@ -109,6 +109,7 @@ class PermService:
         from core.models import ObjectPermission
 
         permission_value_map = {
+            ObjectPermission.PERMISSION_ADMIN: 100,
             ObjectPermission.PERMISSION_FULL: 50,
             ObjectPermission.PERMISSION_VISIBLE: 0,
         }

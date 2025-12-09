@@ -447,6 +447,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 # (they can only revoke their access completely)
                 if (
                     user == requester
+                    and not PermService.is_superuser_or_elevated(requester)
                     and PermService.compare_perms(requester_perm, perm_level) < 0
                 ):
                     refusals.append(user)
@@ -513,6 +514,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
             # If there was a refusal, return a message
             if len(refusals) > 0:
+                logger.error(refusals)
                 raise MsgFailure(
                     msg=f"Could not update {len(refusals)} out of {len(updates)} permissions."
                 )
