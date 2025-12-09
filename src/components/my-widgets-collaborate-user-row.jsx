@@ -148,10 +148,10 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 					<>
 						<span>
 							This user has provisional access due to the widget being embedded in their course. They can only see scores associated
-							with courses the widget was embedded in. Removing provisional access grants the user normal View Scores permissions.
+							with that course. Selecting Unrestrict Access will allow them to view all scores the widget has collected.
 						</span>
 						<button className='action_button' onClick={removeContexts}>
-							Remove Provisional Access
+							Unrestrict Access
 						</button>
 					</>
 				) : (
