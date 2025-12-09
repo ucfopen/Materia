@@ -1307,8 +1307,6 @@ class WidgetQset(models.Model):
         This method will effectively be invoked once per qset at most,
         as subsequent requests for questions will be able to use the ORM
         """
-        decoded_data = Base64Util.decode(self.data)
-        raw_items = decoded_data.get("items", [])
 
         def find_questions(source):
             questions = []
@@ -1334,7 +1332,8 @@ class WidgetQset(models.Model):
 
             return questions
 
-        questions = find_questions(raw_items)
+        decoded_data = Base64Util.decode(self.data)
+        questions = find_questions(decoded_data)
         questions_set = []
         for question in questions:
             new_question = Question(
@@ -1368,22 +1367,25 @@ class WidgetQset(models.Model):
         import copy
         import uuid
 
-        def _process_item(item):
+        def _assign_item_id_if_empty(item):
+            if "id" in item and (
+                item["id"] is None or item["id"] == 0 or item["id"] == ""
+            ):
+                item["id"] = str(uuid.uuid4())
+
+        def _process_item(item, parent_key=None):
             if isinstance(item, list):
-                return [_process_item(element) for element in item]
+                return [_process_item(element, parent_key) for element in item]
 
             if isinstance(item, dict):
                 result = copy.deepcopy(item)
 
-                if Question.is_question(result):
-                    if "id" in result and (
-                        result["id"] is None or result["id"] == 0 or result["id"] == ""
-                    ):
-                        result["id"] = str(uuid.uuid4())
+                if Question.is_question(result) or parent_key == "answers":
+                    _assign_item_id_if_empty(result)
 
                 for key, value in result.items():
                     if isinstance(value, (dict, list)):
-                        result[key] = _process_item(value)
+                        result[key] = _process_item(value, key)
 
                 return result
 
