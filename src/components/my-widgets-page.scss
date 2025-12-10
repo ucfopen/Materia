@@ -474,7 +474,7 @@
 								right: 0.7em;
 							}
 
-							&:hover {
+							&:hover:not(.disabled) {
 								fill: #a2c129;
 								background: none;
 							}
@@ -1218,7 +1218,7 @@
 		}
 
 		.share-widget-container {
-			
+
 			.share-widget-options-first {
 				border-left: 8px solid rgba(239, 129, 82, 0.5);
 			}
@@ -1312,7 +1312,7 @@
 			section.directions {
 
 				&.unchosen {
-					
+
 					min-height: 650px;
 
 					&:not(.bearded), &.bearded {
@@ -1382,7 +1382,7 @@
 						padding: 10px;
 						margin: 0 auto;
 					}
-					
+
 					.controls {
 						width: auto;
 						height: auto;

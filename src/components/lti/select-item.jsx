@@ -26,7 +26,7 @@ const SelectItem = () => {
 		const result = new Set()
 		if(searchText == '') return result
 
-		const re = RegExp(searchText, 'i')
+		const re = RegExp(RegExp.escape(searchText), 'i')
 		if (instanceList.instances && instanceList.instances.length > 0)
 			instanceList.instances.forEach(i => {
 				if(!re.test(`${i.name} ${i.widget.name} ${i.id}`)){
@@ -93,7 +93,7 @@ const SelectItem = () => {
 				const form = document.createElement('form')
 				form.method = 'POST'
 				form.action = window.RETURN_URL
-				
+
 				// append embed url to form
 				// @TODO update with 1.3 launch URL?
 				const inputUrl = createFormItem('instance', selectedInstance.embed_url)
@@ -102,7 +102,7 @@ const SelectItem = () => {
 				// append resource name to form
 				const inputName = createFormItem('name', `${selectedInstance.name} Materia Widget`)
 				form.appendChild(inputName)
-				
+
 				// append CSRF token to form
 				const inputCsrf = createFormItem('csrfmiddlewaretoken', getCSRFToken())
 				form.appendChild(inputCsrf)

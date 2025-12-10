@@ -10,6 +10,7 @@ from core.message_exception import MsgExpired, MsgNoPerm
 from core.models import LogPlay, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
+from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -56,10 +57,10 @@ class ScoresView(APIView):
             """
             is_author_or_staff = False
             if LTILaunchService.is_lti_launch(request):
-                launch = LTILaunchService.get_launch_data(request)
-                is_author_or_staff = LTILaunchService.is_user_course_author(
+                launch = request.lti_launch.get_launch_data()
+                is_author_or_staff = LTIAuthService.is_user_course_author(
                     launch
-                ) or LTILaunchService.is_user_staff(launch)
+                ) or LTIAuthService.is_user_staff(launch)
 
             if (
                 request.user.id != user.id
@@ -183,10 +184,10 @@ class ScoresDetailView(APIView):
 
                 is_author_or_staff = False
                 if LTILaunchService.is_lti_launch(request):
-                    launch = LTILaunchService.get_launch_data(request)
-                    is_author_or_staff = LTILaunchService.is_user_course_author(
+                    launch = request.lti_launch.get_launch_data()
+                    is_author_or_staff = LTIAuthService.is_user_course_author(
                         launch
-                    ) or LTILaunchService.is_user_staff(launch)
+                    ) or LTIAuthService.is_user_staff(launch)
 
                 if (
                     user_id != play_user_id

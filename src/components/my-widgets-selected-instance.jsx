@@ -12,6 +12,7 @@ import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
 import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
 import Modal from './modal'
 import LoadingIcon from './loading-icon'
+import Warning from "@/components/warning";
 
 const convertAvailabilityDates = (startDateStr, endDateStr) => {
 	let endDate, endTime, open_at, startTime
@@ -387,116 +388,124 @@ const MyWidgetSelectedInstance = ({
 		</div>
 			<button id='scroll-to-widget-list' onClick={scrollToInstances}>Widget Selection</button>
 			<div className='overview'>
-			<div className={`icon_container med_${beardMode ? beard : ''} ${beardMode ? 'big_bearded' : ''}`} >
-				<img className='icon'
-					src={iconUrl(`${window.location.origin}/widget/`, inst.widget.dir, 275)}
-					height='275px'
-					width='275px'
-					alt={inst.widget.name}
-				/>
-			</div>
-			<div className='controls'>
-				<ul className='button-list'>
-					<li className='preview_holder'>
-						<a id='preview_button'
-							className={`action-button green ${ !inst.widget.is_playable ? 'disabled' : '' }`}
-							target='_blank'
-							role="button"
-							href={inst.preview_url}>
-							<svg className='preview-svg' viewBox='-40 32 155 70' width='125'>
-								<path d='M 108 44 H 11 a 30 30 90 1 0 0 45 H 108 C 110 89 111 88 111 86 V 47 C 111 45 110 44 108 44'
-								/>
-								<polyline points='-15 51.5 -15 81.5 5 66.5'
-									fill='#4c5823'
-								/>
-							</svg>
-							<span className=''>Preview</span>
-						</a>
-					</li>
-					<li>
-						<a id='edit_button'
-							tabIndex="0"
-							role="button"
-							className={`action-button aux_button ${state.perms.editable ? '' : 'disabled'} `}
-							disabled={state.perms.editable}
-							onClick={editClickHandler}>
-							<span className='pencil'></span>
-							Edit Widget
-						</a>
-					</li>
-				</ul>
-				<ul className='options' role='menu'>
-					<li className='share'>
-						<div className={`link ${state.perms.stale || permsFetching ? 'disabled' : ''}`}
-							role='menuitem'
-							tabIndex="0"
-							onClick={collaborateClickHandler}>
-							{collabLabel}
-						</div>
-					</li>
-					<li className={`copy ${state.can.copy ? '' : 'disabled'}`}>
-						<div className={`link ${state.can.copy ? '' : 'disabled'}`}
-							role='menuitem'
-							aria-disabled={!state.can.copy}
-							tabIndex="0"
-							id='copy_widget_link'
-							onClick={copyClickHandler}>
-							Make a Copy
-						</div>
-					</li>
-					<li className={`delete ${state.can.delete ? '' : 'disabled'}`}>
-						<div className={`link ${state.can.delete ? '' : 'disabled'}`}
-							role='menuitem'
-							aria-disabled={!state.can.delete}
-							tabIndex="0"
-							id='delete_widget_link'
-							onClick={deleteClickHandler}>
-							Delete
-						</div>
-					</li>
-				</ul>
+				<div className={`icon_container med_${beardMode ? beard : ''} ${beardMode ? 'big_bearded' : ''}`} >
+					<img className='icon'
+						src={iconUrl(`${window.location.origin}/widget/`, inst.widget.dir, 275)}
+						height='275px'
+						width='275px'
+						alt={inst.widget.name}
+					/>
+				</div>
+				<div className='controls'>
+					<ul className='button-list'>
+						<li className='preview_holder'>
+							<a id='preview_button'
+								className={`action-button green ${ !inst.widget.is_playable ? 'disabled' : '' }`}
+								target='_blank'
+								role="button"
+								href={inst.widget.is_playable ? inst.preview_url : null}>
+								<svg className='preview-svg' viewBox='-40 32 155 70' width='125'>
+									<path d='M 108 44 H 11 a 30 30 90 1 0 0 45 H 108 C 110 89 111 88 111 86 V 47 C 111 45 110 44 108 44'
+									/>
+									<polyline points='-15 51.5 -15 81.5 5 66.5'
+										fill='#4c5823'
+									/>
+								</svg>
+								<span className=''>Preview</span>
+							</a>
+						</li>
+						<li>
+							<a id='edit_button'
+								tabIndex="0"
+								role="button"
+								className={`action-button aux_button ${state.perms.editable ? '' : 'disabled'} `}
+								disabled={state.perms.editable}
+								onClick={editClickHandler}>
+								<span className='pencil'></span>
+								Edit Widget
+							</a>
+						</li>
+					</ul>
+					<ul className='options' role='menu'>
+						<li className='share'>
+							<div className={`link ${state.perms.stale || permsFetching ? 'disabled' : ''}`}
+								role='menuitem'
+								tabIndex="0"
+								onClick={collaborateClickHandler}>
+								{collabLabel}
+							</div>
+						</li>
+						<li className={`copy ${state.can.copy ? '' : 'disabled'}`}>
+							<div className={`link ${state.can.copy ? '' : 'disabled'}`}
+								role='menuitem'
+								aria-disabled={!state.can.copy}
+								tabIndex="0"
+								id='copy_widget_link'
+								onClick={copyClickHandler}>
+								Make a Copy
+							</div>
+						</li>
+						<li className={`delete ${state.can.delete ? '' : 'disabled'}`}>
+							<div className={`link ${state.can.delete ? '' : 'disabled'}`}
+								role='menuitem'
+								aria-disabled={!state.can.delete}
+								tabIndex="0"
+								id='delete_widget_link'
+								onClick={deleteClickHandler}>
+								Delete
+							</div>
+						</li>
+					</ul>
 
-				{ deleteDialogRender }
+					{ deleteDialogRender }
 
-				<div className={`additional_options ${!state.can.share || inst.is_draft ? 'disabled' : '' }`}>
-					<h3>Settings:</h3>
-					<dl className={`attempts_parent ${!state.can.share || inst.is_draft ? 'disabled' : ''}`}>
-						<dt>Attempts:</dt>
-						<dd
-							className={`num-attempts ${!state.can.edit || !state.can.share || inst.is_draft ? 'disabled' : ''}`}
+					<div className={`additional_options ${!state.can.share || inst.is_draft ? 'disabled' : '' }`}>
+						<h3>Settings:</h3>
+						<dl className={`attempts_parent ${!state.can.share || inst.is_draft ? 'disabled' : ''}`}>
+							<dt>Attempts:</dt>
+							<dd
+								className={`num-attempts ${!state.can.edit || !state.can.share || inst.is_draft ? 'disabled' : ''}`}
+								onClick={onPopup}>
+								{ attempts > 0 ? attempts : 'Unlimited' }
+							</dd>
+							<dt>Available:</dt>
+							<dd
+								className={`availability-time ${!state.can.share || inst.is_draft ? 'disabled' : ''}`}
+								onClick={onPopup}>
+								{ openAnytimeRender }
+								{ openUntilRender }
+								{ anytimeAfterRender }
+								{ fromToRender }
+							</dd>
+							<dt>Access:</dt>
+							<dd
+								className={`access-level ${!state.can.share || inst.is_draft ? 'disabled' : ''}`}
+								onClick={onPopup}>
+								<span>
+									{inst.guest_access ? 'Guest Mode - No Login Required' : 'Staff and Students only'}
+								</span>
+							</dd>
+						</dl>
+						<a id='edit-availability-button'
+							role='button'
+							tabIndex="0"
+							className={!state.can.share || inst.is_draft ? 'disabled' : ''}
+							disabled={!state.can.share || inst.is_draft}
+							aria-disabled={!state.can.share || inst.is_draft}
 							onClick={onPopup}>
-							{ attempts > 0 ? attempts : 'Unlimited' }
-						</dd>
-						<dt>Available:</dt>
-						<dd
-							className={`availability-time ${!state.can.share || inst.is_draft ? 'disabled' : ''}`}
-							onClick={onPopup}>
-							{ openAnytimeRender }
-							{ openUntilRender }
-							{ anytimeAfterRender }
-							{ fromToRender }
-						</dd>
-						<dt>Access:</dt>
-						<dd
-							className={`access-level ${!state.can.share || inst.is_draft ? 'disabled' : ''}`}
-							onClick={onPopup}>
-							<span>
-								{inst.guest_access ? 'Guest Mode - No Login Required' : 'Staff and Students only'}
-							</span>
-						</dd>
-					</dl>
-					<a id='edit-availability-button'
-						role='button'
-						tabIndex="0"
-						className={!state.can.share || inst.is_draft ? 'disabled' : ''}
-						disabled={!state.can.share || inst.is_draft}
-						aria-disabled={!state.can.share || inst.is_draft}
-						onClick={onPopup}>
-						{inst.is_draft ? 'Publish to Edit Settings' : 'Edit Settings'}
-					</a>
+							{inst.is_draft ? 'Publish to Edit Settings' : 'Edit Settings'}
+						</a>
+					</div>
 				</div>
 			</div>
-				</div>
+
+			{/* Widget disabled warnings */}
+			{ !inst.widget.is_playable && !inst.widget.is_editable ?
+				<Warning>All '{inst.widget.name}' widgets are currently disabled.</Warning> : null }
+			{ !inst.widget.is_playable && inst.widget.is_editable ?
+				<Warning>All '{inst.widget.name}' widgets are currently not playable.</Warning> : null }
+			{ inst.widget.is_playable && !inst.widget.is_editable ?
+				<Warning>All '{inst.widget.name}' widgets are currently not editable.</Warning> : null }
 
 			{provisionalAccessRender}
 

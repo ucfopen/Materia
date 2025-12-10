@@ -8,6 +8,9 @@ from django.shortcuts import redirect, render
 
 
 def login(request):
+    post_login_route = request.GET.get("next", None)
+    if post_login_route:
+        request.session["redirect_url"] = post_login_route
     # allow for custom authentication backend usage to launch from the regular /login route
     custom_auth_redirect = os.environ.get("AUTH_LOGIN_ROUTE_OVERRIDE", False)
     if custom_auth_redirect and custom_auth_redirect.lower() != "false":

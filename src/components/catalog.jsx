@@ -62,7 +62,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 		// search widget names
 		if(state.searchText !== '') {
 			isFiltered = true
-			const re = new RegExp(state.searchText, 'i')
+			const re = new RegExp(RegExp.escape(state.searchText), 'i')
 			results = results.filter(w => re.test(w.name))
 		}
 
