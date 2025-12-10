@@ -11,17 +11,19 @@
   border-radius: 3px;
   gap: 15px;
 
+  font-weight: 400;
+
   & .warning-icon {
     width: 22px;
     opacity: 0.6;
   }
 
-  --warning-bkg-color: #FFFFCCFF;
+  --warning-bkg-color: #ffeca8;
   --warning-border-color: #c5c59b;
 }
 
 .darkMode .warning-container {
-  --warning-bkg-color: #5e5e38;
+  --warning-bkg-color: #353226;
   --warning-border-color: #8d8d55;
 
   & .warning-icon {
