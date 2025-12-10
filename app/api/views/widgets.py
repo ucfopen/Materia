@@ -23,6 +23,10 @@ class WidgetViewSet(viewsets.ModelViewSet):
     queryset = Widget.objects.all()
 
     def get_queryset(self):
+        if self.action != "list":
+            # return a default queryset for detail views
+            return Widget.objects.all()
+
         widget_ids_raw = self.request.query_params.get("ids", "")
         widget_type = self.request.query_params.get("type", "catalog")
 

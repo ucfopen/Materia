@@ -147,8 +147,8 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         is_student = PermService.user_is_student(self.request.user)
 
         # Check to see if this widget is editable
-        if is_draft and not widget.is_editable:
-            raise ValidationError("Non-editable widgets cannot be saved as drafts")
+        if not widget.is_editable:
+            raise ValidationError("Non-editable widgets cannot be created")
 
         # Make sure user can publish this widget
         if not is_draft and not widget.publishable_by(self.request.user):
@@ -173,8 +173,8 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         )
 
         # Check to see if this widget is editable
-        if is_draft and not instance.widget.is_editable:
-            raise ValidationError("Non-editable widgets cannot be saved as drafts")
+        if not instance.widget.is_editable:
+            raise ValidationError("Non-editable widgets cannot be updated")
 
         # Make sure user can publish this widget
         if not is_draft and not instance.widget.publishable_by(self.request.user):
