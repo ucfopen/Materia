@@ -82,9 +82,7 @@ def _get_context_data(
         raise MateriaLoginNeeded(login_message="Please log in to view your scores.")
 
     # configure JS globals, USER_ID is always required
-    js_globals = {
-        "USER_ID": request.user.id,
-    }
+    js_globals = {"USER_ID": request.user.id, "MEDIA_URL": settings.URLS["MEDIA_URL"]}
 
     # if there is a token param present, append additional globals to communicate LTI context
     if token:
