@@ -20,7 +20,7 @@ from api.serializers import (
     WidgetInstanceCopyRequestSerializer,
     WidgetInstanceSerializer,
 )
-from core.message_exception import MsgFailure, MsgInvalidInput
+from core.message_exception import MsgFailure, MsgInvalidInput, MsgNoPerm
 from core.models import (
     LogActivity,
     LogPlay,
@@ -322,13 +322,35 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         if request.method == "GET":
             permissions = instance.permissions.all()
-            serialized = ObjectPermissionSerializer(permissions, many=True)
-            return Response(serialized.data)
+            serialized_data = ObjectPermissionSerializer.from_queryset(permissions)
+            return Response(serialized_data)
 
         elif request.method == "PUT":
             # Get info about requester
             requester = self.request.user
-            requester_perm = instance.permissions.get(user=requester).permission
+            requester_perm = None
+
+            # Elevated users have implicit permission to perform any action
+            if PermService.is_superuser_or_elevated(requester):
+                requester_perm = ObjectPermission.PERMISSION_ADMIN
+
+            # check for global perm next
+            elif requester_perm_obj := instance.permissions.filter(
+                user=requester, context_id__isnull=True
+            ).first():
+                requester_perm = requester_perm_obj.permission
+
+            # no global perm? check provisional access, understood to be PERMISSION_VISIBLE
+            elif instance.permissions.filter(
+                user=requester, context_id__isnull=False
+            ).exists():
+                requester_perm = ObjectPermission.PERMISSION_VISIBLE
+
+            # requester should not be performing any PUT actions here
+            else:
+                raise MsgNoPerm(
+                    msg="You do not have permission to perform this action."
+                )
 
             # Verify request data
             request_serializer = PermsUpdateRequestListSerializer(data=request.data)
@@ -356,26 +378,52 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 perm_level = update["perm_level"]
                 expiration = update["expiration"]
                 user = update["user"]
+                contexts = update["has_contexts"]
+
                 user_existing_perm = None
+                user_provisional_perms = instance.permissions.none()
+
                 if user_existing_perm_obj := instance.permissions.filter(
-                    user=user
+                    user=user, context_id__isnull=True
                 ).first():
                     user_existing_perm = user_existing_perm_obj.permission
 
-                # If perm_level is null, delete the perm entry
+                # provisional perms are only populated if a global perm isn't present
+                if not user_existing_perm:
+                    user_provisional_perms = instance.permissions.filter(user=user)
+
+                # If perm_level is null, delete all perm entries for this user
                 if perm_level is None:
-                    if user_existing_perm is None:
-                        # user already doesnt have perms
+                    if (
+                        user_existing_perm is None
+                        and not user_provisional_perms.exists()
+                    ):
+                        # user already doesnt have perms - neither global nor provisional
+                        continue
+
+                    # Requester requires a higher permission level than visible for anyone except themselves
+                    if (
+                        user != requester
+                        and PermService.compare_perms(
+                            requester_perm, ObjectPermission.PERMISSION_VISIBLE
+                        )
+                        < 1
+                    ):
+                        refusals.append(user)
                         continue
 
                     # Requester cannot remove perms from anyone w higher than them
                     if (
-                        PermService.compare_perms(requester_perm, user_existing_perm)
+                        user_existing_perm is not None
+                        and PermService.compare_perms(
+                            requester_perm, user_existing_perm
+                        )
                         > 0
                     ):
                         refusals.append(user)
                         continue
 
+                    # Delete all permissions (both global and context-specific) for this user
                     instance.permissions.filter(user=user).delete()
                     # Send deletion notif
                     Notification.create_instance_notification(
@@ -395,9 +443,11 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                     refusals.append(user)
                     continue
 
-                # Make sure requester can't grant perms lower than their own
+                # Make sure requester can't lower their own permission value
+                # (they can only revoke their access completely)
                 if (
                     user == requester
+                    and not PermService.is_superuser_or_elevated(requester)
                     and PermService.compare_perms(requester_perm, perm_level) < 0
                 ):
                     refusals.append(user)
@@ -419,25 +469,52 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                         user, instance, perm_level
                     )
 
-                # Check if perm is about to be created *or* updated (.update_or_create only returns True if created)
-                will_update_or_create = not instance.permissions.filter(
-                    user=user, permission=perm_level
-                ).exists()
+                # if contexts are not provided with the perm, we're updating from provisional to global
+                if not contexts:
 
-                # Update or create that perm
-                instance.permissions.update_or_create(
-                    user=user,
-                    defaults={"permission": perm_level, "expires_at": expiration},
-                )
+                    # Check if a global perm already exists with this permission level
+                    will_update_or_create = not instance.permissions.filter(
+                        user=user, permission=perm_level, context_id__isnull=True
+                    ).exists()
 
-                # Send notification
-                if will_update_or_create:
-                    Notification.create_instance_notification(
-                        request.user, user, instance, "changed", perm_level
+                    # Delete any context-specific permissions for this user
+                    # This elevates context-limited permissions to global permissions
+                    instance.permissions.filter(
+                        user=user, context_id__isnull=False
+                    ).delete()
+
+                    # Update or create the global permission (context_id=None)
+                    instance.permissions.update_or_create(
+                        user=user,
+                        context_id=None,
+                        defaults={"permission": perm_level, "expires_at": expiration},
                     )
+
+                    # Send notification
+                    if will_update_or_create:
+                        Notification.create_instance_notification(
+                            request.user, user, instance, "changed", perm_level
+                        )
+
+                else:
+                    # provisional access cannot have an expiration
+                    if expiration is not None:
+                        refusals.append(user)
+                        continue
+
+                    # provisional access cannot be higher than visible
+                    if (
+                        PermService.compare_perms(
+                            ObjectPermission.PERMISSION_VISIBLE, perm_level
+                        )
+                        > 0
+                    ):
+                        refusals.append(user)
+                        continue
 
             # If there was a refusal, return a message
             if len(refusals) > 0:
+                logger.error(refusals)
                 raise MsgFailure(
                     msg=f"Could not update {len(refusals)} out of {len(updates)} permissions."
                 )

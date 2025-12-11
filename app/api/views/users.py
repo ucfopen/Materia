@@ -1,16 +1,16 @@
 import json
 import logging
 
-from rest_framework.permissions import IsAuthenticated
-
-from core.models import ObjectPermission, UserSettings
-from api.permissions import IsUserSelf, IsSuperOrSupportUser, IsSuperuser, DenyAll
+from api.paginators import PageNumberWithTotalPagination
+from api.permissions import DenyAll, IsSuperOrSupportUser, IsSuperuser, IsUserSelf
 from api.serializers import (
     ObjectPermissionSerializer,
     UserMetadataSerializer,
     UserRoleSerializer,
     UserSerializer,
 )
+from core.message_exception import MsgInvalidInput
+from core.models import ObjectPermission, UserSettings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
@@ -20,9 +20,8 @@ from django.shortcuts import redirect
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from api.paginators import PageNumberWithTotalPagination
-from core.message_exception import MsgInvalidInput
 
 logger = logging.getLogger(__name__)
 
@@ -171,8 +170,8 @@ class UserViewSet(viewsets.ModelViewSet):
             except ContentType.DoesNotExist:
                 raise MsgInvalidInput()
 
-        serialized = ObjectPermissionSerializer(access_permissions, many=True)
-        return Response(serialized.data)
+        serialized_data = ObjectPermissionSerializer.from_queryset(access_permissions)
+        return Response(serialized_data)
 
     @action(detail=True, methods=["get", "patch"])
     def roles(self, request, pk):

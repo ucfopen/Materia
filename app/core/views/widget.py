@@ -1,4 +1,3 @@
-import json
 import logging
 
 from core.mixins import (
@@ -6,7 +5,7 @@ from core.mixins import (
     MateriaLoginNeeded,
     MateriaWidgetPlayProcessor,
 )
-from core.models import ObjectPermission, User, Widget, WidgetInstance
+from core.models import User, Widget, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.widget_play_services import (
     WidgetPlayInitService,
@@ -16,6 +15,7 @@ from core.utils.context_util import ContextUtil
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
+from django.db.models import Q
 from django.http import Http404, HttpRequest
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
@@ -175,6 +175,26 @@ class WidgetPlayView(
         if LTIAuthService.is_user_course_author(launch):
             if instance.guest_access:
                 return lti_error_page(request, "error_lti_guest_mode")
+
+            # check to see if the current user has either:
+            # a. unrestricted permissions to the instance (context_id == None) OR
+            # b. restricted permission to the instance for the current context ID
+            context_id = LTILaunchService.get_context_id(launch)
+            has_visibility = (
+                instance.permissions.filter(user=request.user)
+                .filter(Q(context_id__isnull=True) | Q(context_id=context_id))
+                .exists()
+            )
+
+            # current user IS an author in the course but does NOT have access
+            # grant them implicit access and provide the provisional flag to the frontend
+            if not has_visibility:
+                instance.permissions.create(
+                    user=request.user, permission="visible", context_id=context_id
+                )
+                context = _create_lti_success_page(request, instance, provisional=True)
+
+            # current user is an author and already has access
             else:
                 context = _create_lti_success_page(request, instance)
 
@@ -524,18 +544,12 @@ def _create_embedded_only_page(request: HttpRequest, instance: WidgetInstance):
     )
 
 
-def _create_lti_success_page(request: HttpRequest, instance: WidgetInstance):
+def _create_lti_success_page(
+    request: HttpRequest, instance: WidgetInstance, provisional: bool = False
+):
     """
     TODO should this be under the LTI app?
     """
-    is_owner = instance.permissions.filter(user=request.user).exists()
-    owner_list = instance.permissions.filter(
-        permission=ObjectPermission.PERMISSION_FULL
-    )
-    owner_details = [
-        {"id": perm.user.id, "first": perm.user.first_name, "last": perm.user.last_name}
-        for perm in owner_list
-    ]
 
     return ContextUtil.create(
         title="Widget Connected Successfully",
@@ -545,8 +559,7 @@ def _create_lti_success_page(request: HttpRequest, instance: WidgetInstance):
             "ICON_DIR": settings.URLS["WIDGET_URL"] + instance.widget.dir,
             "PREVIEW_URL": f"/preview/{instance.id}",
             "PREVIEW_EMBED_URL": f"/preview-embed/{instance.id}",
-            "CURRENT_USER_OWNS": is_owner,
-            "OWNER_LIST": json.dumps(owner_details),
+            "PROVISIONAL_ACCESS": provisional,
             "USER_ID": request.user.id,
         },
         js_resources=settings.JS_GROUPS["open-preview"],

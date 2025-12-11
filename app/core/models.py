@@ -39,6 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 class ObjectPermission(models.Model):
+    PERMISSION_ADMIN = "admin"
     PERMISSION_VISIBLE = "visible"
     PERMISSION_FULL = "full"
     PERMISSION_CHOICES = [
@@ -56,9 +57,10 @@ class ObjectPermission(models.Model):
     permission = models.CharField(max_length=20, choices=PERMISSION_CHOICES)
     expires_at = models.DateTimeField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    context_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        unique_together = ("user", "content_type", "object_id", "permission")
+        unique_together = ("user", "content_type", "object_id", "context_id")
         indexes = [
             models.Index(fields=["content_type", "object_id"]),
             models.Index(fields=["user", "permission"]),
@@ -1038,6 +1040,10 @@ class WidgetInstance(models.Model):
     def attempts_left_for_user(self, user: User, context: str = ""):
         from core.services.semester_service import SemesterService
 
+        # short-circuit for guest users
+        if isinstance(user, AnonymousUser):
+            return -1
+
         semester = SemesterService.get_current_semester()
         attempts_used = LogPlay.objects.filter(
             user=user,
@@ -1221,36 +1227,38 @@ class WidgetInstance(models.Model):
 
         return dupe
 
-    def get_play_logs(self, semester=None, year=None, context_id=None):
+    def get_play_logs(self, semester=None, year=None, context_ids=None):
         """
         Returns a filtered queryset of play logs for the current instance
         Accepts semester, year, and context ID.
-        Note that context ID is semester-agnostic;
-        If it's not included, filtering can be performed with EITHER or BOTH
-        semester and year.
+        All filters are applied combinatorially - if multiple filters are provided,
+        they will all be applied together.
         """
-        queryset = self.play_logs.all()
+        queryset = self.play_logs.all().order_by("-created_at")
 
         # treat "all" as None
         semester = None if semester == "all" else semester
         year = None if year == "all" else year
 
-        if context_id:
-            return queryset.filter(context_id=context_id)
+        # Apply context_ids filter if provided
+        if context_ids:
+            context_id_list = [ctx.strip() for ctx in context_ids.split(",")]
+            queryset = queryset.filter(context_id__in=context_id_list)
 
+        # Apply semester and year filters if provided
         if semester and year:
             date = DateRange.objects.filter(semester=semester, year=year).first()
-            return queryset.filter(semester=date)
+            queryset = queryset.filter(semester=date)
 
-        if year and not semester:
+        elif year and not semester:
             semesters = DateRange.objects.filter(year=year)
-            return queryset.filter(semester__in=semesters)
+            queryset = queryset.filter(semester__in=semesters)
 
-        if semester and not year:
+        elif semester and not year:
             semesters = DateRange.objects.filter(
                 semester=semester, year=timezone.now().year
             )
-            return queryset.filter(semester__in=semesters)
+            queryset = queryset.filter(semester__in=semesters)
 
         return queryset
 
