@@ -166,6 +166,8 @@ class WidgetSerializer(serializers.ModelSerializer):
     meta_data = serializers.JSONField(source="metadata", required=False)
     dir = serializers.CharField(read_only=True)
     creator = serializers.SerializerMethodField()
+    is_generable = serializers.SerializerMethodField()
+    uses_prompt_generation = serializers.SerializerMethodField()
 
     def get_creator(self, widget):
         """
@@ -176,6 +178,18 @@ class WidgetSerializer(serializers.ModelSerializer):
             return settings.URLS["STATIC_CROSSDOMAIN"] + "default-creator/creator.html"
         else:
             return widget.creator
+
+    def get_is_generable(self, widget):
+        """
+        Returns true only if the widget supports generation AND AI features are enabled on this Materia install.
+        """
+        return widget.is_generable and settings.AI_GENERATION["ENABLED"]
+
+    def get_uses_prompt_generation(self, widget):
+        """
+        Returns true only if the widget supports prompt generation AND AI features are enabled on this Materia install.
+        """
+        return widget.uses_prompt_generation and settings.AI_GENERATION["ENABLED"]
 
     class Meta:
         model = Widget
