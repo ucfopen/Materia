@@ -1,4 +1,5 @@
 import logging
+import os
 
 from core.mixins import (
     MateriaLoginMixin,
@@ -123,6 +124,20 @@ class WidgetPlayView(
         )
 
         return validation
+
+    def get_login_url(self):
+        """
+        Utilized by MateriaLoginMixin, pass show_pre_embed as an additional url param
+        when AUTH_LOGIN_ROUTE_OVERRIDE is active
+        This enables the "Login" button in pre-embed contexts, and the login component distinguishes
+        show_pre_embed from directlogin to render different content
+        """
+        if os.environ.get("AUTH_LOGIN_ROUTE_OVERRIDE", False):
+            login_url_base = self.login_url or settings.LOGIN_URL
+            login_url_with_param = f"{login_url_base}?show_pre_embed=1"
+            return login_url_with_param
+        else:
+            return super().get_login_url()
 
     def process_context(self, validation):
         return _create_player_context(

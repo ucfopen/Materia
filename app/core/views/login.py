@@ -15,7 +15,7 @@ def login(request):
     custom_auth_redirect = os.environ.get("AUTH_LOGIN_ROUTE_OVERRIDE", False)
     if custom_auth_redirect and custom_auth_redirect.lower() != "false":
         # also allow for explicitly bypassing the custom authentication backend
-        if "directlogin" in request.GET:
+        if "directlogin" in request.GET or "show_pre_embed" in request.GET:
             # do nothing, proceed with regular login handling
             pass
         else:
