@@ -503,6 +503,8 @@ class LogPlay(models.Model):
             models.Index(fields=["created_at"], name="log_play_created_at"),
             models.Index(fields=["is_complete"], name="log_play_is_complete"),
             models.Index(fields=["percent"], name="log_play_percent"),
+            models.Index(fields=["user"], name="log_play_user"),
+            models.Index(fields=["instance"], name="log_play_instance"),
         ]
 
 
