@@ -41,7 +41,12 @@ const CalendarContainer = ({children}) => {
 }
 
 const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPermHolder, removedCurrentUser, onChange, readOnly}) => {
-	const [state, setState] = useState({...initRowState(), ...perms, expireDate: new Date(perms.expireTime)})
+	const [state, setState] = useState({
+		...initRowState(),
+		...perms,
+		// passing null sets date to 12/31/1969, passing nothing uses current date
+		expireDate: perms.expireTime ? new Date(perms.expireTime) : new Date()
+	})
 	const ref = useRef()
 
 	// updates parent everytime local state changes
@@ -68,7 +73,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 
 	const toggleShowExpire = () => {
 		if (!isCurrentUser)
-			setState({...state, showExpire: !state.showExpire})
+			setState({...state, showExpire: !state.showExpire, expireTime: state.expireDate})
 	}
 
 	const clearExpire = () => setState({...state, showExpire: false, expireDate: new Date(), expireTime: null})

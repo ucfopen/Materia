@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING, Type
 
 from django.contrib.auth.models import AnonymousUser, User
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from core.models import WidgetInstance, ObjectPermission
+    from core.models import WidgetInstance
 
 
 class PermService:
@@ -42,13 +42,15 @@ class PermService:
         return user.groups.filter(name__in=roles).exists()
 
     @staticmethod
-    def get_all_objects_of_type_for_user[T: Type[models.Model]](
-        obj: T, user: User | int, perms: list[str]
-    ) -> QuerySet[T]:
+    def get_all_objects_of_type_for_user[
+        T: Type[models.Model]
+    ](obj: T, user: User | int, perms: list[str]) -> QuerySet[T]:
         if len(perms) <= 0:
             return obj.objects.none()
 
         return obj.objects.filter(
+            Q(permissions__expires_at__isnull=True)
+            | Q(permissions__expires_at__gt=timezone.now()),
             permissions__user=user,
             permissions__permission__in=perms,
         )
