@@ -18,7 +18,7 @@ def fix_qset_data(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("core", "0031_user_groups"),
+        ("core", "0020_user_groups"),
     ]
 
     operations = [migrations.RunPython(fix_qset_data, migrations.RunPython.noop)]

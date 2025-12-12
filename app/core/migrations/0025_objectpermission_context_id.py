@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0035_lti_deployment_lti_lti_version_alter_lti_consumer_and_more"),
+        ("core", "0024_lti_deployment_lti_lti_version_alter_lti_consumer_and_more"),
     ]
 
     operations = [

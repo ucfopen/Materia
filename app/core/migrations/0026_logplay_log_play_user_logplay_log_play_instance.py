@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0036_objectpermission_context_id"),
+        ("core", "0025_objectpermission_context_id"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

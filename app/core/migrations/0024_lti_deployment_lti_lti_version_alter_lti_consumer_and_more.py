@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0034_delete_permroletouser_delete_permroletouserbackup_and_more"),
+        ("core", "0023_delete_permroletouser_delete_permroletouserbackup_and_more"),
         ("lti_tool", "0006_ltiregistration_audience"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]

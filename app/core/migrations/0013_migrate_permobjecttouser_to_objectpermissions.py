@@ -11,7 +11,7 @@ def migrate_permissions(apps, schema_editor):
 
     # create a new contenttype for each model we're using in association with ObjectPermission
     content_types = {}
-    for model_name in ["question", "asset", "widgetinstance"]:
+    for model_name in ["asset", "widgetinstance"]:
         try:
             content_types[model_name] = ContentType.objects.get(
                 app_label="core", model=model_name
@@ -23,7 +23,6 @@ def migrate_permissions(apps, schema_editor):
 
     # Mapping of old object type integers to their associated content types
     object_type_mapping = {
-        1: content_types["question"],
         2: content_types["asset"],
         4: content_types["widgetinstance"],
     }
@@ -75,7 +74,7 @@ def reverse_migration(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("core", "0019_alter_permobjecttouser_user_objectpermission"),
+        ("core", "0012_alter_permobjecttouser_user_objectpermission"),
     ]
 
     operations = [

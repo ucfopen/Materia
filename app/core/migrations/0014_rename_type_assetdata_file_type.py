@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0020_migrate_permobjecttouser_to_objectpermissions"),
+        ("core", "0013_migrate_permobjecttouser_to_objectpermissions"),
     ]
 
     operations = [

@@ -657,7 +657,7 @@ class Notification(models.Model):
     subject = models.CharField(max_length=511)
     # consider deleting this column & pulling the avatar from relevant user metadata just in time
     avatar = models.CharField(max_length=511)
-    updated_at = models.DateTimeField(default=timezone.now, null=True)
+    updated_at = models.DateTimeField(default=timezone.now)
     action = models.CharField(max_length=255)
 
     permissions = GenericRelation(ObjectPermission)

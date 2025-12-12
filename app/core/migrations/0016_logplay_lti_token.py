@@ -6,14 +6,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0024_alter_question_data_rename_data_question__data_and_more"),
+        ("core", "0015_question"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name="logplay",
-            name="environment_data",
-        ),
         migrations.AddField(
             model_name="logplay",
             name="lti_token",
