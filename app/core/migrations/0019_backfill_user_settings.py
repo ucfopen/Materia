@@ -3,6 +3,8 @@ from django.db import migrations
 
 from core.models import UserSettings as UserSettingsModel
 
+from django.db import IntegrityError
+
 
 def backfill_user_settings(apps, schema_editor):
     FuelUsers = apps.get_model("core", "Users")
@@ -37,20 +39,27 @@ def backfill_user_settings(apps, schema_editor):
             apply_default_settings = True
 
         # Set user's settings
-        if apply_default_settings:
-            UserSettings.objects.create(
-                user_id=user_id,
-                profile_fields={**UserSettingsModel.DEFAULT_PROFILE_FIELDS},
-            )
-        else:
-            UserSettings.objects.create(user_id=user_id, profile_fields=old_fields_dict)
+        try:
+            if apply_default_settings:
+                UserSettings.objects.create(
+                    user_id=user_id,
+                    profile_fields={**UserSettingsModel.DEFAULT_PROFILE_FIELDS},
+                )
+            else:
+                UserSettings.objects.create(
+                    user_id=user_id, profile_fields=old_fields_dict
+                )
+        except IntegrityError:
+            print(f"Could not create UserSettings for user {user_id}")
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("core", "0028_remove_userextraattempts_user_extra_attempts_user_id_and_more"),
+        ("core", "0018_remove_userextraattempts_user_extra_attempts_user_id_and_more"),
     ]
 
     operations = [
-        migrations.RunPython(backfill_user_settings, migrations.RunPython.noop),
+        migrations.RunPython(
+            backfill_user_settings, migrations.RunPython.noop, atomic=False
+        ),
     ]

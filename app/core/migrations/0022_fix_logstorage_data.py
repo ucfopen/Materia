@@ -1,7 +1,7 @@
 from django.db import migrations
 
 
-def fix_qset_data(apps, schema_editor):
+def fix_logstorage_data(apps, schema_editor):
     """
     Removes the b'' that surrounds some of the data in the qset table
     """
@@ -18,7 +18,7 @@ def fix_qset_data(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("core", "0032_fix_qset_data"),
+        ("core", "0021_fix_qset_data"),
     ]
 
-    operations = [migrations.RunPython(fix_qset_data, migrations.RunPython.noop)]
+    operations = [migrations.RunPython(fix_logstorage_data, migrations.RunPython.noop)]

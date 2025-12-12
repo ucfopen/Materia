@@ -48,13 +48,13 @@ const LoginPage = () => {
 	if (!state.context || state.context == 'login') {
 		detailContent =
 		<div className="login_context detail">
-			<h2 className="context-header">Log In to Your Account</h2>
+			<h2 className="context-header">Login to Your Account</h2>
 			<LoginSubtitle />
 		</div>
 	} else if (state.context && state.context == 'widget') {
 		detailContent =
 		<div className="login_context detail">
-			<h2 className="context-header">Log in to play this widget</h2>
+			<h2 className="context-header">Login to play this widget</h2>
 			<LoginSubtitle />
 		</div>
 	}

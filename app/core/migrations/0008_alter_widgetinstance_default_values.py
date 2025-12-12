@@ -8,7 +8,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0011_alter_permobjecttouser_object_type_and_perm_options"),
+        (
+            "core",
+            "0007_alter_asset_and_widget_default_values_and_permobjecttouser_types",
+        ),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -17,11 +20,6 @@ class Migration(migrations.Migration):
             model_name="widgetinstance",
             name="attempts",
             field=models.IntegerField(default=-1),
-        ),
-        migrations.AlterField(
-            model_name="widgetinstance",
-            name="close_at",
-            field=models.IntegerField(default=None, null=True),
         ),
         migrations.AlterField(
             model_name="widgetinstance",
@@ -52,16 +50,6 @@ class Migration(migrations.Migration):
             model_name="widgetinstance",
             name="is_student_made",
             field=models.BooleanField(default=False),
-        ),
-        migrations.AlterField(
-            model_name="widgetinstance",
-            name="open_at",
-            field=models.IntegerField(default=None, null=True),
-        ),
-        migrations.AlterField(
-            model_name="widgetinstance",
-            name="updated_at",
-            field=models.IntegerField(default=None, null=True),
         ),
         migrations.AlterField(
             model_name="widgetinstance",

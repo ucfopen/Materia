@@ -84,11 +84,12 @@ class LogPlayFilterBackend(filters.BaseFilterBackend):
         elif inst_id is not None:
             semester = request.query_params.get("semester", None)
             year = request.query_params.get("year", None)
+            context_ids = request.query_params.get("context_ids", None)
 
             instance = WidgetInstance.objects.filter(id=inst_id).first()
             if instance is not None:
                 return instance.get_play_logs(
-                    semester=semester, year=year, context_id=None
+                    semester=semester, year=year, context_ids=context_ids
                 )
 
             # user wants ALL the logs

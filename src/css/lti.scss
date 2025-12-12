@@ -507,7 +507,7 @@ html {
 				flex-direction: column;
 				align-items: flex-start;
 
-				background: url('/static/img/lti/for_instructors_kogneato_header.svg') right center / 45% no-repeat;
+				background: url('/static/img/lti/for_instructors_kogneato_header.svg') right center / 40% no-repeat;
 
 				h1 {
 					max-width: 75%;
@@ -1058,6 +1058,7 @@ html {
 
 				li {
 					max-width: 250px;
+					min-width: 220px;
 					min-height: 300px;
 					padding: 2em;
 					border-radius: 12px;
@@ -1365,8 +1366,17 @@ html {
 		&.darkMode {
 
 			#lti-login-section {
-				color: #fff;
-				background: $color-background-dark;
+				// darkmode styles are disabled for now in post-login
+				color: #000;
+				background: #fff;
+
+				header {
+					background: #fff;
+				}
+
+				ul, li {
+					color: #000;
+				}
 			}
 
 			#select-widget section.top-options .search-container {

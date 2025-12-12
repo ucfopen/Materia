@@ -37,29 +37,35 @@ def copy_users_to_django(apps, schema_editor):
                 )
                 new_user.save()
         except IntegrityError:
-            # duplicate username, make a new one
-            fuel_user.username = (
-                f"{fuel_user.username}_{fuel_user.id}{fuel_user.first}{fuel_user.last}"
-            )
-            new_user = DjangoUser.objects.create(
-                id=fuel_user.id,
-                password=fuel_user.password,
-                last_login=last_login,
-                is_superuser=False,
-                username=fuel_user.username,
-                first_name=fuel_user.first,
-                last_name=fuel_user.last,
-                email=fuel_user.email,
-                is_staff=False,
-                is_active=True,
-                date_joined=date_joined,
-            )
-            new_user.save()
+            # there should not be more than one row per username, but in such a
+            #  case we essentially 'collapse' all duplicate users into a single
+            #  record by replacing any duplicate user ids with a single designated
+            #  id depending on which is the first row for that username
+            original_user = DjangoUser.objects.get(username=fuel_user.username)
+
+            def replace_user_ids(model_name, old_id, new_id):
+                apps.get_model("core", model_name).objects.filter(
+                    user_id=old_id
+                ).update(user_id=new_id)
+
+            replace_user_ids("LogActivity", fuel_user.id, original_user.id)
+            replace_user_ids("LogPlay", fuel_user.id, original_user.id)
+            replace_user_ids("LogStorage", fuel_user.id, original_user.id)
+            replace_user_ids("Lti", fuel_user.id, original_user.id)
+            replace_user_ids("PermObjectToUser", fuel_user.id, original_user.id)
+            replace_user_ids("PermRoleToUser", fuel_user.id, original_user.id)
+            replace_user_ids("UserExtraAttempts", fuel_user.id, original_user.id)
+            replace_user_ids("WidgetInstance", fuel_user.id, original_user.id)
+
+            # TODO:
+            # ideally we would also be able to see if this record has been updated more
+            #  recently than the one we originally used, but Django auth user models don't
+            #  have a field to track update datetimes
 
 
 def revert_django_users_to_empty(apps, schema_editor):
     # delete all Django User objects
-    DjangoUser = apps.get_model("core", "User")
+    DjangoUser = apps.get_model("auth", "User")
     db_alias = schema_editor.connection.alias
 
     try:
@@ -72,5 +78,7 @@ class Migration(migrations.Migration):
     dependencies = [("core", "0001_initial")]
 
     operations = [
-        migrations.RunPython(copy_users_to_django, revert_django_users_to_empty)
+        migrations.RunPython(
+            copy_users_to_django, revert_django_users_to_empty, atomic=False
+        ),
     ]

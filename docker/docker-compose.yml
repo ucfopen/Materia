@@ -51,7 +51,8 @@ services:
     command: /wait_for_it.sh mysql:3306 -t 15 -- gunicorn materia.wsgi:application --bind 0.0.0.0:8001 --reload --workers 4 --threads 2 --timeout 150 --log-level info --access-logfile - --error-logfile -
 
   mysql:
-    image: mariadb:10.6
+    image: mysql:8.0.39
+    platform: linux/amd64
     networks:
       - backend
     ports:

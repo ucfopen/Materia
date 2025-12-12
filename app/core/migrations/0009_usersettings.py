@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0012_alter_widgetinstance_default_values"),
+        ("core", "0008_alter_widgetinstance_default_values"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

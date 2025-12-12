@@ -70,17 +70,17 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	/* =========== react queries =========== */
 
 	// load widget info (NOT instance info)
+	// load only when instId is not set (new widget)
 	// requires: widgetId prop (always set)
 	const { isLoading: widgetInfoIsLoading } = useQuery({
 		queryKey: ['widget', widgetId],
 		queryFn: () => apiGetWidget(widgetId),
-		enabled: !!widgetId,
+		enabled: !!widgetId && !instId,
 		staleTime: Infinity,
 		retry: false,
 		onSuccess: (info) => {
 			if (info) {
 				setInstance({ ...instance, widget: info[0] })
-				setCreatorState({...creatorState, canGenerateQset: info[0]['is_generable']})
 			}
 		},
 		onError: (error) => {
@@ -121,8 +121,12 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	useEffect(() => {
 		if ( !qsetQuery.isLoading && qsetQuery.data != null ) {
 			if (qsetQuery.isSuccess && qsetQuery.data != undefined) {
-				setCreatorState({...creatorState, invalid: false})
-				setInstance({ ...instance, qset: qsetQuery.data })
+				setCreatorState((curCreatorState) => {
+					return {...curCreatorState, invalid: false}
+				})
+				setInstance((curInstData) => {
+					return { ...curInstData, qset: qsetQuery.data }
+				})
 			} else {
 				onInitFail(qsetQuery.error)
 			}
@@ -224,32 +228,38 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	},[widgetReady])
 
 	useEffect(() => {
-
 		if (instance.id) {
 			instIdRef.current = instance.id
-			setCreatorState({
-				...creatorState,
-				publishText: !instance.is_draft ? 'Update' : 'Publish...',
-				mode: !instance.is_draft ? 'update' : 'edit',
-				returnUrl: getMyWidgetsUrl(instance.id),
-				returnLocation: 'My Widgets'
+			setCreatorState((curCreatorState) => {
+				return {
+					...curCreatorState,
+					publishText: !instance.is_draft ? 'Update' : 'Publish...',
+					mode: !instance.is_draft ? 'update' : 'edit',
+					returnUrl: getMyWidgetsUrl(instance.id),
+					returnLocation: 'My Widgets'
+				}
 			})
 		} else {
-			setCreatorState({...creatorState, returnUrl: `${window.BASE_URL}widgets`, returnLocation: 'Widget Catalog'})
+			setCreatorState((curCreatorState) => {
+				return {...curCreatorState, returnUrl: `${window.BASE_URL}widgets`, returnLocation: 'Widget Catalog'}
+			})
 		}
 
 	}, [instance])
 
 	useEffect(() => {
 		if (instance.widget) {
-			let creatorPath = instance.widget.creator.substring(0, 4) === 'http' ? 
-				instance.widget.creator : 
+			let creatorPath = instance.widget.creator.substring(0, 4) === 'http' ?
+				instance.widget.creator :
 				window.WIDGET_URL.replace(/\/$/, '') + '/' + instance.widget.dir + instance.widget.creator
 
-			setCreatorState({
-				...creatorState,
-				creatorPath: creatorPath + '?' + instance.widget.created_at,
-				hasCreatorGuide: instance.widget.creator_guide != ''
+			setCreatorState((curCreatorState) => {
+				return {
+					...curCreatorState,
+					creatorPath: creatorPath + '?' + instance.widget.created_at,
+					hasCreatorGuide: instance.widget.creator_guide != '',
+					canGenerateQset: !!instance.widget.is_generable
+				}
 			})
 		}
 	}, [instance.widget])
@@ -817,8 +827,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 
 	let actionBarRender = null
-	if (creatorState.showActionBar) {
-
+	if (creatorState.showActionBar && (!instanceIsLoading && !widgetInfoIsLoading)) {
 		let returnLocationUrl = creatorState.returnLocation == 'Widget Catalog' ? '/widgets' : '/my-widgets#' + instance.id
 
 		actionBarRender = (

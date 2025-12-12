@@ -304,10 +304,12 @@ export const apiGetScoreSummary = instId => {
 	})
 }
 
-export const apiGetPlayLogs = (instId, term, year, page_number) => {
+export const apiGetPlayLogs = (instId, term, year, contexts, page_number) => {
 	const params = new URLSearchParams({
 		inst_id: instId, semester: term, year: year, include_user_info: true, page: page_number
 	})
+	if (contexts != null) params.append('context_ids', contexts.join(','))
+
 	return handleRequest(methods.GET, `/api/play-sessions/?${params}`)
 		.then(results => {
 			if (!results) return []

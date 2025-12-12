@@ -25,7 +25,6 @@ class WidgetPlayInitService:
             context_id="",
             created_at=created_at,
             elapsed=0,
-            # environment_data="",
             id=str(uuid.uuid4()),
             instance=instance,
             ip=ip,

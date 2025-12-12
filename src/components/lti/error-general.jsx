@@ -24,6 +24,7 @@ const ErrorGeneral = () => {
         case 'error_unknown_assignment':
             content =
                 <section id="error-container">
+                    <h4>Error type: Unknown Assignment</h4>
                     <p>This Materia assignment hasn't been setup correctly in the system.</p>
 	                <p>Your instructor will need to complete the setup process.</p>
                 </section>
@@ -31,6 +32,7 @@ const ErrorGeneral = () => {
         case 'error_unknown_user':
             content =
                 <section id="error-container">
+                    <h4>Error type: Unknown User</h4>
                     <p>Materia can not determine who you are using the information provided by the system.</p>
                     <p>This may occur if you are using a non-standard account or if your information is missing from Materia due to recent changes to your account.</p>
                     <p>If you need help accessing this tool, contact support.</p>
@@ -39,6 +41,7 @@ const ErrorGeneral = () => {
         case 'error_autoplay_misconfigured':
             content =
                 <section id="error-container">
+                    <h4>Error type: Autoplay Misconfigured</h4>
                     <p>This Materia assignment hasn't been setup correctly in the system.</p>
                     <p>Non-autoplaying widgets can not be used as graded assignments.</p>
                 </section>
@@ -54,13 +57,15 @@ const ErrorGeneral = () => {
         case 'error_invalid_oauth_request':
             content =
                 <section id="error-container">
-                    <p>Invalid login.</p>
-                    <p>If you need help accessing this tool, contact support.</p>
+                    <h4>Error type: Invalid Oauth Request</h4>
+                    <p>Something went wrong when Materia tried to authenticate you with information from the LMS.</p>
+                    <p>We recommend contacting support:</p>
                 </section>
             break;
         default:
             content =
                 <section id="error-container">
+                    <h4>Error type: General Error</h4>
                     <p>An error occurred.</p>
                     <p>If you need help accessing this tool, contact support.</p>
                 </section>

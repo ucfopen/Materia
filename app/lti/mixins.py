@@ -1,5 +1,6 @@
 import logging
 
+from core.message_exception import MsgFailure
 from django.contrib.auth import logout
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
@@ -34,16 +35,17 @@ class LtiLaunchMixin:
     def handle_lti_launch(self, request, launch):
 
         # launch auth depends on launch state: initial or recovery
-        # for recovery launches, we don't want to destroy the session if we don't have to
-        # verify current user auth with user stored in recovered launch
+        # for recovery launches, verify the authenticated user matches the user stored in the launch
         if LTILaunchService.get_launch_state(launch) == "RECOVERY":
             launch_username = LTIAuthService.get_username_from_launch(launch)
 
-            # explicitly bypass auth if launch user matches auth'd user
-            if request.user.username == launch_username:
-                return
-
-        # in all other launch contexts, destroy the current auth session and authenticate from the launch
+            # raise an exception if current user does not match stored launch user
+            if request.user.username != launch_username:
+                logger.error(
+                    f"LTI: ERROR: launch recovery username mismatch detected between "
+                    f"{request.user.username} and {launch_username}!"
+                )
+                raise MsgFailure(msg="LTI Launch recovery authentication mismatch")
 
         # destroy current authentication session if active
         if request.user and request.user.is_authenticated:

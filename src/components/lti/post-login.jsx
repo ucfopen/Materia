@@ -31,9 +31,9 @@ const PostLogin = () => {
 						Gamified learning experiences enhance learning outcomes.
 					</li>
 				</ul>
-				<section class="instructors-header-nav">
+				<section className="instructors-header-nav">
 					<a className="action_button" href={`${window.BASE_URL}widgets`} target="_blank">Browse Widget Catalog</a>
-					<a className="regular_button" href="https://www.youtube.com/watch?v=sYrBW7LHOh8" target="_blank">Watch Demo</a>
+					<a className="regular_button" href="https://www.youtube.com/watch?v=sYrBW7LHOh8" target="_blank">Watch Introduction</a>
 				</section>
 			</header>
 			<section className="widget-creation-timeline">
@@ -181,7 +181,7 @@ const PostLogin = () => {
 					<p>Join thousands of instructors making learning fun with Materia.</p>
 					<section className="footer-links">
 						<a className="action_button" href={`${window.BASE_URL}widgets`} target="_blank">Browse Widget Catalog</a>
-						<a className="regular_button" href="https://www.youtube.com/watch?v=sYrBW7LHOh8" target="_blank">Watch Tutorial</a>
+						<a className="regular_button" href="https://www.youtube.com/watch?v=sYrBW7LHOh8" target="_blank">Watch Introduction</a>
 					</section>
 				</div>
 			</footer>

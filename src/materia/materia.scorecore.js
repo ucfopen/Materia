@@ -44,7 +44,10 @@ Namespace('Materia').ScoreCore = (() => {
 		_sendPostMessage('hideScoresOverview')
 	}
 
-	const getMediaUrl = (mediaId) => `${_mediaUrl}/${mediaId}`
+	const getMediaUrl = (mediaId) => {
+		const baseUrl = _mediaUrl.endsWith('/') ? _mediaUrl.slice(0, -1) : _mediaUrl
+		return `${baseUrl}/${mediaId}`
+	}
 
 	const requestScoreDistribution = () => {
 		_sendPostMessage('requestScoreDistribution')
