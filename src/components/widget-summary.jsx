@@ -24,7 +24,7 @@ const Summary = () => {
 					<img src={ icon } alt=""/>
 				</div>
 				<ul className="widget_about">
-					{ name && <li className="widget_name">{ name }</li>}
+					{ name && <li className="widget_name" dangerouslySetInnerHTML={{ __html: name }}></li>}
 					{ avail && <li className="widget_availability">{ avail }</li>}
 				</ul>
 			</section>
