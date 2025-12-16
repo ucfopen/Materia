@@ -1,7 +1,7 @@
 FROM nginxinc/nginx-unprivileged:alpine3.22-perl
 
-COPY ./docker/config/nginx/sites-enabled /etc/nginx/conf.d
-COPY ./docker/config/nginx/nginx.prod.conf /etc/nginx/nginx.conf
+COPY ./docker/config/nginx/sites-enabled/site.prod.conf /etc/nginx/conf.d/site.conf
+COPY ./docker/config/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./public /var/www/html/staticfiles
 
 USER root
