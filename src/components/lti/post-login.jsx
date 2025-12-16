@@ -16,7 +16,7 @@ const PostLogin = () => {
 		<>
 			<header className="header-for-instructors">
 				<h1>Enhance Your Course With Widgets</h1>
-				<p>Create interactive learning content in minutes. No coding required. Select a widget, customize it, and share it with students.</p>
+				<p>Materia empowers you to create interactive learning content in minutes - no coding required. Select a widget, customize it, and share it with students.</p>
 				<ul>
 					<li>
 						<h3>Quick to Create</h3>
@@ -28,7 +28,7 @@ const PostLogin = () => {
 					</li>
 					<li>
 						<h3>Enhance Student Engagement</h3>
-						Gamified learning experiences enhance learning outcomes.
+						Gamified learning experiences enhance student outcomes.
 					</li>
 				</ul>
 				<section className="instructors-header-nav">
@@ -78,7 +78,7 @@ const PostLogin = () => {
 								<h3>STEM</h3>
 								Interactive Learning Tools
 							</header>
-							<p>Labeling diagrams, equations, physics simulations</p>
+							<p>Interactive equation tools, diagrams, and concept reinforcement</p>
 						</div>
 						<ul className="widget-type-examples">
 						<li>
@@ -166,6 +166,13 @@ const PostLogin = () => {
 					</dt>
 					<dd>
 						Yes you can! Widgets can be used in multiple courses, or even outside of your course completely.
+					</dd>
+					<dt>
+						Who made Materia? Does it cost my students anything to use?
+					</dt>
+					<dd>
+						Materia is built and maintained by the <a href="https://cdl.ucf.edu/" target="_blank">UCF Center for Distributed Learning</a>. It's freely available for all
+						faculty and students.
 					</dd>
 					<dt>
 						What if I need help getting started?
