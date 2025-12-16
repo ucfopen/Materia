@@ -1,7 +1,6 @@
 import logging
 
 from core.message_exception import MsgFailure
-from django.contrib.auth import logout
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 
@@ -16,7 +15,7 @@ class LtiLaunchMixin:
         launch = LTILaunchService.get_or_recover_launch(request)
         if launch is not None:
             try:
-                # handle_lti_launch performs LTI authentication
+                # handle_lti_launch performs LTI auth check, if necessary
                 self.handle_lti_launch(request, launch)
             except Exception:
                 return self.on_lti_launch_failure(request)
@@ -34,8 +33,9 @@ class LtiLaunchMixin:
 
     def handle_lti_launch(self, request, launch):
 
-        # launch auth depends on launch state: initial or recovery
-        # for recovery launches, verify the authenticated user matches the user stored in the launch
+        # auth checks depend on launch type
+        # if launch state is INITIAL, auth has just occurred
+        # for RECOVERY launches, verify the authenticated user matches the user stored in the launch
         if LTILaunchService.get_launch_state(launch) == "RECOVERY":
             launch_username = LTIAuthService.get_username_from_launch(launch)
 
@@ -46,17 +46,6 @@ class LtiLaunchMixin:
                     f"{request.user.username} and {launch_username}!"
                 )
                 raise MsgFailure(msg="LTI Launch recovery authentication mismatch")
-
-        # destroy current authentication session if active
-        if request.user and request.user.is_authenticated:
-            logout(request)
-            request.session.flush()
-
-        # authenticate from LTI launch payload
-        auth = LTIAuthService.authenticate(request, launch)
-
-        if auth is None:
-            raise Exception("LTI authentication failed")
 
     # called on successful launch and authentication
     # this method is intended to be overridden by views where the mixin is referenced
