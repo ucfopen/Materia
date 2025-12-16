@@ -60,7 +60,15 @@ const WidgetInstall = ({refetchWidgets}) => {
         uploadRender = <>
             <p>Upload a <strong>.wigt</strong> widget package file to install a new widget or upgrade an existing widget on Materia.</p>
             <form>
-                <input className="uploader" id="widget_uploader" type="file" name="file" onChange={handleChange} disabled={state.uploadEnabled ? false : true}/>
+                <input
+                    id="widget_uploader"
+                    className="uploader"
+                    name="file"
+                    type="file"
+                    accept=".wigt"
+                    onChange={handleChange}
+                    disabled={state.uploadEnabled ? false : true}
+                />
                 <label htmlFor="widget_uploader"> {state.isUploading ? 'Uploading...' : 'Upload .wigt'}</label>
             </form>
             <p className={state.uploadError ? 'failed' : 'success'}>{ state.uploadNotice }</p>
