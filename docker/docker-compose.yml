@@ -15,8 +15,7 @@ services:
       - ../public:/var/www/html/staticfiles:ro
       - ../theme/img:/var/www/html/staticfiles/theme/img:ro
       - ../public/widget:/var/www/html/staticfiles/widget/:ro
-      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./config/nginx/dev:/etc/nginx/conf.d/dev:ro
+      - ./config/nginx/sites-enabled/site.dev.conf:/etc/nginx/conf.d/site.conf:ro
     networks:
       - frontend
       - backend
