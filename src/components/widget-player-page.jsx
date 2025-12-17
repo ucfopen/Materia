@@ -12,7 +12,7 @@ const LEGACY_EMBED = 'legacy-embed'
 
 const getWidgetType = path => {
 	switch(true) {
-		case (path.includes('/embed/') || !!window.LTI_TOKEN): return EMBED
+		case path.includes('/embed/'): return EMBED
 		case path.includes('/play/'): return PLAY
 		case path.includes('/preview/'): return PREVIEW
 		case path.includes('/demo'): return DEMO
@@ -94,7 +94,7 @@ const WidgetPlayerPage = () => {
 
 	let headerRender = <Header />
 	// No header for embedded widgets
-	if ( type == EMBED || type == PREVIEW_EMBED || type == LEGACY_EMBED ) headerRender = null
+	if ( type == EMBED || type == PREVIEW_EMBED || type == LEGACY_EMBED || !!window.LTI_TOKEN ) headerRender = null
 
 	let bodyRender = null
 
