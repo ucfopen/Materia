@@ -157,7 +157,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 				})
 				for (let score of scores) {
 					score.roundedPercent = parseFloat(score.percent).toFixed(2)
-					const d = new Date(parseInt(score.created_at) * 1000)
+					const d = new Date(score.created_at)
 					const date = d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
 					score.date = date
 				}
