@@ -351,12 +351,12 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 						case 'setHeight':
 							return setHeight(msg.data[0])
 						case 'hideResultsTable':
-							return setAttributes({...attributes, showResultsTable: false})
+							return setAttributes(prevAttributes => ({...prevAttributes, showResultsTable: false}))
 						case 'hideScoresOverview':
-							return (playData?.overview?.complete ?
-								setAttributes({...attributes, showScoresOverview: false}) :
-								setAttributes({...attributes, showScoresOverview: true})
-							)
+							return setAttributes(prevAttributes => ({
+								...prevAttributes,
+								showScoresOverview: playData?.overview?.complete ? false : true
+							}))
 						case 'requestScoreDistribution':
 							// @TODO
 							// return loadScoreDistribution()
