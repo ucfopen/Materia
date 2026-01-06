@@ -193,11 +193,14 @@ class LTILaunchService:
 
         else:
             token_param = request.GET.get("token")
-            recovery = LTILaunchService.get_session_launch(request, token_param)
-            if recovery is not None:
-                recovery["materia_launch_state"] = "RECOVERY"
+            if token_param is not None:
+                recovery = LTILaunchService.get_session_launch(request, token_param)
+                if recovery is not None:
+                    recovery["materia_launch_state"] = "RECOVERY"
 
-            return recovery
+                return recovery
+
+        return None
 
     @staticmethod
     def store_session_launch(request, key, launch):
