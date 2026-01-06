@@ -235,14 +235,14 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
 export const apiUpdateWidgetInstance = ({ args }) => {
 	// limit args to the following params
 	const body = {
-		name: args?.name ?? undefined,
-		qset: args?.qset ?? undefined,
-		is_draft: args?.isDraft ?? undefined,
+		name: args?.name,
+		qset: args?.qset,
+		is_draft: args?.isDraft,
 		open_at: args?.openAt,
 		close_at: args?.closeAt,
-		attempts: args?.attempts ?? undefined,
-		guest_access: args?.guestAccess ?? undefined,
-		embedded_only: args?.embeddedOnly ?? undefined,
+		attempts: args?.attempts,
+		guest_access: args?.guestAccess,
+		embedded_only: args?.embeddedOnly,
 	}
 	return handleRequest(methods.PATCH, `/api/instances/${args.id}/`, body)
 }

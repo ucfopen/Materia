@@ -97,7 +97,7 @@ class WidgetPlayValidationService:
 
         autoplay = parse_bool(request.GET.get("autoplay", None), True)
 
-        if not is_embedded and instance.embedded_only:
+        if not is_preview and not is_embedded and instance.embedded_only:
             return WidgetPlayValidationService.INVALID_EMBEDDED_ONLY
 
         if not instance.playable_by_current_user(request.user):
