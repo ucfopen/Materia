@@ -3,6 +3,7 @@ import re
 
 from core.models import Lti
 from lti_tool.models import LtiDeployment, LtiLaunch
+from lti_tool.utils import get_launch_from_request
 
 # from pprint import pformat
 
@@ -101,41 +102,52 @@ class LTILaunchService:
         return deployment.registration if deployment is not None else None
 
     @staticmethod
-    def get_launch_redirect(launch_data):
+    def get_launch_redirect(lti_launch: LtiLaunch) -> str:
         """
-        Most LTI launches come in as LtiResourceLinkRequests
-        We determine the destination view by checking the target_link_uri value in the launch claim
+        Gets the appropriate redirect URI for resource link launches.
+        Should be one of three destinations: post login, widget player, or score screen
         """
+        launch_data = lti_launch.get_launch_data()
         uri_claim = launch_data.get(
             "https://purl.imsglobal.org/spec/lti/claim/target_link_uri"
         )
 
-        # not a widget launch - redirect to post-login landing page
+        # no redirect or a redirect to /ltilaunch? Send them to post-login
         if not uri_claim or re.search("/ltilaunch/", uri_claim):
             return "/lti/post_login/"
 
+        # widget launches require special processing
+        # we provide the launch ID as a query param so we can distinguish LTI plays from non-LTI
+        # referencing request.lti_launch is NOT enough because one may be cached in session
+        elif LTILaunchService.is_widget_launch(launch_data):
+            lid = lti_launch.get_launch_id()
+            uri_claim = f"{uri_claim}?lid={lid}"
+            return uri_claim
+
+        # expected to be a score screen at this point
         else:
-            # widget or score url redirect - do we need to verify this?
             return uri_claim
 
     @staticmethod
     def get_inst_id_from_uri(uri_claim):
 
-        res = re.search(r"embed/([A-Za-z0-9\-]{5,})/[A-Za-z0-9\-]*/?$", uri_claim)
+        res = re.search(
+            r"(?:embed|play)/([A-Za-z0-9\-]{5,})/[A-Za-z0-9\-]*/?$", uri_claim
+        )
         if res:
             return res.group(1)
         return None
 
     @staticmethod
-    def is_widget_launch(launch_data):
+    def is_widget_launch(launch_data) -> bool:
         """
-        TODO how else can we determine whether it's a widget launch from LTI claim data?
+        Identifies whether a given launch is a widget launch by inspecting the target_link_uri.
         """
         uri_claim = launch_data.get(
             "https://purl.imsglobal.org/spec/lti/claim/target_link_uri"
         )
 
-        if re.search(r"embed/[A-Za-z0-9]{5,}/[A-Za-z0-9\-]*/?$", uri_claim):
+        if re.search(r"(?:embed|play)/[A-Za-z0-9]{5,}/[A-Za-z0-9\-]*/?$", uri_claim):
             return True
 
         return False
@@ -143,8 +155,7 @@ class LTILaunchService:
     @staticmethod
     def is_lti_launch(request):
         if hasattr(request, "lti_launch") and request.lti_launch:
-            return isinstance(request.lti_launch, LtiLaunch)
-
+            return request.lti_launch.is_present
         return False
 
     @staticmethod
@@ -166,18 +177,30 @@ class LTILaunchService:
         return launch.get("materia_launch_state", None)
 
     @staticmethod
-    def get_or_recover_launch(request):
-        if LTILaunchService.is_lti_launch(request):
-            launch = request.lti_launch.get_launch_data()
-            launch["materia_launch_state"] = "INITIAL"
-            return launch
+    def get_or_recover_widget_launch(request):
+        """
+        Gets the launch data associated with a widget launch.
+        Requires one of two query params to be present:
+        lid: launch id. This is the uuid created by pylti1p3. Provided in initial resource launch.
+        token: play id. Used to recover a launch that's already been put into session.
+        """
+        launch_id = request.GET.get("lid", None)
+        if launch_id is not None:
+            launch = get_launch_from_request(request, launch_id)
+            launch_data = None if launch is None else launch.get_launch_data()
+            launch_data["materia_launch_state"] = "INITIAL"
+            return launch_data
+
         else:
             token_param = request.GET.get("token")
-            recovery = LTILaunchService.get_session_launch(request, token_param)
-            if recovery is not None:
-                recovery["materia_launch_state"] = "RECOVERY"
+            if token_param is not None:
+                recovery = LTILaunchService.get_session_launch(request, token_param)
+                if recovery is not None:
+                    recovery["materia_launch_state"] = "RECOVERY"
 
-            return recovery
+                return recovery
+
+        return None
 
     @staticmethod
     def store_session_launch(request, key, launch):

@@ -12,7 +12,7 @@ class LtiLaunchMixin:
     # dispatch is called prior to view processing and lets us perform checks associated with LTI launches
     def dispatch(self, request, *args, **kwargs):
 
-        launch = LTILaunchService.get_or_recover_launch(request)
+        launch = LTILaunchService.get_or_recover_widget_launch(request)
         if launch is not None:
             try:
                 # handle_lti_launch performs LTI auth check, if necessary
