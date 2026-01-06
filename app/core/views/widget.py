@@ -264,7 +264,10 @@ class WidgetCreatorView(MateriaLoginMixin, PermissionRequiredMixin, TemplateView
     permission_denied_message = "You do not have permission to create widgets."
 
     def has_permission(self):
-        return not PermService.does_user_have_roles(self.request.user, "no_author")
+        return (
+            not PermService.does_user_have_roles(self.request.user, "no_author")
+            and self.request.user.is_authenticated
+        )
 
     def get_context_data(self, widget_slug, instance_id=None):
         # Create the widget instance

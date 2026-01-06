@@ -1124,6 +1124,8 @@ class WidgetInstance(models.Model):
         return self.guest_access or user.is_authenticated
 
     def editable_by_current_user(self, user: User | AnonymousUser):
+        if isinstance(user, AnonymousUser):
+            return False
         return self.permissions.filter(
             user=user, permission=ObjectPermission.PERMISSION_FULL
         ).exists()
