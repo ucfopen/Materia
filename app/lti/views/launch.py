@@ -30,11 +30,11 @@ class ApplicationLaunchView(LtiLaunchBaseView):
             logger.error("launch login invalid")
             return error_page(request, "error_unknown_user")
 
-        # store the launch ID in session - we'll need to grab this
-        # in the subsequent request that does not have access to the original launch
-        request.session["lti-deep-link"] = lti_launch.get_launch_id()
-
-        return redirect("/lti/picker/")
+        # we need access to the original launch data when sending the deep link selection back to the platform
+        # in addition to a GET param, store the launch ID in session for redundancy
+        launch_id = lti_launch.get_launch_id()
+        request.session["lti-deep-link"] = launch_id
+        return redirect(f"/lti/picker/?lid={launch_id}")
 
     def handle_submission_review_launch(self, request, lti_launch):
         """
