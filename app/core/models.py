@@ -1276,6 +1276,10 @@ class WidgetInstance(models.Model):
             return None
         return f"{settings.URLS['BASE_URL']}embed/{self.id}/{slugify(self.name)}/"
 
+    @property
+    def is_embedded(self):
+        return self.lti_embeds.count() > 0
+
     @classproperty
     def content_type(cls):
         return ContentType.objects.get_for_model(cls)

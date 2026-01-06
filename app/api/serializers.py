@@ -28,7 +28,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import serializers
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("django")
 
 
 # Asset model serializer
@@ -313,6 +313,7 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
     preview_url = serializers.CharField(read_only=True)
     play_url = serializers.CharField(read_only=True)
     embed_url = serializers.CharField(read_only=True, allow_null=True)
+    is_embedded = serializers.BooleanField(read_only=True)
     qset = QuestionSetSerializer(required=False)
 
     # remove sensitive info if context flag set
@@ -384,6 +385,7 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "preview_url",
             "play_url",
             "embed_url",
+            "is_embedded",
             "qset",
         ]
         read_only_fields = [
@@ -392,6 +394,7 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "is_student_made",
             "widget",
             "widget_id",
+            "is_embedded",
         ]
 
 

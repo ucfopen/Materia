@@ -205,8 +205,8 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 			open_at: u.open_at,
 			close_at: u.close_at,
 			attempts: u.attempts,
-			guest_access: u.guest_access,
-			embedded_only: u.embedded_only,
+			guestAccess: u.guest_access,
+			embeddedOnly: u.embedded_only,
 		}
 
 		updateWidget.mutate({
