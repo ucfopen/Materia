@@ -4,8 +4,8 @@ import useInstanceList from '../hooks/useInstanceList'
 import LoadingIcon from '../loading-icon'
 
 const SelectItem = () => {
-	const [strHeader, setStrHeader] = useState('Select a Widget:');
-	const [selectedInstance, setSelectedInstance] = useState(null);
+	const [strHeader, setStrHeader] = useState('Select a Widget:')
+	const [selectedInstance, setSelectedInstance] = useState(null)
 	const [searchText, setSearchText] = useState('')
 	const [easterMode, setEasterMode] = useState(false)
 	const [showRefreshArrow, setShowRefreshArrow] = useState(false)
@@ -13,10 +13,17 @@ const SelectItem = () => {
 	const fillRef = useRef(null)
 	const [progressComplete, setProgressComplete] = useState(false)
 	const [error, setError] = useState("")
+	const [launchID, setLaunchID] = useState('')
 
 	const instanceList = useInstanceList("me")
 
 	useEffect(() => {
+		const params = new URLSearchParams(window.location.search)
+		setLaunchID(params.get('lid') || '')
+	}, [])
+
+	useEffect(() => {
+		// @TODO window.SYSTEM is never defined
 		if (window.SYSTEM) {
 			setStrHeader(`Select a Widget for use in ${window.SYSTEM}:`)
 		}
@@ -93,9 +100,12 @@ const SelectItem = () => {
 				const form = document.createElement('form')
 				form.method = 'POST'
 				form.action = window.RETURN_URL
+				
+				// append launch ID to form - we need it for submission to the platform
+				const inputLaunchID = createFormItem('lid', launchID)
+				form.appendChild(inputLaunchID)
 
 				// append embed url to form
-				// @TODO update with 1.3 launch URL?
 				const inputUrl = createFormItem('instance', selectedInstance.embed_url)
 				form.appendChild(inputUrl)
 
