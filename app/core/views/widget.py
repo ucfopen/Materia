@@ -107,7 +107,7 @@ class WidgetPlayView(
 
     def get_validation(self, request, instance):
         context_id = ""
-        launch = LTILaunchService.get_or_recover_launch(request)
+        launch = LTILaunchService.get_or_recover_widget_launch(request)
         if launch is not None:
             context_id = LTILaunchService.get_context_id(launch)
 
@@ -156,7 +156,7 @@ class WidgetPlayView(
 
         # do we have an LTI launch?
         # if it is - update the play with LTI flags and pass the token to context
-        launch = LTILaunchService.get_or_recover_launch(self.request)
+        launch = LTILaunchService.get_or_recover_widget_launch(self.request)
         if launch and not instance.guest_access:
             play.auth = "lti"
             play.context_id = LTILaunchService.get_context_id(launch)

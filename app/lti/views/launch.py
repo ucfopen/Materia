@@ -12,14 +12,13 @@ logger = logging.getLogger(__name__)
 class ApplicationLaunchView(LtiLaunchBaseView):
     def handle_resource_launch(self, request, lti_launch):
         launch_data = lti_launch.get_launch_data()
-
         auth = LTIAuthService.authenticate(request, launch_data)
 
         if not auth:
             logger.error("launch login invalid")
             return error_page(request, "error_unknown_user")
 
-        destination = LTILaunchService.get_launch_redirect(launch_data)
+        destination = LTILaunchService.get_launch_redirect(lti_launch)
         return redirect(destination)
 
     def handle_deep_linking_launch(self, request, lti_launch):

@@ -26,8 +26,8 @@ def post_login(request):
     #     LTILaunchService.store_session_launch(request, context_id, launch)
     # =============================================
     is_author = False
-    launch = LTILaunchService.get_or_recover_launch(request)
-    if launch is not None:
+    if LTILaunchService.is_lti_launch(request):
+        launch = request.lti_launch.get_launch_data()
         is_author = LTIAuthService.is_user_course_author(launch)
 
     context = ContextUtil.create(
