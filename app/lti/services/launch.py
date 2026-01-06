@@ -102,7 +102,7 @@ class LTILaunchService:
         return deployment.registration if deployment is not None else None
 
     @staticmethod
-    def get_launch_redirect(lti_launch: LtiLaunch):
+    def get_launch_redirect(lti_launch: LtiLaunch) -> str:
         """
         Gets the appropriate redirect URI for resource link launches.
         Should be one of three destinations: post login, widget player, or score screen
@@ -139,9 +139,9 @@ class LTILaunchService:
         return None
 
     @staticmethod
-    def is_widget_launch(launch_data):
+    def is_widget_launch(launch_data) -> bool:
         """
-        TODO how else can we determine whether it's a widget launch from LTI claim data?
+        Identifies whether a given launch is a widget launch by inspecting the target_link_uri.
         """
         uri_claim = launch_data.get(
             "https://purl.imsglobal.org/spec/lti/claim/target_link_uri"
