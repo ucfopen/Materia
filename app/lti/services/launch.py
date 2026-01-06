@@ -184,15 +184,13 @@ class LTILaunchService:
         lid: launch id. This is the uuid created by pylti1p3. Provided in initial resource launch.
         token: play id. Used to recover a launch that's already been put into session.
         """
-        if LTILaunchService.is_lti_launch(request):
-            launch_id = request.GET.get("lid", None)
-            if launch_id is not None:
-                launch = get_launch_from_request(request, launch_id)
-                launch_data = None if launch is None else launch.get_launch_data()
-                launch_data["materia_launch_state"] = "INITIAL"
-                return launch_data
+        launch_id = request.GET.get("lid", None)
+        if launch_id is not None:
+            launch = get_launch_from_request(request, launch_id)
+            launch_data = None if launch is None else launch.get_launch_data()
+            launch_data["materia_launch_state"] = "INITIAL"
+            return launch_data
 
-            return None
         else:
             token_param = request.GET.get("token")
             recovery = LTILaunchService.get_session_launch(request, token_param)
