@@ -1,17 +1,12 @@
 import logging
 
+from core.models import LogPlay, ObjectPermission, WidgetInstance
+from core.services.instance_service import WidgetInstanceService
+from core.services.perm_service import PermService
 from django.contrib.auth.models import User
-
-from core.models import (
-    LogPlay,
-    ObjectPermission,
-    WidgetInstance,
-)
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework import permissions
-from core.services.perm_service import PermService
-from core.services.instance_service import WidgetInstanceService
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +73,11 @@ class CanCreateWidgetInstances(permissions.BasePermission):
 
 
 class HasFullPerms(permissions.BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+
     def has_object_permission(self, request, view, obj):
         user = request.user
         if not user or not user.is_authenticated:

@@ -10,14 +10,14 @@ const Notifications = (user) => {
 	const deleteNotification = useDeleteNotification()
 	const queryClient = useQueryClient()
 	const setUserPerms = setUserInstancePerms()
-	const numNotifications = useRef(0)
+	const [numNotifications, setNumNotifications] = useState(0)
 	const [errorMsg, setErrorMsg] = useState({
 		notif_id: '',
 		msg: ''
 	})
 	let modalRef = useRef()
 
-	const { data: notifications} = useQuery({
+	const { data: notifications, dataUpdatedAt: updatedAt, status, error} = useQuery({
 		queryKey: 'notifications',
 		enabled: !!user && user.loggedIn,
 		refetchInterval: 60000,
@@ -26,20 +26,20 @@ const Notifications = (user) => {
 		queryFn: apiGetNotifications,
 		staleTime: Infinity,
 		retry: false,
-		onSuccess: (data) => {
-			numNotifications.current = 0
-			if (data && data.length > 0) data.forEach(element => {
-				if (!element.remove) numNotifications.current++
-			})
-		},
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				window.location.href = '/users/login'
-			} else {
-				console.error(err)
-			}
-		}
 	})
+
+	useEffect(() => {
+		if (status == 'success') {
+			let notificationCount = 0
+			if (notifications && notifications.length > 0) notifications.forEach(element => {
+				if (!element.remove) notificationCount++
+			})
+			setNumNotifications(notificationCount)
+		}
+		else if (status == 'error') {
+			if (error.status == 403 || error.response?.status == 403) window.location.href = '/login?show_pre_embed=1'
+		}
+	},[updatedAt, status])
 
 	// Close notification modal if user clicks outside of it
 	useEffect(() => {
@@ -58,6 +58,10 @@ const Notifications = (user) => {
 			}
 		}
 	}, [navOpen])
+
+	useEffect(() => {
+		if (numNotifications <= 0) setNavOpen(false)
+	},[numNotifications])
 
 	const toggleNavOpen = (event) =>
 	{
@@ -88,7 +92,7 @@ const Notifications = (user) => {
 					if (notifications[key].id == id)
 					{
 						notifications[key].remove = true
-						numNotifications.current--
+						setNumNotifications(numNotifications - 1)
 						return
 					}
 				})
@@ -161,7 +165,6 @@ const Notifications = (user) => {
 				setErrorMsg({notif_id: notif.id, msg: 'Action failed.'})
 			}
 		})
-
 	}
 
 	let render = null
@@ -212,7 +215,7 @@ const Notifications = (user) => {
 
 			notificationIcon =
 			<button id='notifications_link' className='notEmpty'
-				data-notifications={numNotifications.current}
+				data-notifications={numNotifications}
 				onClick={toggleNavOpen}></button>
 
 			notificationElements.push(notifRow)
