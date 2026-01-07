@@ -24,7 +24,6 @@ const SelectItem = () => {
 
 	useEffect(() => {
 		waitForWindow(['BASE_URL', 'INST_ID', 'PREVIEW_EMBED_URL', 'PROVISIONAL_ACCESS']).then(() => {
-			console.log('waitForWindow setState')
 			setState(prevState => ({
 				...prevState,
 				instID: window.INST_ID,
@@ -36,7 +35,6 @@ const SelectItem = () => {
 
 	useEffect(() => {
 		if (instance?.id) {
-			console.log('instance setState')
 			setState(prevState => ({
 				...prevState,
 				iconUrl: getIconUrl('/widget/', instance.widget?.dir, 92)
