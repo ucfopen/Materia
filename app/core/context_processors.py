@@ -10,14 +10,14 @@ def fonts(request):
     return {"fonts": settings.FONTS_DEFAULT}
 
 
-def dark_mode(request):
+def theme(request):
     if not request.user.is_authenticated:
-        return {"darkMode": False}
+        return {"theme": "light"}
 
     user_profile, _ = UserSettings.objects.get_or_create(user=request.user)
     profile_fields = user_profile.get_profile_fields()
-    dark_mode = bool(profile_fields.get("darkMode", False))
-    return {"darkMode": dark_mode}
+    theme_value = profile_fields.get("theme", "light")
+    return {"theme": theme_value}
 
     # TODO: below is the version that used caching. It did not appear to reliably return the most recently set value.
 

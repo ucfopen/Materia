@@ -87,7 +87,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "core.context_processors.dark_mode",
+                "core.context_processors.theme",
                 "core.context_processors.fonts",
             ],
         },

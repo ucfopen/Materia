@@ -28,8 +28,38 @@
 			{% endfor %}
 		{% endif %}
 
+		<script>
+			(function() {
+				const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+				const theme = "{{ theme|default:'light' }}";
+	
+				function applyTheme(type) {
+					if (type === "dark") {
+						document.body.classList.add("darkMode");
+					} else if (type === "light") {
+						document.body.classList.remove("darkMode");
+					} else if (type === "os") {
+						if (mediaQuery.matches) {
+							document.body.classList.add("darkMode");
+						} else {
+							document.body.classList.remove("darkMode");
+						}
+					}
+				}
+	
+				window.theme = theme;
+				applyTheme(theme);
+	
+				mediaQuery.addEventListener("change", () => {
+					if (window.theme === "os") {
+						applyTheme("os");
+					}
+				});
+			})();
+		</script>
+
 	</head>
-	<body class="{{ page_type|default:'' }} {% if darkMode %}darkMode{% endif %}">
+	<body class="{{ page_type|default:'' }}">
 
 		<div id="app"></div>
 		<div id="modal"></div>
