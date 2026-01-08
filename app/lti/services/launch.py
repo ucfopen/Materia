@@ -182,8 +182,8 @@ class LTILaunchService:
             inst = WidgetInstance.objects.get(id=inst_id)
             if inst:
                 return inst.embed_url
-            else:
-                raise MsgNotFound(msg="No widget instance matches this request.")
+
+        raise MsgNotFound(msg="No widget instance matches this request.")
 
     @staticmethod
     def is_lti_launch(request):
