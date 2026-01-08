@@ -38,7 +38,8 @@ const LoginPage = () => {
 				widgetName: window.WIDGET_NAME != undefined ? window.WIDGET_NAME : null,
 				isPreview: window.IS_PREVIEW != undefined ? window.IS_PREVIEW : null,
 				errContent: window.ERR_LOGIN ? window.ERR_LOGIN : null,
-				noticeContent: window.NOTICE_LOGIN ?? null
+				noticeContent: window.NOTICE_LOGIN ?? null,
+				restrictedToLMS: window.LOGINS_RESTRICTED_TO_LMS ?? false
 			})
 		})
 	}, [])

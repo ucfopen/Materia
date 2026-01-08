@@ -1,4 +1,3 @@
-import os
 import re
 
 from core.models import WidgetInstance
@@ -11,18 +10,40 @@ def login(request):
     post_login_route = request.GET.get("next", None)
     if post_login_route:
         request.session["redirect_url"] = post_login_route
+
+    custom_auth_redirect = settings.AUTH_LOGIN_ROUTE_OVERRIDE.lower() != "false"
+
+    js_globals = {}
+
+    if settings.RESTRICT_LOGINS_TO_LAUNCHES:
+
+        if custom_auth_redirect:
+            js_globals.update(
+                {
+                    "NOTICE_LOGIN": "Materia can only be accessed from your LMS, which can be accessed from the "
+                    "Login link below."
+                }
+            )
+        else:
+            js_globals.update(
+                {
+                    "LOGINS_RESTRICTED_TO_LMS": True,
+                    "NOTICE_LOGIN": (
+                        "Materia can only be accessed from your LMS. "
+                        "For more information, visit the help desk."
+                    ),
+                }
+            )
+
     # allow for custom authentication backend usage to launch from the regular /login route
-    custom_auth_redirect = os.environ.get("AUTH_LOGIN_ROUTE_OVERRIDE", False)
-    if custom_auth_redirect and custom_auth_redirect.lower() != "false":
+    elif custom_auth_redirect:
         # also allow for explicitly bypassing the custom authentication backend
         if "directlogin" in request.GET or "show_pre_embed" in request.GET:
             # do nothing, proceed with regular login handling
             pass
         else:
             # redirect to authentication package login route
-            return redirect(custom_auth_redirect)
-
-    js_globals = {}
+            return redirect(settings.AUTH_LOGIN_ROUTE_OVERRIDE)
 
     # Get login title
     title = request.session.get("login_title", "Login")
