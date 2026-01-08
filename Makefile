@@ -135,6 +135,16 @@ create-superuser: ## Create a new superuser using the Django `createsuperuser` m
 change-password: ## Change user password using 'changepassword' command. Example: make user=your_username change-password
 	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py changepassword $(user)"
 
+## File argument takes the in-container location of the .wigt file
+## Ex. make install-widget-file file="/var/www/html/staticfiles/widget/widget_name-xxxx.wigt" 
+install-widget-file: 
+	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py widget install_from_file $(file)"
+
+## URL argument is the url to download from, id argument is optional
+## Ex. make install-widget-url url="http://test.com/widget_name.wigt"
+install-widget-url: 
+	@$(MAKE) run-docker-command DOCKER_COMMAND="python manage.py widget install_from_url_no_verify $(url) $(id)"
+
 lint: lint-backend lint-frontend ## Run backend and frontend linters
 lint-check: lint-backend-check lint-frontend-check ## Run backend and frontend linters in check/no-fix mode
 

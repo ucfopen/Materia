@@ -64,10 +64,12 @@ class Command(base.BaseCommand):
         rmtree(os.path.dirname(local_package))
         rmtree(os.path.dirname(local_checksum))
 
-    def install_from_url_no_verify(self, package_url, desired_id):
+    def install_from_url_no_verify(self, package_url, desired_id=None):
         local_package = self.download_package(package_url)
 
-        self.replace_id = desired_id
+        if desired_id is not None:
+            self.replace_id = desired_id
+            
         self.install(local_package)
 
     def download_package(self, file_url):
