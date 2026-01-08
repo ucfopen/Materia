@@ -239,9 +239,11 @@ class ScoreModule(ABC):
         text = log.text if hasattr(log, "text") else log["text"]
         for answer in answers:
             if text == answer["text"]:
-                feedback = answer.get("options", {}).get("feedback", "")
-                if feedback:
-                    return feedback
+                options = answer.get("options", {})
+                if isinstance(options, dict):
+                    feedback = options.get("feedback", "")
+                    if feedback:
+                        return feedback
         return None
 
     def get_detail_style(self, score) -> str:
