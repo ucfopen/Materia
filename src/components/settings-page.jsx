@@ -219,7 +219,8 @@ const SettingsPage = () => {
 							</label>
 						</li>
 					</ul>
-					<ul className="user-icon-select" role="radiogroup">
+					<span>Theme</span>
+					<ul className="theme-select" role="radiogroup">
 						<li>
 							<label className="radio-wrapper">
 								<input
@@ -249,17 +250,18 @@ const SettingsPage = () => {
 						</li>
 
 						<li>
-						<label className="radio-wrapper">
-							<input
-								type="radio"
-								name="theme"
-								value="os"
-								checked={state.theme === "os"}
-								onChange={_updateThemePref}
-							/>
-							<span className="custom-radio" role="radio" aria-checked={state.theme === "os"}></span>
-							System Preference
-						</label>
+							<label className="radio-wrapper">
+								<input
+									type="radio"
+									name="theme"
+									value="os"
+									checked={state.theme === "os"}
+									onChange={_updateThemePref}
+								/>
+								<span className="custom-radio" role="radio" aria-checked={state.theme === "os"}></span>
+								System Preference
+							</label>
+							<p className="exp">Note: This does not influence widgets.</p>
 						</li>
 					</ul>
 					<button type="submit" className="action_button" onClick={_submitSettings}>
