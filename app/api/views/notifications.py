@@ -1,10 +1,9 @@
+from api.permissions import HasFullPerms, IsSuperOrSupportUser
+from api.serializers import NotificationsSerializer
+from core.models import Notification
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
-from core.models import Notification
-from api.permissions import IsSuperOrSupportUser, HasFullPerms
-from api.serializers import NotificationsSerializer
-from rest_framework import viewsets, status
 
 
 class NotificationsViewSet(viewsets.ModelViewSet):

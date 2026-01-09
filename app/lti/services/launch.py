@@ -1,7 +1,8 @@
 import logging
 import re
 
-from core.models import Lti
+from core.message_exception import MsgNotFound
+from core.models import Lti, WidgetInstance
 from lti_tool.models import LtiDeployment, LtiLaunch
 from lti_tool.utils import get_launch_from_request
 
@@ -119,7 +120,13 @@ class LTILaunchService:
         # widget launches require special processing
         # we provide the launch ID as a query param so we can distinguish LTI plays from non-LTI
         # referencing request.lti_launch is NOT enough because one may be cached in session
-        elif LTILaunchService.is_widget_launch(launch_data):
+        elif LTILaunchService.is_widget_launch(
+            launch_data
+        ) or LTILaunchService.is_legacy_widget_launch_url(uri_claim):
+
+            if LTILaunchService.is_legacy_widget_launch_url(uri_claim):
+                uri_claim = LTILaunchService.upgrade_widget_launch_url(uri_claim)
+
             lid = lti_launch.get_launch_id()
             uri_claim = f"{uri_claim}?lid={lid}"
             return uri_claim
@@ -151,6 +158,32 @@ class LTILaunchService:
             return True
 
         return False
+
+    @staticmethod
+    def is_legacy_widget_launch_url(url: str) -> bool:
+        """
+        In the ancient days, LTI embeds used /lti/assignment?widget=inst_id as their URL
+        Inspects the URL str and returns a boolean if this is indeed one of these legacy URLs
+        """
+        if re.search(r"lti/assignment/?\?widget=[A-Za-z0-9]{5,}$", url):
+            return True
+        return False
+
+    @staticmethod
+    def upgrade_widget_launch_url(url: str) -> str:
+        """
+        Upgrades a given launch URL from legacy to a modern embed URL.
+        Returns a str representing the new embed URL.
+        Raises a MsgNotFound if the instance associated with the ?widget= param no longer exists.
+        """
+        match = re.search(r"lti/assignment/?\?widget=([A-Za-z0-9]{5,})$", url)
+        inst_id = match.group(1) if match else None
+        if inst_id:
+            inst = WidgetInstance.objects.get(id=inst_id)
+            if inst:
+                return inst.embed_url
+
+        raise MsgNotFound(msg="No widget instance matches this request.")
 
     @staticmethod
     def is_lti_launch(request):

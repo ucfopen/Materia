@@ -18,8 +18,11 @@ class ApplicationLaunchView(LtiLaunchBaseView):
             logger.error("launch login invalid")
             return error_page(request, "error_unknown_user")
 
-        destination = LTILaunchService.get_launch_redirect(lti_launch)
-        return redirect(destination)
+        try:
+            destination = LTILaunchService.get_launch_redirect(lti_launch)
+            return redirect(destination)
+        except Exception:
+            return error_page(request, "error_unknown_assignment")
 
     def handle_deep_linking_launch(self, request, lti_launch):
         launch_data = lti_launch.get_launch_data()

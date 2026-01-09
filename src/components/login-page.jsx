@@ -13,9 +13,9 @@ import './login-page.scss'
 
 const LoginPage = () => {
 	const [state, setState] = useState({
-		actionLogin: '',
 		actionRedirect: '/profile/',
-		bypass: false,
+		redirectActive: false,
+		externalLogin: '',
 		errContent: '',
 		noticeContent: '',
 		context: 'login',
@@ -25,40 +25,28 @@ const LoginPage = () => {
 		waitForWindow(['BASE_URL', 'WIDGET_URL', 'STATIC_CROSSDOMAIN'])
 		.then(() => {
 
-			let actionRedirect = window.location.search && window.location.search.split("?next=").length > 1 ? window.location.search.split("?next=")[1] : ''
+			const params = new URLSearchParams(window.location.search)
+			let actionRedirect = params.get('next') ?? ''
 			actionRedirect += (window.location.hash ? window.location.hash : '')
+			const directLogin = params.get('directlogin') | ''
 
 			setState({
-				actionLogin: window.ACTION_LOGIN,
 				actionRedirect: actionRedirect.length > 0 ? actionRedirect : window.ACTION_REDIRECT,
 				is_embedded: window.IS_EMBEDDED ?? false,
-				bypass: window.BYPASS,
+				externalLogin: window.EXTERNAL_LOGIN_URL ?? '',
+				redirectActive: window.AUTH_REDIRECT_ACTIVE ?? false,
 				context: window.CONTEXT,
 				instName: window.NAME != undefined ? window.INST_NAME : null,
 				widgetName: window.WIDGET_NAME != undefined ? window.WIDGET_NAME : null,
 				isPreview: window.IS_PREVIEW != undefined ? window.IS_PREVIEW : null,
 				errContent: window.ERR_LOGIN ? window.ERR_LOGIN : null,
 				noticeContent: window.NOTICE_LOGIN ?? null,
-				restrictedToLMS: window.LOGINS_RESTRICTED_TO_LMS ?? false
+				restrictedToLMS: window.LOGINS_RESTRICTED_TO_LMS ?? false,
+				directLogin: !!directLogin
+
 			})
 		})
 	}, [])
-
-
-	let detailContent = <></>
-	if (!state.context || state.context == 'login') {
-		detailContent =
-		<div className="login_context detail">
-			<h2 className="context-header">Login to Your Account</h2>
-			<LoginSubtitle />
-		</div>
-	} else if (state.context && state.context == 'widget') {
-		detailContent =
-		<div className="login_context detail">
-			<h2 className="context-header">Login to play this widget</h2>
-			<LoginSubtitle />
-		</div>
-	}
 
 	const handleLogin = (e) => {
 		e.preventDefault()
@@ -66,8 +54,7 @@ const LoginPage = () => {
 		const password = document.getElementById('password').value
 
 		apiLoginDirect(username, password).then((res) => {
-			const params = new URLSearchParams(window.location.search)
-			window.location.href = params.get('next') ?? '/profile/'
+			window.location.href = state.actionRedirect
 		}).catch((e) => {
 			let errorMsg = 'Authentication failed due to an error.'
 			if (e.data?.isAuthenticated == false) {
@@ -88,6 +75,21 @@ const LoginPage = () => {
 		}))
 	}
 
+	let detailContent = <></>
+	if (!state.context || state.context == 'login') {
+		detailContent =
+		<div className="login_context detail">
+			<h2 className="context-header">Login to Your Account</h2>
+			{ !!state.externalLogin ? '' : <LoginSubtitle /> }
+		</div>
+	} else if (state.context && state.context == 'widget') {
+		detailContent =
+		<div className="login_context detail">
+			<h2 className="context-header">Login to play this widget</h2>
+			{ !!state.externalLogin ? '' : <LoginSubtitle /> }
+		</div>
+	}
+
 	let errContent = null
 	if ( !!state.errContent) {
 		errContent = <div role="alert" className="login-error">{state.errContent}</div>
@@ -96,6 +98,40 @@ const LoginPage = () => {
 	let noticeContent = null
 	if ( !!state.noticeContent) {
 		noticeContent = <div role="alert" className="login-notice">{state.noticeContent}</div>
+	}
+
+	let loginContent = null
+	if ( (!state.restrictedToLMS && !state.redirectActive) || state.directLogin) {
+		loginContent = (
+			<div id="form">
+				<form onSubmit={handleLogin} className='form-content'>
+					<ul>
+						<li>
+							<input type="text" name="username" id="username" placeholder={Common.loginUsernameText} tabIndex="1" autoComplete="username" onChange={handleInputChange}/>
+						</li>
+						<li>
+							<input type="password" name="password" id="password" placeholder={Common.loginPasswordText} tabIndex="2" autoComplete="current-password" onChange={handleInputChange}/>
+						</li>
+						<li className="submit_button">
+							<button type="submit" tabIndex="3" className="action_button">Login</button>
+						</li>
+					</ul>
+				</form>
+			</div>
+		)
+	} else if (state.restrictedToLMS) {
+		loginContent = (
+			<div className='external-auth-link'>
+				<a className="action_button" href={state.externalLogin}>External Login</a>
+			</div>
+		)
+	} else if (state.redirectActive) {
+		const loginPath = `${window.BASE_URL}login?next=${state.actionRedirect}`
+		loginContent = (
+			<div className='external-auth-link'>
+				<a className="action_button" href={loginPath}>External Login</a>
+			</div>
+		)
 	}
 
 	return (
@@ -108,22 +144,9 @@ const LoginPage = () => {
 
 					{ errContent }
 					{ noticeContent }
-					<div id="form">
-						<form onSubmit={handleLogin} className='form-content'>
-							<ul>
-								<li>
-									<input type="text" name="username" id="username" placeholder={Common.loginUsernameText} tabIndex="1" autoComplete="username" onChange={handleInputChange}/>
-								</li>
-								<li>
-									<input type="password" name="password" id="password" placeholder={Common.loginPasswordText} tabIndex="2" autoComplete="current-password" onChange={handleInputChange}/>
-								</li>
-								<li className="submit_button">
-									<button type="submit" tabIndex="3" className="action_button">Login</button>
-								</li>
-							</ul>
-							{ state.context != 'widget' ? <LoginHelp /> : '' }
-						</form>
-					</div>
+					
+					{ loginContent }
+					{ state.context != 'widget' ? <LoginHelp /> : '' }
 					{ state.context && state.context == 'widget' ? <EmbedFooter /> : ''}
 				</section>
 			</div>
