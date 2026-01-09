@@ -1187,7 +1187,6 @@ class WidgetInstance(models.Model):
         dupe.user = owner
 
         # These fields should default to False for new instances (since the new instance won't have any play history)
-        dupe.is_embedded = False
         dupe.embedded_only = False
 
         # Manually update created_at
