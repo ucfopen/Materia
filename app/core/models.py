@@ -1446,6 +1446,7 @@ class UserSettings(models.Model):
             self.profile_fields["theme"] = (
                 "dark" if self.profile_fields["darkMode"] else "light"
             )
+            del self.profile_fields["darkMode"]
             self.save()
 
         return self.profile_fields
