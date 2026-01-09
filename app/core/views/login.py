@@ -9,11 +9,12 @@ from django.shortcuts import redirect, render
 
 def login(request):
     post_login_route = request.GET.get("next", None)
+    error_param = request.GET.get("error")
     if post_login_route:
         request.session["redirect_url"] = post_login_route
     # allow for custom authentication backend usage to launch from the regular /login route
     custom_auth_redirect = os.environ.get("AUTH_LOGIN_ROUTE_OVERRIDE", False)
-    if custom_auth_redirect and custom_auth_redirect.lower() != "false":
+    if custom_auth_redirect and custom_auth_redirect.lower() != "false" and not error_param:
         # also allow for explicitly bypassing the custom authentication backend
         if "directlogin" in request.GET or "show_pre_embed" in request.GET:
             # do nothing, proceed with regular login handling
@@ -71,6 +72,18 @@ def login(request):
                             "ERR_LOGIN": "The widget you are trying to access does not exist.",
                         }
                     )
+
+    # Handle error messages from query parameters
+    error_param = request.GET.get('error')
+    if error_param:
+        error_messages = {
+            'user_not_found': 'User does not exist in the external database.',
+            'invalid_credentials': 'Invalid login credentials.',
+            'account_disabled': 'This account has been disabled.',
+            'authentication_failed': 'Authentication failed. Please try again.',
+        }
+        error_message = error_messages.get(error_param, 'An error occurred during login.')
+        js_globals['ERR_LOGIN'] = error_message
 
     context = ContextUtil.create(
         title=title,
