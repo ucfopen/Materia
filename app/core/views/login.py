@@ -24,9 +24,12 @@ def login(request):
 
     js_globals = {}
 
+    # RESTRICT_LOGINS_TO_LAUNCHES prevents any form of direct auth (unless ?directlogin is used)
+    # If AUTH_LOGIN_ROUTE_OVERRIDE is also provided, that URL is used as a redirect option
     if settings.RESTRICT_LOGINS_TO_LAUNCHES:
 
         if custom_auth_redirect:
+            # The login button will be displayed, but it does not provide auth: just a redirect
             js_globals.update(
                 {
                     "NOTICE_LOGIN": "Materia can only be accessed from your LMS, which you can visit from the "
@@ -36,6 +39,7 @@ def login(request):
                 }
             )
         else:
+            # No login button will be displayed at all
             js_globals.update(
                 {
                     "LOGINS_RESTRICTED_TO_LMS": True,
@@ -46,7 +50,11 @@ def login(request):
                 }
             )
 
-    # allow for custom authentication backend usage to launch from the regular /login route
+    # AUTH_LOGIN_ROUTE_OVERRIDE is active, which overrides the default behavior of /login
+    # the actual /login page is displayed in three circumstances:
+    # 1. ?directlogin is used (which enables direct auth for service users)
+    # 2. ?show_pre_embed is used, which indicates this is a widget pre-embed
+    # 3. ?error is provided, which indicates an auth error was present on the last login attempt
     elif custom_auth_redirect:
         if "directlogin" in request.GET or "show_pre_embed" in request.GET:
             # bypass or halt automatic redirection due to an associated GET param
@@ -68,7 +76,7 @@ def login(request):
 
             pass
         else:
-            # redirect to authentication package login route
+            # no special params, redirect to authentication package login route
             return redirect(settings.AUTH_LOGIN_ROUTE_OVERRIDE)
 
         js_globals.update({"AUTH_REDIRECT_ACTIVE": True})

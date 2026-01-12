@@ -119,19 +119,29 @@ const LoginPage = () => {
 				</form>
 			</div>
 		)
-	} else if (state.restrictedToLMS) {
+	} else if (state.restrictedToLMS && state.externalLogin.length) {
 		loginContent = (
 			<div className='external-auth-link'>
 				<a className="action_button" href={state.externalLogin}>External Login</a>
 			</div>
 		)
 	} else if (state.redirectActive) {
+
 		const loginPath = `${window.BASE_URL}login?next=${state.actionRedirect}`
 		loginContent = (
 			<div className='external-auth-link'>
-				<a className="action_button" href={loginPath}>External Login</a>
+				<a className="action_button" href={loginPath}>Login</a>
 			</div>
 		)
+
+		if (state.is_embedded) {
+			loginContent = (
+				<div className='external-auth-link'>
+					<a className="action_button" href={loginPath} target="_blank">External Login</a>
+				</div>
+		)
+		}
+
 	}
 
 	return (
