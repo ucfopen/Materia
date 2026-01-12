@@ -26,12 +26,12 @@ const LoginPage = () => {
 		.then(() => {
 
 			const params = new URLSearchParams(window.location.search)
-			let actionRedirect = params.get('next') ?? ''
+			let actionRedirect = params.get('next') || ''
 			actionRedirect += (window.location.hash ? window.location.hash : '')
 			const directLogin = params.get('directlogin') | ''
 
 			setState({
-				actionRedirect: actionRedirect.length > 0 ? actionRedirect : window.ACTION_REDIRECT,
+				actionRedirect: actionRedirect.length > 0 ? actionRedirect : '/profile/',
 				is_embedded: window.IS_EMBEDDED ?? false,
 				externalLogin: window.EXTERNAL_LOGIN_URL ?? '',
 				redirectActive: window.AUTH_REDIRECT_ACTIVE ?? false,

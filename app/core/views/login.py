@@ -116,7 +116,6 @@ def login(request):
                                 "ICON_DIR": settings.URLS["WIDGET_URL"]
                                 + inst.widget.dir,
                                 "IS_EMBEDDED": method == "embed",
-                                "ACTION_REDIRECT": next,
                                 "CONTEXT": "widget",
                                 "IS_PREVIEW": False,
                             }
