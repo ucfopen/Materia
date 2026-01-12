@@ -31,19 +31,17 @@ const LoginPage = () => {
 			const directLogin = params.get('directlogin') | ''
 
 			setState({
-				actionRedirect: actionRedirect.length > 0 ? actionRedirect : '/profile/',
-				is_embedded: window.IS_EMBEDDED ?? false,
+				directLogin: !!directLogin,
+				isEmbedded: window.IS_EMBEDDED ?? false,
 				externalLogin: window.EXTERNAL_LOGIN_URL ?? '',
+				restrictedToLMS: window.LOGINS_RESTRICTED_TO_LMS ?? false,
+				actionRedirect: actionRedirect.length > 0 ? actionRedirect : '/profile/',
 				redirectActive: window.AUTH_REDIRECT_ACTIVE ?? false,
 				context: window.CONTEXT,
 				instName: window.NAME != undefined ? window.INST_NAME : null,
 				widgetName: window.WIDGET_NAME != undefined ? window.WIDGET_NAME : null,
-				isPreview: window.IS_PREVIEW != undefined ? window.IS_PREVIEW : null,
 				errContent: window.ERR_LOGIN ? window.ERR_LOGIN : null,
-				noticeContent: window.NOTICE_LOGIN ?? null,
-				restrictedToLMS: window.LOGINS_RESTRICTED_TO_LMS ?? false,
-				directLogin: !!directLogin
-
+				noticeContent: window.NOTICE_LOGIN ?? null
 			})
 		})
 	}, [])
@@ -134,7 +132,7 @@ const LoginPage = () => {
 			</div>
 		)
 
-		if (state.is_embedded) {
+		if (state.isEmbedded) {
 			loginContent = (
 				<div className='external-auth-link'>
 					<a className="action_button" href={loginPath} target="_blank">External Login</a>
@@ -146,7 +144,7 @@ const LoginPage = () => {
 
 	return (
 		<>
-			{ state.is_embedded ? '' : <Header /> }
+			{ state.isEmbedded ? '' : <Header /> }
 			<div className="container">
 				<section className="page">
 					{ state.context && state.context == 'widget' ? <Summary /> : ''}
