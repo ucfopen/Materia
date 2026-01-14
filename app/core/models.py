@@ -1442,7 +1442,7 @@ class UserSettings(models.Model):
         if not self.profile_fields:
             self.initialize_profile_fields()
 
-        if "darkMode" in self.profile_fields and "theme" not in self.profile_fields:
+        if "darkMode" in self.profile_fields:
             self.profile_fields["theme"] = (
                 "dark" if self.profile_fields["darkMode"] else "light"
             )

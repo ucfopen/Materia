@@ -137,7 +137,7 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 					<label>User Icon: </label>{ updatedUser.profile_fields.useGravatar ? 'Gravatar' : 'Default' }
 				</span>
 				<span>
-					<label>Dark Mode: </label>{ updatedUser.profile_fields.darkMode ? 'Enabled' : 'Disabled' }
+					<label>Theme: </label>{ updatedUser.profile_fields.theme }
 				</span>
 			</div>
 			<div className='info-holder'>
