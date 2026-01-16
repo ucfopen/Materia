@@ -1417,6 +1417,7 @@ class WidgetQset(models.Model):
 
         self.process_and_create_questions()
 
+    @staticmethod
     def find_item_with_id(decoded, item_id):
         import copy
 
