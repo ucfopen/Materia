@@ -8,11 +8,6 @@ from django.shortcuts import redirect, render
 
 def login(request):
 
-    # store redirect in session in case we need it
-    post_login_route = request.GET.get("next", None)
-    if post_login_route:
-        request.session["redirect_url"] = post_login_route
-
     # custom_auth_redirect is used to bypass the built-in django user login
     #
     # if the value is "false", no special login bypass will be used
@@ -76,6 +71,11 @@ def login(request):
 
             pass
         else:
+            # store redirect in session in case we need it
+            post_login_route = request.GET.get("next", None)
+            if post_login_route:
+                request.session["redirect_url"] = post_login_route
+
             # no special params, redirect to authentication package login route
             return redirect(settings.AUTH_LOGIN_ROUTE_OVERRIDE)
 
