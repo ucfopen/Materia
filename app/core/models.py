@@ -1353,7 +1353,7 @@ class WidgetQset(models.Model):
                 type=self.instance.widget,
                 data=question,
                 qset=self,
-                item_id=question["id"],
+                item_id=question["id"] if question.get("id", None) is not None else "",
             )
             new_question.save()
             questions_set.append(new_question)
