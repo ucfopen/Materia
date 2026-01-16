@@ -102,8 +102,7 @@ const Header = ({
 		let userAvatarRender = null;
 		let loginRender = null;
 
-		// this used to be !!user - not sure if the distinction was important
-		if (user) {
+		if (userPerms?.isAuthenticated && !!user?.username) {
 
 			notificationRender = <Notifications user={user}/>
 
