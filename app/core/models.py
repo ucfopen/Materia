@@ -1417,6 +1417,32 @@ class WidgetQset(models.Model):
 
         self.process_and_create_questions()
 
+    def find_item_with_id(decoded, item_id):
+        import copy
+
+        def _process_item(item):
+            if isinstance(item, list):
+                for element in item:
+                    result = _process_item(element)
+                    if result is not None:
+                        return result
+
+            elif isinstance(item, dict):
+                copied_item = copy.deepcopy(item)
+
+                if Question.is_question(copied_item):
+                    if copied_item.get("id") == item_id:
+                        return copied_item
+
+                for value in copied_item.values():
+                    if isinstance(value, (dict, list)):
+                        result = _process_item(value)
+                        if result is not None:
+                            return result
+            return None
+
+        return _process_item(decoded)
+
     class Meta:
         db_table = "widget_qset"
         indexes = [
