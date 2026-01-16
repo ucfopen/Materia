@@ -42,8 +42,7 @@ DIRS = {
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.environ.get("DJANGO_ENV", "prod") == "dev"
-DEBUG = False
+DEBUG = os.environ.get("DJANGO_ENV", "prod") == "dev"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
