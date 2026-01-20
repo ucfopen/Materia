@@ -270,7 +270,7 @@ class ScoreModule(ABC):
         return log.text
 
     def get_ss_expected_answers(self, log, question) -> str:
-        if question["type"] == "mc":
+        if question["type"] == "MC" or question["type"] == "mc":
             max_value = 0
             max_answers = []
             for ans in question["answers"]:
