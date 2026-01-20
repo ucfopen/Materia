@@ -57,7 +57,10 @@ class UserViewSet(viewsets.ModelViewSet):
         ]:  # only superusers or support users can modify a limited set of user properties
             permission_classes = [permissions.IsAuthenticated, IsSuperOrSupportUser]
         elif self.action == "roles":  # only superusers can modify another user's roles
-            permission_classes = [permissions.IsAuthenticated, IsSuperuser]
+            if self.request.method == "GET":
+                permission_classes = [permissions.IsAuthenticated, IsSuperOrSupportUser]
+            else:
+                permission_classes = [permissions.IsAuthenticated, IsSuperuser]
         elif self.action in ["perms", "profile_fields"]:
             permission_classes = [IsUserSelf | IsSuperOrSupportUser]
         elif (
