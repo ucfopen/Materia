@@ -78,11 +78,6 @@ class ScoresView(APIView):
 
             scores = []
             for play in plays.order_by("-created_at"):
-                module = ScoreModuleFactory.create_score_module(
-                    instance=instance, play=play
-                )
-
-                details = module.get_score_report()
 
                 current_context = (
                     play.context_id == context and play.semester == semester
@@ -92,7 +87,7 @@ class ScoresView(APIView):
                     {
                         "id": play.id,
                         "created_at": play.created_at.isoformat(),
-                        "percent": details.get("overview", {}).get("score", 0),
+                        "percent": play.percent,
                         "current_context": current_context,
                     }
                 )

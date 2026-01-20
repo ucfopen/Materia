@@ -178,6 +178,12 @@ LOGIN_URL = "/login/"
 
 NAME = "Materia"
 
+# Auth Overrides
+AUTH_LOGIN_ROUTE_OVERRIDE = os.environ.get("AUTH_LOGIN_ROUTE_OVERRIDE", "false")
+RESTRICT_LOGINS_TO_LAUNCHES = ValidatorUtil.validate_bool(
+    os.environ.get("RESTRICT_LOGINS_TO_LAUNCHES", False)
+)
+
 # Email config
 SEND_EMAILS = ValidatorUtil.validate_bool(os.environ.get("SEND_EMAILS", False))
 EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")

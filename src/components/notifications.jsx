@@ -19,7 +19,7 @@ const Notifications = (user) => {
 
 	const { data: notifications, dataUpdatedAt: updatedAt, status, error} = useQuery({
 		queryKey: 'notifications',
-		enabled: !!user && user.loggedIn,
+		enabled: !!user?.username,
 		refetchInterval: 60000,
 		refetchOnMount: false,
 		refetchOnWindowFocus: true,
@@ -37,7 +37,7 @@ const Notifications = (user) => {
 			setNumNotifications(notificationCount)
 		}
 		else if (status == 'error') {
-			if (error.status == 403 || error.response?.status == 403) window.location.href = '/login?show_pre_embed=1'
+			if (error.status == 403 || error.response?.status == 403) window.location.href = '/login?error=invalid_credentials'
 		}
 	},[updatedAt, status])
 

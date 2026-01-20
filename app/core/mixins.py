@@ -4,7 +4,7 @@ from core.models import WidgetInstance
 from core.services.widget_play_services import WidgetPlayValidationService
 from core.utils.context_util import ContextUtil
 from django.contrib.auth.mixins import AccessMixin
-from django.http import HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse
 
 logger = logging.getLogger(__name__)
 
@@ -115,6 +115,8 @@ class MateriaWidgetPlayProcessor:
         inst_id = self.kwargs.get("widget_instance_id", None)
         if inst_id is not None:
             instance = WidgetInstance.objects.filter(pk=inst_id).first()
+            if not instance:
+                raise Http404("A widget instance with this ID does not exist.")
             is_embedded = kwargs.get("is_embed", False)
             validation = self.get_validation(request, instance)
 

@@ -4,7 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 
 from core.message_exception import MsgInvalidInput
-from core.models import Log, LogPlay
+from core.models import Log, LogPlay, WidgetQset
 
 logger = logging.getLogger(__name__)
 
@@ -192,6 +192,11 @@ class ScoreModule(ABC):
         returns the json data of the question, not a question model instance
         """
         question = next((q for q in self.questions if q.item_id == item_id), None)
+        # no matching Question instance was found
+        # see if we can identify this question in the qset
+        if question is None:
+            return WidgetQset.find_item_with_id(self.qset, item_id)
+
         return question.data
 
     def get_score_details(self):
