@@ -7,8 +7,6 @@ ALLOWED_HOSTS = [
     .rstrip("/")
     .replace("https://", "")
     .replace("http://", "")
-    .replace("https://", "")
-    .replace("http://", "")
     .split(":")[0]
 ]
 
