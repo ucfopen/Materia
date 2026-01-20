@@ -65,8 +65,14 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
         widget_slug = kwargs.get("widget_slug")
         widget = Widget.objects.get(pk=_get_id_from_slug(widget_slug))
         demo_id = widget.metadata.get("demo")
-        self.instance = WidgetInstance.objects.filter(pk=demo_id).first()
-        self.validation = self.get_validation(request, self.instance)
+        instance = WidgetInstance.objects.filter(pk=demo_id).first()
+        validation = self.get_validation(request, instance)
+
+        request._widget_play_state = {
+            "instance": instance,
+            "is_embedded": False,
+            "validation": validation,
+        }
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -87,8 +93,10 @@ class WidgetDemoView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateView
         return validation
 
     def process_context(self, validation):
+        play_state = getattr(self.request, "_widget_play_state", {})
+        instance = play_state.get("instance")
         return _create_player_context(
-            validation, self.instance, self.request, is_preview=False
+            validation, instance, self.request, is_preview=False
         )
 
     def before_play_init(self, instance):
@@ -113,13 +121,14 @@ class WidgetPlayView(
 
         # Check if this instance is a guest/demo instance
         has_guest_access = instance.guest_access
+        is_embedded = self.kwargs.get("is_embed", False)
 
         validation = WidgetPlayValidationService.validate_widget_context(
             request,
             instance,
             has_guest_access=has_guest_access,
             is_preview=False,
-            is_embedded=self.is_embedded,
+            is_embedded=is_embedded,
             context_id=context_id,
         )
 
@@ -140,16 +149,18 @@ class WidgetPlayView(
             return super().get_login_url()
 
     def process_context(self, validation):
+        play_state = getattr(self.request, "_widget_play_state", {})
+        instance = play_state.get("instance")
+        is_embedded = play_state.get("is_embedded", False)
         return _create_player_context(
             validation,
-            self.instance,
+            instance,
             self.request,
             is_preview=False,
-            is_embedded=self.is_embedded,
+            is_embedded=is_embedded,
         )
 
     def before_play_init(self, instance):
-
         user = None if instance.guest_access else self.request.user
         play = WidgetPlayInitService.init_play(self.request, instance, user)
         lti_token = None
@@ -244,12 +255,15 @@ class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateV
         return validation
 
     def process_context(self, validation):
+        play_state = getattr(self.request, "_widget_play_state", {})
+        instance = play_state.get("instance")
+        is_embedded = play_state.get("is_embedded", False)
         return _create_player_context(
             validation,
-            self.instance,
+            instance,
             self.request,
             is_preview=True,
-            is_embedded=self.is_embedded,
+            is_embedded=is_embedded,
         )
 
     def before_play_init(self, instance):

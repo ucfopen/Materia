@@ -15,13 +15,13 @@ class MateriaLoginMixin(AccessMixin):
     login_title: str = None
     login_message: str = None
     login_error: str = None
-    login_global_vars: dict = {}
+    login_global_vars: dict = None
     allow_all_by_default: bool = (
         False  # If true, the default initial_login_check will not check if users is auth'd
     )
 
     def get_login_global_vars(self, request) -> dict:
-        return self.login_global_vars
+        return self.login_global_vars if self.login_global_vars is not None else {}
 
     # By default, will always trigger a login if user is not authenticated.
     # Can be overridden to require logins only in specific scenarios.
@@ -114,12 +114,17 @@ class MateriaWidgetPlayProcessor:
         # ex: widget demos
         inst_id = self.kwargs.get("widget_instance_id", None)
         if inst_id is not None:
-            inst = WidgetInstance.objects.filter(pk=inst_id).first()
-            if not inst:
+            instance = WidgetInstance.objects.filter(pk=inst_id).first()
+            if not instance:
                 raise Http404("A widget instance with this ID does not exist.")
-            self.instance = inst
-            self.is_embedded = kwargs.get("is_embed", False)
-            self.validation = self.get_validation(request, self.instance)
+            is_embedded = kwargs.get("is_embed", False)
+            validation = self.get_validation(request, instance)
+
+            request._widget_play_state = {
+                "instance": instance,
+                "is_embedded": is_embedded,
+                "validation": validation,
+            }
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -129,10 +134,15 @@ class MateriaWidgetPlayProcessor:
         instance_name=None,
         is_embed=False,
     ):
-        processed_context = self.process_context(self.validation)
+        # Retrieve per-request state from request object
+        play_state = getattr(self.request, "_widget_play_state", {})
+        validation = play_state.get("validation")
+        instance = play_state.get("instance")
 
-        if self.validation is WidgetPlayValidationService.VALID:
-            pre_init = self.before_play_init(self.instance)
+        processed_context = self.process_context(validation)
+
+        if validation is WidgetPlayValidationService.VALID:
+            pre_init = self.before_play_init(instance)
 
             ContextUtil.add_global(processed_context, "PLAY_ID", pre_init["play_id"])
             if pre_init["lti_token"] is not None:
