@@ -14,6 +14,7 @@ from .extra import *  # noqa: F401, F403
 from .generation import *  # noqa: F401, F403
 from .js import *  # noqa: F401, F403
 from .lti import *  # noqa: F401, F403
+from .security import *  # noqa: F401, F403
 
 # import additional config files
 from .session import *  # noqa: F401, F403
@@ -37,22 +38,11 @@ DIRS = {
     ),  # + os.sep
 }
 
-SESSION_COOKIE_SAMESITE = "None"
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = "None"
-CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = [os.environ.get("BASE_URL").rstrip("/")]
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "materia-local-dev-secret-key"
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_ENV", "prod") == "dev"
-
-ALLOWED_HOSTS = ["*", "localhost", "127.0.0.1"]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -62,14 +52,13 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    # "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "lti_tool.middleware.LtiLaunchMiddleware",
 ]
