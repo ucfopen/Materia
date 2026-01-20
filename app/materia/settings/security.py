@@ -10,6 +10,8 @@ ALLOWED_HOSTS = [
     .split(":")[0]
 ]
 
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
 # cookie security
 SESSION_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SECURE = True
