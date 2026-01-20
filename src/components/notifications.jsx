@@ -4,7 +4,7 @@ import { apiGetNotifications } from '../util/api'
 import useDeleteNotification from './hooks/useDeleteNotification'
 import setUserInstancePerms from './hooks/useSetUserInstancePerms'
 
-const Notifications = (user) => {
+const Notifications = ({user}) => {
 	const [navOpen, setNavOpen] = useState(false)
 	const [showDeleteBtn, setShowDeleteBtn] = useState(-1)
 	const deleteNotification = useDeleteNotification()
@@ -19,7 +19,7 @@ const Notifications = (user) => {
 
 	const { data: notifications, dataUpdatedAt: updatedAt, status, error} = useQuery({
 		queryKey: 'notifications',
-		enabled: !!user?.username,
+		enabled: !!user.username,
 		refetchInterval: 60000,
 		refetchOnMount: false,
 		refetchOnWindowFocus: true,
@@ -37,7 +37,9 @@ const Notifications = (user) => {
 			setNumNotifications(notificationCount)
 		}
 		else if (status == 'error') {
-			if (error.status == 403 || error.response?.status == 403) window.location.href = '/login?error=invalid_credentials'
+			if (error.status == 403 || error.response?.status == 403) {
+				setErrorMsg({notif_id: 0, msg: 'Permission denied when attempting to get notifications.'})
+			}
 		}
 	},[updatedAt, status])
 
