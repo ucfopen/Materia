@@ -817,6 +817,8 @@ iframe#container {
 	width: 100%;
 	border: none;
 
+	overflow: scroll;
+
 	&.margin-above {
 		margin-top: 25px;
 	}
@@ -945,30 +947,39 @@ iframe#container {
 			}
 	
 			&.preview {
-				margin-top: 65px;
+				margin-top: 45px;
 				border-top: 4px $preview-purple solid;
 	
 				&:before {
 					position: absolute;
 					left: 0;
-					top: -40px;
-					width: 160px;
+					top: -36px;
+					width: fit-content;
 					height: 20px;
-					padding: 8px 0 12px 0;
+					padding: 8px 12px 8px 12px;
 	
 					content: 'Previewing';
 					background: $preview-purple;
 	
-					font-size: 20px;
-					font-weight: 900;
+					font-size: 14px;
+					font-weight: 700;
 				}
 	
 				&:after {
 					position: absolute;
 					right: 0;
-					top: -30px;
+					top: -40px;
 		
 					font-size: 14px;
+					font-weight: 300;
+
+					text-align: right;
+					align-content: end;
+					height: 30px;
+
+					width: 65vw;
+		
+					font-size: 12px;
 					font-weight: 300;
 				}
 			}

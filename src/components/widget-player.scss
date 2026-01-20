@@ -17,7 +17,7 @@ section.widget {
 	left: 20px;
 	right: 20px;
 	bottom: 20px;
-	top: 110px;
+	top: 95px;
 	min-height: 400px;
 	min-width: 400px;
 
@@ -182,6 +182,55 @@ h3 {
 
 		a {
 			color: $color-link-dark;
+		}
+	}
+}
+
+@media (max-width: 720px) {
+	section.widget {
+		left: 10px;
+		right: 10px;
+		bottom: 10px;
+		top: 95px;
+		min-height: 0px;
+		min-width: 0px;
+
+		&.preview {
+			top: 125px;
+		}
+	
+		.preview-bar {
+			height: 32px;
+			padding: 0;
+			margin-top: -36px;
+			min-height: 32px;
+			padding-bottom: 4px;
+	
+			&:before {
+				left: 0px;
+				top: 0px;
+				width: fit-content;
+				height: 20px;
+				
+				padding: 8px 12px 8px 12px;
+	
+				font-size: 14px;
+				font-weight: 700;
+			}
+	
+			&:after {
+				text-align: right;
+				align-content: end;
+				height: 30px;
+	
+				right: 0px;
+				top: 0px;
+
+				width: 65vw;
+	
+				font-size: 12px;
+				font-weight: 300;
+			}
 		}
 	}
 }
