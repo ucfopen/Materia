@@ -103,15 +103,39 @@ class UserViewSet(viewsets.ModelViewSet):
 
             elif self.request.query_params.get("search"):
                 search = self.request.query_params.get("search")
-                return (
-                    User.objects.filter(
-                        Q(first_name__icontains=search)
-                        | Q(last_name__icontains=search)
-                        | Q(email__icontains=search)
+                # Split search to handle "first last" name searches
+                search_terms = search.strip().split()
+
+                if len(search_terms) >= 2:
+                    # Search for first + last name combination
+                    return (
+                        User.objects.filter(
+                            Q(
+                                first_name__icontains=search_terms[0],
+                                last_name__icontains=search_terms[1],
+                            )
+                            | Q(
+                                first_name__icontains=search_terms[1],
+                                last_name__icontains=search_terms[0],
+                            )
+                            | Q(first_name__icontains=search)
+                            | Q(last_name__icontains=search)
+                            | Q(email__icontains=search)
+                        )
+                        .filter(~Q(id=self.request.user.id))
+                        .filter(is_superuser=False)
                     )
-                    .filter(~Q(id=self.request.user.id))
-                    .filter(is_superuser=False)
-                )
+                else:
+                    # Single term search
+                    return (
+                        User.objects.filter(
+                            Q(first_name__icontains=search)
+                            | Q(last_name__icontains=search)
+                            | Q(email__icontains=search)
+                        )
+                        .filter(~Q(id=self.request.user.id))
+                        .filter(is_superuser=False)
+                    )
             # NOBODY should need a full list of all users - not even superusers
             else:
                 return User.objects.none()

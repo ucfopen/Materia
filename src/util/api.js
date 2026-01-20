@@ -201,7 +201,7 @@ export const apiDeleteNotification = ({ notifId, deleteAll }) => {
 
 export const apiSearchUsers = (input = '', page_number = 1) => {
 	const params = new URLSearchParams({ search: input, page: page_number })
-	return handleRequest(methods.GET, `/api/users?${params}`)
+	return handleRequest(methods.GET, `/api/users/?${params}`)
 }
 
 export const apiGetUserPermsForInstance = instId => {
