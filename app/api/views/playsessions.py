@@ -318,8 +318,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"])
     def verify(self, request, pk=None):
         session = LogPlay.objects.get(id=pk)
-
-        if session.is_valid:
+        if request.user == session.user:
             return Response({"status": status.HTTP_200_OK, "valid": True})
         else:
             return Response({"status": status.HTTP_401_UNAUTHORIZED, "valid": False})
