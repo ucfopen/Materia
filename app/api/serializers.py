@@ -780,16 +780,6 @@ class UserExtraAttemptsSerializer(serializers.ModelSerializer):
 
 
 class PlayStorageSaveSerializer(serializers.Serializer):
-
-    class BodySerializer(serializers.Serializer):
-
-        class LogSerializer(serializers.Serializer):
-            name = serializers.CharField()
-            data = serializers.DictField()
-            queueId = serializers.CharField()
-
-        play_id = serializers.CharField()
-        logs = LogSerializer(many=True)
-    
-    body = BodySerializer()
+    play_id = serializers.CharField()
+    logs = serializers.JSONField()
 

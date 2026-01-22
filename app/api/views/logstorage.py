@@ -18,10 +18,8 @@ class PlayStorageSaveView(APIView):
         serializer = PlayStorageSaveSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        body_object = serializer.validated_data["body"]
-
-        play_id = body_object["play_id"]
-        log_data = body_object["logs"]
+        play_id = serializer.validated_data["play_id"]
+        log_data = serializer.validated_data["logs"]
 
         try:
             play = LogPlay.objects.get(id=play_id)

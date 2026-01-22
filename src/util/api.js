@@ -393,10 +393,8 @@ export const apiSavePlayStorage = ({ play_id, logs }) => {
     methods.POST,
     '/api/play_storage_data_save/',
     {
-      body: {
-        "play_id": play_id,
-        "logs": logs
-      }
+      "play_id": play_id,
+      "logs": logs
     },
   )
 }
