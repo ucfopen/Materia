@@ -1,19 +1,44 @@
 import base64
 import json
+from datetime import datetime
 
-from core.models import LogPlay, LogStorage
+from core.models import LogPlay, LogStorage, WidgetInstance, DateRange
 from core.message_exception import MsgNoLogin, MsgInvalidInput
 from core.utils.validator_util import ValidatorUtil
+from core.services.log_storage_service import LogStorageService
+from api.serializers import PlayStorageSaveSerializer
 
+from django.db.models import OuterRef, Subquery
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 
-from api.serializers import PlayStorageSaveSerializer
+import phpserialize
 
 class PlayStorageSaveView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    http_method_names = ["post"]
+    http_method_names = ["post", "get"]
+
+    def get(self, request):
+        inst_id = request.query_params.get("inst_id")
+
+        if not ValidatorUtil.is_valid_hash(inst_id):
+            return MsgInvalidInput(msg="Instance ID is not valid")
+
+        try:
+            instance = WidgetInstance.objects.get(id=inst_id)
+        except WidgetInstance.DoesNotExist:
+            return MsgInvalidInput(msg="No instance found with the given instance id")
+
+        if not instance.playable_by_current_user(request.user):
+            return MsgNoLogin()
+
+        tables = LogStorageService().build_log_tables(inst_id)
+
+        return Response(tables, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = PlayStorageSaveSerializer(data=request.data)

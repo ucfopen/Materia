@@ -551,6 +551,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # Get and validate query params
         export_type = request.query_params.get("type", None)
         semester_ids = request.query_params.get("semesters", "")
+        table = request.query_params.get("table", None)
 
         if export_type is None:
             raise MsgInvalidInput(msg="Missing export_type query parameter")
@@ -559,7 +560,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         is_student = PermService.user_is_student(request.user)
 
         result, file_ext = PlayDataExporterService.export(
-            instance, export_type, semester_ids, is_student
+            instance, export_type, semester_ids, is_student, table
         )
 
         # technically supposed to use DRF's Response here, but it adds additional processing that makes switching
@@ -568,6 +569,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         resp["Pragma"] = "public"
         resp["Expires"] = "0"
         resp["Cache-Control"] = "must-revalidate, post-check=0, pre-check=0"
+        # Doesn't this just re-assign the Content-Type header three times?
         resp["Content-Type"] = "application/force-download"
         resp["Content-Type"] = "application/octet-stream"
         resp["Content-Type"] = "application/download"
