@@ -38,5 +38,5 @@ urlpatterns = [
     path("generate/qset/", generation.GenerateQsetView.as_view()),
     path("generate/from_prompt/", generation.GenerateFromPromptView.as_view()),
     path("lti/<slug:context_id>/instances/", LtiWidgetInstancesInCourseView.as_view()),
-    path("play_storage_data_save/", logstorage.PlayStorageSaveView.as_view()),
+    path("storage/", logstorage.PlayStorageSaveView.as_view()),
 ]

@@ -391,7 +391,7 @@ export const apiSessionVerify = (play_id) => {
 export const apiSavePlayStorage = ({ play_id, logs }) => {
   return handleRequest(
     methods.POST,
-    '/api/play_storage_data_save/',
+    '/api/storage/',
     {
       "play_id": play_id,
       "logs": logs

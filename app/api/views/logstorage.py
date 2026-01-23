@@ -13,6 +13,7 @@ from api.serializers import PlayStorageSaveSerializer
 
 class PlayStorageSaveView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ["post"]
 
     def post(self, request):
         serializer = PlayStorageSaveSerializer(data=request.data)
