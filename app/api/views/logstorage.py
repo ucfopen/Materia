@@ -37,14 +37,17 @@ class PlayStorageSaveView(APIView):
         if ValidatorUtil.is_valid_hash(instance.id) and ValidatorUtil.is_valid_long_hash(play_id):
             for storage_packet in log_data:
                 stringified_data = json.dumps(storage_packet.get("data"))
+
                 byte_data = stringified_data.encode("utf-8")
+                encoded = base64.b64encode(byte_data).decode("ascii")
+
                 logs.append(
                     LogStorage(
                         instance=instance,
                         play_log=play,
                         user=user,
                         name=storage_packet.get("name"),
-                        data=base64.b64encode(byte_data)
+                        data=encoded,
                     )
                 )
 
