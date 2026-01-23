@@ -598,6 +598,40 @@ class Lti(models.Model):
             return self.consumer_guid
 
 
+class LtiPlayState(models.Model):
+    class SubmissionStatus(models.TextChoices):
+        NOT_SUBMITTED = "NOT_SUBMITTED", gettext_lazy("Not Submitted")
+        SUCCESS = "SUCCESS", gettext_lazy("Success")
+        AGS_NOT_INCLUDED = "AGS_NOT_INCLUDED", gettext_lazy("AGS Not Included")
+        NOT_GRADED = "NOT_GRADED", gettext_lazy("Not Graded")
+        ERR_NO_ATTEMPTS = "ERR_NO_ATTEMPTS", gettext_lazy("No Attempts")
+        ERR_FAILURE = "ERR_FAILURE", gettext_lazy("Failure")
+
+    id = models.BigAutoField(primary_key=True)
+    play_id = models.ForeignKey(
+        LogPlay,
+        related_name="play",
+        on_delete=models.PROTECT,
+        db_column="play_id",
+    )
+    lti_association = models.ForeignKey(
+        Lti,
+        related_name="lti_association",
+        on_delete=models.PROTECT,
+        db_column="lti_assoc",
+    )
+    ags_line_item = models.CharField(max_length=255, db_collation="utf8_bin")
+    ags_user_id = models.CharField(max_length=255, db_collation="utf8_bin")
+    ags_scoring_enabled = models.BooleanField(default=True)
+    submission_status = models.CharField(
+        max_length=26,
+        choices=SubmissionStatus.choices,
+        default=SubmissionStatus.NOT_SUBMITTED,
+    )
+    submission_attempts = models.PositiveIntegerField(default=0)
+    last_submitted = models.DateTimeField(default=None, null=True)
+
+
 # this sucks
 # consider redoing the whole 'associate assets with questions that use them' process
 class MapAssetToObject(models.Model):

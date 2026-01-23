@@ -6,7 +6,7 @@ from core.mixins import (
     MateriaLoginNeeded,
     MateriaWidgetPlayProcessor,
 )
-from core.models import User, Widget, WidgetInstance
+from core.models import Lti, LtiPlayState, User, Widget, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.widget_play_services import (
     WidgetPlayInitService,
@@ -22,6 +22,7 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
+from lti.ags.util import AGSUtil
 from lti.mixins import LtiLaunchMixin
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
@@ -167,17 +168,41 @@ class WidgetPlayView(
 
         # do we have an LTI launch?
         # if it is - update the play with LTI flags and pass the token to context
-        launch = LTILaunchService.get_or_recover_widget_launch(self.request)
-        if launch and not instance.guest_access:
-            play.auth = "lti"
-            play.context_id = LTILaunchService.get_context_id(launch)
 
-            # if it's a first-time launch, store in session
-            if LTILaunchService.get_launch_state(launch) == "INITIAL":
-                LTILaunchService.store_session_launch(self.request, play.id, launch)
+        if not instance.guest_access:
+
+            if LTILaunchService.is_initial_launch(self.request):
+                launch_data = LTILaunchService.get_launch_data_from_request(
+                    self.request
+                )
+                play.auth = "lti"
+                play.context_id = LTILaunchService.get_context_id(launch_data)
+
+                launch_resource_link = LTILaunchService.get_resource_link(launch_data)
+
+                play_lti_state = LtiPlayState(
+                    play_id=play.id,
+                    lti_association=Lti.objects.get(resource_link=launch_resource_link),
+                    ags_line_item=AGSUtil.get_line_item_from_launch(launch_data),
+                    ags_user_id=AGSUtil.get_ags_user_id(launch_data),
+                    ags_scoring_enabled=AGSUtil.is_ags_scoring_available(launch_data),
+                )
+                play_lti_state.save()
+
                 lti_token = play.id
-            else:
+
+            elif LTILaunchService.is_recovery_launch(self.request):
                 lti_token = self.request.GET.get("token")
+                prior_lti_state = LtiPlayState.objects.get(play_id=lti_token)
+
+                # use the prior play's lti state as the basis for the new play lti state
+                if prior_lti_state:
+                    prior_lti_state.pk = None
+                    prior_lti_state.play_id = play.id
+                    prior_lti_state.submission_status = "NOT_SUBMITTED"
+                    prior_lti_state.submission_attempts = 0
+                    prior_lti_state.last_submitted = None
+                    prior_lti_state.save()
 
             play.lti_token = lti_token
             play.save()

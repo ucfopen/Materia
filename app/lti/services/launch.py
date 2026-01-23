@@ -2,8 +2,8 @@ import logging
 import re
 
 from core.message_exception import MsgNotFound
-from core.models import Lti, WidgetInstance
-from lti_tool.models import LtiDeployment, LtiLaunch
+from core.models import LogPlay, Lti, LtiPlayState, WidgetInstance
+from lti_tool.models import LtiDeployment, LtiLaunch, LtiRegistration
 from lti_tool.utils import get_launch_from_request
 
 # from pprint import pformat
@@ -91,15 +91,12 @@ class LTILaunchService:
         )
 
     @staticmethod
-    def get_deployment(launch_data):
-        return launch_data.get(
-            "https://purl.imsglobal.org/spec/lti/claim/deployment_id", None
-        )
+    def get_deployment(play_state: LtiPlayState) -> LtiDeployment:
+        return play_state.lti_association.deployment
 
     @staticmethod
-    def get_registration(launch_data):
-        deployment_id = LTILaunchService.get_deployment(launch_data)
-        deployment = LtiDeployment.objects.get(deployment_id=deployment_id)
+    def get_registration(play_state: LtiPlayState) -> LtiRegistration:
+        deployment = LTILaunchService.get_deployment(play_state)
         return deployment.registration if deployment is not None else None
 
     @staticmethod
@@ -210,6 +207,27 @@ class LTILaunchService:
         return launch.get("materia_launch_state", None)
 
     @staticmethod
+    def is_initial_launch(request):
+        launch_id = request.GET.get("lid", None)
+        return launch_id is not None
+
+    @staticmethod
+    def is_recovery_launch(request):
+        token_param = request.GET.get("token")
+        if token_param is not None:
+            return LtiPlayState.objects.filter(play_id=token_param).exists()
+
+        return False
+
+    @staticmethod
+    def get_launch_data_from_request(request):
+        launch_id = request.GET.get("lid", None)
+        if launch_id is not None:
+            launch = get_launch_from_request(request, launch_id)
+            launch_data = None if launch is None else launch.get_launch_data()
+            return launch_data
+
+    @staticmethod
     def get_or_recover_widget_launch(request):
         """
         Gets the launch data associated with a widget launch.
@@ -227,7 +245,7 @@ class LTILaunchService:
         else:
             token_param = request.GET.get("token")
             if token_param is not None:
-                recovery = LTILaunchService.get_session_launch(request, token_param)
+                recovery = LTILaunchService.get_launch_from_play(token_param)
                 if recovery is not None:
                     recovery["materia_launch_state"] = "RECOVERY"
 
@@ -236,11 +254,20 @@ class LTILaunchService:
         return None
 
     @staticmethod
-    def store_session_launch(request, key, launch):
-        request.session[f"lti-launch-{key}"] = launch
-        request.session.modified = True
+    def get_launch_from_play(play_id: str) -> LtiPlayState:
+        play = LogPlay.objects.get(pk=play_id)
+        if play:
+            launch = LtiPlayState.objects.get(play_id=play.id)
+            return launch
 
-        return key
+        return None
+
+    # @staticmethod
+    # def store_session_launch(request, key, launch):
+    #     request.session[f"lti-launch-{key}"] = launch
+    #     request.session.modified = True
+
+    #     return key
 
     @staticmethod
     def get_session_launch(request, key):

@@ -7,7 +7,7 @@ from api.serializers import (
     ScoresForUserSerializer,
 )
 from core.message_exception import MsgExpired, MsgNoPerm
-from core.models import LogPlay, WidgetInstance
+from core.models import LogPlay, LtiPlayState, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
 from lti.services.auth import LTIAuthService
@@ -89,6 +89,7 @@ class ScoresView(APIView):
                         "created_at": play.created_at.isoformat(),
                         "percent": play.percent,
                         "current_context": current_context,
+                        "lti": play.auth == "lti",
                     }
                 )
 
@@ -204,5 +205,20 @@ class ScoresDetailView(APIView):
                     if qset_data
                     else {"version": None, "data": None}
                 )
+
+                response["lti"] = None
+                if play.auth == "lti":
+                    play_state = LtiPlayState.objects.filter(play_id=play.id).first()
+
+                    if play_state is None:
+                        response["lti"] = {
+                            "is_legacy": True,
+                        }
+                    else:
+                        response["lti"] = {
+                            "is_legacy": False,
+                            "status": play_state.submission_status,
+                            "retries": play_state.submission_attempts,
+                        }
 
                 return Response(response)
