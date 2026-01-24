@@ -214,10 +214,14 @@ class LTILaunchService:
     @staticmethod
     def is_recovery_launch(request):
         token_param = request.GET.get("token")
-        if token_param is not None:
-            return LtiPlayState.objects.filter(play_id=token_param).exists()
+        return token_param is not None
 
-        return False
+    # @staticmethod
+    # def get_recovery_launch(request):
+    #     token_param = request.GET.get("token")
+    #     if token_param is not None:
+    #         return LtiPlayState.objects.filter(play_id=token_param)
+    #     return None
 
     @staticmethod
     def get_launch_data_from_request(request):

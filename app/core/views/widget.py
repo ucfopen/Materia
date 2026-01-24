@@ -6,7 +6,7 @@ from core.mixins import (
     MateriaLoginNeeded,
     MateriaWidgetPlayProcessor,
 )
-from core.models import Lti, LtiPlayState, User, Widget, WidgetInstance
+from core.models import LogPlay, Lti, LtiPlayState, User, Widget, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.widget_play_services import (
     WidgetPlayInitService,
@@ -116,9 +116,15 @@ class WidgetPlayView(
 
     def get_validation(self, request, instance):
         context_id = ""
-        launch = LTILaunchService.get_or_recover_widget_launch(request)
-        if launch is not None:
-            context_id = LTILaunchService.get_context_id(launch)
+
+        if LTILaunchService.is_lti_launch(request):
+            launch = LTILaunchService.get_launch_data_from_request(request)
+            if launch is not None:
+                context_id = LTILaunchService.get_context_id(launch)
+
+        elif LTILaunchService.is_recovery_launch(request):
+            play = LogPlay.objects.get(pk=request.GET.get("token"))
+            context_id = play.context_id
 
         # Check if this instance is a guest/demo instance
         has_guest_access = instance.guest_access
@@ -171,6 +177,7 @@ class WidgetPlayView(
 
         if not instance.guest_access:
 
+            # initial launch - launch data is present in request object
             if LTILaunchService.is_initial_launch(self.request):
                 launch_data = LTILaunchService.get_launch_data_from_request(
                     self.request
@@ -181,7 +188,7 @@ class WidgetPlayView(
                 launch_resource_link = LTILaunchService.get_resource_link(launch_data)
 
                 play_lti_state = LtiPlayState(
-                    play_id=play.id,
+                    play=play.id,
                     lti_association=Lti.objects.get(resource_link=launch_resource_link),
                     ags_line_item=AGSUtil.get_line_item_from_launch(launch_data),
                     ags_user_id=AGSUtil.get_ags_user_id(launch_data),
@@ -191,6 +198,7 @@ class WidgetPlayView(
 
                 lti_token = play.id
 
+            # recovery launch - we reference the prior LTI launch state via the LTI token (the original play's ID)
             elif LTILaunchService.is_recovery_launch(self.request):
                 lti_token = self.request.GET.get("token")
                 prior_lti_state = LtiPlayState.objects.get(play_id=lti_token)
@@ -198,13 +206,16 @@ class WidgetPlayView(
                 # use the prior play's lti state as the basis for the new play lti state
                 if prior_lti_state:
                     prior_lti_state.pk = None
-                    prior_lti_state.play_id = play.id
+                    prior_lti_state.play = play.id
                     prior_lti_state.submission_status = "NOT_SUBMITTED"
                     prior_lti_state.submission_attempts = 0
                     prior_lti_state.last_submitted = None
                     prior_lti_state.save()
 
-            play.lti_token = lti_token
+                    play.auth = "lti"
+                    play.context_id = prior_lti_state.play.context_id
+                    play.lti_token = lti_token
+
             play.save()
 
             logger.error(
