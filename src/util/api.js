@@ -76,10 +76,10 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 				return null
 			}
   
-      if(response.headers.get('Content-Type') === 'application/download') {
-        const data = await response.blob()
-        return data
-      }
+			if(response.headers.get('Content-Type') === 'application/download') {
+				const data = await response.blob()
+				return data
+			}
 
 			const data = await response.json()
 			return data
