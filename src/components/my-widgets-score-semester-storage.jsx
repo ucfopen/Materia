@@ -128,33 +128,33 @@ const MyWidgetScoreSemesterStorage = ({semester, instId, setInvalidLogin}) => {
 
 	const handleSearchChange = e => setSearchInput(e.target.value)
 
-  const downloadTable = async (e) => {
-    e.preventDefault();
-    
-    const blob = await apiExportDataStorageTable(
-      instId,
-      state.selectedTableName,
-      `${semester.year}-${semester.term}`,
-      state.anonymous
-    );
-    
-    if (!blob) {
-      console.error('No data received');
-      return;
-    }
-    
-    const url = window.URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${state.selectedTableName}_${semester.year}-${semester.term}.csv`;
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    window.URL.revokeObjectURL(url);
-  };
+	const downloadTable = async (e) => {
+		e.preventDefault();
+		
+		const blob = await apiExportDataStorageTable(
+		instId,
+		state.selectedTableName,
+		`${semester.year}-${semester.term}`,
+		state.anonymous
+		);
+		
+		if (!blob) {
+		console.error('No data received');
+		return;
+		}
+		
+		const url = window.URL.createObjectURL(blob);
+		
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = `${state.selectedTableName}_${semester.year}-${semester.term}.csv`;
+		
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		
+		window.URL.revokeObjectURL(url);
+	};
 
 	let contentRender = (
 		<div className='loading-holder'>
@@ -211,8 +211,8 @@ const MyWidgetScoreSemesterStorage = ({semester, instId, setInvalidLogin}) => {
 					</label>
 					<a className='storage'
 						href="#"
-            onClick={downloadTable}
-          >
+						onClick={downloadTable}
+					>
 						Download Table
 					</a>
 				</div>
