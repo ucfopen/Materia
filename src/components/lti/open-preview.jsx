@@ -31,6 +31,9 @@ const SelectItem = () => {
 				previewEmbedUrl: window.PREVIEW_EMBED_URL
 			}))
 		})
+		const url = new URL(window.location)
+		url.searchParams.set('is_author', '1')
+		history.pushState({}, '', url)
 	}, [])
 
 	useEffect(() => {

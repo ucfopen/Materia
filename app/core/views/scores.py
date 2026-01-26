@@ -87,9 +87,9 @@ def _get_context_data(
     # if there is a token param present, append additional globals to communicate LTI context
     if token:
         js_globals["LTI_TOKEN"] = token
-        launch = LTILaunchService.get_session_launch(request, token)
-        if launch:
-            js_globals["CONTEXT_ID"] = LTILaunchService.get_context_id(launch)
+        play_assoc = LogPlay.objects.filter(pk=token).first()
+        if play_assoc:
+            js_globals["CONTEXT_ID"] = play_assoc.context_id
     else:
         if LTILaunchService.is_lti_launch(request):
             js_globals["LTI_EMBEDDED"] = True

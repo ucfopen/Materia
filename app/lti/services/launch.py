@@ -36,8 +36,6 @@ class LTILaunchService:
             """
             A legacy LTI 1.1 association already exists
             Upgrade the record to LTI 1.3 by replacing the 1p1 resource link
-
-            TODO THIS REALLY NEEDS TESTING
             """
             legacy_association.deployment = deployment
             legacy_association.resource_link = resource_link_1p3
@@ -203,25 +201,14 @@ class LTILaunchService:
         return context_claim.get("title", "Untitled Context")
 
     @staticmethod
-    def get_launch_state(launch):
-        return launch.get("materia_launch_state", None)
-
-    @staticmethod
-    def is_initial_launch(request):
+    def is_initial_launch(request) -> bool:
         launch_id = request.GET.get("lid", None)
         return launch_id is not None
 
     @staticmethod
-    def is_recovery_launch(request):
+    def is_recovery_launch(request) -> bool:
         token_param = request.GET.get("token")
         return token_param is not None
-
-    # @staticmethod
-    # def get_recovery_launch(request):
-    #     token_param = request.GET.get("token")
-    #     if token_param is not None:
-    #         return LtiPlayState.objects.filter(play_id=token_param)
-    #     return None
 
     @staticmethod
     def get_launch_data_from_request(request):
@@ -232,32 +219,6 @@ class LTILaunchService:
             return launch_data
 
     @staticmethod
-    def get_or_recover_widget_launch(request):
-        """
-        Gets the launch data associated with a widget launch.
-        Requires one of two query params to be present:
-        lid: launch id. This is the uuid created by pylti1p3. Provided in initial resource launch.
-        token: play id. Used to recover a launch that's already been put into session.
-        """
-        launch_id = request.GET.get("lid", None)
-        if launch_id is not None:
-            launch = get_launch_from_request(request, launch_id)
-            launch_data = None if launch is None else launch.get_launch_data()
-            launch_data["materia_launch_state"] = "INITIAL"
-            return launch_data
-
-        else:
-            token_param = request.GET.get("token")
-            if token_param is not None:
-                recovery = LTILaunchService.get_launch_from_play(token_param)
-                if recovery is not None:
-                    recovery["materia_launch_state"] = "RECOVERY"
-
-                return recovery
-
-        return None
-
-    @staticmethod
     def get_launch_from_play(play_id: str) -> LtiPlayState:
         play = LogPlay.objects.get(pk=play_id)
         if play:
@@ -265,15 +226,3 @@ class LTILaunchService:
             return launch
 
         return None
-
-    # @staticmethod
-    # def store_session_launch(request, key, launch):
-    #     request.session[f"lti-launch-{key}"] = launch
-    #     request.session.modified = True
-
-    #     return key
-
-    @staticmethod
-    def get_session_launch(request, key):
-        launch = request.session.get(f"lti-launch-{key}", None)
-        return launch

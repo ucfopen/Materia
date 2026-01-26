@@ -226,7 +226,7 @@ class WidgetPlayView(
 
     # overrides the baseline LTILaunchMixin's launch success method
     # validate whether we should render an actual play or another state
-    def on_lti_launch_success(self, request, launch):
+    def on_lti_launch_success(self, request):
         inst_id = self.kwargs.get("widget_instance_id")
         instance = WidgetInstance.objects.filter(pk=inst_id).first()
         context = None
@@ -234,35 +234,53 @@ class WidgetPlayView(
         if instance is None:
             return lti_error_page(request, "error_unknown_assignment")
 
-        if LTIAuthService.is_user_course_author(launch):
-            if instance.guest_access:
-                return lti_error_page(request, "error_lti_guest_mode")
+        if instance.guest_access:
+            return lti_error_page(request, "error_lti_guest_mode")
 
-            # check to see if the current user has either:
-            # a. unrestricted permissions to the instance (context_id == None) OR
-            # b. restricted permission to the instance for the current context ID
-            context_id = LTILaunchService.get_context_id(launch)
-            has_visibility = (
-                instance.permissions.filter(user=request.user)
-                .filter(Q(context_id__isnull=True) | Q(context_id=context_id))
-                .exists()
-            )
+        if LTILaunchService.is_initial_launch(request):
+            launch = LTILaunchService.get_launch_data_from_request(request)
 
-            # current user IS an author in the course but does NOT have access
-            # grant them implicit access and provide the provisional flag to the frontend
-            if not has_visibility:
-                instance.permissions.create(
-                    user=request.user, permission="visible", context_id=context_id
+            if not launch:
+                return lti_error_page(request, "error_launch_recovery")
+
+            if LTIAuthService.is_user_course_author(launch):
+                # check to see if the current user has either:
+                # a. unrestricted permissions to the instance (context_id == None) OR
+                # b. restricted permission to the instance for the current context ID
+                context_id = LTILaunchService.get_context_id(launch)
+                has_visibility = (
+                    instance.permissions.filter(user=request.user)
+                    .filter(Q(context_id__isnull=True) | Q(context_id=context_id))
+                    .exists()
                 )
-                context = _create_lti_success_page(request, instance, provisional=True)
 
-            # current user is an author and already has access
-            else:
-                context = _create_lti_success_page(request, instance)
+                # current user IS an author in the course but does NOT have access
+                # grant them implicit access and provide the provisional flag to the frontend
+                if not has_visibility:
+                    instance.permissions.create(
+                        user=request.user,
+                        permission="visible",
+                        context_id=context_id,
+                    )
+                    context = _create_lti_success_page(
+                        request, instance, provisional=True
+                    )
 
-        # LTI associations are registered during play view init, instead of deep linking
-        # This behavior is carried over from PHP Materia
-        LTILaunchService.register_association(launch, request.user, instance)
+                # current user is an author and already has access
+                else:
+                    context = _create_lti_success_page(request, instance)
+
+            # LTI associations are registered during play view init, instead of deep linking
+            # This behavior is carried over from PHP Materia
+            LTILaunchService.register_association(launch, request.user, instance)
+
+        # edge case where the instructor refreshes the LTI preview page
+        # since LTI launch data is not stored in session,
+        # we fall back to the is_author GET param which is appended via the open-preview component
+        elif LTILaunchService.is_recovery_launch(request) and request.GET.get(
+            "is_author"
+        ):
+            context = _create_lti_success_page(request, instance)
 
         if context:
             return render(request, "react.html", context)
