@@ -59,6 +59,9 @@ class PlayStorageSaveView(APIView):
             return MsgNoLogin(request=request)
         
         logs = []
+
+        if instance.guest_access:
+            user = None
         
         if ValidatorUtil.is_valid_hash(instance.id) and ValidatorUtil.is_valid_long_hash(play_id):
             for storage_packet in log_data:
