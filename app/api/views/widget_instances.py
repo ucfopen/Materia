@@ -552,6 +552,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         export_type = request.query_params.get("type", None)
         semester_ids = request.query_params.get("semesters", "")
         table = request.query_params.get("table", None)
+        anonymous = request.query_params.get("anonymous") == "true"
 
         if export_type is None:
             raise MsgInvalidInput(msg="Missing export_type query parameter")
@@ -560,7 +561,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         is_student = PermService.user_is_student(request.user)
 
         result, file_ext = PlayDataExporterService.export(
-            instance, export_type, semester_ids, is_student, table
+            instance, export_type, semester_ids, is_student, table, anonymous
         )
 
         # technically supposed to use DRF's Response here, but it adds additional processing that makes switching

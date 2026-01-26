@@ -20,7 +20,8 @@ class PlayDataExporterService:
         export_type: str,
         semesters_string: str,
         is_student: bool,
-        table: str | None = None
+        table: str | None = None,
+        anonymous: bool | None = None,
     ) -> tuple[str | bytes, str]:
         semesters = semesters_string.split(",")
 
@@ -47,7 +48,7 @@ class PlayDataExporterService:
                 )
             case 'storage':
                 return PlayDataExporterService._export_storage_logs(
-                    instance, semesters, table
+                    instance, semesters, table, anonymous
                 )
             case _:
                 # Check the widget for its custom playdata exporters
@@ -91,9 +92,9 @@ class PlayDataExporterService:
     
     @staticmethod
     def _export_storage_logs(
-        instance: WidgetInstance, semester: str, table_name: str
+        instance: WidgetInstance, semester: str, table_name: str, anonymous: bool
     ):
-        tables = LogStorageService().build_log_tables(instance.id, semester)
+        tables = LogStorageService().build_log_tables(instance.id, semester, anonymous)
         
         table = tables.get(table_name, None)
 

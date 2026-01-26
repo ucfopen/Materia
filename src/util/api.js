@@ -263,8 +263,8 @@ export const apiGetWidgetLock = (id = null) => {
  * @param {string} input (letters only)
  * @returns {array} of matches
  */
-export const apiExportDataStorageTable = (instId, table, semester) => {
-  const url = `/api/instances/${instId}/export_playdata/?type=storage&table=${table}&semesters=${semester}`
+export const apiExportDataStorageTable = (instId, table, semester, anonymous) => {
+  const url = `/api/instances/${instId}/export_playdata/?type=storage&table=${table}&semesters=${semester}&anonymous=${anonymous}`
   return handleRequest(methods.GET, url)
 }
 

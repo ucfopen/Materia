@@ -11,7 +11,8 @@ class LogStorageService():
     def build_log_tables(
         self,
         instance_id: str, 
-        semester: str | None = None
+        semester: str | None = None,
+        anonymize: bool = False
     ):
         """
         Builds grouped log tables keyed by table name.
@@ -59,6 +60,7 @@ class LogStorageService():
         
         tables = {}
         students = {}
+        anon_index = 0
         User = get_user_model()
         for q in qs:
             table_name = q.name
@@ -71,17 +73,40 @@ class LogStorageService():
                 data = json.loads(raw)
             data = dict(sorted(data.items()))
             if q.user_id not in students:
-                students[q.user_id] = (
-                    User.objects
-                    .filter(id=q.user_id)
-                    .only("id", "username", "first_name", "last_name")
-                    .first()
-                )
+                if anonymize:
+                    students[q.user_id] = {
+                        "username": f"user{anon_index}",
+                        "first_name": "User",
+                        "last_name": str(anon_index),
+                    }
+                    anon_index += 1
+                else:
+                    user = (
+                        User.objects
+                        .filter(id=q.user_id)
+                        .only("username", "first_name", "last_name")
+                        .first()
+                    )
+                    students[q.user_id] = user
             student = students.get(q.user_id)
+
+            if isinstance(student, dict):
+                username = student["username"]
+                first = student["first_name"]
+                last = student["last_name"]
+            elif student:
+                username = student.username
+                first = student.first_name
+                last = student.last_name
+            else:
+                username = "Guest"
+                first = ""
+                last = ""
+
             play = {
-                "user": student.username if student else "Guest",
-                "firstName": student.first_name if student else "",
-                "lastName": student.last_name if student else "",
+                "user": username,
+                "firstName": first,
+                "lastName": last,
                 "time": q.created_at,
                 "cleanTime": q.created_at.strftime("%m/%d/%Y %H:%M:%S %Z"),
                 "play_id": q.play_log.id,

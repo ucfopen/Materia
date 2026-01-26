@@ -134,7 +134,8 @@ const MyWidgetScoreSemesterStorage = ({semester, instId, setInvalidLogin}) => {
     const blob = await apiExportDataStorageTable(
       instId,
       state.selectedTableName,
-      `${semester.year}-${semester.term}`
+      `${semester.year}-${semester.term}`,
+      state.anonymous
     );
     
     if (!blob) {
@@ -196,12 +197,6 @@ const MyWidgetScoreSemesterStorage = ({semester, instId, setInvalidLogin}) => {
 				</p>
 			)
 		}
-
-		// This URL string is otherwise huge and nasty, so it's built in multiple steps for readability.
-		const downloadUrlBase = `/data/export/${instId}?type=storage`
-		const tableValue = `table=${encodeURIComponent(state.selectedTableName)}`
-		const semestersValue = `semesters=${semester.year}-${semester.term}`
-		const downloadUrlString = `${downloadUrlBase}&${tableValue}&${semestersValue}&anonymized=${state.anonymous}`
 
 		contentRender = (
 			<>
