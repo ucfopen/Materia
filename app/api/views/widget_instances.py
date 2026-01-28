@@ -268,7 +268,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         elif play_id is not None:
-            play_id_serializer = PlayIdSerializer(data=play_id)
+            play_id_serializer = PlayIdSerializer(data={"play_id": play_id})
             if play_id_serializer.is_valid(raise_exception=True):
                 qset = instance.get_qset_for_play(play_id)
                 serializer = QuestionSetSerializer(qset)
