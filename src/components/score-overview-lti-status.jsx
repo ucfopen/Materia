@@ -66,7 +66,6 @@ const ScoreOverviewLtiStatus = ({ lti, single, playId }) => {
 	}
 	else {
 		const article = single ? 'The' : 'Your'
-		console.log('rendering status based on value: ' + status)
 		switch (status) {
 			case 'SUCCESS':
 				ltiContentBody = (

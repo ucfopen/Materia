@@ -149,11 +149,69 @@
 			}
 
 			.score-link {
-				display: block;
-				min-height: 50px;
-				padding: 5px;
-				border-bottom: #d8d8d8 1px solid;
 				position: relative;
+				display: flex;
+				flex-direction: column;
+				min-height: 50px;
+				padding: 0.25em 0.25em 0.25em 55px;
+				border-bottom: #d8d8d8 1px solid;
+
+				&:hover {
+					text-decoration: none;
+				}
+
+				.score {
+					display: block;
+					position: absolute;
+					left: 5px;
+					top: 10px;
+					width: 40px;
+					background: #0093e7;
+					color: #fff;
+					border-radius: 3px;
+					font-size: 28px;
+					min-height: 28px;
+					font-weight: 700;
+					text-align: center;
+					overflow: hidden;
+					padding-top: 2px;
+					padding-bottom: 4px;
+					height: inherit;
+				}
+
+				.date {
+					display: block;
+					position: absolute;
+					right: 5px;
+					top: 5px;
+					text-align: right;
+					color: #a4a4a4;
+					font-size: 11px;
+					font-weight: 700;
+				}
+
+				.widget {
+					display: block;
+					margin-top: 0.5em;
+					text-align: left;
+					font-family: 'LatoBlack', arial, serif;
+					color: #7b7b7b;
+					font-size: 11px;
+					font-weight: 700;
+					text-transform: uppercase;
+				}
+
+				.title {
+					font-size: 17px;
+				}
+
+				.status {
+					position: absolute;
+					bottom: 5px;
+					right: 5px;
+					color: $light-gray;
+					font-size: 1.1em;
+				}
 			}
 
 			&.complete {
@@ -178,64 +236,6 @@
 				font-size: 21px;
 				padding-top: 6px;
 				padding-bottom: 6px;
-			}
-
-			.score {
-				display: block;
-				position: absolute;
-				left: 5px;
-				top: 10px;
-				width: 40px;
-				background: #0093e7;
-				color: #fff;
-				border-radius: 3px;
-				font-size: 28px;
-				min-height: 28px;
-				font-weight: 700;
-				text-align: center;
-				overflow: hidden;
-				padding-top: 2px;
-				padding-bottom: 4px;
-				height: inherit;
-			}
-
-			.date {
-				display: block;
-				position: absolute;
-				right: 5px;
-				top: 5px;
-				text-align: right;
-				color: #a4a4a4;
-				font-size: 11px;
-				font-weight: 700;
-			}
-
-			.widget {
-				display: block;
-				text-align: left;
-				font-family: 'LatoBlack', arial, serif;
-				color: #7b7b7b;
-				font-size: 11px;
-				font-weight: 700;
-				text-transform: uppercase;
-				position: absolute;
-				left: 55px;
-				top: 10px;
-			}
-
-			.title {
-				font-size: 17px;
-				position: absolute;
-				left: 55px;
-				top: 22px;
-			}
-
-			.status {
-				position: absolute;
-				top: 12px;
-				right: 1px;
-				color: $very-light-gray;
-				font-size: 30px;
 			}
 		}
 

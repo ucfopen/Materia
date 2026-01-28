@@ -8,8 +8,6 @@ const ScoreOverview = ({instId, playId, isSingle, overview, attemptNum, isPrevie
 
 	const [showGraph, setShowGraph] = useState(null)
 
-	console.log("score overview rerender")
-
 	// Gets score summary
 	const { data: scoreSummary } = useQuery({
 		queryKey: ['score-summary', instId],
