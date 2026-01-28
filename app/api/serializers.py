@@ -777,3 +777,9 @@ class UserExtraAttemptsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserExtraAttempts
         fields = "__all__"
+
+
+class PlayStorageSaveSerializer(serializers.Serializer):
+    play_id = serializers.CharField()
+    logs = serializers.JSONField()
+

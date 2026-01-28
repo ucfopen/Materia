@@ -77,6 +77,7 @@ class HasFullPerms(permissions.BasePermission):
         user = request.user
         if not user or not user.is_authenticated:
             return False
+        return True
 
     def has_object_permission(self, request, view, obj):
         user = request.user

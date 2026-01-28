@@ -3,6 +3,10 @@
 import os
 from pathlib import Path
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+
 from core.utils.validator_util import ValidatorUtil
 
 from .apps import *  # noqa: F401, F403
@@ -192,3 +196,15 @@ EMAIL_SSL_CERTFILE = os.environ.get("EMAIL_SSL_CERTFILE")
 # Sendgrid config
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+
+# Sentry config
+SENTRY_DSN = os.environ.get("SENTRY_DSN")
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        environment=os.environ.get("SENTRY_ENVIRONMENT", "development"),
+        send_default_pii=True,
+        # 0.1 is 10% of transactions sent to Sentry. can replace with `traces_sampler` later for more control
+        traces_sample_rate=0.1,
+    )

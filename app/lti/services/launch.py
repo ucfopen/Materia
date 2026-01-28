@@ -154,7 +154,7 @@ class LTILaunchService:
             "https://purl.imsglobal.org/spec/lti/claim/target_link_uri"
         )
 
-        if re.search(r"(?:embed|play)/[A-Za-z0-9]{5,}/[A-Za-z0-9\-]*/?$", uri_claim):
+        if re.search(r"(?:embed|play)/[A-Za-z0-9]{5,}/[A-Za-z0-9\-_]*/?$", uri_claim):
             return True
 
         return False

@@ -388,9 +388,15 @@ export const apiSessionVerify = (play_id) => {
 	})
 }
 
-// TODO update or retire
 export const apiSavePlayStorage = ({ play_id, logs }) => {
-	return handleRequest(methods.POST, '/api/json/play_storage_data_save/', ({ body: `data=${formatFetchBody([play_id, logs])}` }))
+  return handleRequest(
+    methods.POST,
+    '/api/storage/',
+    {
+      "play_id": play_id,
+      "logs": logs
+    },
+  )
 }
 
 export const apiSavePlayLogs = ({ request }) => {
