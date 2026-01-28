@@ -1,20 +1,55 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { useQuery } from 'react-query'
 import { apiPlayResubmit } from '../util/api'
 
 
 const ScoreOverviewLtiStatus = ({ lti, single, playId }) => {
 
-	const MAX_SUBMISSIONS = 3
-	const canResubmit = lti.submission_available && MAX_SUBMISSIONS - lti.submit_attempts > 0
+	const [status, setStatus] = useState(lti.status)
+	const [attempts, setAttempts] = useState(lti.submit_attempts)
 
-	const { data: result, refetch: queryResubmit, isFetching } = useQuery({
+	const MAX_SUBMISSIONS = 3
+	const canResubmit = lti.submission_available && MAX_SUBMISSIONS - attempts > 0
+
+	const { data: result, error, refetch: queryResubmit, isFetching } = useQuery({
 		queryKey: ['resubmit', playId],
-		queryFn: () => apiPlayResubmit(playId),
+		queryFn: async () => {
+			try {
+				const data = await apiPlayResubmit(playId)
+				return { success: true, status: 'SUCCESS', ...data }
+			} catch (err) {
+				if (err.data?.status) {
+					return { success: false, status: err.data.status, httpStatus: err.status }
+				}
+				return { success: false, message: err.message, httpStatus: err.status }
+			}
+		},
 		staleTime: Infinity,
 		retry: false,
 		enabled: false
 	})
+
+	useEffect(() => {
+		if (!!lti?.status) {
+			setStatus((status) => lti.status)
+			setAttempts((attempts) => lti.submit_attempts)
+		}
+	},[lti?.status])
+
+	useEffect(() => {
+		if (result) {
+
+			if (result.status) {
+				setStatus(result.status)
+			}
+
+			// Increment attempts if the resubmission was attempted
+			// (both 200 and 403 responses mean a submission was attempted)
+			if (result.httpStatus === 403 || result.success === true) {
+				setAttempts((attempts) => attempts + 1)
+			}
+		}
+	}, [result])
 
 	const handleRequestResubmit = (e) => {
 		if (canResubmit) queryResubmit()
@@ -31,7 +66,8 @@ const ScoreOverviewLtiStatus = ({ lti, single, playId }) => {
 	}
 	else {
 		const article = single ? 'The' : 'Your'
-		switch (lti.status) {
+		console.log('rendering status based on value: ' + status)
+		switch (status) {
 			case 'SUCCESS':
 				ltiContentBody = (
 					<>
@@ -60,7 +96,7 @@ const ScoreOverviewLtiStatus = ({ lti, single, playId }) => {
 			case 'ERR_FAILURE':
 				let resubmitContent = null
 				const submitAvailableText = canResubmit ? 
-					<p>You can retry {MAX_SUBMISSIONS - lti.submit_attempts} more times.</p> :
+					<p>You can retry {MAX_SUBMISSIONS - attempts} more times.</p> :
 					<p>Submission retries are no longer available.</p>
 				resubmitContent = (
 					<div className="resubmit-section">
@@ -88,7 +124,7 @@ const ScoreOverviewLtiStatus = ({ lti, single, playId }) => {
 	}
 
 	return (
-		<section className={`lti-status ${lti.is_legacy ? 'legacy' : ''} ${ lti.status ? lti.status : '' }`}>
+		<section className={`lti-status ${lti.is_legacy ? 'legacy' : ''} ${ status ? status : '' }`}>
 			{ltiContentBody}
 		</section>
 	)

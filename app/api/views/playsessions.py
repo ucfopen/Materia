@@ -264,6 +264,10 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         Requires a valid play ID with an attached LtiPlayState record.
         Resubmission is only allowed if prior submission attempts failed and
         the submission count is below the submission limit (3)
+
+        Returns 200 on a successful submission
+        Returns 403 on a submission failure (AGS returned an error response)
+        Returns 400 when the submission request is invalid (the submission was not attempted)
         """
         play = LogPlay.objects.get(pk=pk)
         self.check_object_permissions(request, play)
@@ -275,26 +279,10 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
                 if submit_status == LtiPlayState.SubmissionStatus.SUCCESS:
                     return Response({"success": True}, status=status.HTTP_200_OK)
-                elif submit_status == LtiPlayState.SubmissionStatus.ERR_FAILURE:
-                    return Response(
-                        {
-                            "success": False,
-                            "status": submit_status,
-                        },
-                        status=status.HTTP_403_FORBIDDEN,
-                    )
-                elif submit_status == LtiPlayState.SubmissionStatus.ERR_NO_ATTEMPTS:
-                    return Response(
-                        {
-                            "success": False,
-                            "status": submit_status,
-                        },
-                        status=status.HTTP_403_FORBIDDEN,
-                    )
                 else:
                     return Response(
                         {"success": False, "status": submit_status},
-                        status=status.HTTP_400_BAD_REQUEST,
+                        status=status.HTTP_403_FORBIDDEN,
                     )
             else:
                 return Response(
