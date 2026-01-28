@@ -188,7 +188,7 @@ class WidgetPlayView(
                 launch_resource_link = LTILaunchService.get_resource_link(launch_data)
 
                 play_lti_state = LtiPlayState(
-                    play=play.id,
+                    play=play,
                     lti_association=Lti.objects.get(resource_link=launch_resource_link),
                     ags_line_item=AGSUtil.get_line_item_from_launch(launch_data),
                     ags_user_id=AGSUtil.get_ags_user_id(launch_data),
@@ -205,16 +205,17 @@ class WidgetPlayView(
 
                 # use the prior play's lti state as the basis for the new play lti state
                 if prior_lti_state:
-                    prior_lti_state.pk = None
-                    prior_lti_state.play = play.id
-                    prior_lti_state.submission_status = "NOT_SUBMITTED"
-                    prior_lti_state.submission_attempts = 0
-                    prior_lti_state.last_submitted = None
-                    prior_lti_state.save()
 
                     play.auth = "lti"
                     play.context_id = prior_lti_state.play.context_id
                     play.lti_token = lti_token
+
+                    prior_lti_state.pk = None
+                    prior_lti_state.play = play
+                    prior_lti_state.submission_status = "NOT_SUBMITTED"
+                    prior_lti_state.submission_attempts = 0
+                    prior_lti_state.last_submitted = None
+                    prior_lti_state.save()
 
             play.save()
 

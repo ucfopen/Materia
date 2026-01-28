@@ -60,8 +60,6 @@ class AGSService:
 
             play_state.submission_status = LtiPlayState.SubmissionStatus.SUCCESS
             play_state.last_submitted = timezone.now()
-            play_state.submission_attempts = play_state.submission_attempts + 1
-            play_state.save()
 
             logger.error(
                 f"LTI-AGS: successfully transmitted " f"completion for play {play.id}"
@@ -71,7 +69,6 @@ class AGSService:
             play_state.submission_status = (
                 LtiPlayState.SubmissionStatus.AGS_NOT_INCLUDED
             )
-            play_state.save()
 
             logger.error(f"LTI-AGS: AGS claim not defined for play {play.id}")
 
@@ -79,32 +76,51 @@ class AGSService:
             play_state.submission_status = (
                 LtiPlayState.SubmissionStatus.AGS_NOT_INCLUDED
             )
-            play_state.save()
 
             logger.error(
                 f"LTI-AGS: no AGS operations performed; "
                 f"a line item was not provided for play {play.id}"
             )
 
+        # The remaining exceptions come from requests's raise_for_status() method
         except Exception as e:
-            # Try to extract response details if available
-            response_code = getattr(e, "response", None)
-            if response_code and hasattr(response_code, "status_code"):
-                status = response_code.status_code
-                message = response_code.text
-                logger.error(
-                    f"LTI-AGS: failed to submit score for play {play.id}. "
-                    f"Status: {status}, Message: {message}"
-                )
-            else:
-                logger.error(
-                    f"LTI-AGS: failed to submit score for play {play.id}. "
-                    f"Error: {str(e)}"
-                )
-            # @TODO based on exception content, update submission status to NO_ATTEMPTS
-            # or filter by additional clauses
+            if 1 == 2:
+                # Canvas responds with a 422 when the attempt limit is reached OR
+                # if the AGS payload is invalid
+                # Because of that we have to inspect the message body as well
+                if e.response.status_code == 422:
+                    body = e.response.json()
+                    if (
+                        "errors" in body
+                        and "message" in body["errors"]
+                        and "maximum number of allowed attempts"
+                        in body["errors"]["message"].lower()
+                    ):
+                        play_state.submission_status = (
+                            LtiPlayState.SubmissionStatus.ERR_NO_ATTEMPTS
+                        )
+                        logger.error(
+                            f"LTI-AGS: Maximum attempts reached for play {play.id}"
+                        )
 
-            play_state.submission_status = LtiPlayState.SubmissionStatus.ERR_FAILURE
-            play_state.save()
+                # a non-422 is a general error (potentially a 500)
+                # this is officially ERR_FAILURE
+                else:
+                    logger.error(
+                        f"LTI-AGS: failed to submit score for play {play.id}. "
+                        f"Error: {str(e)}"
+                    )
+
+                    play_state.submission_status = (
+                        LtiPlayState.SubmissionStatus.ERR_FAILURE
+                    )
+            else:
+                play_state.submission_status = LtiPlayState.SubmissionStatus.ERR_FAILURE
+
+        play_state.submission_attempts = play_state.submission_attempts + 1
+        play_state.save()
+
+        logger.error(play_state.submission_status)
+        logger.error(play_state.submission_attempts)
 
         return play_state.submission_status

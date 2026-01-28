@@ -10,6 +10,7 @@ from core.message_exception import MsgExpired, MsgNoPerm
 from core.models import LogPlay, LtiPlayState, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
+from django.utils import timezone
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -218,7 +219,11 @@ class ScoresDetailView(APIView):
                         response["lti"] = {
                             "is_legacy": False,
                             "status": play_state.submission_status,
-                            "retries": play_state.submission_attempts,
+                            "submit_attempts": play_state.submission_attempts,
+                            "submission_available": (
+                                timezone.now() - play.created_at
+                            ).total_seconds()
+                            <= 86400,
                         }
 
                 return Response(response)

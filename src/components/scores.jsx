@@ -207,6 +207,10 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 				table: Array.from(playScores.overview.table)
 			}
 
+			if (playScores.lti) {
+				overview.lti = { ...playScores.lti }
+			}
+
 			let details = {
 				...playScores.details[0],
 				table: Array.from(playScores.details[0].table)
@@ -535,8 +539,9 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	let overviewRender = null
 	if (!errorState && attributes.showScoresOverview && !!playData.overview) {
 		overviewRender = <ScoreOverview
-			inst_id={instID}
-			single_id={null}
+			instId={instID}
+			playId={playID}
+			isSingle={isSingle}
 			overview={playData.overview}
 			attemptNum={currentAttempt}
 			isPreview={isPreview}

@@ -265,7 +265,8 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         Resubmission is only allowed if prior submission attempts failed and
         the submission count is below the submission limit (3)
         """
-        play = self.get_object()
+        play = LogPlay.objects.get(pk=pk)
+        self.check_object_permissions(request, play)
         play_state = LtiPlayState.objects.get(play_id=play.id)
 
         if play_state.submission_status == LtiPlayState.SubmissionStatus.ERR_FAILURE:
@@ -273,22 +274,35 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 submit_status = AGSService.submit_score_for_play(play)
 
                 if submit_status == LtiPlayState.SubmissionStatus.SUCCESS:
-                    return Response({"status": status.HTTP_200_OK, "success": True})
+                    return Response({"success": True}, status=status.HTTP_200_OK)
                 elif submit_status == LtiPlayState.SubmissionStatus.ERR_FAILURE:
                     return Response(
-                        {"status": status.HTTP_400_BAD_REQUEST, "success": False}
+                        {
+                            "success": False,
+                            "status": submit_status,
+                        },
+                        status=status.HTTP_403_FORBIDDEN,
                     )
                 elif submit_status == LtiPlayState.SubmissionStatus.ERR_NO_ATTEMPTS:
                     return Response(
-                        {"status": status.HTTP_403_FORBIDDEN, "success": False}
+                        {
+                            "success": False,
+                            "status": submit_status,
+                        },
+                        status=status.HTTP_403_FORBIDDEN,
                     )
                 else:
                     return Response(
-                        {"status": status.HTTP_400_BAD_REQUEST, "success": False}
+                        {"success": False, "status": submit_status},
+                        status=status.HTTP_400_BAD_REQUEST,
                     )
             else:
                 return Response(
-                    {"status": status.HTTP_400_BAD_REQUEST, "success": False}
+                    {"success": False, "message": "No remaining retry attempts."},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
         else:
-            return Response({"status": status.HTTP_403_FORBIDDEN, "success": False})
+            return Response(
+                {"success": False, "message": "Invalid play state for resubmission."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

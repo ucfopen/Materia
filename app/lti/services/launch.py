@@ -25,7 +25,7 @@ class LTILaunchService:
         resource_link_1p1 = LTILaunchService.get_resource_link_1p1(launch)
         resource_link_1p3 = LTILaunchService.get_resource_link(launch)
 
-        launch_deployment = LTILaunchService.get_deployment(launch)
+        launch_deployment = LTILaunchService.get_deployment_from_launch(launch)
         deployment = LtiDeployment.objects.get(deployment_id=launch_deployment)
 
         legacy_association = Lti.objects.filter(
@@ -91,6 +91,11 @@ class LTILaunchService:
     @staticmethod
     def get_deployment(play_state: LtiPlayState) -> LtiDeployment:
         return play_state.lti_association.deployment
+
+    def get_deployment_from_launch(launch: dict) -> LtiDeployment:
+        return launch.get(
+            "https://purl.imsglobal.org/spec/lti/claim/deployment_id", None
+        )
 
     @staticmethod
     def get_registration(play_state: LtiPlayState) -> LtiRegistration:

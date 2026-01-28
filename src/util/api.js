@@ -403,6 +403,10 @@ export const apiSavePlayLogs = ({ request }) => {
 	return handleRequest(methods.PUT, `/api/play-sessions/${request.playId}/`, { ...request })
 }
 
+export const apiPlayResubmit = (play_id) => {
+	return handleRequest(methods.POST, `/api/play-sessions/${play_id}/resubmit/`)
+}
+
 export const apiGetQuestionsByType = (arrayOfQuestionIds, questionTypes) => {
 	return handleRequest(methods.POST, '/api/user/get_questions/', { ids: arrayOfQuestionIds, types: questionTypes })
 		.then(data => {

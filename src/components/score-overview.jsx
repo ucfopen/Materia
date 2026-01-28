@@ -2,17 +2,18 @@ import React, { useState, useEffect } from 'react'
 import { apiGetScoreSummary } from '../util/api'
 import { useQuery } from 'react-query'
 import BarGraph from './bar-graph'
+import ScoreOverviewLtiStatus from './score-overview-lti-status'
 
-const ScoreOverview = ({inst_id, single_id, overview, attemptNum, isPreview, guestAccess}) => {
+const ScoreOverview = ({instId, playId, isSingle, overview, attemptNum, isPreview, guestAccess}) => {
 
 	const [showGraph, setShowGraph] = useState(null)
 
 	// Gets score summary
 	const { data: scoreSummary } = useQuery({
-		queryKey: ['score-summary', inst_id],
-		queryFn: () => apiGetScoreSummary(inst_id),
+		queryKey: ['score-summary', instId],
+		queryFn: () => apiGetScoreSummary(instId),
 		staleTime: Infinity,
-		enabled: !!inst_id && !single_id,
+		enabled: !!instId,
 		retry: false
 	})
 
@@ -46,6 +47,11 @@ const ScoreOverview = ({inst_id, single_id, overview, attemptNum, isPreview, gue
 			</tr>
 		)
 	})
+
+	let overviewLtiStatus = null
+	if (overview.lti) {
+		overviewLtiStatus = <ScoreOverviewLtiStatus lti={overview.lti} single={isSingle} playId={playId} />
+	}
 
 	let classRankBtn = null
 	if (!isPreview && scoreSummary) {
@@ -85,6 +91,7 @@ const ScoreOverview = ({inst_id, single_id, overview, attemptNum, isPreview, gue
 							{overviewTable}
 						</tbody>
 					</table>
+					{overviewLtiStatus}
 				</div>
 			</>
 		)
