@@ -129,7 +129,4 @@ class AGSService:
         play_state.submission_attempts = play_state.submission_attempts + 1
         play_state.save()
 
-        logger.error(play_state.submission_status)
-        logger.error(play_state.submission_attempts)
-
         return play_state.submission_status

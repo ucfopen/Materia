@@ -46,13 +46,6 @@ class AGSClient:
             self._user_id = self.play_state.ags_user_id
         return self._user_id
 
-    # def line_items(self):
-    #     line_items = AGSUtil.list_line_items_from_launch(self.launch_data)
-    #     request = AGSRequest(self.access_token)
-
-    #     fetch = request.get(line_items)
-    #     return fetch
-
     def score_builder(self):
         return AGSScoreBuilder(self)
 

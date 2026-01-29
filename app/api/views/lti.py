@@ -11,9 +11,6 @@ from rest_framework.views import APIView
 # from lti.ags.client import AGSClient
 
 
-# from pprint import pformat
-
-
 logger = logging.getLogger(__name__)
 
 
