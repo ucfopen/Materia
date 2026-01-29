@@ -90,15 +90,24 @@ class LTILaunchService:
 
     @staticmethod
     def get_deployment(play_state: LtiPlayState) -> LtiDeployment:
+        """
+        Gets the LtiDeployment model instance associated with a given LtiPlayState model instance.
+        """
         return play_state.lti_association.deployment
 
     def get_deployment_from_launch(launch: dict) -> LtiDeployment:
+        """
+        Gets the deployment ID from a launch data dict: the return value of a given lti_launch.get_launch_data() call.
+        """
         return launch.get(
             "https://purl.imsglobal.org/spec/lti/claim/deployment_id", None
         )
 
     @staticmethod
     def get_registration(play_state: LtiPlayState) -> LtiRegistration:
+        """
+        Gets the LTiRegistration model instance associated with a given LtiPlayState model instance.
+        """
         deployment = LTILaunchService.get_deployment(play_state)
         return deployment.registration if deployment is not None else None
 
@@ -186,7 +195,10 @@ class LTILaunchService:
         raise MsgNotFound(msg="No widget instance matches this request.")
 
     @staticmethod
-    def is_lti_launch(request):
+    def is_lti_launch(request) -> bool:
+        """
+        Helper method to determine if the current request contains an lti launch.
+        """
         if hasattr(request, "lti_launch") and request.lti_launch:
             return request.lti_launch.is_present
         return False
@@ -207,16 +219,29 @@ class LTILaunchService:
 
     @staticmethod
     def is_initial_launch(request) -> bool:
+        """
+        Helper method to determine if the request is an initial widget launch
+        based on the presence of the ?lid GET parameter.
+        """
         launch_id = request.GET.get("lid", None)
         return launch_id is not None
 
     @staticmethod
     def is_recovery_launch(request) -> bool:
+        """
+        Helper method to determine if the request is a recovered widget launch
+        based on the presence of the ?token GET parameter.
+        A recovery launch does not contain a launch payload but should be treated as an LTI launch.
+        For example: selecting "Play Again" at the end of a LTI play session.
+        """
         token_param = request.GET.get("token")
         return token_param is not None
 
     @staticmethod
     def get_launch_data_from_request(request):
+        """
+        Retrieves the launch data from a request, if present. Just a shortcut to request.lti_launch.get_launch_data()
+        """
         launch_id = request.GET.get("lid", None)
         if launch_id is not None:
             launch = get_launch_from_request(request, launch_id)
@@ -225,6 +250,9 @@ class LTILaunchService:
 
     @staticmethod
     def get_launch_from_play(play_id: str) -> LtiPlayState:
+        """
+        Returns the associated LtiPlayState model instance for a given play ID.
+        """
         play = LogPlay.objects.get(pk=play_id)
         if play:
             launch = LtiPlayState.objects.get(play_id=play.id)

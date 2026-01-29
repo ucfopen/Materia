@@ -213,7 +213,7 @@ $preview-purple: #b944cc;
 
 		table {
 			width: 80%;
-			margin: 0 auto;
+			margin: 0 auto 1em auto;
 
 			font-size: 14px;
 			color: #555;
@@ -415,6 +415,68 @@ $preview-purple: #b944cc;
 
 			.positive {
 				color: rgb(106, 189, 106);
+			}
+		}
+
+		section.lti-status {
+
+			&:after {
+				background-color: #000;
+			}
+
+			&.legacy, &.NOT_SUBMITTED, &.NOT_GRADED, &.AGS_NOT_INCLUDED {
+				background: #363f47;
+				border-color: #878f97;
+
+				&:after {
+					background-color: #ccc;
+				}
+
+				p {
+					color: #aaa;
+				}
+			}
+
+			&.SUCCESS {
+				background: rgb(42, 46, 42);
+
+				h3 {
+					color: rgb(58, 217, 124);
+				}
+
+				p {
+					color: rgb(55, 167, 105);
+				}
+			}
+
+			&.ERR_NO_ATTEMPTS {
+				background: rgb(52, 36, 17);
+				border-color: rgb(237,114,46);
+
+				// &:after {
+				// 	background: #fff url("/img/lock-icon.svg") calc(50% + 4px) / 18px 50% no-repeat;
+				// }
+
+				h3 {
+					color: rgb(255, 140, 78);
+				}
+
+				p {
+					color: rgb(247, 113, 41);
+				}
+			}
+
+			&.ERR_FAILURE {
+				background: rgb(43, 16, 16);
+				border-color: rgb(208, 43, 40);
+
+				h3 {
+					color: rgb(233, 108, 106);
+				}
+
+				p {
+					color: rgb(229, 87, 82);
+				}
 			}
 		}
 	}

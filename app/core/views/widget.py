@@ -190,7 +190,7 @@ class WidgetPlayView(
                 play_lti_state = LtiPlayState(
                     play=play,
                     lti_association=Lti.objects.get(resource_link=launch_resource_link),
-                    ags_line_item=AGSUtil.get_line_item_from_launch(launch_data),
+                    ags_line_item=AGSUtil.get_line_item_from_launch(launch_data) or "",
                     ags_user_id=AGSUtil.get_ags_user_id(launch_data),
                     ags_scoring_enabled=AGSUtil.is_ags_scoring_available(launch_data),
                 )
