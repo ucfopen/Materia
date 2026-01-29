@@ -172,12 +172,9 @@ class WidgetPlayView(
         play = WidgetPlayInitService.init_play(self.request, instance, user)
         lti_token = None
 
-        # do we have an LTI launch?
-        # if it is - update the play with LTI flags and pass the token to context
-
         if not instance.guest_access:
 
-            # initial launch - launch data is present in request object
+            # initial launch: launch data is present in request object
             if LTILaunchService.is_initial_launch(self.request):
                 launch_data = LTILaunchService.get_launch_data_from_request(
                     self.request
@@ -198,12 +195,13 @@ class WidgetPlayView(
 
                 lti_token = play.id
 
-            # recovery launch - we reference the prior LTI launch state via the LTI token (the original play's ID)
+            # recovery launch: we reference the prior LTI launch state via the LTI token (the original play's ID)
             elif LTILaunchService.is_recovery_launch(self.request):
                 lti_token = self.request.GET.get("token")
                 prior_lti_state = LtiPlayState.objects.get(play_id=lti_token)
 
                 # use the prior play's lti state as the basis for the new play lti state
+                # if it doesn't exist, we can't treat the play as a recovery play
                 if prior_lti_state:
 
                     play.auth = "lti"

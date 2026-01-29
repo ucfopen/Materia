@@ -10,8 +10,10 @@ class LtiLaunchMixin:
     # dispatch is called prior to view processing and lets us perform checks associated with LTI launches
     def dispatch(self, request, *args, **kwargs):
 
-        is_launch = False
+        # play preprocessing will always pass through here. Performs some checks if this might be an LTI launch.
+        # Launch validation: make sure launch recovery is valid and passes auth check
 
+        is_launch = False
         if LTILaunchService.is_recovery_launch(request):
 
             # when course authors visit the widget in LTI, the play state is not stored
@@ -37,6 +39,7 @@ class LtiLaunchMixin:
             else:
                 is_launch = True
 
+        # Initial launches have just been authenticated - auth check should not be required
         elif LTILaunchService.is_initial_launch(request):
             is_launch = True
 

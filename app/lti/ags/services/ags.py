@@ -16,7 +16,10 @@ class AGSService:
 
     @staticmethod
     def submit_score_for_play(play: LogPlay) -> str:
-
+        """
+        Handles AGS score submission for a given play.
+        Returns the LtiPlayState.SubmissionStatus string based on the submission result.
+        """
         play_state = LtiPlayState.objects.get(play_id=play.id)
         if not play_state:
             raise AGSNoPlayState()
@@ -38,7 +41,6 @@ class AGSService:
             "percent__max", 0
         )
         max_score = round(max_score, 2)
-
         completed_time = int(play.created_at.timestamp() + play.elapsed)
 
         score_url = (
@@ -58,11 +60,13 @@ class AGSService:
                 .submit()
             )
 
+            # AGS submission failures raise exceptions through raise_for_status()
+            # If no exception is caught, indicates a 200
             play_state.submission_status = LtiPlayState.SubmissionStatus.SUCCESS
             play_state.last_submitted = timezone.now()
 
             logger.error(
-                f"LTI-AGS: successfully transmitted " f"completion for play {play.id}"
+                f"LTI-AGS: successfully transmitted {max_score}% score for play {play.id}"
             )
 
         except AGSClaimNotDefined:
