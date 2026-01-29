@@ -46,6 +46,14 @@ const UserAdminInstancePlayed = ({play, index}) => {
 				<div>
 					<label>Context ID:</label> { play.context_id ? play.context_id : 'N/A' }
 				</div>
+				{ play.auth == 'lti' && (
+					<div>
+						<label>Submission Status:</label> { play.submission_status ? play.submission_status : 'Legacy (No Status Available)' }
+					</div>
+				)}
+				<div>
+
+				</div>
 			</div>
 		</li>
 	)

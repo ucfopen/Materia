@@ -59,6 +59,20 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
     queryset = LogPlay.objects.all()
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        include_activity = ValidatorUtil.validate_bool(
+            self.request.query_params.get("include_activity"), default=False
+        )
+
+        # improve query performance by using prefetch/select related tables when include_activity is included
+        if include_activity:
+            queryset = queryset.prefetch_related("play")
+            queryset = queryset.select_related("instance__widget")
+
+        return queryset
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         # check guest access

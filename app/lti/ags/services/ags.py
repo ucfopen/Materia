@@ -119,6 +119,11 @@ class AGSService:
                         LtiPlayState.SubmissionStatus.ERR_FAILURE
                     )
             else:
+                logger.error(
+                    f"LTI-AGS: failed to submit score for play {play.id}. "
+                    f"Error: {str(e)}"
+                )
+                logger.error(e.response.json())
                 play_state.submission_status = LtiPlayState.SubmissionStatus.ERR_FAILURE
 
         play_state.submission_attempts = play_state.submission_attempts + 1
