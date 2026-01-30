@@ -89,7 +89,7 @@ const ProfilePage = () => {
 	let noActivityRender = <p className='no_logs'>You don't have any activity! Once you play a widget, your score history will appear here.</p>
 
 	let activityContentRender = activityData.map((record) => {
-			return <li className={`activity_log ${record.is_complete == 1 ? 'complete' : 'incomplete'} ${record.score == 100 ? 'perfect_score' : ''}`} key={record.play_id}>
+			return <li className={`activity_log ${record.is_complete ? 'complete' : 'incomplete'} ${record.score == 100 ? 'perfect_score' : ''}`} key={record.play_id}>
 				<a className='score-link' href={record.link}>
 					<div className="status">{record.status}</div>
 					<div className="widget">{record.widget}</div>

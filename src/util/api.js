@@ -201,7 +201,7 @@ export const apiDeleteNotification = ({ notifId, deleteAll }) => {
 
 export const apiSearchUsers = (input = '', page_number = 1) => {
 	const params = new URLSearchParams({ search: input, page: page_number })
-	return handleRequest(methods.GET, `/api/users?${params}`)
+	return handleRequest(methods.GET, `/api/users/?${params}`)
 }
 
 export const apiGetUserPermsForInstance = instId => {
@@ -388,9 +388,15 @@ export const apiSessionVerify = (play_id) => {
 	})
 }
 
-// TODO update or retire
 export const apiSavePlayStorage = ({ play_id, logs }) => {
-	return handleRequest(methods.POST, '/api/json/play_storage_data_save/', ({ body: `data=${formatFetchBody([play_id, logs])}` }))
+  return handleRequest(
+    methods.POST,
+    '/api/storage/',
+    {
+      "play_id": play_id,
+      "logs": logs
+    },
+  )
 }
 
 export const apiSavePlayLogs = ({ request }) => {

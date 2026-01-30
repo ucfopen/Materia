@@ -21,7 +21,7 @@ const UserAdminInstancePlayed = ({play, index}) => {
 					</div>
 				</span>
 				<span className='incomplete-status-holder'>
-					{ parseInt(play.is_complete) ? '' : '[Incomplete]' }
+					{ play.is_complete ? '' : '[Incomplete]' }
 				</span>
 				<span className='date-holder'>
 					{ playedDate.toLocaleDateString() }
@@ -32,16 +32,19 @@ const UserAdminInstancePlayed = ({play, index}) => {
 					<label>Date:</label> { `${playedDate.toLocaleString()}` }
 				</div>
 				<div>
-					<label>Score:</label> <a target="_blank" href={ `/scores/single/${play.play_id}/${play.id}` }>{ play.percent }%</a>
+					<label>Score:</label> <a target="_blank" href={ `/scores/single/${play.instance}/${play.id}` }>{ play.percent }%</a>
 				</div>
 				<div>
 					<label>Time Elapsed:</label> { play.elapsed }s
 				</div>
 				<div>
-					<label>Completed:</label> { play.is_complete == "1" ? 'Yes' : 'No' }
+					<label>Completed:</label> { play.is_complete ? 'Yes' : 'No' }
 				</div>
 				<div>
 					<label>Context:</label> {play.auth && typeof play.auth == 'string' && play.auth.toLowerCase() == 'lti' ? 'LTI' : 'Web' }
+				</div>
+				<div>
+					<label>Context ID:</label> { play.context_id ? play.context_id : 'N/A' }
 				</div>
 			</div>
 		</li>

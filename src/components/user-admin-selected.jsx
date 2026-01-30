@@ -131,7 +131,7 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 				</span>
 				<h3>User Settings</h3>
 				<span>
-					<label>Notifications: </label> NYI - Add Me!{ /*updatedUser.profile_fields.notify ? 'Enabled' : 'Disabled' */}
+					<label>Notifications: </label>{ updatedUser.profile_fields.notify ? 'Enabled' : 'Disabled' }
 				</span>
 				<span>
 					<label>User Icon: </label>{ updatedUser.profile_fields.useGravatar ? 'Gravatar' : 'Default' }
