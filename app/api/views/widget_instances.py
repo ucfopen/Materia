@@ -578,9 +578,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"])
     def undelete(self, request, pk=None):
-        instance = WidgetInstance.objects.get(id=pk)
-        if not instance:
-            return ValidationError("Must provide a valid instance ID.")
+        instance = self.get_object()
 
         if not instance.is_deleted:
             return ValidationError("Instance is not deleted.")
