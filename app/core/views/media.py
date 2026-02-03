@@ -26,12 +26,11 @@ class MediaImportView(TemplateView):
             js_globals={
                 "MEDIA_URL": settings.URLS["MEDIA_URL"],
                 "MEDIA_UPLOAD_URL": settings.URLS["MEDIA_UPLOAD_URL"],
-                "USE_CDN": settings.DRIVER_SETTINGS['s3']['use_cdn'],
-                "CDN_URL": settings.DRIVER_SETTINGS['s3']['cdn_domain'],
+                "USE_CDN": settings.DRIVER_SETTINGS['s3']['use_cdn'], # Boolean to see if frontend should use CDN URL
+                "CDN_URL": settings.DRIVER_SETTINGS['s3']['cdn_domain'], # CDN URL being passed in
             },
         )
 
-        print(context)
         return render(request, "react.html", context)
 
 
