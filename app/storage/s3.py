@@ -139,7 +139,7 @@ class S3AssetStorageDriver:
         )
         # Upload the thumbnail
         thumbnail_buffer = io.BytesIO(file_bytes)
-        S3AssetStorageDriver.build_size_thumbnail(asset, thumbnail_buffer)
+        S3AssetStorageDriver.build_size_thumbnail(asset, thumbnail_buffer, s3_client)
 
     def render(asset, size):
         from django.http import HttpResponseNotFound
@@ -252,7 +252,7 @@ class S3AssetStorageDriver:
 
     # Function for building the thumbnail for the uploaded image
     # Assumes the asset is an image AND use the default thumbnail size
-    def build_size_thumbnail(asset, uploaded_file):
+    def build_size_thumbnail(asset, uploaded_file, client):
         from PIL import Image
 
         target_size = 75
@@ -295,16 +295,17 @@ class S3AssetStorageDriver:
         img.save(new_bytes, format=new_file_format)
         new_bytes.seek(0)
 
-        s3 = S3AssetStorageDriver.get_s3()
-        bucket = settings.DRIVER_SETTINGS["s3"]["bucket"]
-        new_key = S3AssetStorageDriver.get_key_name(asset.id, "thumbnail")
-
-        put_data = {
-            "Body": new_bytes.getvalue(),
-            "ContentType": asset.get_mime_type(),
-            "ContentLength": new_bytes.getbuffer().nbytes,
-        }
-        s3.Object(bucket, new_key).put(**put_data)
+        try:
+            client.upload_fileobj(
+                Fileobj=new_bytes,
+                Bucket=settings.DRIVER_SETTINGS["s3"]["bucket"],
+                Key=S3AssetStorageDriver.get_key_name(asset.id, "thumbnail"),
+                ExtraArgs={"ContentType": asset.get_mime_type()},
+            )
+        except Exception as e:
+            logger.info("Error saving thumbnail to S3")
+            logger.info(e)
+        
 
     def migrate_to(driver, cleanup_delete=False):
         if driver == "file":
