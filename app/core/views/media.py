@@ -26,7 +26,8 @@ class MediaImportView(TemplateView):
             js_globals={
                 "MEDIA_URL": settings.URLS["MEDIA_URL"],
                 "MEDIA_UPLOAD_URL": settings.URLS["MEDIA_UPLOAD_URL"],
-                "CDN_URL": settings.URLS["CDN_URL"],
+                "USE_CDN": settings.DRIVER_SETTINGS['s3']['use_cdn'],
+                "CDN_URL": settings.DRIVER_SETTINGS['s3']['cdn_domain'],
             },
         )
 

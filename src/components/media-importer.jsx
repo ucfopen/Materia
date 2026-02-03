@@ -144,6 +144,9 @@ const MediaImporter = () => {
 			case 'jpeg': // intentional case fall-through
 			case 'png': // intentional case fall-through
 			case 'gif': // intentional case fall-through
+				if (USE_CDN && CDN_URL){
+					return `${CDN_URL}/${data}_thumbnail`
+				}
 				return `${MEDIA_URL}${data}/thumbnail`
 
 			case 'mp3': // intentional case fall-through
