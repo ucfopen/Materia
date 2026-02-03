@@ -26,9 +26,11 @@ class MediaImportView(TemplateView):
             js_globals={
                 "MEDIA_URL": settings.URLS["MEDIA_URL"],
                 "MEDIA_UPLOAD_URL": settings.URLS["MEDIA_UPLOAD_URL"],
+                "CDN_URL": settings.URLS["CDN_URL"],
             },
         )
 
+        print(context)
         return render(request, "react.html", context)
 
 

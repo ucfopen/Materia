@@ -62,4 +62,10 @@ URLS = {
             "http://localhost/",
         )
     ),
+    "CDN_URL": enforce_trailing_slash(
+        os.environ.get(
+            "ASSET_STORAGE_S3_CDN_DOMAIN",
+            "http://localhost/cdn/",
+        )
+    ),
 }
