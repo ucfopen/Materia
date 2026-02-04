@@ -581,7 +581,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
 
         if not instance.is_deleted:
-            return ValidationError("Instance is not deleted.")
+            raise ValidationError("Instance is not deleted.")
 
         instance.is_deleted = False
         instance.save()
