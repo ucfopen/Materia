@@ -4,7 +4,7 @@ from time import gmtime, strftime
 from core.models import Asset
 from core.services.asset_service import AssetService
 from core.utils.context_util import ContextUtil
-from core.utils.media_util import MediaUtil
+from core.utils.media_util import media_urls
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -19,7 +19,16 @@ logger = logging.getLogger(__name__)
 class MediaImportView(TemplateView):
     @login_required
     def index(request):
-        context = MediaUtil.create(request)
+        context = ContextUtil.create(
+            title="Media Catalog",
+            js_resources=settings.JS_GROUPS["media"],
+            css_resources=settings.CSS_GROUPS["media"],
+            request=request,
+            js_globals={
+                "MEDIA_URL": settings.URLS["MEDIA_URL"],
+                "MEDIA_UPLOAD_URL": settings.URLS["MEDIA_UPLOAD_URL"],
+            } | media_urls, # Concatante the main media URLs + the addiotnal URLs/properties
+        )
         return render(request, "react.html", context)
 
 
