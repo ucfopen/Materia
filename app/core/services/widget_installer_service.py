@@ -482,8 +482,7 @@ class WidgetInstallerService:
                 widget_obj.save()
             # TODO: narrow down which kind(s) of Exception we should expect here
             except Exception:
-                # TODO: consider changing this to logger.error
-                logger.info(
+                logger.error(
                     "Exception when updating existing widget params", exc_info=True
                 )
                 raise Exception(f"Failure updating existing widget data: {widget_id}")
@@ -495,8 +494,7 @@ class WidgetInstallerService:
                 widget_id = widget_obj.id
             # TODO: narrow down which kind(s) of Exception we should expect here
             except Exception:
-                # TODO: consider changing this to logger.error
-                logger.info("Exception when saving widget params", exc_info=True)
+                logger.error("Exception when saving widget params", exc_info=True)
                 raise Exception(f"Failure creating new widget: {widget_id}")
 
         return widget_id

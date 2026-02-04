@@ -235,8 +235,7 @@ class S3AssetStorageDriver:
             return S3AssetStorageDriver.get_view_url(asset.id, size)
         except Exception:
             os.remove(temporary_file.name)
-            # TODO: consider changing this to logger.error
-            logger.info("Error saving new size to S3", exc_info=True)
+            logger.error("Error saving new size to S3", exc_info=True)
 
     def migrate_to(driver, cleanup_delete=False):
         if driver == "file":
