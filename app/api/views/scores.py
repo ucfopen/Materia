@@ -57,7 +57,9 @@ class ScoresView(APIView):
             the current user is an author or staff where request is launched from LTI
             """
             is_author_or_staff = False
-            if LTILaunchService.is_lti_launch(request):
+            if LTILaunchService.is_lti_launch(
+                request
+            ) and LTILaunchService.is_last_launch_still_valid(request):
                 launch = request.lti_launch.get_launch_data()
                 is_author_or_staff = LTIAuthService.is_user_course_author(
                     launch
@@ -180,7 +182,9 @@ class ScoresDetailView(APIView):
                 play_user_id = None if play.user is None else play.user.id
 
                 is_author_or_staff = False
-                if LTILaunchService.is_lti_launch(request):
+                if LTILaunchService.is_lti_launch(
+                    request
+                ) and LTILaunchService.is_last_launch_still_valid(request):
                     launch = request.lti_launch.get_launch_data()
                     is_author_or_staff = LTIAuthService.is_user_course_author(
                         launch

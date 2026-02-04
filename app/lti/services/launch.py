@@ -1,5 +1,6 @@
 import logging
 import re
+import time
 
 from core.message_exception import MsgNotFound
 from core.models import LogPlay, Lti, LtiPlayState, WidgetInstance
@@ -197,11 +198,35 @@ class LTILaunchService:
     @staticmethod
     def is_lti_launch(request) -> bool:
         """
-        Helper method to determine if the current request contains an lti launch.
+        Checks for the presence of an active lti_launch object in the request.
+
+        !! WARNING: lti_launches referenced via request.lti_launch are located via
+        SESSION_KEY. This means ANY previous launch in the user session will cause
+        request.lti_launch to be present and this method will return True.
+
+        Better options:
+        1. Use is_initial_launch if this is a widget play init
+        2. Use is_last_launch_still_valid to clamp launch validity to a certain window of time
         """
         if hasattr(request, "lti_launch") and request.lti_launch:
             return request.lti_launch.is_present
         return False
+
+    @staticmethod
+    def is_last_launch_still_valid(request, window: int = 10) -> bool:
+        """
+        Determine if the request.lti_launch object is valid based on the window of time given.
+        Used to infer whether the current request is in fact an actual LTI launch. Defaults to 10 seconds.
+        """
+        launch_data = request.lti_launch.get_launch_data()
+        if not launch_data:
+            return False
+        iat = launch_data.get("iat")
+        if not iat:
+            return False
+        current_time = time.time()
+        time_difference = current_time - iat
+        return time_difference <= window
 
     @staticmethod
     def get_nonce(launch):

@@ -59,7 +59,6 @@ const ScoreOverviewLtiStatus = ({ lti, single, playId }) => {
 					<>
 						<h3>Submission Error</h3>
 						<p>There was an error during the grade submission process.</p>
-						{/* { single ? null : resubmitContent } */}
 						<ScoreLtiResubmit lti={lti} playId={playId} callback={resubmitCallback} />
 					</>
 				)

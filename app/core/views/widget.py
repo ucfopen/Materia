@@ -117,7 +117,7 @@ class WidgetPlayView(
     def get_validation(self, request, instance):
         context_id = ""
 
-        if LTILaunchService.is_lti_launch(request):
+        if LTILaunchService.is_initial_launch(request):
             launch = LTILaunchService.get_launch_data_from_request(request)
             if launch is not None:
                 context_id = LTILaunchService.get_context_id(launch)

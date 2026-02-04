@@ -91,7 +91,9 @@ def _get_context_data(
         if play_assoc:
             js_globals["CONTEXT_ID"] = play_assoc.context_id
     else:
-        if LTILaunchService.is_lti_launch(request):
+        if LTILaunchService.is_lti_launch(
+            request
+        ) and LTILaunchService.is_last_launch_still_valid(request):
             js_globals["LTI_EMBEDDED"] = True
 
     return ContextUtil.create(
