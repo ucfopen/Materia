@@ -233,7 +233,7 @@ class S3AssetStorageDriver:
             os.remove(temporary_file.name)
 
             return S3AssetStorageDriver.get_view_url(asset.id, size)
-        except Exception as e:
+        except Exception:
             os.remove(temporary_file.name)
             # TODO: consider changing this to logger.error
             logger.info("Error saving new size to S3", exc_info=True)

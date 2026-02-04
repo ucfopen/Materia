@@ -1,5 +1,4 @@
 import logging
-from pprint import pformat
 
 # from core.models import Lti
 from django.conf import settings

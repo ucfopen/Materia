@@ -1,5 +1,4 @@
 import logging
-import traceback
 
 from api.filters import LogPlayFilterBackend
 from api.paginators import PageNumberWithTotalPagination
