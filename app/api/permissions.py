@@ -138,6 +138,9 @@ class PlaySessionInstancePermissions(permissions.BasePermission):
         if not isinstance(obj, LogPlay):
             return False
 
+        if PermService.is_superuser_or_elevated(request.user):
+            return True
+
         if not obj.instance.guest_access and obj.user != request.user:
             return False
 

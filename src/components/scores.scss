@@ -347,7 +347,7 @@ $preview-purple: #b944cc;
 					margin-bottom: 1em;
 				}
 
-				div.resubmit-section {
+				section.resubmit-section {
 					display: flex;
 					flex-direction: row;
 					justify-content: flex-start;
@@ -355,12 +355,17 @@ $preview-purple: #b944cc;
 					align-items: center;
 
 					p {
+						text-align: left;
 						margin: 0;
 					}
 
 					button.action_button {
 						font-size: 0.9em;
 						padding: 0.5em 1em;
+					}
+
+					.icon-holder {
+						margin: 0;
 					}
 				}
 			}

@@ -1,10 +1,18 @@
 import React, { useState } from 'react'
 import { iconUrl } from '../util/icon-url'
+import ScoreLtiResubmit from './score-lti-resubmit'
 
 const UserAdminInstancePlayed = ({play, index}) => {
 
 	const [instanceState, setInstanceState] = useState({expanded: false})
+	const [resubmitted, setHasResubmitted] = useState(false)
+	const [playStatus, setPlayStatus] = useState(play.submission_status ?? 'Legacy (No Status Available)')
 	const playedDate = new Date(play.created_at)
+
+	const ltiResubmitCallback = (status) => {
+		setHasResubmitted(true)
+		setPlayStatus(status)
+	}
 
 	return (
 		<li key={index} className={`instance ${instanceState.expanded ? 'expanded' : ''}`} onClick={() => setInstanceState(instanceState => ({...instanceState, expanded: !instanceState.expanded}))}>
@@ -32,7 +40,7 @@ const UserAdminInstancePlayed = ({play, index}) => {
 					<label>Date:</label> { `${playedDate.toLocaleString()}` }
 				</div>
 				<div>
-					<label>Score:</label> <a target="_blank" href={ `/scores/single/${play.instance}/${play.id}` }>{ play.percent }%</a>
+					<label>Score:</label> <a target="_blank" href={ `/scores/single/${play.instance}/${play.id}` }>{ Math.round(play.percent) }%</a>
 				</div>
 				<div>
 					<label>Time Elapsed:</label> { play.elapsed }s
@@ -47,9 +55,18 @@ const UserAdminInstancePlayed = ({play, index}) => {
 					<label>Context ID:</label> { play.context_id ? play.context_id : 'N/A' }
 				</div>
 				{ play.auth == 'lti' && (
-					<div>
-						<label>Submission Status:</label> { play.submission_status ? play.submission_status : 'Legacy (No Status Available)' }
-					</div>
+					<>
+						<div className={`submission-status ${resubmitted ? 'updated' : ''}`}>
+							<label>Submission Status:</label> { playStatus }
+						</div>
+						{ playStatus == 'ERR_FAILURE' && (
+							<ScoreLtiResubmit
+								lti={{submission_available: true, submit_attempts: 0, adminMode: true}}
+								playId={play.id}
+								callback={ltiResubmitCallback}
+							/>
+						)}
+					</>
 				)}
 				<div>
 

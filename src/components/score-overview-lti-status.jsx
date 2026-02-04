@@ -1,58 +1,19 @@
 import React, {useState, useEffect} from 'react'
-import { useQuery } from 'react-query'
-import { apiPlayResubmit } from '../util/api'
+import ScoreLtiResubmit from './score-lti-resubmit'
 
 
 const ScoreOverviewLtiStatus = ({ lti, single, playId }) => {
 
 	const [status, setStatus] = useState(lti.status)
-	const [attempts, setAttempts] = useState(lti.submit_attempts)
-
-	const MAX_SUBMISSIONS = 3
-	const canResubmit = lti.submission_available && MAX_SUBMISSIONS - attempts > 0
-
-	const { data: result, error, refetch: queryResubmit, isFetching } = useQuery({
-		queryKey: ['resubmit', playId],
-		queryFn: async () => {
-			try {
-				const data = await apiPlayResubmit(playId)
-				return { success: true, status: 'SUCCESS', ...data }
-			} catch (err) {
-				if (err.data?.status) {
-					return { success: false, status: err.data.status, httpStatus: err.status }
-				}
-				return { success: false, message: err.message, httpStatus: err.status }
-			}
-		},
-		staleTime: Infinity,
-		retry: false,
-		enabled: false
-	})
 
 	useEffect(() => {
 		if (!!lti?.status) {
 			setStatus((status) => lti.status)
-			setAttempts((attempts) => lti.submit_attempts)
 		}
 	},[lti?.status])
 
-	useEffect(() => {
-		if (result) {
-
-			if (result.status) {
-				setStatus(result.status)
-			}
-
-			// Increment attempts if the resubmission was attempted
-			// (both 200 and 403 responses mean a submission was attempted)
-			if (result.httpStatus === 403 || result.success === true) {
-				setAttempts((attempts) => attempts + 1)
-			}
-		}
-	}, [result])
-
-	const handleRequestResubmit = (e) => {
-		if (canResubmit) queryResubmit()
+	const resubmitCallback = (status) => {
+		setStatus(status)
 	}
 
 	let ltiContentBody = null
@@ -93,22 +54,13 @@ const ScoreOverviewLtiStatus = ({ lti, single, playId }) => {
 				)
 				break
 			case 'ERR_FAILURE':
-				let resubmitContent = null
-				const submitAvailableText = canResubmit ? 
-					<p>You can retry {MAX_SUBMISSIONS - attempts} more times.</p> :
-					<p>Submission retries are no longer available.</p>
-				resubmitContent = (
-					<div className="resubmit-section">
-						{ canResubmit ? <button className="action_button" disabled={isFetching || !canResubmit} onClick={handleRequestResubmit}>Retry</button> : null }
-						{ submitAvailableText }
-					</div>
-				)
 
 				ltiContentBody = (
 					<>
 						<h3>Submission Error</h3>
 						<p>There was an error during the grade submission process.</p>
-						{ single ? null : resubmitContent }
+						{/* { single ? null : resubmitContent } */}
+						<ScoreLtiResubmit lti={lti} playId={playId} callback={resubmitCallback} />
 					</>
 				)
 				break

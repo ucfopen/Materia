@@ -15,6 +15,7 @@ from core.services.perm_service import PermService
 from core.services.widget_play_services import WidgetPlayInitService
 from core.utils.validator_util import ValidatorUtil
 from django.http import JsonResponse
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from lti.ags.exceptions.ags_no_play_state import AGSNoPlayState
 from lti.ags.services.ags import AGSService
@@ -288,14 +289,23 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         play_state = LtiPlayState.objects.get(play_id=play.id)
 
         if play_state.submission_status == LtiPlayState.SubmissionStatus.ERR_FAILURE:
-            if play_state.submission_attempts < 3:
+            # The student is restricted to a certain number of submissions
+            # Elevated users are not
+            if (
+                play_state.submission_attempts < 4
+                or PermService.is_superuser_or_elevated(request.user)
+            ):
                 submit_status = AGSService.submit_score_for_play(play)
 
                 if submit_status == LtiPlayState.SubmissionStatus.SUCCESS:
                     return Response({"success": True}, status=status.HTTP_200_OK)
                 else:
                     return Response(
-                        {"success": False, "status": submit_status},
+                        {
+                            "success": False,
+                            "status": submit_status,
+                            "submitted_at": timezone.now(),
+                        },
                         status=status.HTTP_403_FORBIDDEN,
                     )
             else:
