@@ -3,6 +3,8 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from core.models import ObjectPermission, Widget, WidgetInstance
+
 
 class UserViewSetTestCase(TestCase):
     @classmethod
@@ -60,12 +62,33 @@ class UserViewSetTestCase(TestCase):
             last_name="Doe",
         )
 
+        cls.widget = Widget.objects.create(
+            name="Test Widget",
+            clean_name="test-widget",
+            is_editable=True,
+            is_playable=True,
+        )
+
+        cls.user_instance = WidgetInstance.objects.create(
+            id="userins01",
+            widget=cls.widget,
+            user=cls.regular_user,
+            name="User Instance",
+            is_draft=False,
+        )
+
+        cls.user_perm = ObjectPermission.objects.create(
+            user=cls.regular_user,
+            content_object=cls.user_instance,
+            permission=ObjectPermission.PERMISSION_FULL,
+        )
+
     def setUp(self):
         self.client = APIClient()
 
 
 class TestMeEndpoint(UserViewSetTestCase):
-    # Tests for GET /api/users/me/
+    """Tests for GET /api/users/me/"""
 
     def test_unauthenticated_returns_403(self):
         response = self.client.get("/api/users/me/")
@@ -104,7 +127,7 @@ class TestMeEndpoint(UserViewSetTestCase):
 
 
 class TestUserSearch(UserViewSetTestCase):
-    # Tests for GET /api/users/?search=
+    """Tests for GET /api/users/?search="""
 
     def test_unauthenticated_returns_403(self):
         response = self.client.get("/api/users/", {"search": "John"})
@@ -169,7 +192,7 @@ class TestUserSearch(UserViewSetTestCase):
 
 
 class TestUserRetrieve(UserViewSetTestCase):
-    # Tests for GET /api/users/{id}/
+    """Tests for GET /api/users/{id}/"""
 
     def test_unauthenticated_returns_403(self):
         response = self.client.get(f"/api/users/{self.regular_user.id}/")
@@ -194,7 +217,7 @@ class TestUserRetrieve(UserViewSetTestCase):
 
 
 class TestUserIdsList(UserViewSetTestCase):
-    # Tests for GET /api/users/?ids=
+    """Tests for GET /api/users/?ids="""
 
     def test_unauthenticated_returns_403(self):
         response = self.client.get(
@@ -220,7 +243,7 @@ class TestUserIdsList(UserViewSetTestCase):
 
 
 class TestRolesEndpoint(UserViewSetTestCase):
-    # Tests for GET/PATCH /api/users/{id}/roles/
+    """Tests for GET/PATCH /api/users/{id}/roles/"""
 
     def test_get_roles_unauthenticated_returns_403(self):
         response = self.client.get(f"/api/users/{self.regular_user.id}/roles/")
@@ -297,7 +320,7 @@ class TestRolesEndpoint(UserViewSetTestCase):
 
 
 class TestLoginEndpoint(TestCase):
-    # Tests for POST /api/user/login/
+    """Tests for POST /api/user/login/"""
 
     @classmethod
     def setUpTestData(cls):
@@ -346,7 +369,7 @@ class TestLoginEndpoint(TestCase):
 
 
 class TestLogoutEndpoint(TestCase):
-    # Tests for GET /users/logout/
+    """Tests for GET /users/logout/"""
 
     @classmethod
     def setUpTestData(cls):
@@ -365,3 +388,56 @@ class TestLogoutEndpoint(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(response.url, "/")
+
+
+class TestPermsEndpoint(UserViewSetTestCase):
+    """Tests for GET /api/users/{id}/perms/"""
+
+    def test_unauthenticated_returns_403(self):
+        response = self.client.get(f"/api/users/{self.regular_user.id}/perms/")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_user_can_get_own_perms(self):
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(f"/api/users/{self.regular_user.id}/perms/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+
+    def test_user_cannot_get_other_user_perms(self):
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(f"/api/users/{self.john_doe.id}/perms/")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_support_user_can_get_other_user_perms(self):
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.get(f"/api/users/{self.regular_user.id}/perms/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+
+    def test_superuser_can_get_other_user_perms(self):
+        self.client.force_authenticate(user=self.superuser)
+        response = self.client.get(f"/api/users/{self.regular_user.id}/perms/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_perms_filter_by_type(self):
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(
+            f"/api/users/{self.regular_user.id}/perms/",
+            {"type": "widgetinstance"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+
+    def test_perms_invalid_type_returns_400(self):
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(
+            f"/api/users/{self.regular_user.id}/perms/",
+            {"type": "invalidtype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
