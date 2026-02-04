@@ -1,5 +1,6 @@
 from django.core.management import base, call_command
 from django.db import connection
+from django.db.utils import OperationalError
 
 
 class Command(base.BaseCommand):
@@ -72,7 +73,12 @@ class Command(base.BaseCommand):
         for table, indexes in indexes_to_drop.items():
             for index in indexes:
                 self.stdout.write(f"Removing index {table}.{index}")
-                cursor.execute(f"ALTER TABLE `{table}` DROP INDEX `{index}`;")
+                try:
+                    cursor.execute(f"ALTER TABLE `{table}` DROP INDEX `{index}`;")
+                except OperationalError:
+                    self.stdout.write(
+                        f"Problem dropping {table}.{index}, moving to next"
+                    )
 
         # the existing log table has the 'type' column set as an ENUM
         # core migration 0001 will build this column as a varchar instead
