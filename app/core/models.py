@@ -1158,7 +1158,7 @@ class WidgetInstance(models.Model):
                     super().save(*args, **kwargs)
                     success = True
                 except DatabaseError as e:
-                    logger.info(e)
+                    logger.info(e, exc_info=True)
                     # try again until the retries run out
 
         # UPDATING AN EXISTING INSTANCE

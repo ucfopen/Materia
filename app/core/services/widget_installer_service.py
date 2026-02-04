@@ -127,7 +127,7 @@ class WidgetInstallerService:
                 existing_widget = Widget.objects.get(id=replace_id)
                 if "demo" in existing_widget.metadata:
                     existing_demo_inst_id = existing_widget.metadata["demo"]
-                    logger.info(f"Existing demo found: {existing_demo_inst_id}")
+                    logger.info("Existing demo found: %s", existing_demo_inst_id)
 
             except Widget.DoesNotExist:
                 pass
@@ -148,7 +148,7 @@ class WidgetInstallerService:
         # save metadata
         widget = Widget.objects.get(id=id)
 
-        logger.info(f"Widget installed: {dir}")
+        logger.info("Widget installed: %s", dir)
         success = True
         activity.item_id = id
         activity.value_1 = clean_name
@@ -213,7 +213,7 @@ class WidgetInstallerService:
             raise Exception("Unable to extract widget.")
         # assume it's a zip file, attempt to extract
         try:
-            logger.info(f"Extracting {file} to {extract_location}")
+            logger.info("Extracting %s to %s", file, extract_location)
             # TODO: zip extraction stuff
             with ZipFile(file) as archive:
                 archive.extractall(extract_location)
@@ -481,9 +481,11 @@ class WidgetInstallerService:
                     setattr(widget_obj, key, value)
                 widget_obj.save()
             # TODO: narrow down which kind(s) of Exception we should expect here
-            except Exception as e:
-                logger.info("Exception when updating existing widget params")
-                logger.info(e)
+            except Exception:
+                # TODO: consider changing this to logger.error
+                logger.info(
+                    "Exception when updating existing widget params", exc_info=True
+                )
                 raise Exception(f"Failure updating existing widget data: {widget_id}")
         except Widget.DoesNotExist:
             # new
@@ -492,9 +494,9 @@ class WidgetInstallerService:
                 widget_obj.save()
                 widget_id = widget_obj.id
             # TODO: narrow down which kind(s) of Exception we should expect here
-            except Exception as e:
-                logger.info("Exception when saving widget params")
-                logger.info(e)
+            except Exception:
+                # TODO: consider changing this to logger.error
+                logger.info("Exception when saving widget params", exc_info=True)
                 raise Exception(f"Failure creating new widget: {widget_id}")
 
         return widget_id
@@ -565,7 +567,7 @@ class WidgetInstallerService:
                     logger.error("Error saving new demo instance", exc_info=True)
 
             # TODO: this was originally a static output - may have to change this, maybe not?
-            logger.info(f"Demo installed: {widget_instance.id}")
+            logger.info("Demo installed: %s", widget_instance.id)
             return widget_instance.id
 
     def validate_demo(demo_data):
@@ -633,7 +635,7 @@ class WidgetInstallerService:
         if os.path.isdir(target_dir):
             shutil.rmtree(target_dir)
         shutil.copytree(source_path, target_dir)
-        logger.info(f"Widget files deployed: {widget_dir}")
+        logger.info("Widget files deployed %s", widget_dir)
 
     @staticmethod
     def uninstall_widget_files(id, clean_name):

@@ -178,7 +178,7 @@ class GenerationUtil:
         # A qset was received - decode it
         content = result.choices[0].message.content
         qset = json.loads(content)
-        logger.info(f"Generated question set received: {qset}")
+        logger.info("Generated question set received: %s", qset)
 
         # Log
         if settings.AI_GENERATION["LOG_STATS"]:
