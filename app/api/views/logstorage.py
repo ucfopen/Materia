@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 from api.serializers import PlayStorageSaveSerializer
 
+
 class PlayStorageSaveView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     http_method_names = ["post"]
@@ -32,9 +33,9 @@ class PlayStorageSaveView(APIView):
 
         if not instance.playable_by_current_user(user):
             return MsgNoLogin(request=request)
-        
+
         logs = []
-        
+
         if ValidatorUtil.is_valid_hash(instance.id) and ValidatorUtil.is_valid_long_hash(play_id):
             for storage_packet in log_data:
                 stringified_data = json.dumps(storage_packet.get("data"))
@@ -55,4 +56,3 @@ class PlayStorageSaveView(APIView):
         LogStorage.objects.bulk_create(logs)
 
         return Response(True)
-

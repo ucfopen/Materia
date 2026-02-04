@@ -32,8 +32,7 @@ class Command(base.BaseCommand):
         command_function = getattr(self, subcommand)
         try:
             command_function(*kwargs["arguments"])
-        except Exception as e:
-            logger.info(e)
+        except Exception:
             logger.exception("")
 
     def install_from_config(self, *args):
@@ -69,19 +68,19 @@ class Command(base.BaseCommand):
 
         if desired_id is not None:
             self.replace_id = desired_id
-            
+
         self.install(local_package)
 
     def download_package(self, file_url):
         file_name = os.path.basename(file_url)
         output_dir = WidgetInstallerService.get_temp_dir()
 
-        logger.info(f"Downloading .wigt package {file_url}")
+        logger.info("Downloading .wigt package %s", file_url)
         download_location = f"{output_dir}{file_name}"
         with request.urlopen(file_url) as download:
             open(download_location, "wb").write(download.read())
 
-        logger.info(f"Package downloaded: {download_location}")
+        logger.info("Package downloaded: %s", download_location)
         return download_location
 
     def validate_checksum(self, widget_path, checksum_path):
@@ -119,10 +118,12 @@ class Command(base.BaseCommand):
         if md5_hash != checksums["md5"]:
             raise Exception("Error: md5 checksum mismatch!")
 
-        logger.info("Checksum valid")
-        logger.info(f"Build date: {checksums['build_date']}")
-        logger.info(f"Git Source: {checksums['git']}")
-        logger.info(f"Git Commit: {checksums['git_version']}")
+        logger.info(
+            "Checksum valid\n" "Build date: %s\n" "Git Source: %s\n" "Git Commit: %s",
+            checksums["build_date"],
+            checksums["git"],
+            checksums["git_version"],
+        )
 
         return True
 
@@ -174,22 +175,26 @@ class Command(base.BaseCommand):
         # Get current version
         widget = Widget.objects.filter(id=widget_id).first()
         if widget is None:
-            logger.error(f"Widget with ID '{widget_id}' does not exist")
-            logger.error("Unable to update.")
+            logger.error(
+                "Widget with ID '%s' does not exist\nUnable to update.",
+                widget_id,
+            )
             return
 
         # Get latest version available
         logger.warning("Getting latest available version...")
         try:
             result = WidgetInstallerService.get_latest_version_for(widget_id)
-        except MsgException as e:
-            logger.error(e.msg)
-            logger.error("Unable to update.")
+        except MsgException:
+            logger.error("Unable to update.", exc_info=True)
             return
         new_ver, wigt_url, checksum_url = result
 
-        logger.info(f"Currently installed version: {widget.version}")
-        logger.info(f"Latest available version: {new_ver}")
+        logger.info(
+            "Currently installed version: %s\nLatest available version: %s",
+            widget.version,
+            new_ver,
+        )
 
         # Check if an update is even needed
         update_needed = WidgetInstallerService.needs_update(widget_id, new_ver)
