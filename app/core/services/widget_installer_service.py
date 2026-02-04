@@ -538,9 +538,8 @@ class WidgetInstallerService:
                 try:
                     widget_instance.save()
                     qset.save()
-                except Exception as e:
-                    logger.error("Error updating demo instance:")
-                    logger.error(e)
+                except Exception:
+                    logger.error("Error updating demo instance", exc_info=True)
             else:
                 # new instance, nothing to upgrade
                 widget = Widget.objects.filter(pk=widget_id).first()
@@ -562,9 +561,8 @@ class WidgetInstallerService:
                 try:
                     widget_instance.save()
                     qset.save()
-                except Exception as e:
-                    logger.error("Error saving new demo instance:")
-                    logger.error(e)
+                except Exception:
+                    logger.error("Error saving new demo instance", exc_info=True)
 
             # TODO: this was originally a static output - may have to change this, maybe not?
             logger.info(f"Demo installed: {widget_instance.id}")

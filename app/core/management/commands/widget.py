@@ -32,8 +32,7 @@ class Command(base.BaseCommand):
         command_function = getattr(self, subcommand)
         try:
             command_function(*kwargs["arguments"])
-        except Exception as e:
-            logger.info(e)
+        except Exception:
             logger.exception("")
 
     def install_from_config(self, *args):
@@ -69,7 +68,7 @@ class Command(base.BaseCommand):
 
         if desired_id is not None:
             self.replace_id = desired_id
-            
+
         self.install(local_package)
 
     def download_package(self, file_url):
@@ -174,17 +173,18 @@ class Command(base.BaseCommand):
         # Get current version
         widget = Widget.objects.filter(id=widget_id).first()
         if widget is None:
-            logger.error(f"Widget with ID '{widget_id}' does not exist")
-            logger.error("Unable to update.")
+            logger.error(
+                "Widget with ID '%s' does not exist\nUnable to update.",
+                widget_id,
+            )
             return
 
         # Get latest version available
         logger.warning("Getting latest available version...")
         try:
             result = WidgetInstallerService.get_latest_version_for(widget_id)
-        except MsgException as e:
-            logger.error(e.msg)
-            logger.error("Unable to update.")
+        except MsgException:
+            logger.error("Unable to update.", exc_info=True)
             return
         new_ver, wigt_url, checksum_url = result
 

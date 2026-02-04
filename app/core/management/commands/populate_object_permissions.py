@@ -22,8 +22,7 @@ class Command(base.BaseCommand):
 
         try:
             command_function(*kwargs["arguments"])
-        except Exception as e:
-            logger.info(e)
+        except Exception:
             logger.exception("")
 
     # utility command to back-populate ObjectPermission records based on instance ownership

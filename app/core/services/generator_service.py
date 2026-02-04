@@ -170,8 +170,8 @@ class GenerationUtil:
                 f"- Widget: {widget.name}\n"
                 f"- Date: {datetime.now()}\n"
                 f"- Time to complete (seconds): {time_elapsed_seconds}\n"
-                f"- Number of questions asked to generate: {num_questions}\n"
-                f"- Error: {e}"
+                f"- Number of questions asked to generate: {num_questions}",
+                exc_info=True,
             )
             raise e
 
@@ -211,9 +211,9 @@ class GenerationUtil:
             result = GenerationUtil._query(prompt, "text")
         except MsgException as e:
             logger.error(
-                f"GENERATION UTIL: Error while generation prompt:\n"
-                f"- Prompt: {prompt}\n"
-                f"- Exception: {e}"
+                "GENERATION UTIL: Error while generation prompt:\n - Prompt: %s",
+                prompt,
+                exc_info=True,
             )
             raise e
 
@@ -251,24 +251,25 @@ class GenerationUtil:
                 top_p=1,
                 response_format=response_format,
             )
-        except OpenAIError as e:
+        except OpenAIError:
             logger.error(
-                "GENERATION ERROR: Client threw an error while attempting completion. Exception follows:"
+                "GENERATION ERROR: Client threw an error while attempting completion.",
+                exc_info=True,
             )
-            logger.error(e)
             raise MsgFailure(msg="Client threw an error while attempting completion")
-        except Exception as e:
+        except Exception:
             logger.error(
-                "GENERATION ERROR: Unknown error occurred while attempting completion. Exception follows:"
+                "GENERATION ERROR: Unknown error occurred while attempting completion.",
+                exc_info=True,
             )
-            logger.error(e)
             raise MsgFailure(msg="Unknown error occurred while attempting completion")
 
         # Check for refusal
         message = completion.choices[0].message
         if message.refusal is not None:
             logger.error(
-                f"GENERATION ERROR: Provider actively refused to run completion. Reason given: '{message.refusal}'"
+                "GENERATION ERROR: Provider actively refused to run completion. Reason given: '%s'",
+                message.refusal,
             )
             raise MsgFailure(msg="Provider actively refused to run completion")
 
@@ -310,11 +311,11 @@ class GenerationUtil:
                     api_key=api_key,
                     base_url=endpoint + "openai/v1",
                 )
-            except Exception as e:
+            except Exception:
                 logger.error(
-                    "GENERATION ERROR: Failed to initialize Azure OpenAI client:"
+                    "GENERATION ERROR: Failed to initialize Azure OpenAI client",
+                    exc_info=True,
                 )
-                logger.error(e)
 
         # OPENAI
         elif settings.AI_GENERATION["PROVIDER"] == "openai":
@@ -329,9 +330,11 @@ class GenerationUtil:
 
             try:
                 client = OpenAI(api_key=api_key)
-            except Exception as e:
-                logger.error("GENERATION ERROR: Failed to initialize OpenAI client:")
-                logger.error(e)
+            except Exception:
+                logger.error(
+                    "GENERATION ERROR: Failed to initialize OpenAI client",
+                    exc_info=True,
+                )
 
         # NOT A SUPPORTED PROVIDER
         else:

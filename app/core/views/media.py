@@ -38,7 +38,7 @@ class MediaRender:
             asset = Asset.objects.get(id=asset_id)
             return asset.render(size)
         except Asset.DoesNotExist:
-            logger.error(f"Asset: {asset_id} not found")
+            logger.error("Asset: %s not found", asset_id)
             return HttpResponseNotFound()
 
 

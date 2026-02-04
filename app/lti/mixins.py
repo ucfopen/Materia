@@ -42,8 +42,10 @@ class LtiLaunchMixin:
             # raise an exception if current user does not match stored launch user
             if request.user.username != launch_username:
                 logger.error(
-                    f"LTI: ERROR: launch recovery username mismatch detected between "
-                    f"{request.user.username} and {launch_username}!"
+                    "LTI: ERROR: launch recovery username mismatch detected between "
+                    "%s and %s!",
+                    request.user.username,
+                    launch_username,
                 )
                 raise MsgFailure(msg="LTI Launch recovery authentication mismatch")
 
