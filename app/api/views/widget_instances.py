@@ -116,7 +116,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             ]
 
         # Anyone can play a widget and get its qset
-        elif self.action == "question_sets" or self.action == "retrieve":
+        elif self.action == "question_set" or self.action == "question_sets" or self.action == "retrieve":
             permission_classes = [AllowAny]
 
         # Catch all just to block anything else
