@@ -1,5 +1,4 @@
 import logging
-import traceback
 
 from api.filters import LogPlayFilterBackend
 from api.paginators import PageNumberWithTotalPagination
@@ -209,9 +208,10 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                         play.is_valid = False
                         play.save()
 
-                        tbString = traceback.format_exc()
                         logger.error(
-                            f"\nvalidation failure for play {play.id}:\n{tbString}"
+                            "validation failure for play %s",
+                            play.id,
+                            exc_info=True,
                         )
 
                         raise MsgFailure(msg="This play did not pass validation.")
@@ -262,38 +262,43 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                                         .submit()
                                     )
 
-                                    logger.error(
-                                        f"LTI-AGS: successfully transmitted "
-                                        f"completion for play {play.id}"
+                                    logger.info(
+                                        "LTI-AGS: successfully transmitted "
+                                        "completion for play %s",
+                                        play.id,
                                     )
 
                                 except AGSClaimNotDefined:
                                     logger.error(
-                                        f"LTI-AGS: AGS claim not defined "
-                                        f"for play {play.id}"
+                                        "LTI-AGS: AGS claim not defined for play %s",
+                                        play.id,
                                     )
                                 except AGSNoLineItem:
                                     logger.error(
-                                        f"LTI-AGS: no AGS operations performed; "
-                                        f"a line item was not provided for play {play.id}"
+                                        "LTI-AGS: no AGS operations performed; "
+                                        "a line item was not provided for play %s",
+                                        play.id,
                                     )
-                                except Exception as e:
+                                except Exception:
                                     logger.error(
-                                        f"LTI-AGS: failed to transmit completion "
-                                        f"for play {play.id}: {str(e)}"
+                                        "LTI-AGS: failed to transmit completion "
+                                        "for play %s",
+                                        play.id,
+                                        exc_info=True,
                                     )
                             else:
                                 if launch is None:
                                     logger.error(
-                                        f"LTI-AGS: launch recovery failure: unable to "
-                                        f"retrieve launch for play {play.id}"
+                                        "LTI-AGS: launch recovery failure: unable to "
+                                        "retrieve launch for play %s",
+                                        play.id,
                                     )
                                 else:
                                     logger.error(
-                                        f"LTI-AGS: no AGS operations performed; "
-                                        f"AGS scoring unavailable for play {play.id}"
+                                        "LTI-AGS: no AGS operations performed; "
+                                        "AGS scoring unavailable for play %s",
+                                        play.id,
                                     )
-                                pass
                 else:
                     preview_play_id = update_serializer.validated_data[
                         "preview_play_id"
@@ -307,9 +312,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 return Response({"status": status.HTTP_200_OK, "success": True})
 
             except Exception:
-                logger.error("play session log save failure:")
-                tbString = traceback.format_exc()
-                logger.error(f"\ntraceback: {tbString}")
+                logger.error("play session log save failure", exc_info=True)
                 raise MsgFailure("Failed to Save", "Your play logs could not be saved.")
 
     def destroy(self, request):
