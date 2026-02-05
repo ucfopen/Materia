@@ -27,7 +27,8 @@ class MediaImportView(TemplateView):
             js_globals={
                 "MEDIA_URL": settings.URLS["MEDIA_URL"],
                 "MEDIA_UPLOAD_URL": settings.URLS["MEDIA_UPLOAD_URL"],
-            } | media_urls, # Concatante the main media URLs + the addiotnal URLs/properties
+            } 
+            | media_urls, # Concatante the main media URLs + the addiotnal URLs/properties
         )
         return render(request, "react.html", context)
 
@@ -35,7 +36,7 @@ class MediaImportView(TemplateView):
 class MediaRender:
     def index(request, asset_id, size="original"):
         # If we are using the CDN URL, directly render the media using the CDN URL
-        if(settings.DRIVER_SETTINGS['s3']['use_cdn']):
+        if settings.DRIVER_SETTINGS['s3']['use_cdn']:
             base_cdn_url = settings.DRIVER_SETTINGS['s3']['cdn_domain']
             redirect_url = f"{base_cdn_url}{asset_id}_{size}"
             return HttpResponseRedirect(redirect_url)
@@ -44,7 +45,7 @@ class MediaRender:
                 asset = Asset.objects.get(id=asset_id)
                 return asset.render(size)
             except Asset.DoesNotExist:
-                logger.error(f"Asset: {asset_id} not found")
+                logger.error("Asset: %s not found", asset_id)
                 return HttpResponseNotFound()
         
 

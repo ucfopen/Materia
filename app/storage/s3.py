@@ -303,8 +303,7 @@ class S3AssetStorageDriver:
                 ExtraArgs={"ContentType": asset.get_mime_type()},
             )
         except Exception as e:
-            logger.info("Error saving thumbnail to S3")
-            logger.info(e)
+            logger.error("Error saving thumbnail to S3", exc_info=True,)
         
 
     def migrate_to(driver, cleanup_delete=False):
