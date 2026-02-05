@@ -1,7 +1,8 @@
 import os
 
 from core.utils.validator_util import ValidatorUtil
-from urls import enforce_trailing_slash
+
+from .urls import enforce_trailing_slash
 
 # amount of kilobytes alloted to any individual user for media storage
 MEDIA_QUOTA = 5000
