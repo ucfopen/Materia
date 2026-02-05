@@ -122,12 +122,21 @@ class S3AssetStorageDriver:
     def handle_uploaded_file(asset, uploaded_file):
         s3_client = S3AssetStorageDriver.get_s3(True)
         uploaded_file.seek(0)
+
+        # Need to use a file buffer in order to access the original file again after uploading to S3 
+        file_bytes = uploaded_file.read()
+        file_buffer = io.BytesIO(file_bytes)
+
+        file_buffer.seek(0)
         s3_client.upload_fileobj(
-            Fileobj=uploaded_file,
+            Fileobj=file_buffer,
             Bucket=settings.DRIVER_SETTINGS["s3"]["bucket"],
             Key=S3AssetStorageDriver.get_key_name(asset.id, "original"),
             ExtraArgs={"ContentType": asset.get_mime_type()},
         )
+        # Upload the thumbnail
+        thumbnail_buffer = io.BytesIO(file_bytes)
+        S3AssetStorageDriver.build_size_thumbnail(asset, thumbnail_buffer, s3_client)
 
     def render(asset, size):
         from django.http import HttpResponseNotFound
@@ -236,6 +245,62 @@ class S3AssetStorageDriver:
         except Exception:
             os.remove(temporary_file.name)
             logger.error("Error saving new size to S3", exc_info=True)
+
+    # Function for building the thumbnail for the uploaded image
+    # Assumes the asset is an image AND use the default thumbnail size
+    def build_size_thumbnail(asset, uploaded_file, client):
+        from PIL import Image
+
+        target_size = 75
+        uploaded_file.seek(0)
+        img = Image.open(uploaded_file)
+
+        new_size = (0, 0)
+        # if the image is wider than it is tall, constrain height
+        original_width, original_height = img.size
+        if original_width > original_height:
+            new_size = (
+                int(target_size * original_width / original_height),
+                target_size,
+            )
+        # otherwise constrain width
+        else:
+            new_size = (
+                target_size,
+                int(target_size * original_height / original_width),
+            )
+
+        img = img.resize(new_size, Image.LANCZOS)
+
+        ## No need to check for crop
+        new_width, new_height = img.size
+        crop_dimensions = (
+            (new_width - target_size) / 2,
+            (new_height - target_size) / 2,
+            (new_width + target_size) / 2,
+            (new_height + target_size) / 2,
+        )
+        img = img.crop(crop_dimensions)
+        
+        new_file_format = asset.file_type.upper()
+        # Pillow does not recognize 'JPG' as a valid file format
+        if new_file_format == "JPG":
+            new_file_format = "JPEG"
+        
+        new_bytes = io.BytesIO()
+        img.save(new_bytes, format=new_file_format)
+        new_bytes.seek(0)
+
+        try:
+            client.upload_fileobj(
+                Fileobj=new_bytes,
+                Bucket=settings.DRIVER_SETTINGS["s3"]["bucket"],
+                Key=S3AssetStorageDriver.get_key_name(asset.id, "thumbnail"),
+                ExtraArgs={"ContentType": asset.get_mime_type()},
+            )
+        except Exception as e:
+            logger.error("Error saving thumbnail to S3", exc_info=True,)
+        
 
     def migrate_to(driver, cleanup_delete=False):
         if driver == "file":
