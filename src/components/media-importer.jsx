@@ -147,7 +147,7 @@ const MediaImporter = () => {
 				if (window.USE_CDN && window.CDN_URL){
 					return `${window.CDN_URL}/${data}_thumbnail`
 				}
-				return `${MEDIA_URL}${data}/thumbnail`
+				return `${window.MEDIA_URL}${data}/thumbnail`
 
 			case 'mp3': // intentional case fall-through
 			case 'wav': // intentional case fall-through
