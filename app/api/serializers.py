@@ -250,7 +250,7 @@ class WidgetSerializer(serializers.ModelSerializer):
                     f"Field not allowed to be modified: {field}"
                 )
 
-            logger.error(f"\nupdating widget field: {field}\n")
+            logger.info("updating widget field: %s", field)
             setattr(widget, field, value)
 
         if metadata_dict:
@@ -782,4 +782,3 @@ class UserExtraAttemptsSerializer(serializers.ModelSerializer):
 class PlayStorageSaveSerializer(serializers.Serializer):
     play_id = serializers.CharField()
     logs = serializers.JSONField()
-
