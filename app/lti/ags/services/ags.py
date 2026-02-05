@@ -65,8 +65,10 @@ class AGSService:
             play_state.submission_status = LtiPlayState.SubmissionStatus.SUCCESS
             play_state.last_submitted = timezone.now()
 
-            logger.error(
-                f"LTI-AGS: successfully transmitted {max_score}% score for play {play.id}"
+            logger.info(
+                "LTI-AGS: successfully transmitted %s score for play %s",
+                max_score,
+                play.id,
             )
 
         except AGSClaimNotDefined:
@@ -74,16 +76,17 @@ class AGSService:
                 LtiPlayState.SubmissionStatus.AGS_NOT_INCLUDED
             )
 
-            logger.error(f"LTI-AGS: AGS claim not defined for play {play.id}")
+            logger.info("LTI-AGS: AGS claim not defined for play %s", play.id)
 
         except AGSNoLineItem:
             play_state.submission_status = (
                 LtiPlayState.SubmissionStatus.AGS_NOT_INCLUDED
             )
 
-            logger.error(
-                f"LTI-AGS: no AGS operations performed; "
-                f"a line item was not provided for play {play.id}"
+            logger.info(
+                "LTI-AGS: no AGS operations performed; "
+                "a line item was not provided for play %s",
+                play.id,
             )
 
         # The remaining exceptions come from requests's raise_for_status() method
@@ -104,15 +107,16 @@ class AGSService:
                             LtiPlayState.SubmissionStatus.ERR_NO_ATTEMPTS
                         )
                         logger.error(
-                            f"LTI-AGS: Maximum attempts reached for play {play.id}"
+                            "LTI-AGS: Maximum attempts reached for play %s", play.id
                         )
 
                 # a non-422 is a general error (potentially a 500)
                 # this is officially ERR_FAILURE
                 else:
                     logger.error(
-                        f"LTI-AGS: failed to submit score for play {play.id}. "
-                        f"Error: {str(e)}"
+                        "LTI-AGS: failed to submit score for play %s",
+                        play.id,
+                        exc_info=True,
                     )
 
                     play_state.submission_status = (
@@ -120,10 +124,10 @@ class AGSService:
                     )
             else:
                 logger.error(
-                    f"LTI-AGS: failed to submit score for play {play.id}. "
-                    f"Error: {str(e)}"
+                    "LTI-AGS: failed to submit score for play %s",
+                    play.id,
+                    exc_info=True,
                 )
-                logger.error(e.response.json())
                 play_state.submission_status = LtiPlayState.SubmissionStatus.ERR_FAILURE
 
         play_state.submission_attempts = play_state.submission_attempts + 1

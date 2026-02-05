@@ -217,8 +217,11 @@ class WidgetPlayView(
 
             play.save()
 
-            logger.error(
-                f"LTI: session initialization for user {play.user.id} with play {play.id} in context {play.context_id}"
+            logger.info(
+                "LTI: session initialization for user %s with play %s in context %s",
+                play.user.id,
+                play.id,
+                play.context_id,
             )
 
         return {"play_id": play.id, "lti_token": lti_token}
@@ -700,7 +703,7 @@ def _get_id_from_slug(widget_slug: str) -> int | None:
             pass
 
     logger.error(
-        f"Failed to get id from widget slug, likely an invalid slug: '{widget_slug}'"
+        "Failed to get id from widget slug, likely an invalid slug: '%s'", widget_slug
     )
     return None
 

@@ -265,7 +265,7 @@ class LTILaunchService:
     @staticmethod
     def get_launch_data_from_request(request):
         """
-        Retrieves the launch data from a request, if present. Just a shortcut to request.lti_launch.get_launch_data()
+        Retrieves launch data from the request using the ?lid GET parameter as a key
         """
         launch_id = request.GET.get("lid", None)
         if launch_id is not None:

@@ -1,5 +1,4 @@
 import logging
-import traceback
 
 from api.filters import LogPlayFilterBackend
 from api.paginators import PageNumberWithTotalPagination
@@ -219,9 +218,10 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                         play.is_valid = False
                         play.save()
 
-                        tbString = traceback.format_exc()
                         logger.error(
-                            f"\nvalidation failure for play {play.id}:\n{tbString}"
+                            "validation failure for play %s",
+                            play.id,
+                            exc_info=True,
                         )
 
                         raise MsgFailure(msg="This play did not pass validation.")
@@ -256,9 +256,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 return Response({"status": status.HTTP_200_OK, "success": True})
 
             except Exception:
-                logger.error("play session log save failure:")
-                tbString = traceback.format_exc()
-                logger.error(f"\ntraceback: {tbString}")
+                logger.error("play session log save failure", exc_info=True)
                 raise MsgFailure("Failed to Save", "Your play logs could not be saved.")
 
     def destroy(self, request):
