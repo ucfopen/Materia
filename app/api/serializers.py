@@ -585,7 +585,7 @@ class ScoreSummarySerializer(serializers.Serializer):
         for log in logs:
 
             semester_key = f"{log.created_at.year}-{log.semester.semester}"
-            user_id = 0 if log.user is None else log.user.id
+            user_id = 0 if log.user_id is None else log.user_id
 
             if semester_key not in summary:
 
