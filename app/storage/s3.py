@@ -236,6 +236,9 @@ class S3AssetStorageDriver:
                 ExtraArgs={"ContentType": asset.get_mime_type()},
             )
 
+            if(temporary_file and not uploaded_file):
+                os.remove(temporary_file.name)
+                
             return S3AssetStorageDriver.get_view_url(asset.id, size) 
         except Exception:
             if(temporary_file and not uploaded_file):
