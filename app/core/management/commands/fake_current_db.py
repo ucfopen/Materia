@@ -108,7 +108,7 @@ class Command(base.BaseCommand):
 
         # Make the 'id' field of the lti table signed to match Django BigAutoField expectations
         self.stdout.write("Making lti.id column signed")
-        cursor.execute("ALTER TABLE `lti` MODIFY `id` bigint SIGNED;")
+        cursor.execute("ALTER TABLE `lti` MODIFY `id` bigint SIGNED AUTO_INCREMENT;")
 
         cursor.close()
 
