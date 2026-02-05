@@ -241,7 +241,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                                 AGSService.submit_score_for_play(play)
                             except AGSNoPlayState:
                                 logger.error(
-                                    f"LTI-AGS: No play state for play {play.id}"
+                                    "LTI-AGS: Error: No play state for play %s", play.id
                                 )
                 else:
                     preview_play_id = update_serializer.validated_data[
