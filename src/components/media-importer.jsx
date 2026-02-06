@@ -145,7 +145,7 @@ const MediaImporter = () => {
 			case 'png': // intentional case fall-through
 			case 'gif': // intentional case fall-through
 				if (window.USE_CDN && window.CDN_URL){
-					return `${window.CDN_URL}/${data}_thumbnail`
+					return `${window.CDN_URL}${data}_thumbnail`
 				}
 				return `${window.MEDIA_URL}${data}/thumbnail`
 
