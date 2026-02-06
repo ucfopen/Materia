@@ -608,9 +608,9 @@ class LtiPlayState(models.Model):
         ERR_FAILURE = "ERR_FAILURE", gettext_lazy("Failure")
 
     id = models.BigAutoField(primary_key=True)
-    play = models.ForeignKey(
+    play = models.OneToOneField(
         LogPlay,
-        related_name="play",
+        related_name="lti_play_state",
         on_delete=models.PROTECT,
         db_column="play_id",
     )

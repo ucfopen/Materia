@@ -52,10 +52,10 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "play",
-                    models.ForeignKey(
+                    models.OneToOneField(
                         db_column="play_id",
                         on_delete=django.db.models.deletion.PROTECT,
-                        related_name="play",
+                        related_name="lti_play_state",
                         to="core.logplay",
                     ),
                 ),

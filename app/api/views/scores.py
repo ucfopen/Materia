@@ -7,7 +7,7 @@ from api.serializers import (
     ScoresForUserSerializer,
 )
 from core.message_exception import MsgExpired, MsgNoPerm
-from core.models import LogPlay, LtiPlayState, WidgetInstance
+from core.models import LogPlay, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
 from django.utils import timezone
@@ -213,7 +213,9 @@ class ScoresDetailView(APIView):
 
                 response["lti"] = None
                 if play.auth == "lti":
-                    play_state = LtiPlayState.objects.filter(play_id=play.id).first()
+                    play_state = (
+                        play.lti_play_state if hasattr(play, "lti_play_state") else None
+                    )
 
                     if play_state is None:
                         response["lti"] = {

@@ -27,6 +27,7 @@ from lti.mixins import LtiLaunchMixin
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from lti.views.lti import error_page as lti_error_page
+from pylti1p3.exception import LtiException
 
 logger = logging.getLogger(__name__)
 
@@ -174,26 +175,49 @@ class WidgetPlayView(
 
         if not instance.guest_access:
 
-            # initial launch: launch data is present in request object
+            # initial launch: launch data should be present in request object
             if LTILaunchService.is_initial_launch(self.request):
-                launch_data = LTILaunchService.get_launch_data_from_request(
-                    self.request
-                )
-                play.auth = "lti"
-                play.context_id = LTILaunchService.get_context_id(launch_data)
+                try:
+                    launch_data = LTILaunchService.get_launch_data_from_request(
+                        self.request
+                    )
 
-                launch_resource_link = LTILaunchService.get_resource_link(launch_data)
+                    play.auth = "lti"
+                    play.context_id = LTILaunchService.get_context_id(launch_data)
 
-                play_lti_state = LtiPlayState(
-                    play=play,
-                    lti_association=Lti.objects.get(resource_link=launch_resource_link),
-                    ags_line_item=AGSUtil.get_line_item_from_launch(launch_data) or "",
-                    ags_user_id=AGSUtil.get_ags_user_id(launch_data),
-                    ags_scoring_enabled=AGSUtil.is_ags_scoring_available(launch_data),
-                )
-                play_lti_state.save()
+                    launch_resource_link = LTILaunchService.get_resource_link(
+                        launch_data
+                    )
 
-                lti_token = play.id
+                    play_lti_state = LtiPlayState(
+                        play=play,
+                        lti_association=Lti.objects.get(
+                            resource_link=launch_resource_link
+                        ),
+                        ags_line_item=AGSUtil.get_line_item_from_launch(launch_data)
+                        or "",
+                        ags_user_id=AGSUtil.get_ags_user_id(launch_data),
+                        ags_scoring_enabled=AGSUtil.is_ags_scoring_available(
+                            launch_data
+                        ),
+                    )
+                    play_lti_state.save()
+
+                    lti_token = play.id
+
+                except LtiException:
+                    logger.error(
+                        "LTI: Error: initial launch attempted for play %s, but launch data could not be recovered",
+                        play.id,
+                        exc_info=True,
+                    )
+
+                except Exception:
+                    logger.error(
+                        "LTI: Error: initial launch attempted for play %s failed with an exception",
+                        play.id,
+                        exc_info=True,
+                    )
 
             # recovery launch: we reference the prior LTI launch state via the LTI token (the original play's ID)
             elif LTILaunchService.is_recovery_launch(self.request):
@@ -215,11 +239,18 @@ class WidgetPlayView(
                     prior_lti_state.last_submitted = None
                     prior_lti_state.save()
 
+                else:
+                    logger.warning(
+                        "LTI: Warning: recovery init could not find prior LTI play state for play %s with token %s",
+                        play.id,
+                        lti_token,
+                    )
+
             play.save()
 
             logger.info(
                 "LTI: session initialization for user %s with play %s in context %s",
-                play.user.id,
+                play.user_id,
                 play.id,
                 play.context_id,
             )

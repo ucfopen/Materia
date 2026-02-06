@@ -446,7 +446,6 @@ class PlayLogUpdateSerializer(serializers.Serializer):
             if not preview_instance_id and not preview_play_id:
                 play = LogPlay.objects.get(pk=self.context["session_id"])
 
-                # if not play.is_valid or play.user.id != user.id:
                 # TODO user validation, must accommodate guest mode
                 if not play.is_valid:
                     raise serializers.ValidationError(f"Play ID {play.id} invalid.")
@@ -752,7 +751,7 @@ class ScoresForUserSerializer(serializers.Serializer):
 
 class ScoreDetailsForPlaySerializer(serializers.Serializer):
     play_id = serializers.PrimaryKeyRelatedField(
-        queryset=LogPlay.objects.all(), required=True
+        queryset=LogPlay.objects.select_related("lti_play_state"), required=True
     )
 
 

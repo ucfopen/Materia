@@ -282,9 +282,16 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         Returns 403 on a submission failure (AGS returned an error response)
         Returns 400 when the submission request is invalid (the submission was not attempted)
         """
-        play = LogPlay.objects.get(pk=pk)
+        play = LogPlay.objects.select_related("lti_play_state").get(pk=pk)
         self.check_object_permissions(request, play)
-        play_state = LtiPlayState.objects.get(play_id=play.id)
+
+        if not hasattr(play, "lti_play_state"):
+            return Response(
+                {"success": False, "message": "No LTI play state found."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        play_state = play.lti_play_state
 
         if play_state.submission_status == LtiPlayState.SubmissionStatus.ERR_FAILURE:
             # The student is restricted to a certain number of submissions
