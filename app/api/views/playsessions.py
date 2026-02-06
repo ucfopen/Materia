@@ -68,7 +68,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
         # improve query performance by using prefetch/select related tables when include_activity is included
         if include_activity:
-            queryset = queryset.prefetch_related("play")
+            queryset = queryset.prefetch_related("lti_play_state")
             queryset = queryset.select_related("instance__widget")
 
         return queryset
