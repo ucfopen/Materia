@@ -175,8 +175,8 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 ):
                     logs = logs[0]
 
-                for log in logs:
-                    log_model = Log(
+                log_models = [
+                    Log(
                         play_id=pk,
                         log_type=log.get("type"),
                         item_id=log.get("item_id"),
@@ -184,10 +184,12 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                         value=log.get("value", ""),
                         game_time=log.get("game_time", -1),
                     )
+                    for log in logs
+                ]
 
                     # only plays are saved to the db - previews are stored in request session (see below)
-                    if not is_preview:
-                        log_model.save()
+                if not is_preview:
+                    Log.objects.bulk_create(log_models)
 
                 if not is_preview:
                     play = LogPlay.objects.get(pk=pk)
