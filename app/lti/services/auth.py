@@ -1,5 +1,4 @@
 import logging
-from pprint import pformat
 
 # from core.models import Lti
 from django.conf import settings
@@ -49,7 +48,7 @@ class LTIAuthService:
 
         # user does not possess any of the roles recognized as instructor or student
         logger.error(
-            f"LTI auth: user does not have a known role or roles: {pformat(lti_roles)}"
+            "LTI auth: user does not have a known role or roles: %s}", lti_roles
         )
         return False
 
@@ -148,7 +147,7 @@ class LTIAuthService:
 
             return user
 
-        except Exception as e:
-            logger.error(f"LTI auth: exception!\n{pformat(e)}\n")
+        except Exception:
+            logger.error("LTI auth: exception!", exc_info=True)
             logout(request)
             return None

@@ -268,7 +268,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         elif play_id is not None:
-            play_id_serializer = PlayIdSerializer(data=play_id)
+            play_id_serializer = PlayIdSerializer(data={"play_id": play_id})
             if play_id_serializer.is_valid(raise_exception=True):
                 qset = instance.get_qset_for_play(play_id)
                 serializer = QuestionSetSerializer(qset)
@@ -514,6 +514,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
             # If there was a refusal, return a message
             if len(refusals) > 0:
+                # TODO: evaluate logger level and details of `refusals`
                 logger.error(refusals)
                 raise MsgFailure(
                     msg=f"Could not update {len(refusals)} out of {len(updates)} permissions."
@@ -537,9 +538,8 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         try:
             duplicate = instance.duplicate(request.user, name, copy_existing_perms)
-        except Exception as e:
-            logger.error("Failed to copy widget instance:")
-            logger.error(e)
+        except Exception:
+            logger.error("Failed to copy widget instance", exc_info=True)
             raise MsgFailure(msg="Widget instance could not be copied.")
 
         return Response(WidgetInstanceSerializer(duplicate).data)

@@ -2,12 +2,15 @@ import os
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "materia-local-dev-secret-key")
 
+# allowed hosts: what domains can execute the application?
+# localhost is whitelisted to enable system startup health checks
 ALLOWED_HOSTS = [
     os.environ.get("BASE_URL", "")
     .rstrip("/")
     .replace("https://", "")
     .replace("http://", "")
-    .split(":")[0]
+    .split(":")[0],
+    "localhost",
 ]
 
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"

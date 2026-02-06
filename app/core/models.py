@@ -153,11 +153,11 @@ class Asset(models.Model):
 
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error(
-                "The following exception occurred while attempting to store an asset:"
+                "The following exception occurred while attempting to store an asset",
+                exc_info=True,
             )
-            logger.error(e)
             return False
 
     def delete(self, *args, **kwargs) -> bool:
@@ -176,11 +176,11 @@ class Asset(models.Model):
             self = Asset()
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error(
-                "The following exception occurred while attempting to remove an asset:"
+                "The following exception occurred while attempting to remove an asset",
+                exc_info=True,
             )
-            logger.error(e)
             return False
 
     def render(self, size="original"):
@@ -1004,9 +1004,11 @@ class Widget(models.Model):
         exporter_mappings = getattr(script_globals, "mappings", None)
         if exporter_mappings is None:
             logger.error(
-                f"Play data exporter for widget '{self.name}' ({self.id}) is invalid!"
+                "Play data exporter for widget '%s' (%s) is invalid!"
+                "\n - Missing top level dict object named 'mappings'.",
+                self.name,
+                self.id,
             )
-            logger.error(" - Missing top level dict object named 'mappings'.")
             raise MsgFailure(
                 msg="Play data exporter script is invalid; missing 'mappings' dict"
             )
@@ -1190,7 +1192,7 @@ class WidgetInstance(models.Model):
                     super().save(*args, **kwargs)
                     success = True
                 except DatabaseError as e:
-                    logger.info(e)
+                    logger.info(e, exc_info=True)
                     # try again until the retries run out
 
         # UPDATING AN EXISTING INSTANCE
