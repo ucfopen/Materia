@@ -213,7 +213,8 @@
 		.display.table {
 			display: flex;
 			background: #f3f3f3;
-			width: 570px;
+			width: 100%;
+			margin-right: 10px;
 			min-height: 300px;
 
 			&.loading {
@@ -223,6 +224,26 @@
 			.no-user-search-results {
 				margin-left: 20px;
 				font-weight: 700;
+			}
+
+			td {
+				font-weight: 400;
+				font-size: 0.9em;
+			}
+
+			span.score-auth-indicator {
+				font-size: 0.8em;
+				font-weight: 400;
+				color: #fff;
+
+				padding: 0.25em 0.5em;
+
+				background: rgb(67, 139, 57);
+				border-radius: 0.5em;
+
+				&.lti {
+					background: rgb(38, 97, 139);
+				}
 			}
 		}
 

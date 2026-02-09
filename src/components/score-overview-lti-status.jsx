@@ -74,7 +74,7 @@ const ScoreOverviewLtiStatus = ({ lti, single, playId }) => {
 	}
 
 	return (
-		<section className={`lti-status ${lti.is_legacy ? 'legacy' : ''} ${ status ? status : '' }`}>
+		<section className={`lti-status ${lti.is_legacy ? 'legacy' : (status ? status : '')}`}>
 			{ltiContentBody}
 		</section>
 	)
