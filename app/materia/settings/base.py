@@ -205,6 +205,6 @@ if SENTRY_DSN:
         integrations=[DjangoIntegration()],
         environment=os.environ.get("SENTRY_ENVIRONMENT", "development"),
         send_default_pii=True,
-        # 0.1 is 10% of transactions sent to Sentry. can replace with `traces_sampler` later for more control
-        traces_sample_rate=0.1,
+        # 0.01 is 1% of transactions sent to Sentry. can replace with `traces_sampler` later for more control
+        traces_sample_rate=0.01,
     )
