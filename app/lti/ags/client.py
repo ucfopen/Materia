@@ -4,8 +4,7 @@ from datetime import datetime
 from core.models import LtiPlayState
 from lti.services.launch import LTILaunchService
 
-from .exceptions.ags_claim_not_defined import AGSClaimNotDefined
-from .exceptions.ags_no_line_item import AGSNoLineItem
+from .exceptions import AGSClaimNotDefined, AGSNoLineItem
 from .oauth import AGSOauth
 from .request import AGSRequest
 from .score_builder import AGSScoreBuilder

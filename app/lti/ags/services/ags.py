@@ -5,9 +5,7 @@ from django.conf import settings
 from django.db.models import Max
 from django.utils import timezone
 from lti.ags.client import AGSClient
-from lti.ags.exceptions.ags_claim_not_defined import AGSClaimNotDefined
-from lti.ags.exceptions.ags_no_line_item import AGSNoLineItem
-from lti.ags.exceptions.ags_no_play_state import AGSNoPlayState
+from lti.ags.exceptions import AGSClaimNotDefined, AGSNoLineItem, AGSNoPlayState
 
 logger = logging.getLogger(__name__)
 

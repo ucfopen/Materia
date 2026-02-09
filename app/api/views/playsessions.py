@@ -16,7 +16,7 @@ from core.utils.validator_util import ValidatorUtil
 from django.http import JsonResponse
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-from lti.ags.exceptions.ags_no_play_state import AGSNoPlayState
+from lti.ags.exceptions import AGSNoPlayState
 from lti.ags.services.ags import AGSService
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
