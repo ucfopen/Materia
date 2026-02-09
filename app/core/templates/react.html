@@ -12,6 +12,8 @@
 		<link rel="icon" href="/static/favicon-128.png" sizes="128x128" />
 		<link rel="icon" href="/static/favicon-180.png" sizes="180x180" />
 		<link rel="icon" href="/static/favicon-192.png" sizes="192x192" />
+		<link rel="preload" href="/fonts/lato-v25-latin-regular.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/fonts/lato-v25-latin-700.woff2" as="font" type="font/woff2" crossorigin />
 		{{ css_render|safe }} {{ partials.google_analytics|default:''|safe }}
 
 		{% if css_resources %}
