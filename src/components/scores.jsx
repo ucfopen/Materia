@@ -20,6 +20,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	const [errorState, setErrorState] = useState(null)
 	const [attemptsLeft, setAttemptsLeft] = useState(-1)
 	const [currentAttempt, setCurrentAttempt] = useState(null)
+	const [initSent, setInitSent] = useState(false)
 
 	const [attempts, setAttempts] = useState([])
 
@@ -261,7 +262,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	When parsed play data is updated, send it to the custom score screen (if enabled)
 	*/
 	useEffect(() => {
-		if (!errorState && customScoreScreen.show) {
+		if (!errorState && customScoreScreen.show && initSent) {
 			sendToWidget('updateWidget', [playData.qset, playData.details.table])
 		}
 	},[playData.id])
@@ -331,6 +332,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 				})
 			}
 			sendToWidget('initWidget', [playData.qset, playData.details.table, instance, isPreview, window.MEDIA_URL])
+			setInitSent(true)
 		}
 	}
 
