@@ -19,10 +19,10 @@ const ScoreOverview = ({instId, playId, isSingle, overview, attemptNum, isPrevie
 
 	// Gets score summary
 	const { data: scoreSummary, isFetching } = useQuery({
-		queryKey: ['score-summary', inst_id],
-		queryFn: () => apiGetScoreSummary(inst_id),
+		queryKey: ['score-summary', instId],
+		queryFn: () => apiGetScoreSummary(instId),
 		staleTime: Infinity,
-		enabled: !!inst_id && !single_id && fetchedOverview,
+		enabled: !!instId && !single_id && fetchedOverview,
 		retry: false
 	})
 
