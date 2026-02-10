@@ -4,10 +4,8 @@ import os
 from pathlib import Path
 
 import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-
-
 from core.utils.validator_util import ValidatorUtil
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from .apps import *  # noqa: F401, F403
 from .css import *  # noqa: F401, F403
@@ -81,7 +79,6 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.dark_mode",
-                "core.context_processors.fonts",
             ],
         },
     },

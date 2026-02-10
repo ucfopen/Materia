@@ -17,7 +17,7 @@ const MyWidgetScoreSemesterSummary = ({students, totalScores, average}) => (
 		<li>
 			<h4>Avg Final Score</h4>
 			<p className='final-average'>
-				{average}
+				{Math.round(average)}
 			</p>
 		</li>
 	</ul>
