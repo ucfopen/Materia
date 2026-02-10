@@ -1,19 +1,28 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { apiGetScoreSummary } from '../util/api'
 import { useQuery } from 'react-query'
 import BarGraph from './bar-graph'
 import ScoreOverviewLtiStatus from './score-overview-lti-status'
+import LoadingIcon from './loading-icon'
 
 const ScoreOverview = ({instId, playId, isSingle, overview, attemptNum, isPreview, guestAccess}) => {
 
-	const [showGraph, setShowGraph] = useState(null)
+	const [showGraph, setShowGraph] = useState(false)
+	const [fetchedOverview, setFetchedOverview] = useState(false)
+
+	const fetchOrDisplayOverview = () => {
+		setShowGraph(!showGraph)
+		if ( ! fetchedOverview) {
+			setFetchedOverview(true)
+		}
+	}
 
 	// Gets score summary
-	const { data: scoreSummary } = useQuery({
-		queryKey: ['score-summary', instId],
-		queryFn: () => apiGetScoreSummary(instId),
+	const { data: scoreSummary, isFetching } = useQuery({
+		queryKey: ['score-summary', inst_id],
+		queryFn: () => apiGetScoreSummary(inst_id),
 		staleTime: Infinity,
-		enabled: !!instId,
+		enabled: !!inst_id && !single_id && fetchedOverview,
 		retry: false
 	})
 
@@ -34,6 +43,15 @@ const ScoreOverview = ({instId, playId, isSingle, overview, attemptNum, isPrevie
 				}
 			</div>
 		)
+	} else if (isFetching) {
+		scoreGraphRender = (
+			<div className='graph loading'>
+				<LoadingIcon size="sm" position="relative"></LoadingIcon>
+				<p className="loading-text">Loading class scores ...</p>
+			</div>
+		)
+	} else {
+		<p>Error fetching score comparison.</p>
 	}
 
 	let overviewTable = []
@@ -54,9 +72,9 @@ const ScoreOverview = ({instId, playId, isSingle, overview, attemptNum, isPrevie
 	}
 
 	let classRankBtn = null
-	if (!isPreview && scoreSummary) {
+	if ( ! isPreview ) {
 		classRankBtn = (
-			<div id="class-rank-button" className="action_button" onClick={() => setShowGraph(!showGraph)}>
+			<div id="class-rank-button" className="action_button" onClick={fetchOrDisplayOverview}>
 				{`${showGraph ? 'Close' : 'Compare With Class'}`}
 			</div>
 		)

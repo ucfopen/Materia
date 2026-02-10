@@ -3,13 +3,6 @@ import os
 # CSS group definition configs
 
 CSS_BASEURL = os.environ.get("CSS_BASEURL", "dist/css/")
-FONTS_BASEURL = "https://fonts.googleapis.com/"
-
-FONTS_DEFAULT = [
-    FONTS_BASEURL + "css2?family=Kameron:wght@700&display=block",
-    FONTS_BASEURL
-    + "css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,700&display=block",
-]
 
 CSS_GROUPS = {
     "main": [CSS_BASEURL + "homepage.css"],
