@@ -753,17 +753,30 @@ article {
 section.score-graph {
 	max-height: 0;
 	overflow: hidden;
-	transition: max-height 0.5s linear;
+	transition: max-height 0.15s ease-in-out;
 
 	.graph {
-		width: 746px;
-		height: 320px;
+		&:not(.loading) {
+			max-height: 320px;
+		}
 
-		margin: 15px auto 0 auto;
+		&.loading {
+			max-height: 80px;
+
+			.loading-text {
+				margin: 15px auto 0;
+			}
+		}
+
+		margin: 15px auto 0;
 		padding: 20px 16px 0 16px;
+
+		width: 746px;
 
 		background: #fff;
 		box-shadow: inset 0px 1px 2px #333;
+
+		transition: max-height 0.15s ease-in-out;
 
 		.jqplot-yaxis-label {
 			padding-left: 5px;
@@ -771,7 +784,7 @@ section.score-graph {
 	}
 
 	&.open {
-		max-height: 600px;
+		max-height: 320px;
 	}
 }
 
