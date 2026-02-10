@@ -551,7 +551,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	}
 
 	let customScoreScreenRender = null
-	if (!errorState && customScoreScreen.show) {
+	if (!errorState && customScoreScreen.show && !!playData.id) {
 		customScoreScreenRender = (
 			<iframe ref={scoreWidgetRef}
 				id='container'
