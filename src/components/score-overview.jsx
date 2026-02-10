@@ -22,7 +22,7 @@ const ScoreOverview = ({instId, playId, isSingle, overview, attemptNum, isPrevie
 		queryKey: ['score-summary', instId],
 		queryFn: () => apiGetScoreSummary(instId),
 		staleTime: Infinity,
-		enabled: !!instId && !single_id && fetchedOverview,
+		enabled: !!instId && !isSingle && fetchedOverview,
 		retry: false
 	})
 
