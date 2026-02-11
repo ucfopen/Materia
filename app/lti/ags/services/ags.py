@@ -104,9 +104,6 @@ class AGSService:
                         play_state.submission_status = (
                             LtiPlayState.SubmissionStatus.ERR_NO_ATTEMPTS
                         )
-                        logger.error(
-                            "LTI-AGS: Maximum attempts reached for play %s", play.id
-                        )
 
                 # a non-422 is a general error (potentially a 500)
                 # this is officially ERR_FAILURE

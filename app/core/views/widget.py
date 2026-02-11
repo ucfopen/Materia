@@ -189,11 +189,14 @@ class WidgetPlayView(
                         launch_data
                     )
 
+                    lti_assoc = Lti.objects.filter(
+                        widget_instance_id=instance.id,
+                        resource_link=launch_resource_link,
+                    ).first()
+
                     play_lti_state = LtiPlayState(
                         play=play,
-                        lti_association=Lti.objects.get(
-                            resource_link=launch_resource_link
-                        ),
+                        lti_association=lti_assoc,
                         ags_line_item=AGSUtil.get_line_item_from_launch(launch_data)
                         or "",
                         ags_user_id=AGSUtil.get_ags_user_id(launch_data),
