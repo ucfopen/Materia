@@ -76,7 +76,7 @@ const MediaImporter = () => {
 						id: asset.id,
 						type: asset.file_type,
 						name: asset.title.split('.').shift(),
-						timestamp: asset.created_at,
+						timestamp: creationDate,
 						thumb: _thumbnailUrl(asset.id, asset.file_type),
 						created: [creationDate.getMonth(), creationDate.getDate(), creationDate.getFullYear()].join('/'),
 						is_deleted: parseInt(asset.is_deleted) || asset.is_deleted === true
