@@ -225,7 +225,7 @@ class WidgetPlayView(
             # recovery launch: we reference the prior LTI launch state via the LTI token (the original play's ID)
             elif LTILaunchService.is_recovery_launch(self.request):
                 lti_token = self.request.GET.get("token")
-                prior_lti_state = LtiPlayState.objects.get(play_id=lti_token)
+                prior_lti_state = LtiPlayState.objects.filter(play_id=lti_token).first()
 
                 # use the prior play's lti state as the basis for the new play lti state
                 # if it doesn't exist, we can't treat the play as a recovery play
