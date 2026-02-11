@@ -280,7 +280,7 @@ class LTILaunchService:
         """
         play = LogPlay.objects.get(pk=play_id)
         if play:
-            launch = LtiPlayState.objects.get(play_id=play.id)
+            launch = LtiPlayState.objects.filter(play_id=play.id).first()
             return launch
 
         return None

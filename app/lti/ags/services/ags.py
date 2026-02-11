@@ -18,7 +18,7 @@ class AGSService:
         Handles AGS score submission for a given play.
         Returns the LtiPlayState.SubmissionStatus string based on the submission result.
         """
-        play_state = LtiPlayState.objects.get(play_id=play.id)
+        play_state = LtiPlayState.objects.filter(play_id=play.id).first()
         if not play_state:
             raise AGSNoPlayState()
 
