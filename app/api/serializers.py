@@ -446,7 +446,6 @@ class PlayLogUpdateSerializer(serializers.Serializer):
             if not preview_instance_id and not preview_play_id:
                 play = LogPlay.objects.get(pk=self.context["session_id"])
 
-                # if not play.is_valid or play.user.id != user.id:
                 # TODO user validation, must accommodate guest mode
                 if not play.is_valid:
                     raise serializers.ValidationError(f"Play ID {play.id} invalid.")
@@ -491,10 +490,17 @@ class PlaySessionSerializer(serializers.ModelSerializer):
     inst_name = serializers.CharField(source="instance.name", read_only=True)
     widget_name = serializers.CharField(source="instance.widget.name", read_only=True)
     widget_icon = serializers.SerializerMethodField()
+    submission_status = serializers.SerializerMethodField()
     user = UserSerializer(read_only=True)
 
     def get_widget_icon(self, play):
         return f"{play.instance.widget.id}-{play.instance.widget.clean_name}{os.sep}"
+
+    def get_submission_status(self, play):
+        # Return the submission_status from the related LtiPlayState
+        if hasattr(play, "play") and play.play.exists():
+            return play.play.first().submission_status
+        return None
 
     def __init__(self, *args, **kwargs):
         is_student_view = kwargs.pop("is_student_view", False)
@@ -524,7 +530,9 @@ class PlaySessionSerializer(serializers.ModelSerializer):
             field_set.append("user_id")
 
         if include_activity:
-            field_set.extend(["inst_name", "widget_name", "widget_icon"])
+            field_set.extend(
+                ["inst_name", "widget_name", "widget_icon", "submission_status"]
+            )
 
         if include_user_info:
             field_set.append("user")
@@ -555,6 +563,7 @@ class PlaySessionSerializer(serializers.ModelSerializer):
             "inst_name",
             "widget_name",
             "widget_icon",
+            "submission_status",
             "user",
         ]
 
@@ -742,7 +751,7 @@ class ScoresForUserSerializer(serializers.Serializer):
 
 class ScoreDetailsForPlaySerializer(serializers.Serializer):
     play_id = serializers.PrimaryKeyRelatedField(
-        queryset=LogPlay.objects.all(), required=True
+        queryset=LogPlay.objects.select_related("lti_play_state"), required=True
     )
 
 

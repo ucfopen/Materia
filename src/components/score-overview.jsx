@@ -2,9 +2,10 @@ import React, { useState } from 'react'
 import { apiGetScoreSummary } from '../util/api'
 import { useQuery } from 'react-query'
 import BarGraph from './bar-graph'
+import ScoreOverviewLtiStatus from './score-overview-lti-status'
 import LoadingIcon from './loading-icon'
 
-const ScoreOverview = ({inst_id, single_id, overview, attemptNum, isPreview, guestAccess}) => {
+const ScoreOverview = ({instId, playId, isSingle, overview, attemptNum, isPreview, guestAccess}) => {
 
 	const [showGraph, setShowGraph] = useState(false)
 	const [fetchedOverview, setFetchedOverview] = useState(false)
@@ -18,10 +19,10 @@ const ScoreOverview = ({inst_id, single_id, overview, attemptNum, isPreview, gue
 
 	// Gets score summary
 	const { data: scoreSummary, isFetching } = useQuery({
-		queryKey: ['score-summary', inst_id],
-		queryFn: () => apiGetScoreSummary(inst_id),
+		queryKey: ['score-summary', instId],
+		queryFn: () => apiGetScoreSummary(instId),
 		staleTime: Infinity,
-		enabled: !!inst_id && !single_id && fetchedOverview,
+		enabled: !!instId && !isSingle && fetchedOverview,
 		retry: false
 	})
 
@@ -65,6 +66,11 @@ const ScoreOverview = ({inst_id, single_id, overview, attemptNum, isPreview, gue
 		)
 	})
 
+	let overviewLtiStatus = null
+	if (overview.lti) {
+		overviewLtiStatus = <ScoreOverviewLtiStatus lti={overview.lti} single={isSingle} playId={playId} />
+	}
+
 	let classRankBtn = null
 	if ( ! isPreview ) {
 		classRankBtn = (
@@ -103,6 +109,7 @@ const ScoreOverview = ({inst_id, single_id, overview, attemptNum, isPreview, gue
 							{overviewTable}
 						</tbody>
 					</table>
+					{overviewLtiStatus}
 				</div>
 			</>
 		)

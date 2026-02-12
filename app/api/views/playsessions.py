@@ -9,19 +9,15 @@ from api.serializers import (
     PlaySessionSerializer,
 )
 from core.message_exception import MsgFailure, MsgInvalidInput
-from core.models import Log, LogPlay, WidgetInstance
+from core.models import Log, LogPlay, LtiPlayState, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.widget_play_services import WidgetPlayInitService
 from core.utils.validator_util import ValidatorUtil
-from django.conf import settings
-from django.db.models import Max
 from django.http import JsonResponse
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-from lti.ags.client import AGSClient
-from lti.ags.exceptions.ags_claim_not_defined import AGSClaimNotDefined
-from lti.ags.exceptions.ags_no_line_item import AGSNoLineItem
-from lti.ags.util import AGSUtil
-from lti.services.launch import LTILaunchService
+from lti.ags.exceptions import AGSNoPlayState
+from lti.ags.services.ags import AGSService
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed
@@ -62,6 +58,20 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
     filter_backends = [LogPlayFilterBackend, DjangoFilterBackend]
 
     queryset = LogPlay.objects.all()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        include_activity = ValidatorUtil.validate_bool(
+            self.request.query_params.get("include_activity"), default=False
+        )
+
+        # improve query performance by using prefetch/select related tables when include_activity is included
+        if include_activity:
+            queryset = queryset.prefetch_related("lti_play_state")
+            queryset = queryset.select_related("instance__widget")
+
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -187,7 +197,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                     for log in logs
                 ]
 
-                    # only plays are saved to the db - previews are stored in request session (see below)
+                # only plays are saved to the db - previews are stored in request session (see below)
                 if not is_preview:
                     Log.objects.bulk_create(log_models)
 
@@ -229,78 +239,12 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
 
                         if play.auth == "lti":
 
-                            launch = LTILaunchService.get_session_launch(
-                                request, play.lti_token
-                            )
-
-                            if launch and AGSUtil.is_ags_scoring_available(launch):
-                                context_history = LogPlay.objects.filter(
-                                    instance=play.instance,
-                                    user=play.user,
-                                    context_id=play.context_id,
+                            try:
+                                AGSService.submit_score_for_play(play)
+                            except AGSNoPlayState:
+                                logger.error(
+                                    "LTI-AGS: Error: No play state for play %s", play.id
                                 )
-                                # Find the highest score for the current context
-                                max_score = context_history.aggregate(
-                                    Max("percent", default=play.percent)
-                                ).get("percent__max", 0)
-                                max_score = round(max_score, 2)
-
-                                completed_time = int(
-                                    play.created_at.timestamp() + play.elapsed
-                                )
-
-                                score_url = f"{settings.URLS["BASE_URL"]}scores/single/{play.instance.id}/{play.id}"
-
-                                try:
-                                    ags = AGSClient(launch)
-                                    (
-                                        ags.score_builder()
-                                        .score_given(max_score)
-                                        .score_maximum(100)
-                                        .activity_progress("Completed")
-                                        .grading_progress("FullyGraded")
-                                        .timestamp(completed_time)
-                                        .submission_url(score_url)
-                                        .submit()
-                                    )
-
-                                    logger.info(
-                                        "LTI-AGS: successfully transmitted "
-                                        "completion for play %s",
-                                        play.id,
-                                    )
-
-                                except AGSClaimNotDefined:
-                                    logger.error(
-                                        "LTI-AGS: AGS claim not defined for play %s",
-                                        play.id,
-                                    )
-                                except AGSNoLineItem:
-                                    logger.error(
-                                        "LTI-AGS: no AGS operations performed; "
-                                        "a line item was not provided for play %s",
-                                        play.id,
-                                    )
-                                except Exception:
-                                    logger.error(
-                                        "LTI-AGS: failed to transmit completion "
-                                        "for play %s",
-                                        play.id,
-                                        exc_info=True,
-                                    )
-                            else:
-                                if launch is None:
-                                    logger.error(
-                                        "LTI-AGS: launch recovery failure: unable to "
-                                        "retrieve launch for play %s",
-                                        play.id,
-                                    )
-                                else:
-                                    logger.error(
-                                        "LTI-AGS: no AGS operations performed; "
-                                        "AGS scoring unavailable for play %s",
-                                        play.id,
-                                    )
                 else:
                     preview_play_id = update_serializer.validated_data[
                         "preview_play_id"
@@ -327,3 +271,57 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
             return Response({"status": status.HTTP_200_OK, "valid": True})
         else:
             return Response({"status": status.HTTP_401_UNAUTHORIZED, "valid": False})
+
+    @action(detail=True, methods=["post"])
+    def resubmit(self, request, pk=None):
+        """
+        Endpoint for users to attempt resubmitting a play score through AGS.
+        Requires a valid play ID with an attached LtiPlayState record.
+        Resubmission is only allowed if prior submission attempts failed and
+        the submission count is below the submission limit (3)
+
+        Returns 200 on a successful submission
+        Returns 403 on a submission failure (AGS returned an error response)
+        Returns 400 when the submission request is invalid (the submission was not attempted)
+        """
+        play = LogPlay.objects.select_related("lti_play_state").get(pk=pk)
+        self.check_object_permissions(request, play)
+
+        if not hasattr(play, "lti_play_state"):
+            return Response(
+                {"success": False, "message": "No LTI play state found."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        play_state = play.lti_play_state
+
+        if play_state.submission_status == LtiPlayState.SubmissionStatus.ERR_FAILURE:
+            # The student is restricted to a certain number of submissions
+            # Elevated users are not
+            if (
+                play_state.submission_attempts < 4
+                or PermService.is_superuser_or_elevated(request.user)
+            ):
+                submit_status = AGSService.submit_score_for_play(play)
+
+                if submit_status == LtiPlayState.SubmissionStatus.SUCCESS:
+                    return Response({"success": True}, status=status.HTTP_200_OK)
+                else:
+                    return Response(
+                        {
+                            "success": False,
+                            "status": submit_status,
+                            "submitted_at": timezone.now(),
+                        },
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
+            else:
+                return Response(
+                    {"success": False, "message": "No remaining retry attempts."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        else:
+            return Response(
+                {"success": False, "message": "Invalid play state for resubmission."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
