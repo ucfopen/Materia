@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, {useState, useEffect, useRef, useCallback} from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import DragAndDrop from './drag-and-drop'
 import LoadingIcon from './loading-icon'
@@ -63,6 +63,27 @@ const MediaImporter = () => {
 	const [assetList, setAssetList] = useState({})
 	const [showDeletedAssets, setShowDeletedAssets] = useState(false)
 	const [filterSearch, setFilterSearch] = useState('') // Search bar filter
+
+	// Tell the creator that the media importer is ready to receive a direct upload file, if there is one
+	useEffect(() => {
+		parent.postMessage(JSON.stringify({ type: 'readyForDirectUpload', source: 'media-importer', data: '' }), '*')
+	}, [])
+
+	const postMessageHandler = useCallback((e) => {
+		const origin = `${e.origin}/`
+		if (origin !== window.STATIC_CROSSDOMAIN && origin !== window.BASE_URL) return
+		const file = new File(
+			[e.data.buffer],
+			e.data.name,
+			{ type: e.data.type, lastModified: e.data.lastModified }
+		)
+		_upload(file)
+	}, [])
+
+	useEffect(() => {
+		window.addEventListener('message', postMessageHandler)
+		return () => window.removeEventListener('message', postMessageHandler)
+	})
 
 	const { data: listOfAssets } = useQuery({
 		queryKey: ['media-assets', selectedAsset],
