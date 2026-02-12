@@ -116,7 +116,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             ]
 
         # Anyone can play a widget and get its qset
-        elif self.action == "question_sets" or self.action == "retrieve":
+        elif self.action == "question_set" or self.action == "question_sets" or self.action == "retrieve":
             permission_classes = [AllowAny]
 
         # Catch all just to block anything else
@@ -578,12 +578,10 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"])
     def undelete(self, request, pk=None):
-        instance = WidgetInstance.objects.get(id=pk)
-        if not instance:
-            return ValidationError("Must provide a valid instance ID.")
+        instance = self.get_object()
 
         if not instance.is_deleted:
-            return ValidationError("Instance is not deleted.")
+            raise ValidationError("Instance is not deleted.")
 
         instance.is_deleted = False
         instance.save()

@@ -1207,7 +1207,7 @@ class WidgetInstance(models.Model):
         return qsets
 
     def duplicate(
-        self, owner: User, new_name: str, copy_exiting_perms: bool = False
+        self, owner: User, new_name: str, copy_existing_perms: bool = False
     ) -> Self:
         dupe = WidgetInstance.objects.get(pk=self.pk)
 
@@ -1247,7 +1247,7 @@ class WidgetInstance(models.Model):
         dupe_qset.save()
 
         # Copy perms, if requested
-        if copy_exiting_perms:
+        if copy_existing_perms:
             existing_perms = self.permissions.all()
             for existing_perm in existing_perms:
                 dupe.permissions.create(

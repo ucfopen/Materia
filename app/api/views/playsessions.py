@@ -261,7 +261,7 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
                 logger.error("play session log save failure", exc_info=True)
                 raise MsgFailure("Failed to Save", "Your play logs could not be saved.")
 
-    def destroy(self, request):
+    def destroy(self, request, pk=None):
         raise MethodNotAllowed("DELETE")
 
     @action(detail=True, methods=["get"])
