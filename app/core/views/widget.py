@@ -183,6 +183,7 @@ class WidgetPlayView(
                     )
 
                     play.auth = "lti"
+                    play.lti_token = play.id
                     play.context_id = LTILaunchService.get_context_id(launch_data)
 
                     launch_resource_link = LTILaunchService.get_resource_link(
@@ -199,7 +200,7 @@ class WidgetPlayView(
                         lti_association=lti_assoc,
                         ags_line_item=AGSUtil.get_line_item_from_launch(launch_data)
                         or "",
-                        ags_user_id=AGSUtil.get_ags_user_id(launch_data),
+                        ags_user_id=AGSUtil.get_ags_user_id(launch_data) or "",
                         ags_scoring_enabled=AGSUtil.is_ags_scoring_available(
                             launch_data
                         ),

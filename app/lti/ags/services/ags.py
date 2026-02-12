@@ -22,7 +22,11 @@ class AGSService:
         if not play_state:
             raise AGSNoPlayState()
 
-        if not play_state.ags_scoring_enabled:
+        if (
+            not play_state.ags_scoring_enabled
+            or not play_state.ags_line_item
+            or not play_state.ags_user_id
+        ):
             play_state.submission_status = LtiPlayState.SubmissionStatus.NOT_GRADED
             play_state.save()
 

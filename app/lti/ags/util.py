@@ -23,7 +23,10 @@ class AGSUtil:
 
     @staticmethod
     def get_ags_user_id(launch_data):
-        if settings.LTI_USERDATA.get("ags_claim"):
+        if (
+            settings.LTI_USERDATA.get("ags_claim")
+            and launch_data.get(settings.LTI_USERDATA["ags_claim"]) is not None
+        ):
             user_id = launch_data.get(settings.LTI_USERDATA["ags_claim"]).get(
                 settings.LTI_USERDATA["ags_identifier"]
             )
