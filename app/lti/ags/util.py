@@ -33,7 +33,7 @@ class AGSUtil:
         else:
             user_id = launch_data.get(settings.LTI_USERDATA["ags_identifier"])
 
-        return int(user_id)
+        return int(user_id) if user_id is not None else None
 
     @staticmethod
     def is_ags_scoring_available(launch):
