@@ -29,7 +29,8 @@ class ContextUtil:
 
         # prepend commons files to js/css resources, which are required in every page
         processed_js_resources.insert(0, settings.JS_BASEURL + "commons.js")
-        processed_css_resources.insert(0, settings.CSS_BASEURL + "commons.css")
+        processed_css_resources.insert(0, settings.CSS_BASEURL + "fonts.css")
+        processed_css_resources.insert(1, settings.CSS_BASEURL + "commons.css")
 
         # Create and return context
         return {

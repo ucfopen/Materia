@@ -116,7 +116,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             ]
 
         # Anyone can play a widget and get its qset
-        elif self.action == "question_sets" or self.action == "retrieve":
+        elif self.action == "question_set" or self.action == "question_sets" or self.action == "retrieve":
             permission_classes = [AllowAny]
 
         # Catch all just to block anything else
@@ -268,7 +268,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         elif play_id is not None:
-            play_id_serializer = PlayIdSerializer(data=play_id)
+            play_id_serializer = PlayIdSerializer(data={"play_id": play_id})
             if play_id_serializer.is_valid(raise_exception=True):
                 qset = instance.get_qset_for_play(play_id)
                 serializer = QuestionSetSerializer(qset)
@@ -407,7 +407,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                         and PermService.compare_perms(
                             requester_perm, ObjectPermission.PERMISSION_VISIBLE
                         )
-                        < 1
+                        > -1
                     ):
                         refusals.append(user)
                         continue
@@ -514,6 +514,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
             # If there was a refusal, return a message
             if len(refusals) > 0:
+                # TODO: evaluate logger level and details of `refusals`
                 logger.error(refusals)
                 raise MsgFailure(
                     msg=f"Could not update {len(refusals)} out of {len(updates)} permissions."
@@ -537,9 +538,8 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         try:
             duplicate = instance.duplicate(request.user, name, copy_existing_perms)
-        except Exception as e:
-            logger.error("Failed to copy widget instance:")
-            logger.error(e)
+        except Exception:
+            logger.error("Failed to copy widget instance", exc_info=True)
             raise MsgFailure(msg="Widget instance could not be copied.")
 
         return Response(WidgetInstanceSerializer(duplicate).data)
@@ -578,12 +578,10 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"])
     def undelete(self, request, pk=None):
-        instance = WidgetInstance.objects.get(id=pk)
-        if not instance:
-            return ValidationError("Must provide a valid instance ID.")
+        instance = self.get_object()
 
         if not instance.is_deleted:
-            return ValidationError("Instance is not deleted.")
+            raise ValidationError("Instance is not deleted.")
 
         instance.is_deleted = False
         instance.save()

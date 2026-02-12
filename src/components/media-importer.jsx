@@ -76,7 +76,7 @@ const MediaImporter = () => {
 						id: asset.id,
 						type: asset.file_type,
 						name: asset.title.split('.').shift(),
-						timestamp: asset.created_at,
+						timestamp: creationDate,
 						thumb: _thumbnailUrl(asset.id, asset.file_type),
 						created: [creationDate.getMonth(), creationDate.getDate(), creationDate.getFullYear()].join('/'),
 						is_deleted: parseInt(asset.is_deleted) || asset.is_deleted === true
@@ -144,7 +144,10 @@ const MediaImporter = () => {
 			case 'jpeg': // intentional case fall-through
 			case 'png': // intentional case fall-through
 			case 'gif': // intentional case fall-through
-				return `${MEDIA_URL}${data}/thumbnail`
+				if (window.USE_CDN && window.CDN_URL){
+					return `${window.CDN_URL}${data}_thumbnail`
+				}
+				return `${window.MEDIA_URL}${data}/thumbnail`
 
 			case 'mp3': // intentional case fall-through
 			case 'wav': // intentional case fall-through

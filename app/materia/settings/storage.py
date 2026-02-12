@@ -2,6 +2,8 @@ import os
 
 from core.utils.validator_util import ValidatorUtil
 
+from .urls import enforce_trailing_slash
+
 # amount of kilobytes alloted to any individual user for media storage
 MEDIA_QUOTA = 5000
 
@@ -47,7 +49,11 @@ DRIVER_SETTINGS = {
         "use_cdn": ValidatorUtil.validate_bool(
             os.environ.get("ASSET_STORAGE_S3_USE_CDN", False),
         ),
-        "cdn_domain": os.environ.get("ASSET_STORAGE_S3_CDN_DOMAIN", ""),
+        "cdn_domain": (
+            enforce_trailing_slash(os.environ.get("ASSET_STORAGE_S3_CDN_DOMAIN", ""))
+            if os.environ.get("ASSET_STORAGE_S3_CDN_DOMAIN", "")
+            else ""
+        ),
     },
 }
 

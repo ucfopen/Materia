@@ -70,11 +70,13 @@ class PlayDataExporterService:
 
                         # All is good, return results
                         return result, file_ext
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"Playdata exporter '{export_type}' for widget {instance.widget.clean_name} failed to run:"
+                            "Playdata exporter '%s' for widget %s failed to run",
+                            export_type,
+                            instance.widget.clean_name,
+                            exc_info=True,
                         )
-                        logger.error(e)
                         raise MsgFailure(
                             msg="The playdata exporter failed to run", status=500
                         )

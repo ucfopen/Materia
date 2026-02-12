@@ -25,7 +25,7 @@ const ErrorGeneral = () => {
             content =
                 <section id="error-container">
                     <h4>Error type: Unknown Assignment</h4>
-                    <p>This Materia assignment hasn't been setup correctly in the system.</p>
+                    <p>This Materia assignment hasn't been setup correctly in the LMS.</p>
 	                <p>Your instructor will need to complete the setup process.</p>
                 </section>
             break;
@@ -33,9 +33,18 @@ const ErrorGeneral = () => {
             content =
                 <section id="error-container">
                     <h4>Error type: Unknown User</h4>
-                    <p>Materia can not determine who you are using the information provided by the system.</p>
+                    <p>Materia cannot determine who you are using the information provided by the LMS.</p>
                     <p>This may occur if you are using a non-standard account or if your information is missing from Materia due to recent changes to your account.</p>
-                    <p>If you need help accessing this tool, contact support.</p>
+                    <p>If this message persists, contact support.</p>
+                </section>
+            break;
+        case 'error_launch_validation':
+            content =
+                <section id="error-container">
+                    <h4>Error type: Launch Validation Failed</h4>
+                    <p>The launch information provided by the LMS failed validation.</p>
+                    <p>Try accessing the tool again without using the back button. If prompted to re-submit page data, try leaving the page and re-selecting the activity.</p>
+                    <p>If this message persists, contact support.</p>
                 </section>
             break;
         case 'error_autoplay_misconfigured':

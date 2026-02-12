@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 # (Most of this abstracted via django-lti and pylti1p3 underneath)
 def lti_deep_link_selection(request):
     selection = request.POST.get("instance")
-    title = request.POST.get("name", "Materia Widget Activity")
     launch_id = request.POST.get("lid", None)
 
     if not selection:
@@ -34,19 +33,20 @@ def lti_deep_link_selection(request):
             cached_launch_id = request.session["lti-deep-link"]
         except Exception:
             logger.error(
-                f"LTI: ERROR: cached launch ID could not be recovered for deep linking selection of inst: {selection}."
+                "LTI: ERROR: cached launch ID could not be recovered for deep linking selection of inst: %s.",
+                selection,
             )
             return error_page(request, "error_launch_recovery")
 
     try:
         cached_launch = get_launch_from_request(request, cached_launch_id)
         resource = DeepLinkResource()
-        resource.set_url(selection).set_title(title)
+        resource.set_url(selection)
         response = cached_launch.deep_link_response([resource])
 
     except Exception:
         logger.error(
-            f"LTI: ERROR: could not recover cached launch with ID {cached_launch_id}."
+            "LTI: ERROR: could not recover cached launch with ID %s.", cached_launch_id
         )
         return error_page(request, "error_launch_recovery")
 

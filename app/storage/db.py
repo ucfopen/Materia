@@ -39,9 +39,12 @@ class DBAssetStorageDriver:
                 data_obj.created_at = timezone.now()
 
                 data_obj.save()
-        except Exception as e:
-            logger.error(f"Exception while storing asset data for asset {asset.id}")
-            logger.error(e)
+        except Exception:
+            logger.error(
+                "Exception while storing asset data for asset %s",
+                asset.id,
+                exc_info=True,
+            )
 
     def render(asset, size):
         from core.models import AssetData
@@ -62,7 +65,7 @@ class DBAssetStorageDriver:
                 asset_obj = AssetData.objects.get(id=asset.id, size=size)
                 asset_bytes = asset_obj.data
         except Exception as e:
-            logger.error(e)
+            logger.error(e, exc_info=True)
             return HttpResponseNotFound()
 
         asset_response = HttpResponse(asset_bytes)
@@ -92,9 +95,8 @@ class DBAssetStorageDriver:
             data_obj.created_at = timezone.now()
 
             data_obj.save()
-        except Exception as e:
-            logger.error("DB driver file upload error")
-            logger.error(e)
+        except Exception:
+            logger.error("DB driver file upload error", exc_info=True)
 
     # Build a specified size of an asset; either 'original', 'large', or 'thumbnail'
     def build_size(asset, size):
