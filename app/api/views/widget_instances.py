@@ -407,7 +407,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                         and PermService.compare_perms(
                             requester_perm, ObjectPermission.PERMISSION_VISIBLE
                         )
-                        < 1
+                        > -1
                     ):
                         refusals.append(user)
                         continue
