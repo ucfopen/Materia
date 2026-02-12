@@ -11,9 +11,7 @@ import uuid
 
 from core.models import (
     DateRange,
-    LogActivity,
     LogPlay,
-    Notification,
     ObjectPermission,
     Widget,
     WidgetInstance,
@@ -230,7 +228,7 @@ class WidgetInstanceViewSetTestCase(TestCase):
 
 
 class TestInstanceList(WidgetInstanceViewSetTestCase):
-#     """Tests for GET /api/instances/"""
+    #     """Tests for GET /api/instances/"""
 
     def test_unauthenticated_returns_403(self):
         response = self.client.get("/api/instances/")
@@ -282,7 +280,7 @@ class TestInstanceList(WidgetInstanceViewSetTestCase):
 
 
 class TestInstanceCreate(WidgetInstanceViewSetTestCase):
-#     """Tests for POST /api/instances/"""
+    #     """Tests for POST /api/instances/"""
 
     def test_unauthenticated_returns_403(self):
         response = self.client.post(
@@ -332,7 +330,7 @@ class TestInstanceCreate(WidgetInstanceViewSetTestCase):
             {"name": "New Instance", "widget_id": self.widget.id, "is_draft": True},
             format="json",
         )
-        
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         instance_id = response.data["id"]
         instance = WidgetInstance.objects.get(id=instance_id)
@@ -658,7 +656,9 @@ class TestInstanceUpdateValidation(WidgetInstanceViewSetTestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("Student-made widgets must stay in guest access mode", str(response.content))
+        self.assertIn(
+            "Student-made widgets must stay in guest access mode", str(response.content)
+        )
 
     @patch(
         "api.permissions.WidgetInstanceService.user_has_lock_or_is_unlocked",
@@ -976,7 +976,7 @@ class TestInstancePerms(WidgetInstanceViewSetTestCase):
                         "perm_level": ObjectPermission.PERMISSION_VISIBLE,
                         "expiration": None,
                         "has_contexts": False,
-                    }
+                    },
                 ]
             },
             format="json",
@@ -1002,7 +1002,7 @@ class TestInstancePerms(WidgetInstanceViewSetTestCase):
                         "perm_level": ObjectPermission.PERMISSION_FULL,
                         "expiration": None,
                         "has_contexts": False,
-                    }
+                    },
                 ]
             },
             format="json",
@@ -1029,7 +1029,10 @@ class TestInstancePerms(WidgetInstanceViewSetTestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertIn("Cannot remove permissions from the only full permission holder", str(response.content))
+        self.assertIn(
+            "Cannot remove permissions from the only full permission holder",
+            str(response.content),
+        )
 
     def test_superuser_can_modify_any_perms(self):
         self.client.force_authenticate(user=self.superuser)
@@ -1117,7 +1120,7 @@ class TestInstancePerms(WidgetInstanceViewSetTestCase):
                         "perm_level": None,
                         "expiration": None,
                         "has_contexts": False,
-                    }
+                    },
                 ]
             },
             format="json",
@@ -1144,7 +1147,7 @@ class TestInstancePerms(WidgetInstanceViewSetTestCase):
                         "perm_level": None,
                         "expiration": None,
                         "has_contexts": False,
-                    }
+                    },
                 ]
             },
             format="json",
@@ -1178,7 +1181,7 @@ class TestInstancePerms(WidgetInstanceViewSetTestCase):
                         "perm_level": None,
                         "expiration": None,
                         "has_contexts": False,
-                    }
+                    },
                 ]
             },
             format="json",
@@ -1212,7 +1215,7 @@ class TestInstancePerms(WidgetInstanceViewSetTestCase):
                         "perm_level": ObjectPermission.PERMISSION_VISIBLE,
                         "expiration": None,
                         "has_contexts": False,
-                    }
+                    },
                 ]
             },
             format="json",
@@ -1246,7 +1249,7 @@ class TestInstancePerms(WidgetInstanceViewSetTestCase):
                         "perm_level": ObjectPermission.PERMISSION_VISIBLE,
                         "expiration": None,
                         "has_contexts": False,
-                    }
+                    },
                 ]
             },
             format="json",
@@ -1273,7 +1276,7 @@ class TestInstancePerms(WidgetInstanceViewSetTestCase):
                         "perm_level": ObjectPermission.PERMISSION_VISIBLE,
                         "expiration": None,
                         "has_contexts": False,
-                    }
+                    },
                 ]
             },
             format="json",
@@ -1300,7 +1303,7 @@ class TestInstancePerms(WidgetInstanceViewSetTestCase):
                         "perm_level": ObjectPermission.PERMISSION_VISIBLE,
                         "expiration": None,
                         "has_contexts": False,
-                    }
+                    },
                 ]
             },
             format="json",
@@ -1328,7 +1331,7 @@ class TestInstancePerms(WidgetInstanceViewSetTestCase):
                         "perm_level": ObjectPermission.PERMISSION_VISIBLE,
                         "expiration": expiration,
                         "has_contexts": True,
-                    }
+                    },
                 ]
             },
             format="json",
@@ -1355,7 +1358,7 @@ class TestInstancePerms(WidgetInstanceViewSetTestCase):
                         "perm_level": ObjectPermission.PERMISSION_FULL,
                         "expiration": None,
                         "has_contexts": True,
-                    }
+                    },
                 ]
             },
             format="json",
@@ -1416,7 +1419,7 @@ class TestInstanceCopy(WidgetInstanceViewSetTestCase):
             {"new_name": "My Copy", "copy_existing_perms": False},
             format="json",
         )
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             WidgetInstance.objects.get(id=response.data["id"]).user_id,
@@ -1483,11 +1486,10 @@ class TestInstanceCopy(WidgetInstanceViewSetTestCase):
         self.assertEqual(response.data["is_draft"], self.author_instance.is_draft)
         # Should have permissions copied from original
         self.assertTrue(new_instance.permissions.exists())
-        
 
 
 class TestInstanceExportPlaydata(WidgetInstanceViewSetTestCase):
-#     """Tests for GET /api/instances/{id}/export_playdata/"""
+    """Tests for GET /api/instances/{id}/export_playdata/"""
 
     def setUp(self):
         super().setUp()
@@ -1496,7 +1498,10 @@ class TestInstanceExportPlaydata(WidgetInstanceViewSetTestCase):
     def test_unauthenticated_returns_403(self):
         response = self.client.get(
             f"/api/instances/{self.author_instance.id}/export_playdata/",
-            {"type": "High Scores", "semesters": f"{self.semester.year}-{self.semester.semester}"},
+            {
+                "type": "High Scores",
+                "semesters": f"{self.semester.year}-{self.semester.semester}",
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -1504,7 +1509,10 @@ class TestInstanceExportPlaydata(WidgetInstanceViewSetTestCase):
         self.client.force_authenticate(user=self.author_user)
         response = self.client.get(
             f"/api/instances/{self.author_instance.id}/export_playdata/",
-            {"type": "High Scores", "semesters": f"{self.semester.year}-{self.semester.semester}"},
+            {
+                "type": "High Scores",
+                "semesters": f"{self.semester.year}-{self.semester.semester}",
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1519,7 +1527,10 @@ class TestInstanceExportPlaydata(WidgetInstanceViewSetTestCase):
         self.client.force_authenticate(user=self.another_author)
         response = self.client.get(
             f"/api/instances/{self.author_instance.id}/export_playdata/",
-            {"type": "High Scores", "semesters": f"{self.semester.year}-{self.semester.semester}"},
+            {
+                "type": "High Scores",
+                "semesters": f"{self.semester.year}-{self.semester.semester}",
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1529,7 +1540,10 @@ class TestInstanceExportPlaydata(WidgetInstanceViewSetTestCase):
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.get(
             f"/api/instances/{self.another_author_instance.id}/export_playdata/",
-            {"type": "High Scores", "semesters": f"{self.semester.year}-{self.semester.semester}"},
+            {
+                "type": "High Scores",
+                "semesters": f"{self.semester.year}-{self.semester.semester}",
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -1547,21 +1561,27 @@ class TestInstanceExportPlaydata(WidgetInstanceViewSetTestCase):
         self.client.force_authenticate(user=self.author_user)
         response = self.client.get(
             f"/api/instances/{self.author_instance.id}/export_playdata/",
-            {"type": "High Scores", "semesters": f"{self.semester.year}-{self.semester.semester}"},
+            {
+                "type": "High Scores",
+                "semesters": f"{self.semester.year}-{self.semester.semester}",
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_export_returns_file_response(self):
-         """Export should return a downloadable file"""
-         self.client.force_authenticate(user=self.author_user)
-         response = self.client.get(
-             f"/api/instances/{self.author_instance.id}/export_playdata/",
-             {"type": "High Scores", "semesters": f"{self.semester.year}-{self.semester.semester}"},
-         )
+        """Export should return a downloadable file"""
+        self.client.force_authenticate(user=self.author_user)
+        response = self.client.get(
+            f"/api/instances/{self.author_instance.id}/export_playdata/",
+            {
+                "type": "High Scores",
+                "semesters": f"{self.semester.year}-{self.semester.semester}",
+            },
+        )
 
-         self.assertEqual(response.status_code, status.HTTP_200_OK)
-         self.assertIn("Content-Disposition", response)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("Content-Disposition", response)
 
 
 class TestInstanceUndelete(WidgetInstanceViewSetTestCase):
@@ -1613,14 +1633,16 @@ class TestInstanceUndelete(WidgetInstanceViewSetTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         deleted.refresh_from_db()
         self.assertFalse(deleted.is_deleted)
-        
+
     def test_undelete_not_deleted_instance(self):
         self.client.force_authenticate(user=self.superuser)
-        response = self.client.post(f"/api/instances/{self.author_instance.id}/undelete/")
-        
+        response = self.client.post(
+            f"/api/instances/{self.author_instance.id}/undelete/"
+        )
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("Instance is not deleted", str(response.content))
-    
+
     def test_undelete_nonexistent_instance(self):
         """Undeleting a nonexistent instance should fail"""
         self.client.force_authenticate(user=self.superuser)

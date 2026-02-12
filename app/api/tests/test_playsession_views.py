@@ -43,7 +43,7 @@ class PlaySessionViewSetTestCase(TestCase):
             clean_name="test-widget",
             is_editable=True,
             is_playable=True,
-            is_scorable=False
+            is_scorable=False,
         )
 
         cls.non_playable_widget = Widget.objects.create(
