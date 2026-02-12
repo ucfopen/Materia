@@ -106,6 +106,10 @@ class Command(base.BaseCommand):
             "ALTER TABLE `date_range` DROP INDEX `semester_year_start_at_end_at`;"
         )
 
+        # Make the 'id' field of the lti table signed to match Django BigAutoField expectations
+        self.stdout.write("Making lti.id column signed")
+        cursor.execute("ALTER TABLE `lti` MODIFY `id` bigint SIGNED AUTO_INCREMENT;")
+
         cursor.close()
 
         def convert_enum_to_varchar(table, column):
