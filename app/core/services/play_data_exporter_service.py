@@ -3,12 +3,12 @@ import logging
 from types import FunctionType
 from zipfile import ZIP_DEFLATED, ZipFile
 
+from core.message_exception import MsgFailure, MsgInvalidInput, MsgNotFound
+from core.models import DateRange, LogPlay, WidgetInstance
+from core.services.log_storage_service import LogStorageService
+from core.utils.validator_util import ValidatorUtil
 from django.conf import settings
 from django.core.cache import cache
-from core.message_exception import MsgInvalidInput, MsgNotFound, MsgFailure
-from core.utils.validator_util import ValidatorUtil
-from core.models import DateRange, LogPlay, Widget, WidgetInstance
-from core.services.log_storage_service import LogStorageService
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class PlayDataExporterService:
                 return PlayDataExporterService._export_questions_and_answers(
                     instance, semesters
                 )
-            case 'storage':
+            case "storage":
                 return PlayDataExporterService._export_storage_logs(
                     instance, semesters, table, anonymous
                 )
@@ -89,13 +89,13 @@ class PlayDataExporterService:
                 # Otherwise, this export type just doesn't exist
                 else:
                     raise MsgInvalidInput(msg="Invalid export type")
-    
+
     @staticmethod
     def _export_storage_logs(
         instance: WidgetInstance, semester: str, table_name: str, anonymous: bool
     ):
         tables = LogStorageService().build_log_tables(instance.id, semester, anonymous)
-        
+
         table = tables.get(table_name, None)
 
         if table is None:
@@ -112,8 +112,7 @@ class PlayDataExporterService:
             row.extend(list(log["data"].values()))
 
             values.append(row)
-        
-        
+
         return PlayDataExporterService.build_csv(headers, values), "csv"
 
     @staticmethod

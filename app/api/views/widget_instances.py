@@ -62,7 +62,10 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     # queryset filtering managed via UserInstanceFilterBackend
     def get_queryset(self):
-        return WidgetInstance.objects.all()
+        if self.action == "performance":
+            return WidgetInstance.objects.select_related("widget")
+        else:
+            return WidgetInstance.objects.all()
 
     def get_permissions(self):
         user_query = self.request.query_params.get("user")
@@ -302,12 +305,21 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
     def performance(self, request, pk=None):
         instance = self.get_object()
 
-        logs = (
-            LogPlay.objects.filter(instance=instance, is_complete=True)
-            .order_by("-created_at", "semester")
-            .select_related("semester")
+        logs = LogPlay.objects.filter(instance=instance, is_complete=True)
+
+        # only prefetch storage logs if storage is enabled to reduce unnecessary DB pressure
+        if instance.widget.is_storage_enabled:
+            logs = (
+                logs.order_by("-created_at", "semester")
+                .select_related("semester")
+                .prefetch_related("storage_logs")
+            )
+        else:
+            logs = logs.order_by("-created_at", "semester").select_related("semester")
+
+        summary = ScoreSummarySerializer.create_from_plays(
+            logs, include_storage=instance.widget.is_storage_enabled
         )
-        summary = ScoreSummarySerializer.create_from_plays(logs)
 
         serialized = ScoreSummarySerializer(data=summary, many=True)
         serialized.is_valid(raise_exception=True)
@@ -570,10 +582,15 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         resp["Pragma"] = "public"
         resp["Expires"] = "0"
         resp["Cache-Control"] = "must-revalidate, post-check=0, pre-check=0"
-        # Doesn't this just re-assign the Content-Type header three times?
-        resp["Content-Type"] = "application/force-download"
-        resp["Content-Type"] = "application/octet-stream"
-        resp["Content-Type"] = "application/download"
+
+        content_type_map = {
+            "csv": "text/csv",
+            "zip": "application/zip",
+        }
+        resp["Content-Type"] = content_type_map.get(
+            file_ext, "application/octet-stream"
+        )
+
         resp["Content-Disposition"] = (
             f'attachment; filename="export_{instance.name}.{file_ext}"'
         )

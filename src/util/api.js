@@ -367,7 +367,7 @@ export const apiGetPlayLogs = (instId, term, year, contexts, page_number) => {
 }
 
 export const apiGetStorageData = instId => {
-	return handleRequest(methods.GET, `/api/storage?inst_id=${instId}`);
+	return handleRequest(methods.GET, `/api/storage/?inst_id=${instId}`);
 }
 
 export const apiCreatePlaySession = ({ widgetId }) => {
