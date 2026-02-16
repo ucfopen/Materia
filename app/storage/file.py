@@ -8,20 +8,25 @@ logger = logging.getLogger(__name__)
 
 
 class FileAssetStorageDriver:
+
+    @staticmethod
     def get_local_file_path(id, size):
         return os.path.realpath(os.path.join(settings.DIRS["media"], f"{id}_{size}"))
 
+    @staticmethod
     def exists(asset_id, size):
         return os.path.isfile(
             FileAssetStorageDriver.get_local_file_path(asset_id, size)
         )
 
+    @staticmethod
     def store(asset, image_path, size):
         if not asset.is_valid():
             raise Exception("Invalid asset for storing")
         file = FileAssetStorageDriver.get_local_file_path(asset.id, size)
         shutil.copyfile(image_path, file)
 
+    @staticmethod
     def render(asset, size):
         from django.http import HttpResponse, HttpResponseNotFound
 
@@ -57,6 +62,7 @@ class FileAssetStorageDriver:
 
             return asset_response
 
+    @staticmethod
     def handle_uploaded_file(asset, uploaded_file):
         write_path = FileAssetStorageDriver.get_local_file_path(asset.id, "original")
 
@@ -65,6 +71,7 @@ class FileAssetStorageDriver:
                 file_out.write(chunk)
 
     # Build a specified size of an asset; either 'original', 'large', or 'thumbnail'
+    @staticmethod
     def build_size(asset, size):
         from PIL import Image
 
@@ -123,6 +130,7 @@ class FileAssetStorageDriver:
 
         return resized_asset_path
 
+    @staticmethod
     def migrate_to(driver, cleanup_delete=False):
         from core.models import Asset
 
