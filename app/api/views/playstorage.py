@@ -1,22 +1,15 @@
 import base64
 import json
-from datetime import datetime
 
-from core.models import LogPlay, LogStorage, WidgetInstance, DateRange
-from core.message_exception import MsgNoLogin, MsgInvalidInput
-from core.utils.validator_util import ValidatorUtil
-from core.services.log_storage_service import LogStorageService
 from api.serializers import PlayStorageSaveSerializer
-
-from django.db.models import OuterRef, Subquery
-from django.contrib.auth import get_user_model
-from django.utils import timezone
-from rest_framework import permissions
-from rest_framework.views import APIView
+from core.message_exception import MsgInvalidInput, MsgNoLogin
+from core.models import LogPlay, LogStorage, WidgetInstance
+from core.services.log_storage_service import LogStorageService
+from core.utils.validator_util import ValidatorUtil
+from rest_framework import permissions, status
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.views import APIView
 
-import phpserialize
 
 class PlayStorageSaveView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -57,13 +50,15 @@ class PlayStorageSaveView(APIView):
 
         if not instance.playable_by_current_user(user):
             return MsgNoLogin(request=request)
-        
+
         logs = []
 
         if instance.guest_access:
             user = None
-        
-        if ValidatorUtil.is_valid_hash(instance.id) and ValidatorUtil.is_valid_long_hash(play_id):
+
+        if ValidatorUtil.is_valid_hash(
+            instance.id
+        ) and ValidatorUtil.is_valid_long_hash(play_id):
             for storage_packet in log_data:
                 stringified_data = json.dumps(storage_packet.get("data"))
 
@@ -83,4 +78,3 @@ class PlayStorageSaveView(APIView):
         LogStorage.objects.bulk_create(logs)
 
         return Response(True)
-

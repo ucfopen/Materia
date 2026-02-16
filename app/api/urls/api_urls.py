@@ -4,12 +4,12 @@ from api.views import (
     generation,
     notifications,
     playsessions,
+    playstorage,
     scores,
     sessions,
     users,
     widget_instances,
     widgets,
-    logstorage
 )
 from api.views.lti import LtiWidgetInstancesInCourseView
 from django.urls import include, path
@@ -38,5 +38,5 @@ urlpatterns = [
     path("generate/qset/", generation.GenerateQsetView.as_view()),
     path("generate/from_prompt/", generation.GenerateFromPromptView.as_view()),
     path("lti/<slug:context_id>/instances/", LtiWidgetInstancesInCourseView.as_view()),
-    path("storage/", logstorage.PlayStorageSaveView.as_view()),
+    path("storage/", playstorage.PlayStorageSaveView.as_view()),
 ]
