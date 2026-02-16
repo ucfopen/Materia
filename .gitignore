@@ -51,6 +51,7 @@ spec/widgets/*
 media/
 
 # dont include coverage files
+.coverage
 coverage.txt
 coverage.xml
 coverage/*
