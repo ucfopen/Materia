@@ -12,17 +12,6 @@ from django.http import HttpResponseNotFound, HttpResponseRedirect
 logger = logging.getLogger(__name__)
 
 # Thread-safe cache for S3 clients and resources
-#
-# IMPORTANT: boto3 Session objects are NOT thread-safe and must not be shared.
-# However, Client and Resource objects created from a session ARE thread-safe
-# and can be safely shared across threads.
-#
-# This cache stores only the Client and Resource objects (which are thread-safe),
-# not the Session objects. Sessions are created temporarily and discarded after
-# creating the client/resource.
-#
-# Reference: https://boto3.amazonaws.com/v1/documentation/api/latest/guide/session.html
-# "Resource and client objects are thread safe."
 _s3_cache_lock = threading.Lock()
 _s3_client_cache = None
 _s3_resource_cache = None
