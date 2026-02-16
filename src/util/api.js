@@ -72,11 +72,16 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 		}
 
 		try {
-			if(response.status === 204){
+			if (response.status === 204){
 				return null
 			}
   
-			if(response.headers.get('Content-Type') === 'application/download') {
+			if (
+				response.headers.get('Content-Type') === 'application/download' ||
+				response.headers.get('Content-Type') === 'text/csv' ||
+				response.headers.get('Content-Type') === 'application/zip' ||
+				response.headers.get('Content-Type') === 'application/octet-stream'
+			) {
 				const data = await response.blob()
 				return data
 			}
