@@ -18,6 +18,7 @@ from rest_framework import status
 
 import phpserialize
 
+
 class PlayStorageSaveView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     http_method_names = ["post", "get"]
@@ -57,7 +58,7 @@ class PlayStorageSaveView(APIView):
 
         if not instance.playable_by_current_user(user):
             return MsgNoLogin(request=request)
-        
+
         logs = []
 
         if instance.guest_access:
@@ -83,4 +84,3 @@ class PlayStorageSaveView(APIView):
         LogStorage.objects.bulk_create(logs)
 
         return Response(True)
-

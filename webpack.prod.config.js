@@ -18,7 +18,10 @@ const packageJSON = require('./package.json')
  *   Note that additional comments can be found in the default webpack config
  */
 
-const entry = {}
+const entry = {
+	// Fonts CSS - emitted separately for better load performance
+	fonts: path.join(cssPath, 'fonts.css')
+}
 
 const getEntryName = (file, basePath) => {
 	const relativePath = path.relative(basePath, file)

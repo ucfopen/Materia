@@ -1,9 +1,10 @@
 import logging
 import re
+import time
 
 from core.message_exception import MsgNotFound
-from core.models import Lti, WidgetInstance
-from lti_tool.models import LtiDeployment, LtiLaunch
+from core.models import LogPlay, Lti, LtiPlayState, WidgetInstance
+from lti_tool.models import LtiDeployment, LtiLaunch, LtiRegistration
 from lti_tool.utils import get_launch_from_request
 
 # from pprint import pformat
@@ -25,7 +26,7 @@ class LTILaunchService:
         resource_link_1p1 = LTILaunchService.get_resource_link_1p1(launch)
         resource_link_1p3 = LTILaunchService.get_resource_link(launch)
 
-        launch_deployment = LTILaunchService.get_deployment(launch)
+        launch_deployment = LTILaunchService.get_deployment_from_launch(launch)
         deployment = LtiDeployment.objects.get(deployment_id=launch_deployment)
 
         legacy_association = Lti.objects.filter(
@@ -36,8 +37,6 @@ class LTILaunchService:
             """
             A legacy LTI 1.1 association already exists
             Upgrade the record to LTI 1.3 by replacing the 1p1 resource link
-
-            TODO THIS REALLY NEEDS TESTING
             """
             legacy_association.deployment = deployment
             legacy_association.resource_link = resource_link_1p3
@@ -91,15 +90,26 @@ class LTILaunchService:
         )
 
     @staticmethod
-    def get_deployment(launch_data):
-        return launch_data.get(
+    def get_deployment(play_state: LtiPlayState) -> LtiDeployment:
+        """
+        Gets the LtiDeployment model instance associated with a given LtiPlayState model instance.
+        """
+        return play_state.lti_association.deployment
+
+    def get_deployment_from_launch(launch: dict) -> LtiDeployment:
+        """
+        Gets the deployment ID from a launch data dict: the return value of a given lti_launch.get_launch_data() call.
+        """
+        return launch.get(
             "https://purl.imsglobal.org/spec/lti/claim/deployment_id", None
         )
 
     @staticmethod
-    def get_registration(launch_data):
-        deployment_id = LTILaunchService.get_deployment(launch_data)
-        deployment = LtiDeployment.objects.get(deployment_id=deployment_id)
+    def get_registration(play_state: LtiPlayState) -> LtiRegistration:
+        """
+        Gets the LTiRegistration model instance associated with a given LtiPlayState model instance.
+        """
+        deployment = LTILaunchService.get_deployment(play_state)
         return deployment.registration if deployment is not None else None
 
     @staticmethod
@@ -154,7 +164,7 @@ class LTILaunchService:
             "https://purl.imsglobal.org/spec/lti/claim/target_link_uri"
         )
 
-        if re.search(r"(?:embed|play)/[A-Za-z0-9]{5,}/[A-Za-z0-9\-]*/?$", uri_claim):
+        if re.search(r"(?:embed|play)/[A-Za-z0-9]{5,}/[A-Za-z0-9\-_]*/?$", uri_claim):
             return True
 
         return False
@@ -186,10 +196,37 @@ class LTILaunchService:
         raise MsgNotFound(msg="No widget instance matches this request.")
 
     @staticmethod
-    def is_lti_launch(request):
+    def is_lti_launch(request) -> bool:
+        """
+        Checks for the presence of an active lti_launch object in the request.
+
+        !! WARNING: lti_launches referenced via request.lti_launch are located via
+        SESSION_KEY. This means ANY previous launch in the user session will cause
+        request.lti_launch to be present and this method will return True.
+
+        Better options:
+        1. Use is_initial_launch if this is a widget play init
+        2. Use is_last_launch_still_valid to clamp launch validity to a certain window of time
+        """
         if hasattr(request, "lti_launch") and request.lti_launch:
             return request.lti_launch.is_present
         return False
+
+    @staticmethod
+    def is_last_launch_still_valid(request, window: int = 10) -> bool:
+        """
+        Determine if the request.lti_launch object is valid based on the window of time given.
+        Used to infer whether the current request is in fact an actual LTI launch. Defaults to 10 seconds.
+        """
+        launch_data = request.lti_launch.get_launch_data()
+        if not launch_data:
+            return False
+        iat = launch_data.get("iat")
+        if not iat:
+            return False
+        current_time = time.time()
+        time_difference = current_time - iat
+        return time_difference <= window
 
     @staticmethod
     def get_nonce(launch):
@@ -206,43 +243,44 @@ class LTILaunchService:
         return context_claim.get("title", "Untitled Context")
 
     @staticmethod
-    def get_launch_state(launch):
-        return launch.get("materia_launch_state", None)
+    def is_initial_launch(request) -> bool:
+        """
+        Helper method to determine if the request is an initial widget launch
+        based on the presence of the ?lid GET parameter.
+        """
+        launch_id = request.GET.get("lid", None)
+        return launch_id is not None
 
     @staticmethod
-    def get_or_recover_widget_launch(request):
+    def is_recovery_launch(request) -> bool:
         """
-        Gets the launch data associated with a widget launch.
-        Requires one of two query params to be present:
-        lid: launch id. This is the uuid created by pylti1p3. Provided in initial resource launch.
-        token: play id. Used to recover a launch that's already been put into session.
+        Helper method to determine if the request is a recovered widget launch
+        based on the presence of the ?token GET parameter.
+        A recovery launch does not contain a launch payload but should be treated as an LTI launch.
+        For example: selecting "Play Again" at the end of a LTI play session.
+        """
+        token_param = request.GET.get("token")
+        return token_param is not None
+
+    @staticmethod
+    def get_launch_data_from_request(request):
+        """
+        Retrieves launch data from the request using the ?lid GET parameter as a key
         """
         launch_id = request.GET.get("lid", None)
         if launch_id is not None:
             launch = get_launch_from_request(request, launch_id)
             launch_data = None if launch is None else launch.get_launch_data()
-            launch_data["materia_launch_state"] = "INITIAL"
             return launch_data
 
-        else:
-            token_param = request.GET.get("token")
-            if token_param is not None:
-                recovery = LTILaunchService.get_session_launch(request, token_param)
-                if recovery is not None:
-                    recovery["materia_launch_state"] = "RECOVERY"
-
-                return recovery
+    @staticmethod
+    def get_launch_from_play(play_id: str) -> LtiPlayState:
+        """
+        Returns the associated LtiPlayState model instance for a given play ID.
+        """
+        play = LogPlay.objects.get(pk=play_id)
+        if play:
+            launch = LtiPlayState.objects.filter(play_id=play.id).first()
+            return launch
 
         return None
-
-    @staticmethod
-    def store_session_launch(request, key, launch):
-        request.session[f"lti-launch-{key}"] = launch
-        request.session.modified = True
-
-        return key
-
-    @staticmethod
-    def get_session_launch(request, key):
-        launch = request.session.get(f"lti-launch-{key}", None)
-        return launch

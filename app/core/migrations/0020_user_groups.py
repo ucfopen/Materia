@@ -1,6 +1,7 @@
 from django.contrib.auth.models import Group
-from django.db import migrations
+from django.db import migrations, transaction
 from django.db.models import Q, Subquery
+from django.db.utils import IntegrityError
 
 
 def create_user_groups(apps, schema_editor):
@@ -76,9 +77,17 @@ def convert_user_groups(apps, schema_editor):
             django_user.is_superuser = True
             django_user.save()
         else:
-            UserGroups.objects.create(
-                user_id=user_id, group_id=php_to_django_role[php_role_id]
-            )
+            # handle duplicates in user/group association creation
+            # shouldn't happen but not impossible
+            try:
+                with transaction.atomic():
+                    UserGroups.objects.create(
+                        user_id=user_id, group_id=php_to_django_role[php_role_id]
+                    )
+            except IntegrityError:
+                print(
+                    f"Integrity error: user {user_id}, group {php_to_django_role[php_role_id]}"
+                )
 
 
 class Migration(migrations.Migration):

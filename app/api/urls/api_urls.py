@@ -2,6 +2,7 @@ from api.views import (
     assets,
     extra_attempts,
     generation,
+    logstorage,
     notifications,
     playsessions,
     scores,
@@ -9,7 +10,6 @@ from api.views import (
     users,
     widget_instances,
     widgets,
-    logstorage
 )
 from api.views.lti import LtiWidgetInstancesInCourseView
 from django.urls import include, path

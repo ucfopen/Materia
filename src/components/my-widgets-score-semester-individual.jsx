@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useRef, useId } from 'react'
 import { useQueryClient, useQuery } from 'react-query'
 import { apiGetPlayLogs } from '../util/api'
-import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
+import ScoreAuthIndicator from './score-auth-indicator'
 import useDebounce from './hooks/useDebounce'
 import LoadingIcon from './loading-icon'
 
@@ -68,7 +68,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, contexts, setInvali
 	)
 
 	useEffect(() => {
-		if (page < data?.total_num_pages) { refetch() }
+		if (page <= data?.total_num_pages) { refetch() }
 		else setState({ ...state, isLoading: false })
 	}, [page])
 
@@ -159,6 +159,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, contexts, setInvali
 							<tr>
 								<th>Date</th>
 								<th>Score</th>
+								<th>Type</th>
 								<th>Duration</th>
 								<th aria-label="View Details Button"></th>
 							</tr>
@@ -166,6 +167,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, contexts, setInvali
 								<tr key={score.playId}>
 									<td>{timestampToDateDisplay(score.created_at)}</td>
 									<td>{score.score}</td>
+									<td><ScoreAuthIndicator type={score.auth} /></td>
 									<td>{score.elapsed}</td>
 									<td>
 										<button
@@ -207,7 +209,6 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, contexts, setInvali
 					 id={`table_${semester.id}`}>
 				{mainContentRender}
 			</div>
-			<MyWidgetScoreSemesterSummary {...semester} />
 		</>
 	)
 }

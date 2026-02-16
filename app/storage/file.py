@@ -39,7 +39,7 @@ class FileAssetStorageDriver:
             else:
                 asset_path = FileAssetStorageDriver.get_local_file_path(asset.id, size)
         except Exception as e:
-            logger.error(e)
+            logger.error(e, exc_info=True)
             return HttpResponseNotFound()
 
         if not os.path.isfile(asset_path):
@@ -152,7 +152,7 @@ class FileAssetStorageDriver:
                         os.remove(asset_full_path)
                 except Asset.DoesNotExist:
                     logger.error(
-                        f"File {asset_filename} has no corresponding Asset object"
+                        "File %s has no corresponding Asset object", asset_filename
                     )
                     continue
 
@@ -188,7 +188,7 @@ class FileAssetStorageDriver:
                         os.remove(asset_full_path)
                 except Asset.DoesNotExist:
                     logger.error(
-                        f"File {asset_filename} has no corresponding Asset object"
+                        "File %s has no corresponding Asset object", asset_filename
                     )
                     continue
         else:

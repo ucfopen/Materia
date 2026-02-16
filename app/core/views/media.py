@@ -4,11 +4,12 @@ from time import gmtime, strftime
 from core.models import Asset
 from core.services.asset_service import AssetService
 from core.utils.context_util import ContextUtil
+from core.utils.media_util import media_urls
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
-from django.http import HttpResponseNotFound, JsonResponse
+from django.http import HttpResponseNotFound, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
@@ -26,20 +27,26 @@ class MediaImportView(TemplateView):
             js_globals={
                 "MEDIA_URL": settings.URLS["MEDIA_URL"],
                 "MEDIA_UPLOAD_URL": settings.URLS["MEDIA_UPLOAD_URL"],
-            },
+            }
+            | media_urls,  # Concatante the main media URLs + the addiotnal URLs/properties
         )
-
         return render(request, "react.html", context)
 
 
 class MediaRender:
     def index(request, asset_id, size="original"):
-        try:
-            asset = Asset.objects.get(id=asset_id)
-            return asset.render(size)
-        except Asset.DoesNotExist:
-            logger.error(f"Asset: {asset_id} not found")
-            return HttpResponseNotFound()
+        # If we are using the CDN URL, directly render the media using the CDN URL
+        if settings.DRIVER_SETTINGS["s3"]["use_cdn"]:
+            base_cdn_url = settings.DRIVER_SETTINGS["s3"]["cdn_domain"]
+            redirect_url = f"{base_cdn_url}{asset_id}_{size}"
+            return HttpResponseRedirect(redirect_url)
+        else:  # Otherwise try to render the asset using S3
+            try:
+                asset = Asset.objects.get(id=asset_id)
+                return asset.render(size)
+            except Asset.DoesNotExist:
+                logger.error("Asset: %s not found", asset_id)
+                return HttpResponseNotFound()
 
 
 class MediaUpload:
