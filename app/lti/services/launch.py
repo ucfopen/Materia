@@ -1,11 +1,11 @@
 import logging
 import re
 import time
+from urllib.parse import urlencode
 
 from core.message_exception import MsgNotFound
 from core.models import LogPlay, Lti, LtiPlayState, WidgetInstance
-from lti_tool.models import LtiDeployment, LtiLaunch, LtiRegistration
-from lti_tool.utils import get_launch_from_request
+from lti_tool.models import LtiDeployment, LtiRegistration
 
 # from pprint import pformat
 
@@ -113,12 +113,12 @@ class LTILaunchService:
         return deployment.registration if deployment is not None else None
 
     @staticmethod
-    def get_launch_redirect(lti_launch: LtiLaunch) -> str:
+    def get_launch_redirect(launch_data: dict, lti_params: dict = None) -> str:
         """
         Gets the appropriate redirect URI for resource link launches.
-        Should be one of three destinations: post login, widget player, or score screen
+        Should be one of three destinations: post login, widget player, or score screen.
+        For widget launches, LTI params are appended as query params.
         """
-        launch_data = lti_launch.get_launch_data()
         uri_claim = launch_data.get(
             "https://purl.imsglobal.org/spec/lti/claim/target_link_uri"
         )
@@ -127,9 +127,7 @@ class LTILaunchService:
         if not uri_claim or re.search("/ltilaunch/", uri_claim):
             return "/lti/post_login/"
 
-        # widget launches require special processing
-        # we provide the launch ID as a query param so we can distinguish LTI plays from non-LTI
-        # referencing request.lti_launch is NOT enough because one may be cached in session
+        # widget launches: append LTI params as query params
         elif LTILaunchService.is_widget_launch(
             launch_data
         ) or LTILaunchService.is_legacy_widget_launch_url(uri_claim):
@@ -137,8 +135,8 @@ class LTILaunchService:
             if LTILaunchService.is_legacy_widget_launch_url(uri_claim):
                 uri_claim = LTILaunchService.upgrade_widget_launch_url(uri_claim)
 
-            lid = lti_launch.get_launch_id()
-            uri_claim = f"{uri_claim}?lid={lid}"
+            if lti_params:
+                uri_claim = f"{uri_claim}?{urlencode(lti_params)}"
             return uri_claim
 
         # expected to be a score screen at this point
@@ -246,10 +244,10 @@ class LTILaunchService:
     def is_initial_launch(request) -> bool:
         """
         Helper method to determine if the request is an initial widget launch
-        based on the presence of the ?lid GET parameter.
+        based on the presence of the ?context_id GET parameter.
         """
-        launch_id = request.GET.get("lid", None)
-        return launch_id is not None
+        context_id = request.GET.get("context_id", None)
+        return context_id is not None
 
     @staticmethod
     def is_recovery_launch(request) -> bool:
@@ -261,17 +259,6 @@ class LTILaunchService:
         """
         token_param = request.GET.get("token")
         return token_param is not None
-
-    @staticmethod
-    def get_launch_data_from_request(request):
-        """
-        Retrieves launch data from the request using the ?lid GET parameter as a key
-        """
-        launch_id = request.GET.get("lid", None)
-        if launch_id is not None:
-            launch = get_launch_from_request(request, launch_id)
-            launch_data = None if launch is None else launch.get_launch_data()
-            return launch_data
 
     @staticmethod
     def get_launch_from_play(play_id: str) -> LtiPlayState:
