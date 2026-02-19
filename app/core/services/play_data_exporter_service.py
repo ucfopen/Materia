@@ -3,11 +3,12 @@ import logging
 from types import FunctionType
 from zipfile import ZIP_DEFLATED, ZipFile
 
+from core.message_exception import MsgFailure, MsgInvalidInput, MsgNotFound
 from core.models import DateRange, LogPlay, WidgetInstance
+from core.services.log_storage_service import LogStorageService
+from core.utils.validator_util import ValidatorUtil
 from django.conf import settings
 from django.core.cache import cache
-from core.message_exception import MsgInvalidInput, MsgNotFound, MsgFailure
-from core.utils.validator_util import ValidatorUtil
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,8 @@ class PlayDataExporterService:
         export_type: str,
         semesters_string: str,
         is_student: bool,
+        table: str | None = None,
+        anonymous: bool | None = None,
     ) -> tuple[str | bytes, str]:
         semesters = semesters_string.split(",")
 
@@ -42,6 +45,10 @@ class PlayDataExporterService:
             case "Questions and Answers":
                 return PlayDataExporterService._export_questions_and_answers(
                     instance, semesters
+                )
+            case "storage":
+                return PlayDataExporterService._export_storage_logs(
+                    instance, semesters, table, anonymous
                 )
             case _:
                 # Check the widget for its custom playdata exporters
@@ -84,6 +91,30 @@ class PlayDataExporterService:
                 # Otherwise, this export type just doesn't exist
                 else:
                     raise MsgInvalidInput(msg="Invalid export type")
+
+    @staticmethod
+    def _export_storage_logs(
+        instance: WidgetInstance, semester: str, table_name: str, anonymous: bool
+    ):
+        tables = LogStorageService.build_log_tables(instance.id, semester, anonymous)
+        table = tables.get(table_name, None)
+
+        if table is None:
+            raise MsgNotFound("No log data was found")
+
+        headers = list(table[0]["play"].keys())
+        headers.extend(list(table[0]["data"].keys()))
+
+        values = []
+
+        for log in table:
+            row = []
+            row = list(log["play"].values())
+            row.extend(list(log["data"].values()))
+
+            values.append(row)
+
+        return PlayDataExporterService.build_csv(headers, values), "csv"
 
     @staticmethod
     def _export_high_scores(

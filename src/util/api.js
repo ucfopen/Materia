@@ -72,9 +72,20 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 		}
 
 		try {
-			if(response.status === 204){
+			if (response.status === 204){
 				return null
 			}
+  
+			if (
+				response.headers.get('Content-Type') === 'application/download' ||
+				response.headers.get('Content-Type') === 'text/csv' ||
+				response.headers.get('Content-Type') === 'application/zip' ||
+				response.headers.get('Content-Type') === 'application/octet-stream'
+			) {
+				const data = await response.blob()
+				return data
+			}
+
 			const data = await response.json()
 			return data
 		} catch (e) {
@@ -257,6 +268,11 @@ export const apiGetWidgetLock = (id = null) => {
  * @param {string} input (letters only)
  * @returns {array} of matches
  */
+export const apiExportDataStorageTable = (instId, table, semester, anonymous) => {
+  const url = `/api/instances/${instId}/export_playdata/?type=storage&table=${table}&semesters=${semester}&anonymous=${anonymous}`
+  return handleRequest(methods.GET, url)
+}
+
 export const apiSearchInstances = (input, pageParam = 1, include_deleted = false) => {
 	return handleRequest(methods.GET, `/api/instances/?search=${input}&page=${pageParam}&include_deleted=${include_deleted}`)
 }
@@ -356,9 +372,8 @@ export const apiGetPlayLogs = (instId, term, year, contexts, page_number) => {
 		})
 }
 
-// TODO update or retire
 export const apiGetStorageData = instId => {
-	return handleRequest(methods.POST, '/api/json/play_storage_get', ({ body: `data=${formatFetchBody([instId])}` }))
+	return handleRequest(methods.GET, `/api/storage/?inst_id=${instId}`);
 }
 
 export const apiCreatePlaySession = ({ widgetId }) => {

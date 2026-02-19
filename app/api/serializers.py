@@ -5,11 +5,13 @@ import json
 import logging
 import os
 
+import phpserialize
 from core.models import (
     Asset,
     DateRange,
     Log,
     LogPlay,
+    LogStorage,
     Lti,
     Notification,
     ObjectPermission,
@@ -19,6 +21,7 @@ from core.models import (
     WidgetInstance,
     WidgetQset,
 )
+from core.services.log_storage_service import LogStorageService
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
 from core.services.user_service import UserService
@@ -582,14 +585,16 @@ class ScoreSummarySerializer(serializers.Serializer):
     students = serializers.IntegerField()
     average = serializers.FloatField()
     distribution = serializers.ListField()
+    storage = serializers.BooleanField()
 
     @classmethod
-    def create_from_plays(cls, logs):
+    def create_from_plays(cls, logs, include_storage=False):
 
         if not logs:
             return []
 
         summary = {}
+        storage_by_semester = {}
         unique_students = {}
 
         for log in logs:
@@ -609,6 +614,11 @@ class ScoreSummarySerializer(serializers.Serializer):
                         distribution[i] = 0
 
                 unique_students[semester_key] = [user_id]
+
+                if include_storage and semester_key not in storage_by_semester:
+                    storage_by_semester[semester_key] = log.storage_logs.exists()
+                else:
+                    storage_by_semester[semester_key] = False
 
                 summary[semester_key] = {
                     "id": log.semester.id,
@@ -632,6 +642,13 @@ class ScoreSummarySerializer(serializers.Serializer):
                     int(log.percent / 10) if int(log.percent / 10) < 10 else 9
                 ] += 1
 
+                if (
+                    include_storage
+                    and storage_by_semester[semester_key] is not True
+                    and log.storage_logs.exists()
+                ):
+                    storage_by_semester[semester_key] = True
+
         results = []
         for data in summary.values():
             results.append(
@@ -642,6 +659,7 @@ class ScoreSummarySerializer(serializers.Serializer):
                     "students": data["students"],
                     "average": round(data["total"] / data["count"], 2),
                     "distribution": data["distribution"],
+                    "storage": storage_by_semester[f"{data["year"]}-{data["term"]}"],
                 }
             )
 
@@ -789,6 +807,31 @@ class UserExtraAttemptsSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class PlayStorageSerializer(serializers.ModelSerializer):
+    data = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LogStorage
+        fields = "__all__"
+
+    def get_data(self, storage_log):
+        raw = base64.b64decode(storage_log.data)
+        try:
+            data = phpserialize.loads(raw, decode_strings=True)
+        except ValueError:
+            data = json.loads(raw)
+        return dict(sorted(data.items()))
+
+
+class PlayStorageTableSerializer(serializers.Serializer):
+
+    def to_representation(self, queryset):
+        anonymize = self.context.get("anonymize", False)
+        return LogStorageService.build_log_tables_from_queryset(queryset, anonymize)
+
+
 class PlayStorageSaveSerializer(serializers.Serializer):
-    play_id = serializers.CharField()
+    play_id = serializers.PrimaryKeyRelatedField(
+        queryset=LogPlay.objects.all(), required=True
+    )
     logs = serializers.JSONField()

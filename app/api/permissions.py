@@ -155,3 +155,38 @@ class PlaySessionInstancePermissions(permissions.BasePermission):
             return True
 
         return obj.instance.guest_access
+
+
+class PlayStorageInstancePermissions(permissions.BasePermission):
+    def has_permission(self, request, view):
+
+        if request.method == "GET":
+            inst_id = request.query_params.get("inst_id")
+            if inst_id:
+                instance = WidgetInstance.objects.filter(pk=inst_id).first()
+                if not instance or not instance.playable_by_current_user(request.user):
+                    return False
+
+                return True
+
+            play_id = request.query_params.get("play_id")
+            play = LogPlay.objects.select_related("instance").filter(pk=play_id).first()
+
+            if not play.instance.playable_by_current_user(request.user):
+                return False
+
+            return True
+
+        elif request.method == "POST":
+            play_id = request.data.get("play_id")
+            play = LogPlay.objects.filter(pk=play_id).first()
+
+            if play is None:
+                return False
+
+            if request.user.is_authenticated and play.user_id != request.user.id:
+                return False
+
+            return True
+
+        return False

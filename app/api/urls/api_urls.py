@@ -2,9 +2,9 @@ from api.views import (
     assets,
     extra_attempts,
     generation,
-    logstorage,
     notifications,
     playsessions,
+    playstorage,
     scores,
     sessions,
     users,
@@ -20,6 +20,7 @@ router.register(r"assets", assets.AssetViewSet)
 router.register(r"users", users.UserViewSet)
 router.register(r"widgets", widgets.WidgetViewSet)
 router.register(r"play-sessions", playsessions.PlaySessionViewSet)
+router.register(r"storage", playstorage.PlayStorageViewSet)
 router.register(
     r"instances", widget_instances.WidgetInstanceViewSet, basename="instances"
 )
@@ -38,5 +39,4 @@ urlpatterns = [
     path("generate/qset/", generation.GenerateQsetView.as_view()),
     path("generate/from_prompt/", generation.GenerateFromPromptView.as_view()),
     path("lti/<slug:context_id>/instances/", LtiWidgetInstancesInCourseView.as_view()),
-    path("storage/", logstorage.PlayStorageSaveView.as_view()),
 ]

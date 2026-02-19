@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetStorageData } from '../util/api'
+import { apiGetStorageData, apiExportDataStorageTable } from '../util/api'
 import LoadingIcon from './loading-icon'
 import PaginateButtons from './score-storage-paginate-buttons'
 import StorageRows from './score-storage-rows'
@@ -128,6 +128,34 @@ const MyWidgetScoreSemesterStorage = ({semester, instId, setInvalidLogin}) => {
 
 	const handleSearchChange = e => setSearchInput(e.target.value)
 
+	const downloadTable = async (e) => {
+		e.preventDefault();
+		
+		const blob = await apiExportDataStorageTable(
+		instId,
+		state.selectedTableName,
+		`${semester.year}-${semester.term}`,
+		state.anonymous
+		);
+		
+		if (!blob) {
+		console.error('No data received');
+		return;
+		}
+		
+		const url = window.URL.createObjectURL(blob);
+		
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = `${state.selectedTableName}_${semester.year}-${semester.term}.csv`;
+		
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		
+		window.URL.revokeObjectURL(url);
+	};
+
 	let contentRender = (
 		<div className='loading-holder'>
 			<LoadingIcon />
@@ -170,12 +198,6 @@ const MyWidgetScoreSemesterStorage = ({semester, instId, setInvalidLogin}) => {
 			)
 		}
 
-		// This URL string is otherwise huge and nasty, so it's built in multiple steps for readability.
-		const downloadUrlBase = `/data/export/${instId}?type=storage`
-		const tableValue = `table=${encodeURIComponent(state.selectedTableName)}`
-		const semestersValue = `semesters=${semester.year}-${semester.term}`
-		const downloadUrlString = `${downloadUrlBase}&${tableValue}&${semestersValue}&anonymized=${state.anonymous}`
-
 		contentRender = (
 			<>
 				<div>
@@ -188,7 +210,9 @@ const MyWidgetScoreSemesterStorage = ({semester, instId, setInvalidLogin}) => {
 						Anonymize Download
 					</label>
 					<a className='storage'
-						href={downloadUrlString}>
+						href="#"
+						onClick={downloadTable}
+					>
 						Download Table
 					</a>
 				</div>
