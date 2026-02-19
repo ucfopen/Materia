@@ -138,8 +138,18 @@ class PlaySessionInstancePermissions(permissions.BasePermission):
         if not isinstance(obj, LogPlay):
             return False
 
-        if not obj.instance.guest_access and obj.user != request.user:
-            return False
+        if PermService.is_superuser_or_elevated(request.user):
+            return True
+
+        if not obj.instance.guest_access:
+
+            # only the user associated with the play log should have permission, except
+            # with the /resubmit action; owners of the associated instance also have authority
+            if obj.user != request.user and not (
+                view.action == "resubmit"
+                and obj.instance.permissions.filter(user=request.user).exists()
+            ):
+                return False
 
         if request.user and request.user.is_authenticated:
             return True

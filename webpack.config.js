@@ -10,7 +10,10 @@ const cssPath = path.join(__dirname, 'src', 'css')
 
 const packageJSON = require('./package.json')
 
-const entry = {}
+const entry = {
+	// Fonts CSS - emitted separately for better load performance
+	fonts: path.join(cssPath, 'fonts.css')
+}
 // Webpack Entry Point Registration Overview
 // Create object with:
 // Key = output name and path, Value = source file path

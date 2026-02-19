@@ -2,6 +2,7 @@ from api.views import (
     assets,
     extra_attempts,
     generation,
+    logstorage,
     notifications,
     playsessions,
     playstorage,

@@ -21,8 +21,7 @@ class Command(base.BaseCommand):
         command_function = getattr(self, subcommand)
         try:
             command_function(*kwargs["arguments"])
-        except Exception as e:
-            logger.info(e)
+        except Exception:
             logger.exception("")
 
     def migrate_to_driver(self, *args):

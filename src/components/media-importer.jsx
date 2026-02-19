@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, {useState, useEffect, useRef, useCallback} from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import DragAndDrop from './drag-and-drop'
 import LoadingIcon from './loading-icon'
@@ -64,6 +64,27 @@ const MediaImporter = () => {
 	const [showDeletedAssets, setShowDeletedAssets] = useState(false)
 	const [filterSearch, setFilterSearch] = useState('') // Search bar filter
 
+	// Tell the creator that the media importer is ready to receive a direct upload file, if there is one
+	useEffect(() => {
+		parent.postMessage(JSON.stringify({ type: 'readyForDirectUpload', source: 'media-importer', data: '' }), '*')
+	}, [])
+
+	const postMessageHandler = useCallback((e) => {
+		const origin = `${e.origin}/`
+		if (origin !== window.STATIC_CROSSDOMAIN && origin !== window.BASE_URL) return
+		const file = new File(
+			[e.data.buffer],
+			e.data.name,
+			{ type: e.data.type, lastModified: e.data.lastModified }
+		)
+		_upload(file)
+	}, [])
+
+	useEffect(() => {
+		window.addEventListener('message', postMessageHandler)
+		return () => window.removeEventListener('message', postMessageHandler)
+	})
+
 	const { data: listOfAssets } = useQuery({
 		queryKey: ['media-assets', selectedAsset],
 		queryFn: () => apiGetAssets(),
@@ -76,7 +97,7 @@ const MediaImporter = () => {
 						id: asset.id,
 						type: asset.file_type,
 						name: asset.title.split('.').shift(),
-						timestamp: asset.created_at,
+						timestamp: creationDate,
 						thumb: _thumbnailUrl(asset.id, asset.file_type),
 						created: [creationDate.getMonth(), creationDate.getDate(), creationDate.getFullYear()].join('/'),
 						is_deleted: parseInt(asset.is_deleted) || asset.is_deleted === true
@@ -144,7 +165,10 @@ const MediaImporter = () => {
 			case 'jpeg': // intentional case fall-through
 			case 'png': // intentional case fall-through
 			case 'gif': // intentional case fall-through
-				return `${MEDIA_URL}${data}/thumbnail`
+				if (window.USE_CDN && window.CDN_URL){
+					return `${window.CDN_URL}${data}_thumbnail`
+				}
+				return `${window.MEDIA_URL}${data}/thumbnail`
 
 			case 'mp3': // intentional case fall-through
 			case 'wav': // intentional case fall-through

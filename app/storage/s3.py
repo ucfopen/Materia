@@ -67,9 +67,8 @@ class S3AssetStorageDriver:
                 raise Exception(
                     "S3: Failed to determine credential provider. Did you set the appropriate environment variable?"
                 )
-        except Exception as e:
-            logger.error("S3: Failed to create S3 session.")
-            logger.error(e)
+        except Exception:
+            logger.error("S3: Failed to create S3 session.", exc_info=True)
 
         s3_config = {}
         # Endpoint config is only required for fakeS3 - the param is not required for actual S3 on AWS
@@ -104,9 +103,8 @@ class S3AssetStorageDriver:
                 Key=key,
                 ExtraArgs={"ContentType": asset.get_mime_type()},
             )
-        except Exception as e:
-            logger.error(f"S3: Failed to store asset {key}")
-            logger.error(e)
+        except Exception:
+            logger.error("S3: Failed to store asset %s", key, exc_info=True)
 
     def exists(id, size):
         s3_resource = S3AssetStorageDriver.get_s3()
@@ -119,25 +117,33 @@ class S3AssetStorageDriver:
             if e.response["Error"]["Code"] == "404":
                 return False
             else:
-                logger.error("S3 exists check error")
-                logger.error(e)
+                logger.error("S3 exists check error", exc_info=True)
 
     def handle_uploaded_file(asset, uploaded_file):
         s3_client = S3AssetStorageDriver.get_s3(True)
         uploaded_file.seek(0)
+
+        # Need to use a file buffer in order to access the original file again after uploading to S3 
+        file_bytes = uploaded_file.read()
+        file_buffer = io.BytesIO(file_bytes)
+
+        file_buffer.seek(0)
         s3_client.upload_fileobj(
-            Fileobj=uploaded_file,
+            Fileobj=file_buffer,
             Bucket=settings.DRIVER_SETTINGS["s3"]["bucket"],
             Key=S3AssetStorageDriver.get_key_name(asset.id, "original"),
             ExtraArgs={"ContentType": asset.get_mime_type()},
         )
+        # Upload the thumbnail
+        thumbnail_buffer = io.BytesIO(file_bytes)
+        S3AssetStorageDriver.build_size(asset, "thumbnail", s3_client, thumbnail_buffer)
 
     def render(asset, size):
         from django.http import HttpResponseNotFound
 
         # placeholder to store eventual path to the temp file storing the asset's binary data
         asset_url = None
-
+        s3_client = S3AssetStorageDriver.get_s3(True)
         try:
             if not S3AssetStorageDriver.exists(asset.id, size):
                 # if the original file doesn't exist, raise exceptions to trigger a 404
@@ -145,18 +151,19 @@ class S3AssetStorageDriver:
                     raise Exception(f"Missing asset data for asset: {asset.id} {size}")
 
                 # if a thumbnail etc. is requested, try to build it
-                asset_url = S3AssetStorageDriver.build_size(asset, size)
+                asset_url = S3AssetStorageDriver.build_size(asset, size, s3_client)
             else:
                 asset_url = S3AssetStorageDriver.get_view_url(asset.id, size)
         except Exception as e:
-            logger.error(e)
+            logger.error(e, exc_info=True)
             return HttpResponseNotFound()
 
         return HttpResponseRedirect(asset_url)
-
-    def build_size(asset, size):
+    
+    def build_size(asset, size, client, uploaded_file = None):
         from PIL import Image
 
+        # Get the correct file size 
         crop = size == "thumbnail"
         target_size = None
         if size == "thumbnail":
@@ -166,25 +173,23 @@ class S3AssetStorageDriver:
         else:
             raise Exception(f"Asset size not supported: '{size}'")
 
-        # Ideally the byte value of the object is read into Pillow
-        #  rather than stored on disk temporarily, then the resulting
-        #  thumbnail is written directly to S3 instead of being stored
-        #  on disk temporarily
+        # Get image from the uploaded file or get the the file from the asset id 
+        img = None
+        temporary_file = None
+        if(uploaded_file):
+            uploaded_file.seek(0)
+            img = Image.open(uploaded_file)
+        else:
+            key = S3AssetStorageDriver.get_key_name(asset.id, "original")
+            bucket = settings.DRIVER_SETTINGS["s3"]["bucket"]
 
-        s3 = S3AssetStorageDriver.get_s3()
-        key = S3AssetStorageDriver.get_key_name(asset.id, "original")
-        bucket = settings.DRIVER_SETTINGS["s3"]["bucket"]
-
-        temporary_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir())
-
-        if os.path.isfile(temporary_file.name):
-            temporary_file.close()
-
-        # download original asset to temp location
-        s3.Bucket(bucket).download_file(key, temporary_file.name)
-
-        img = Image.open(temporary_file.name)
-
+            temporary_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir())
+            if os.path.isfile(temporary_file.name):
+                temporary_file.close()
+            client.Bucket(bucket).download_file(key, temporary_file.name)
+            img = Image.open(temporary_file.name)
+        
+        
         new_size = (0, 0)
         # if the image is wider than it is tall, constrain height
         original_width, original_height = img.size
@@ -213,6 +218,7 @@ class S3AssetStorageDriver:
             )
             img = img.crop(crop_dimensions)
 
+        
         new_file_format = asset.file_type.upper()
         # Pillow does not recognize 'JPG' as a valid file format
         if new_file_format == "JPG":
@@ -221,25 +227,24 @@ class S3AssetStorageDriver:
         try:
             new_bytes = io.BytesIO()
             img.save(new_bytes, format=new_file_format)
-
             new_bytes.seek(0)
 
-            new_key = S3AssetStorageDriver.get_key_name(asset.id, size)
-            put_data = {
-                "Body": new_bytes.getvalue(),
-                "ContentType": asset.get_mime_type(),
-                "ContentLength": new_bytes.getbuffer().nbytes,
-            }
+            client.upload_fileobj(
+                Fileobj=new_bytes,
+                Bucket=settings.DRIVER_SETTINGS["s3"]["bucket"],
+                Key=S3AssetStorageDriver.get_key_name(asset.id, size),
+                ExtraArgs={"ContentType": asset.get_mime_type()},
+            )
 
-            s3.Object(bucket, new_key).put(**put_data)
-
-            os.remove(temporary_file.name)
-
-            return S3AssetStorageDriver.get_view_url(asset.id, size)
-        except Exception as e:
-            os.remove(temporary_file.name)
-            logger.info("Error saving new size to S3")
-            logger.info(e)
+            if(temporary_file and not uploaded_file):
+                os.remove(temporary_file.name)
+                
+            return S3AssetStorageDriver.get_view_url(asset.id, size) 
+        except Exception:
+            if(temporary_file and not uploaded_file):
+                os.remove(temporary_file.name)
+            logger.error("Error saving thumbnail to S3", exc_info=True,)
+        
 
     def migrate_to(driver, cleanup_delete=False):
         if driver == "file":

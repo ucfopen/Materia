@@ -359,6 +359,7 @@ export const apiGetPlayLogs = (instId, term, year, contexts, page_number) => {
 				scoresForUser.scores.push({
 					elapsed: parseInt(log.elapsed, 10) + 's',
 					playId: log.id,
+					auth: log.auth == 'lti' ? 'lti' : 'web',
 					score: log.is_complete === true ? Math.round(parseFloat(log.percent)) + '%' : '---',
 					created_at: log.created_at
 				})
@@ -416,6 +417,10 @@ export const apiSavePlayStorage = ({ play_id, logs }) => {
 
 export const apiSavePlayLogs = ({ request }) => {
 	return handleRequest(methods.PUT, `/api/play-sessions/${request.playId}/`, { ...request })
+}
+
+export const apiPlayResubmit = (play_id) => {
+	return handleRequest(methods.POST, `/api/play-sessions/${play_id}/resubmit/`)
 }
 
 export const apiGetQuestionsByType = (arrayOfQuestionIds, questionTypes) => {
