@@ -1,81 +1,69 @@
 import base64
 import json
 
-from api.serializers import PlayStorageSaveSerializer
-from core.message_exception import MsgInvalidInput, MsgNoLogin
-from core.models import LogPlay, LogStorage, WidgetInstance
-from core.services.log_storage_service import LogStorageService
-from core.utils.validator_util import ValidatorUtil
-from rest_framework import permissions, status
+from api.filters import LogStorageFilterBackend
+from api.permissions import PlayStorageInstancePermissions
+from api.serializers import (
+    PlayStorageSaveSerializer,
+    PlayStorageSerializer,
+    PlayStorageTableSerializer,
+)
+from core.models import LogStorage
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 
-
-class PlayStorageSaveView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+class PlayStorageViewSet(viewsets.ModelViewSet):
+    permission_classes = [PlayStorageInstancePermissions]
+    filter_backends = [LogStorageFilterBackend, DjangoFilterBackend]
     http_method_names = ["post", "get"]
 
-    def get(self, request):
-        inst_id = request.query_params.get("inst_id")
+    queryset = LogStorage.objects.all()
 
-        if not ValidatorUtil.is_valid_hash(inst_id):
-            return MsgInvalidInput(msg="Instance ID is not valid")
+    def get_serializer_class(self):
+        if self.action == "list":
+            return PlayStorageTableSerializer
+        elif self.action == "create":
+            return PlayStorageSaveSerializer
+        else:
+            return PlayStorageSerializer
 
-        try:
-            instance = WidgetInstance.objects.get(id=inst_id)
-        except WidgetInstance.DoesNotExist:
-            return MsgInvalidInput(msg="No instance found with the given instance id")
+    def list(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        anonymize = request.query_params.get("anonymize", False)
+        serializer = PlayStorageTableSerializer(
+            queryset, context={"anonymize": anonymize}
+        )
+        return Response(serializer.data)
 
-        if not instance.playable_by_current_user(request.user):
-            return MsgNoLogin()
-
-        tables = LogStorageService().build_log_tables(inst_id)
-
-        return Response(tables, status=status.HTTP_200_OK)
-
-    def post(self, request):
+    def create(self, request):
         serializer = PlayStorageSaveSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        play_id = serializer.validated_data["play_id"]
+        play = serializer.validated_data["play_id"]
         log_data = serializer.validated_data["logs"]
-
-        try:
-            play = LogPlay.objects.get(id=play_id)
-        except LogPlay.DoesNotExist:
-            return MsgInvalidInput(msg="No play found with the given Play ID")
 
         user = request.user
         instance = play.instance
-
-        if not instance.playable_by_current_user(user):
-            return MsgNoLogin(request=request)
-
         logs = []
-
-        if instance.guest_access:
+        if instance.guest_access or not request.user.is_authenticated:
             user = None
 
-        if ValidatorUtil.is_valid_hash(
-            instance.id
-        ) and ValidatorUtil.is_valid_long_hash(play_id):
-            for storage_packet in log_data:
-                stringified_data = json.dumps(storage_packet.get("data"))
+        for storage_packet in log_data:
+            stringified_data = json.dumps(storage_packet.get("data"))
+            byte_data = stringified_data.encode("utf-8")
+            encoded = base64.b64encode(byte_data).decode("ascii")
 
-                byte_data = stringified_data.encode("utf-8")
-                encoded = base64.b64encode(byte_data).decode("ascii")
-
-                logs.append(
-                    LogStorage(
-                        instance=instance,
-                        play_log=play,
-                        user=user,
-                        name=storage_packet.get("name"),
-                        data=encoded,
-                    )
+            logs.append(
+                LogStorage(
+                    instance=instance,
+                    play_log=play,
+                    user=user,
+                    name=storage_packet.get("name"),
+                    data=encoded,
                 )
+            )
 
         LogStorage.objects.bulk_create(logs)
-
         return Response(True)

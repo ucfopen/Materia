@@ -5,11 +5,13 @@ import json
 import logging
 import os
 
+import phpserialize
 from core.models import (
     Asset,
     DateRange,
     Log,
     LogPlay,
+    LogStorage,
     Lti,
     Notification,
     ObjectPermission,
@@ -19,6 +21,7 @@ from core.models import (
     WidgetInstance,
     WidgetQset,
 )
+from core.services.log_storage_service import LogStorageService
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
 from core.services.user_service import UserService
@@ -804,6 +807,31 @@ class UserExtraAttemptsSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class PlayStorageSerializer(serializers.ModelSerializer):
+    data = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LogStorage
+        fields = "__all__"
+
+    def get_data(self, storage_log):
+        raw = base64.b64decode(storage_log.data)
+        try:
+            data = phpserialize.loads(raw, decode_strings=True)
+        except ValueError:
+            data = json.loads(raw)
+        return dict(sorted(data.items()))
+
+
+class PlayStorageTableSerializer(serializers.Serializer):
+
+    def to_representation(self, queryset):
+        anonymize = self.context.get("anonymize", False)
+        return LogStorageService.build_log_tables_from_queryset(queryset, anonymize)
+
+
 class PlayStorageSaveSerializer(serializers.Serializer):
-    play_id = serializers.CharField()
+    play_id = serializers.PrimaryKeyRelatedField(
+        queryset=LogPlay.objects.all(), required=True
+    )
     logs = serializers.JSONField()

@@ -96,8 +96,7 @@ class PlayDataExporterService:
     def _export_storage_logs(
         instance: WidgetInstance, semester: str, table_name: str, anonymous: bool
     ):
-        tables = LogStorageService().build_log_tables(instance.id, semester, anonymous)
-
+        tables = LogStorageService.build_log_tables(instance.id, semester, anonymous)
         table = tables.get(table_name, None)
 
         if table is None:

@@ -1,10 +1,16 @@
 import logging
 
 import django_filters
-from core.models import Asset, ObjectPermission, UserExtraAttempts, WidgetInstance
+from core.models import (
+    Asset,
+    DateRange,
+    ObjectPermission,
+    UserExtraAttempts,
+    WidgetInstance,
+)
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django_filters import rest_framework
 from rest_framework import filters
 
@@ -96,6 +102,45 @@ class LogPlayFilterBackend(filters.BaseFilterBackend):
         elif pk is None and user_query is None:
             # NEVER return every play log in the DB !!!!!!
             return queryset.none()
+
+
+class LogStorageFilterBackend(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        inst_id = request.query_params.get("inst_id")
+        year = request.query_params.get("year")
+        term = request.query_params.get("term")
+        play_id = request.query_params.get("play_id")
+
+        if play_id is not None:
+            return queryset.filter(play_log=play_id)
+        else:
+            if inst_id is None:
+                return queryset.none()
+
+            if not year and not term:
+                return queryset.filter(instance_id=inst_id)
+
+            if year:
+                date_ranges = DateRange.objects.filter(
+                    start_at__lte=OuterRef("created_at"),
+                    end_at__gte=OuterRef("created_at"),
+                )
+                try:
+                    date_ranges = date_ranges.filter(year=int(year))
+                    if term:
+                        date_ranges = date_ranges.filter(
+                            semester=term,
+                        )
+                except (ValueError, AttributeError):
+                    pass
+
+                qs = queryset.filter(instance_id=inst_id).annotate(
+                    date_range_id=Subquery(date_ranges.values("id")[:1]),
+                    year=Subquery(date_ranges.values("year")[:1]),
+                    term=Subquery(date_ranges.values("semester")[:1]),
+                )
+
+                return qs.filter(date_range_id__isnull=False)
 
 
 class UserExtraAttemptsFilter(rest_framework.FilterSet):
