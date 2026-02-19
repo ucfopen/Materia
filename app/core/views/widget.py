@@ -13,6 +13,7 @@ from core.services.widget_play_services import (
     WidgetPlayValidationService,
 )
 from core.utils.context_util import ContextUtil
+from core.utils.validator_util import ValidatorUtil
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
@@ -187,8 +188,9 @@ class WidgetPlayView(
                         lti_association=lti_assoc,
                         ags_line_item=self.request.GET.get("ags_line_item", ""),
                         ags_user_id=self.request.GET.get("ags_user_id", ""),
-                        ags_scoring_enabled=self.request.GET.get("ags_scoring_enabled")
-                        == "True",
+                        ags_scoring_enabled=ValidatorUtil.validate_bool(
+                            self.request.GET.get("ags_scoring_enabled")
+                        ),
                     )
                     play_lti_state.save()
 
@@ -253,17 +255,11 @@ class WidgetPlayView(
             return lti_error_page(request, "error_lti_guest_mode")
 
         if LTILaunchService.is_initial_launch(request):
-            is_author = request.GET.get("is_author") == "True"
-            provisional = request.GET.get("provisional") == "True"
+            is_author = ValidatorUtil.validate_bool(request.GET.get("is_author"))
+            provisional = ValidatorUtil.validate_bool(request.GET.get("provisional"))
 
             if is_author:
-                if provisional:
-                    context = _create_lti_success_page(
-                        request, instance, provisional=True
-                    )
-                # current user is an author and already has access
-                else:
-                    context = _create_lti_success_page(request, instance)
+                context = _create_lti_success_page(request, instance, provisional)
 
         # edge case where the instructor refreshes the LTI preview page
         # since LTI launch data is not stored in session,

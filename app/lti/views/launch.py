@@ -52,6 +52,7 @@ class ApplicationLaunchView(LtiLaunchBaseView):
         ):
             context_id = LTILaunchService.get_context_id(launch_data)
             lti_params = {
+                "launch_status": "initial",
                 "context_id": context_id,
                 "resource_link": LTILaunchService.get_resource_link(launch_data) or "",
                 "ags_line_item": AGSUtil.get_line_item_from_launch(launch_data) or "",
@@ -100,6 +101,8 @@ class ApplicationLaunchView(LtiLaunchBaseView):
                     LTILaunchService.register_association(
                         launch_data, request.user, instance
                     )
+            else:
+                return error_page(request, "error_unknown_assignment")
 
         # Redirect handling
         try:

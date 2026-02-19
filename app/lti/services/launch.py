@@ -244,10 +244,9 @@ class LTILaunchService:
     def is_initial_launch(request) -> bool:
         """
         Helper method to determine if the request is an initial widget launch
-        based on the presence of the ?context_id GET parameter.
+        based on the presence of the ?launch_status=initial GET parameter.
         """
-        context_id = request.GET.get("context_id", None)
-        return context_id is not None
+        return request.GET.get("launch_status") == "initial"
 
     @staticmethod
     def is_recovery_launch(request) -> bool:
