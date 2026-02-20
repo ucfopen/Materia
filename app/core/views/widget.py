@@ -13,21 +13,18 @@ from core.services.widget_play_services import (
     WidgetPlayValidationService,
 )
 from core.utils.context_util import ContextUtil
+from core.utils.validator_util import ValidatorUtil
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
-from django.db.models import Q
 from django.http import Http404, HttpRequest
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
-from lti.ags.util import AGSUtil
 from lti.mixins import LtiLaunchMixin
-from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from lti.views.lti import error_page as lti_error_page
-from pylti1p3.exception import LtiException
 
 logger = logging.getLogger(__name__)
 
@@ -119,9 +116,7 @@ class WidgetPlayView(
         context_id = ""
 
         if LTILaunchService.is_initial_launch(request):
-            launch = LTILaunchService.get_launch_data_from_request(request)
-            if launch is not None:
-                context_id = LTILaunchService.get_context_id(launch)
+            context_id = request.GET.get("context_id", "")
 
         elif LTILaunchService.is_recovery_launch(request):
             play = LogPlay.objects.get(pk=request.GET.get("token"))
@@ -175,46 +170,31 @@ class WidgetPlayView(
 
         if not instance.guest_access:
 
-            # initial launch: launch data should be present in request object
+            # initial launch: LTI params are passed via URL query params
             if LTILaunchService.is_initial_launch(self.request):
                 try:
-                    launch_data = LTILaunchService.get_launch_data_from_request(
-                        self.request
-                    )
-
                     play.auth = "lti"
                     play.lti_token = play.id
-                    play.context_id = LTILaunchService.get_context_id(launch_data)
+                    play.context_id = self.request.GET.get("context_id", "")
 
-                    launch_resource_link = LTILaunchService.get_resource_link(
-                        launch_data
-                    )
-
+                    resource_link = self.request.GET.get("resource_link", "")
                     lti_assoc = Lti.objects.filter(
                         widget_instance_id=instance.id,
-                        resource_link=launch_resource_link,
+                        resource_link=resource_link,
                     ).first()
 
                     play_lti_state = LtiPlayState(
                         play=play,
                         lti_association=lti_assoc,
-                        ags_line_item=AGSUtil.get_line_item_from_launch(launch_data)
-                        or "",
-                        ags_user_id=AGSUtil.get_ags_user_id(launch_data) or "",
-                        ags_scoring_enabled=AGSUtil.is_ags_scoring_available(
-                            launch_data
+                        ags_line_item=self.request.GET.get("ags_line_item", ""),
+                        ags_user_id=self.request.GET.get("ags_user_id", ""),
+                        ags_scoring_enabled=ValidatorUtil.validate_bool(
+                            self.request.GET.get("ags_scoring_enabled")
                         ),
                     )
                     play_lti_state.save()
 
                     lti_token = play.id
-
-                except LtiException:
-                    logger.error(
-                        "LTI: Error: initial launch attempted for play %s, but launch data could not be recovered",
-                        play.id,
-                        exc_info=True,
-                    )
 
                 except Exception:
                     logger.error(
@@ -275,41 +255,11 @@ class WidgetPlayView(
             return lti_error_page(request, "error_lti_guest_mode")
 
         if LTILaunchService.is_initial_launch(request):
-            launch = LTILaunchService.get_launch_data_from_request(request)
+            is_author = ValidatorUtil.validate_bool(request.GET.get("is_author"))
+            provisional = ValidatorUtil.validate_bool(request.GET.get("provisional"))
 
-            if not launch:
-                return lti_error_page(request, "error_launch_recovery")
-
-            if LTIAuthService.is_user_course_author(launch):
-                # check to see if the current user has either:
-                # a. unrestricted permissions to the instance (context_id == None) OR
-                # b. restricted permission to the instance for the current context ID
-                context_id = LTILaunchService.get_context_id(launch)
-                has_visibility = (
-                    instance.permissions.filter(user=request.user)
-                    .filter(Q(context_id__isnull=True) | Q(context_id=context_id))
-                    .exists()
-                )
-
-                # current user IS an author in the course but does NOT have access
-                # grant them implicit access and provide the provisional flag to the frontend
-                if not has_visibility:
-                    instance.permissions.create(
-                        user=request.user,
-                        permission="visible",
-                        context_id=context_id,
-                    )
-                    context = _create_lti_success_page(
-                        request, instance, provisional=True
-                    )
-
-                # current user is an author and already has access
-                else:
-                    context = _create_lti_success_page(request, instance)
-
-            # LTI associations are registered during play view init, instead of deep linking
-            # This behavior is carried over from PHP Materia
-            LTILaunchService.register_association(launch, request.user, instance)
+            if is_author:
+                context = _create_lti_success_page(request, instance, provisional)
 
         # edge case where the instructor refreshes the LTI preview page
         # since LTI launch data is not stored in session,
