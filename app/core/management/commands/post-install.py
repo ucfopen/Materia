@@ -33,8 +33,7 @@ class Command(base.BaseCommand):
 
         try:
             command_function(*kwargs["arguments"])
-        except Exception as e:
-            logger.info(e)
+        except Exception:
             logger.exception("")
 
     def populate_db(self):

@@ -13,13 +13,6 @@ That depends on how your institution has configured Materia. If you visit Materi
 handled for you. If you log in directly to Materia, you may need credentials specifically set up for Materia. If logging
 in transitions you to an external login, use the credentials associated with that external login instead.
 
-#### I'm an instructor, why does Materia think I'm suddenly a student?
-
-Materia defers to your LMS when receiving login information that may include your role in the course you last accessed
-Materia from. Depending on your course role, your role in Materia may update to match. For example, if you are
-instructor in Course A but a student in Course B, Materia will flag you as a student if you visit Materia content
-embedded in Course B. Visiting Materia content in Course A will once again grant you the author role.
-
 #### Can my students author widgets?
 
 Yes they can, but student-authored widgets have several limitations. Primarily, the widget is forced into Guest Mode,
@@ -27,7 +20,7 @@ which removes the login requirement, but all scores recorded by Guest Mode widge
 widgets cannot be embedded in your LMS, and if a student grants you access, you cannot disable Guest Mode. Students can
 freely share their widgets with other users using the Play URL or Embed Code.
 
-### Scores & Grades
+### Attempts, Scores, and Grades
 
 #### Does Materia save student grades?
 
@@ -47,8 +40,28 @@ exported at any time by clicking the Export Options button in My Widgets.
 This can happen for multiple reasons. First, ensure the widget is properly embedded in your LMS by reviewing
 [our documentation for embedding widgets in Canvas](https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html).
 Next, verify the score the student received by reviewing the widget's Student Activity section in Materia under My Widgets.
-If a score is present in Materia but not synced with the gradebook, contact Support. Often the "handshake" between
+If a score is present in Materia but not synced with the gradebook, contact Support. The "handshake" between
 Materia and the LMS can fail or be invalidated for several reasons that are not nefarious.
+
+#### How do attempt limits work?
+
+Materia applies attempt limits on a per-context basis: the course that the widget is played in (or lack thereof). If a widget 
+is embedded in Course A and Course B, attempt limits are applied separately to ensure a student is not preemptively locked out of playing
+the widget. The lack of a course embed is itself treated as another context, so a widget played directly in Materia will have an attempt limit
+separate from the one applied to the limit within a course.
+
+#### I embedded a widget in an assignment in my course and set an attempt limit for the assignment. How does this apply to Materia?
+
+Attempt limits configured within Materia are completely distinct from those applied to assignments in your LMS. When a student completes
+a widget embedded as an assignment, Materia submits the score to the LMS: each of these submissions counts against the assignment attempt
+limit. Because of the limited information provided to Materia by the LMS, Materia does not enforce attempt limits from the assignment. However,
+Materia will provide a warning on the score screen indicating the attempt limit prevented the score from syncing with the gradebook.
+
+#### I see "WEB" and "LTI" indicators in the Student Activity section when reviewing student scores. What do those mean?
+
+Materia widgets can be played standalone - via the play URL or embed code - or as an embedded content item in your LMS. "WEB" indicates 
+the play session was considered standalone, while "LTI" indicates the play session contained the additional context associated with being embedded 
+in an LMS.
 
 ### Widget Ownership
 
@@ -69,10 +82,8 @@ widget you co-own to Normal Access will remove the student as an owner.
 #### I see a widget embedded in my course in the LMS, but I don't own it. What do I do?
 
 Don't panic! Even if you don't own the widget, it will continue to function normally, and sync scores with the gradebook
-if configured to do so. If you're an author of the course, you will be provided with a list of owners of the widget, and
-can select **Request Access** from any owner. The owner will receive a notification in Materia and be provided with an
-option to add you as a collaborator. Note that this does not guarantee you will receive access! In cases where the
-original owner is no longer associated with your institution, feel free to contact Support.
+if configured to do so. Visiting an embedded widget in a course in which you are an instructor will grant you provisional
+access: effectively the "View Scores" role but limited to the context of the course in which it was embedded. 
 
 ### Miscellaneous
 

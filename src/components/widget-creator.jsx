@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon';
 import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiUserVerify, apiIsGenerable, apiWidgetPromptGenerate} from '../util/api'
@@ -216,17 +216,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		if (creatorState.lastSave) updateElapsed()
 	},[creatorState.lastSave])
 
-	// the listener is applied (and reapplied) when the widget is ready
-	useEffect(() => {
-		// setup the postmessage listener
-		window.addEventListener('message', onPostMessage, false)
-
-		// cleanup this listener
-		return () => {
-			window.removeEventListener('message', onPostMessage, false)
-		}
-	},[widgetReady])
-
 	useEffect(() => {
 		if (instance.id) {
 			instIdRef.current = instance.id
@@ -359,8 +348,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	const onPostMessage = (e) => {
 		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
-			if (typeof e.data !== 'string' || !e.data) return
-			const msg = JSON.parse(e.data)
+			if (!e.data) return
+			let msg = null
+			if (typeof e.data === 'string') {
+				msg = JSON.parse(e.data)
+			} else {
+				msg = e.data
+			}
 			switch (
 				msg.source // currently 'creator-core' || 'media-importer' - can be extended to other sources
 			) {
@@ -371,8 +365,19 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						// if a file is pre-selected (by direct upload pipeline), go ahead and send it over
 						// this behavior only occurs for direct media uploads, bypassing user input
 						case 'readyForDirectUpload':
-							if (creatorState.directUploadMediaFile) return e.source.postMessage(creatorState.directUploadMediaFile, e.origin)
-							else return false
+							if (creatorState.directUploadMediaFile) {
+								setCreatorState({...creatorState, directUploadMediaFile: null})
+								return e.source.postMessage(
+									creatorState.directUploadMediaFile,
+									{
+										targetOrigin: e.origin,
+										transfer: [creatorState.directUploadMediaFile.buffer]
+									}
+								)
+							}
+							else {
+								return false
+							}
 						default:
 							return false
 					}
@@ -405,6 +410,17 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 		console.warn(`Unknown message from creator: ${origin}`)
 	}
+
+	// the listener is applied (and reapplied) when the widget is ready
+	useEffect(() => {
+		// setup the postmessage listener
+		window.addEventListener('message', onPostMessage, false)
+
+		// cleanup this listener
+		return () => {
+			window.removeEventListener('message', onPostMessage, false)
+		}
+	}, [widgetReady, onPostMessage])
 
 	const onCreatorReady = () => {
 		setWidgetReady(true)
@@ -635,7 +651,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		setCreatorState({
 			...creatorState,
 			dialogPath: `${window.BASE_URL}media/import/#${['jpg', 'gif', 'png', 'mp3'].join(',')}`,
-			directUploadMedia: media
+			directUploadMediaFile: media
 		})
 	}
 

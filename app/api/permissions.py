@@ -138,10 +138,55 @@ class PlaySessionInstancePermissions(permissions.BasePermission):
         if not isinstance(obj, LogPlay):
             return False
 
-        if not obj.instance.guest_access and obj.user != request.user:
-            return False
+        if PermService.is_superuser_or_elevated(request.user):
+            return True
+
+        if not obj.instance.guest_access:
+
+            # only the user associated with the play log should have permission, except
+            # with the /resubmit action; owners of the associated instance also have authority
+            if obj.user != request.user and not (
+                view.action == "resubmit"
+                and obj.instance.permissions.filter(user=request.user).exists()
+            ):
+                return False
 
         if request.user and request.user.is_authenticated:
             return True
 
         return obj.instance.guest_access
+
+
+class PlayStorageInstancePermissions(permissions.BasePermission):
+    def has_permission(self, request, view):
+
+        if request.method == "GET":
+            inst_id = request.query_params.get("inst_id")
+            if inst_id:
+                instance = WidgetInstance.objects.filter(pk=inst_id).first()
+                if not instance or not instance.playable_by_current_user(request.user):
+                    return False
+
+                return True
+
+            play_id = request.query_params.get("play_id")
+            play = LogPlay.objects.select_related("instance").filter(pk=play_id).first()
+
+            if not play.instance.playable_by_current_user(request.user):
+                return False
+
+            return True
+
+        elif request.method == "POST":
+            play_id = request.data.get("play_id")
+            play = LogPlay.objects.filter(pk=play_id).first()
+
+            if play is None:
+                return False
+
+            if request.user.is_authenticated and play.user_id != request.user.id:
+                return False
+
+            return True
+
+        return False

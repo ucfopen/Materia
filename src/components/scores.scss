@@ -110,7 +110,7 @@ $preview-purple: #b944cc;
 	display: flex;
 	align-items: stretch;
 	justify-content: space-between;
-	width: 550px;
+	width: 80%;
 	margin: 0 auto;
 	overflow: auto;
 
@@ -156,6 +156,7 @@ $preview-purple: #b944cc;
 
 	#overview-score {
 		display: inline-block;
+		width: 40%;
 		margin: 0 auto;
 		padding: 10px 10px 0 10px;
 		box-sizing: border-box;
@@ -200,7 +201,10 @@ $preview-purple: #b944cc;
 
 
 	#overview-table {
-		width: 330px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		width: 60%;
 		min-height: 180px;
 		background-color: $light-gray-bg;
 
@@ -209,7 +213,7 @@ $preview-purple: #b944cc;
 
 		table {
 			width: 80%;
-			margin: 0 auto;
+			margin: 0 auto 1em auto;
 
 			font-size: 14px;
 			color: #555;
@@ -240,6 +244,132 @@ $preview-purple: #b944cc;
 				text-align: right;
 			}
 		}
+
+		section.lti-status {
+			position: relative;
+			padding: 1em 0.5em 1em 4em;
+
+			background: #d4d4d4;
+			text-align: left;
+			border-left: solid 6px #5a5a5a;
+
+			&:after {
+				position: absolute;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				left: 0.5em;
+				top: 50%;
+				width: 36px;
+				height: 36px;
+				margin-top: -18px;
+				content: "";
+				
+				font-size: 2em;
+				font-family:Arial, Helvetica, sans-serif;
+				background: #fff;
+				border-radius: 6px;
+			}
+
+			h3 {
+				margin: 0.25em 0;
+				font-size: 1em;
+			}
+
+			p {
+				margin: 0;
+				font-weight: 400;
+				font-size: 0.9em;
+			}
+
+			&.legacy, &.NOT_SUBMITTED, &.NOT_GRADED, &.AGS_NOT_INCLUDED {
+				&:after {
+					background: #fff url("/img/info-icon.svg") 50%/18px 50% no-repeat;
+				}
+
+				p {
+					color: #5a5a5a;
+				}
+			}
+
+			&.SUCCESS {
+				background: rgb(234,245,234);
+				border-color: rgb(84, 185, 130);
+
+				&:after {
+					padding-left: 2px;
+					background: #fff url("/img/checkbox-icon.svg") 50%/18px 50% no-repeat;
+
+					color: rgb(40, 87, 69);
+				}
+
+				h3 {
+					color: rgb(40, 87, 69);
+				}
+
+				p {
+					color: rgb(47, 100, 71);
+				}
+			}
+
+			&.ERR_NO_ATTEMPTS {
+				background: rgb(255, 234, 207);
+				border-color: rgb(237,114,46);
+
+				&:after {
+					background: #fff url("/img/lock-icon.svg") calc(50% + 4px) / 18px 50% no-repeat;
+				}
+
+				h3 {
+					color: rgb(160, 69, 20);
+				}
+
+				p {
+					color: rgb(247, 113, 41);
+				}
+			}
+
+			&.ERR_FAILURE {
+				background: rgb(252,242,242);
+				border-color: rgb(231,67,64);
+
+				&:after {
+					content: "\2715";
+					color: rgb(124, 41, 39);
+				}
+
+				h3 {
+					color: rgb(124, 41, 39);
+				}
+
+				p {
+					color: rgb(186, 53, 48);
+					margin-bottom: 1em;
+				}
+
+				section.resubmit-section {
+					display: flex;
+					flex-direction: row;
+					justify-content: flex-start;
+					gap: 0.5em;
+					align-items: center;
+
+					p {
+						text-align: left;
+						margin: 0;
+					}
+
+					button.action_button {
+						font-size: 0.9em;
+						padding: 0.5em 1em;
+					}
+
+					.icon-holder {
+						margin: 0;
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -258,6 +388,9 @@ $preview-purple: #b944cc;
 	}
 
 	#overview-score {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 		.overall_score {
 			color: #fff;
 			background-color: $color-background-dark;
@@ -287,6 +420,68 @@ $preview-purple: #b944cc;
 
 			.positive {
 				color: rgb(106, 189, 106);
+			}
+		}
+
+		section.lti-status {
+
+			&:after {
+				background-color: #000;
+			}
+
+			&.legacy, &.NOT_SUBMITTED, &.NOT_GRADED, &.AGS_NOT_INCLUDED {
+				background: #363f47;
+				border-color: #878f97;
+
+				&:after {
+					background-color: #ccc;
+				}
+
+				p {
+					color: #aaa;
+				}
+			}
+
+			&.SUCCESS {
+				background: rgb(42, 46, 42);
+
+				h3 {
+					color: rgb(58, 217, 124);
+				}
+
+				p {
+					color: rgb(55, 167, 105);
+				}
+			}
+
+			&.ERR_NO_ATTEMPTS {
+				background: rgb(52, 36, 17);
+				border-color: rgb(237,114,46);
+
+				// &:after {
+				// 	background: #fff url("/img/lock-icon.svg") calc(50% + 4px) / 18px 50% no-repeat;
+				// }
+
+				h3 {
+					color: rgb(255, 140, 78);
+				}
+
+				p {
+					color: rgb(247, 113, 41);
+				}
+			}
+
+			&.ERR_FAILURE {
+				background: rgb(43, 16, 16);
+				border-color: rgb(208, 43, 40);
+
+				h3 {
+					color: rgb(233, 108, 106);
+				}
+
+				p {
+					color: rgb(229, 87, 82);
+				}
 			}
 		}
 	}
@@ -753,17 +948,30 @@ article {
 section.score-graph {
 	max-height: 0;
 	overflow: hidden;
-	transition: max-height 0.5s linear;
+	transition: max-height 0.15s ease-in-out;
 
 	.graph {
-		width: 746px;
-		height: 320px;
+		&:not(.loading) {
+			max-height: 320px;
+		}
 
-		margin: 15px auto 0 auto;
+		&.loading {
+			max-height: 80px;
+
+			.loading-text {
+				margin: 15px auto 0;
+			}
+		}
+
+		margin: 15px auto 0;
 		padding: 20px 16px 0 16px;
+
+		width: 746px;
 
 		background: #fff;
 		box-shadow: inset 0px 1px 2px #333;
+
+		transition: max-height 0.15s ease-in-out;
 
 		.jqplot-yaxis-label {
 			padding-left: 5px;
@@ -771,7 +979,7 @@ section.score-graph {
 	}
 
 	&.open {
-		max-height: 600px;
+		max-height: 320px;
 	}
 }
 

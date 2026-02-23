@@ -22,8 +22,7 @@ class Command(base.BaseCommand):
 
         try:
             command_function(*kwargs["arguments"])
-        except Exception as e:
-            logger.info(e)
+        except Exception:
             logger.exception("")
 
     # utility command to back-populate ObjectPermission records based on instance ownership
@@ -36,8 +35,10 @@ class Command(base.BaseCommand):
             if not instance.permissions.exists():
                 if instance.user is not None:
                     logger.info(
-                        f"creating ObjectPermission record for user "
-                        f"{instance.user.id} for instance {instance.name}\n"
+                        "creating ObjectPermission record for user "
+                        "%s for instance %s",
+                        instance.user.id,
+                        instance.name,
                     )
                     instance.permissions.create(user=instance.user, permission="full")
 
@@ -50,8 +51,10 @@ class Command(base.BaseCommand):
             if not notification.permissions.exists():
                 if notification.to_id is not None:
                     logger.info(
-                        f"creating ObjectPermission record for user "
-                        f"{notification.to_id.id} for notification {notification.id}\n"
+                        "creating ObjectPermission record for user "
+                        "%s for notification %s",
+                        notification.to_id.id,
+                        notification.id,
                     )
                     notification.permissions.create(
                         user=notification.to_id, permission="full"

@@ -66,9 +66,20 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 		}
 
 		try {
-			if(response.status === 204){
+			if (response.status === 204){
 				return null
 			}
+  
+			if (
+				response.headers.get('Content-Type') === 'application/download' ||
+				response.headers.get('Content-Type') === 'text/csv' ||
+				response.headers.get('Content-Type') === 'application/zip' ||
+				response.headers.get('Content-Type') === 'application/octet-stream'
+			) {
+				const data = await response.blob()
+				return data
+			}
+
 			const data = await response.json()
 			return data
 		} catch (e) {
@@ -350,6 +361,11 @@ export const apiGetWidgetLock = (id = null) => {
  * @param {boolean} [include_deleted=false] - Whether to include deleted widgets in search results.
  * @returns {Promise<any>} - Parsed response data.
  */
+export const apiExportDataStorageTable = (instId, table, semester, anonymous) => {
+  const url = `/api/instances/${instId}/export_playdata/?type=storage&table=${table}&semesters=${semester}&anonymous=${anonymous}`
+  return handleRequest(methods.GET, url)
+}
+
 export const apiSearchInstances = (input, pageParam = 1, include_deleted = false) => {
 	return handleRequest(methods.GET, `/api/instances/?search=${input}&page=${pageParam}&include_deleted=${include_deleted}`)
 }
@@ -464,6 +480,7 @@ export const apiGetPlayLogs = (instId, term, year, contexts, page_number) => {
 				scoresForUser.scores.push({
 					elapsed: parseInt(log.elapsed, 10) + 's',
 					playId: log.id,
+					auth: log.auth == 'lti' ? 'lti' : 'web',
 					score: log.is_complete === true ? Math.round(parseFloat(log.percent)) + '%' : '---',
 					created_at: log.created_at
 				})
@@ -476,9 +493,8 @@ export const apiGetPlayLogs = (instId, term, year, contexts, page_number) => {
 		})
 }
 
-// TODO update or retire
 export const apiGetStorageData = instId => {
-	return handleRequest(methods.POST, '/api/json/play_storage_get', ({ body: `data=${formatFetchBody([instId])}` }))
+	return handleRequest(methods.GET, `/api/storage/?inst_id=${instId}`);
 }
 
 /**
@@ -546,7 +562,14 @@ export const apiSessionVerify = (playId) => {
  * @returns {Promise<any>} - Parsed response data.
  */
 export const apiSavePlayStorage = ({ play_id, logs }) => {
-	return handleRequest(methods.POST, '/api/json/play_storage_data_save/', ({ body: `data=${formatFetchBody([play_id, logs])}` }))
+  return handleRequest(
+    methods.POST,
+    '/api/storage/',
+    {
+      "play_id": play_id,
+      "logs": logs
+    },
+  )
 }
 
 /**
@@ -557,6 +580,10 @@ export const apiSavePlayStorage = ({ play_id, logs }) => {
  */
 export const apiSavePlayLogs = ({ request }) => {
 	return handleRequest(methods.PUT, `/api/play-sessions/${request.playId}/`, { ...request })
+}
+
+export const apiPlayResubmit = (play_id) => {
+	return handleRequest(methods.POST, `/api/play-sessions/${play_id}/resubmit/`)
 }
 
 export const apiGetQuestionsByType = (arrayOfQuestionIds, questionTypes) => {

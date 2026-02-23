@@ -49,10 +49,9 @@ class AssetService:
                 if user:
                     pass
                 return asset
-            except Exception as e:
-                logger.info("ASSET STORAGE ERROR")
-                logger.info(e)
-                pass
+            except Exception:
+                # TODO: consider if .error() might be more appropriate
+                logger.info("ASSET STORAGE ERROR", exc_info=True)
 
             # something failed in the above block, remove the asset
             asset.delete()

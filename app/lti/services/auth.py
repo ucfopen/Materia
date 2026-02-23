@@ -1,10 +1,10 @@
 import logging
-from pprint import pformat
 
 # from core.models import Lti
 from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import Group, User
+from lti.exceptions import LTIAuthException
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class LTIAuthService:
 
         # user does not possess any of the roles recognized as instructor or student
         logger.error(
-            f"LTI auth: user does not have a known role or roles: {pformat(lti_roles)}"
+            "LTI auth: user does not have a known role or roles: %s}", lti_roles
         )
         return False
 
@@ -113,9 +113,7 @@ class LTIAuthService:
                 auth_data["email"] = "test-user@materia.test.edu"
             else:
                 logger.error("LTI auth: critical auth data (email or login id) missing")
-                raise Exception(
-                    "LTI auth: critical auth data (email or login id) missing"
-                )
+                raise LTIAuthException()
 
         try:
             user, created = User.objects.get_or_create(
@@ -148,7 +146,9 @@ class LTIAuthService:
 
             return user
 
-        except Exception as e:
-            logger.error(f"LTI auth: exception!\n{pformat(e)}\n")
+        except Exception:
+            logger.error(
+                "LTI auth: Error with user creation from launch data", exc_info=True
+            )
             logout(request)
             return None

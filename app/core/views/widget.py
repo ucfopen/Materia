@@ -6,24 +6,23 @@ from core.mixins import (
     MateriaLoginNeeded,
     MateriaWidgetPlayProcessor,
 )
-from core.models import User, Widget, WidgetInstance
+from core.models import LogPlay, Lti, LtiPlayState, User, Widget, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.widget_play_services import (
     WidgetPlayInitService,
     WidgetPlayValidationService,
 )
 from core.utils.context_util import ContextUtil
+from core.utils.validator_util import ValidatorUtil
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
-from django.db.models import Q
 from django.http import Http404, HttpRequest
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from lti.mixins import LtiLaunchMixin
-from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from lti.views.lti import error_page as lti_error_page
 
@@ -115,9 +114,13 @@ class WidgetPlayView(
 
     def get_validation(self, request, instance):
         context_id = ""
-        launch = LTILaunchService.get_or_recover_widget_launch(request)
-        if launch is not None:
-            context_id = LTILaunchService.get_context_id(launch)
+
+        if LTILaunchService.is_initial_launch(request):
+            context_id = request.GET.get("context_id", "")
+
+        elif LTILaunchService.is_recovery_launch(request):
+            play = LogPlay.objects.get(pk=request.GET.get("token"))
+            context_id = play.context_id
 
         # Check if this instance is a guest/demo instance
         has_guest_access = instance.guest_access
@@ -165,32 +168,82 @@ class WidgetPlayView(
         play = WidgetPlayInitService.init_play(self.request, instance, user)
         lti_token = None
 
-        # do we have an LTI launch?
-        # if it is - update the play with LTI flags and pass the token to context
-        launch = LTILaunchService.get_or_recover_widget_launch(self.request)
-        if launch and not instance.guest_access:
-            play.auth = "lti"
-            play.context_id = LTILaunchService.get_context_id(launch)
+        if not instance.guest_access:
 
-            # if it's a first-time launch, store in session
-            if LTILaunchService.get_launch_state(launch) == "INITIAL":
-                LTILaunchService.store_session_launch(self.request, play.id, launch)
-                lti_token = play.id
-            else:
+            # initial launch: LTI params are passed via URL query params
+            if LTILaunchService.is_initial_launch(self.request):
+                try:
+                    play.auth = "lti"
+                    play.lti_token = play.id
+                    play.context_id = self.request.GET.get("context_id", "")
+
+                    resource_link = self.request.GET.get("resource_link", "")
+                    lti_assoc = Lti.objects.filter(
+                        widget_instance_id=instance.id,
+                        resource_link=resource_link,
+                    ).first()
+
+                    play_lti_state = LtiPlayState(
+                        play=play,
+                        lti_association=lti_assoc,
+                        ags_line_item=self.request.GET.get("ags_line_item", ""),
+                        ags_user_id=self.request.GET.get("ags_user_id", ""),
+                        ags_scoring_enabled=ValidatorUtil.validate_bool(
+                            self.request.GET.get("ags_scoring_enabled")
+                        ),
+                    )
+                    play_lti_state.save()
+
+                    lti_token = play.id
+
+                except Exception:
+                    logger.error(
+                        "LTI: Error: initial launch attempted for play %s failed with an exception",
+                        play.id,
+                        exc_info=True,
+                    )
+
+            # recovery launch: we reference the prior LTI launch state via the LTI token (the original play's ID)
+            elif LTILaunchService.is_recovery_launch(self.request):
                 lti_token = self.request.GET.get("token")
+                prior_lti_state = LtiPlayState.objects.filter(play_id=lti_token).first()
 
-            play.lti_token = lti_token
+                # use the prior play's lti state as the basis for the new play lti state
+                # if it doesn't exist, we can't treat the play as a recovery play
+                if prior_lti_state:
+
+                    play.auth = "lti"
+                    play.context_id = prior_lti_state.play.context_id
+                    play.lti_token = lti_token
+
+                    prior_lti_state.pk = None
+                    prior_lti_state.play = play
+                    prior_lti_state.submission_status = "NOT_SUBMITTED"
+                    prior_lti_state.submission_attempts = 0
+                    prior_lti_state.last_submitted = None
+                    prior_lti_state.save()
+
+                else:
+                    logger.warning(
+                        "LTI: Warning: recovery init could not find prior LTI play state for play %s with token %s",
+                        play.id,
+                        lti_token,
+                    )
+
             play.save()
 
-            logger.error(
-                f"LTI: session initialization for user {play.user.id} with play {play.id} in context {play.context_id}"
+            logger.info(
+                "LTI: session initialization for user %s with play %s in context %s",
+                play.user_id,
+                play.id,
+                play.context_id,
             )
 
         return {"play_id": play.id, "lti_token": lti_token}
 
     # overrides the baseline LTILaunchMixin's launch success method
     # validate whether we should render an actual play or another state
-    def on_lti_launch_success(self, request, launch):
+    def on_lti_launch_success(self, request):
         inst_id = self.kwargs.get("widget_instance_id")
         instance = WidgetInstance.objects.filter(pk=inst_id).first()
         context = None
@@ -198,35 +251,23 @@ class WidgetPlayView(
         if instance is None:
             return lti_error_page(request, "error_unknown_assignment")
 
-        if LTIAuthService.is_user_course_author(launch):
-            if instance.guest_access:
-                return lti_error_page(request, "error_lti_guest_mode")
+        if instance.guest_access:
+            return lti_error_page(request, "error_lti_guest_mode")
 
-            # check to see if the current user has either:
-            # a. unrestricted permissions to the instance (context_id == None) OR
-            # b. restricted permission to the instance for the current context ID
-            context_id = LTILaunchService.get_context_id(launch)
-            has_visibility = (
-                instance.permissions.filter(user=request.user)
-                .filter(Q(context_id__isnull=True) | Q(context_id=context_id))
-                .exists()
-            )
+        if LTILaunchService.is_initial_launch(request):
+            is_author = ValidatorUtil.validate_bool(request.GET.get("is_author"))
+            provisional = ValidatorUtil.validate_bool(request.GET.get("provisional"))
 
-            # current user IS an author in the course but does NOT have access
-            # grant them implicit access and provide the provisional flag to the frontend
-            if not has_visibility:
-                instance.permissions.create(
-                    user=request.user, permission="visible", context_id=context_id
-                )
-                context = _create_lti_success_page(request, instance, provisional=True)
+            if is_author:
+                context = _create_lti_success_page(request, instance, provisional)
 
-            # current user is an author and already has access
-            else:
-                context = _create_lti_success_page(request, instance)
-
-        # LTI associations are registered during play view init, instead of deep linking
-        # This behavior is carried over from PHP Materia
-        LTILaunchService.register_association(launch, request.user, instance)
+        # edge case where the instructor refreshes the LTI preview page
+        # since LTI launch data is not stored in session,
+        # we fall back to the is_author GET param which is appended via the open-preview component
+        elif LTILaunchService.is_recovery_launch(request) and request.GET.get(
+            "is_author"
+        ):
+            context = _create_lti_success_page(request, instance)
 
         if context:
             return render(request, "react.html", context)
@@ -647,7 +688,7 @@ def _get_id_from_slug(widget_slug: str) -> int | None:
             pass
 
     logger.error(
-        f"Failed to get id from widget slug, likely an invalid slug: '{widget_slug}'"
+        "Failed to get id from widget slug, likely an invalid slug: '%s'", widget_slug
     )
     return None
 
