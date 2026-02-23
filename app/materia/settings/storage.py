@@ -38,7 +38,6 @@ DRIVER_SETTINGS = {
             "AWS_SECRET_ACCESS_KEY",
             os.environ.get("ASSET_STORAGE_S3_SECRET", "SECRET"),
         ),
-        "token": os.environ.get("AWS_SESSION_TOKEN", "TOKEN"),  # aws session token
         # use fakes3 unless explicitly disabled: this value is always false for prod
         "fakes3_enabled": ValidatorUtil.validate_bool(
             os.environ.get("DEV_ONLY_USE_FAKES3", True),
