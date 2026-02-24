@@ -481,7 +481,7 @@ class PlaySessionCreateSerializer(serializers.Serializer):
             instance = WidgetInstance.objects.get(pk=data["instanceId"])
         except WidgetInstance.DoesNotExist:
             raise serializers.ValidationError(
-                f"Instance ID {data['instanceId']} invalid."
+                f"Instance ID {data["instanceId"]} invalid."
             )
 
         if not instance.playable_by_current_user(self.context["request"].user):
