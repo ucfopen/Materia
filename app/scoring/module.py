@@ -277,9 +277,9 @@ class ScoreModule(ABC):
                 val = int(ans["value"])
                 if val > max_value:
                     max_value = val
-                    max_answers = [ans["text"]]
+                    max_answers = [str(ans["text"])]
                 elif val == max_value:
-                    max_answers.append(ans["text"])
+                    max_answers.append(str(ans["text"]))
             return " or ".join(max_answers)
         else:
             return question["answers"][0]["text"]
