@@ -1,3 +1,4 @@
+from core.utils.asset_manifest import AssetManifest
 from django.conf import settings
 from django.http import HttpRequest
 
@@ -31,6 +32,13 @@ class ContextUtil:
         processed_js_resources.insert(0, settings.JS_BASEURL + "commons.js")
         processed_css_resources.insert(0, settings.CSS_BASEURL + "fonts.css")
         processed_css_resources.insert(1, settings.CSS_BASEURL + "commons.css")
+
+        processed_js_resources = [
+            AssetManifest.resolve(r) for r in processed_js_resources
+        ]
+        processed_css_resources = [
+            AssetManifest.resolve(r) for r in processed_css_resources
+        ]
 
         # Create and return context
         return {
