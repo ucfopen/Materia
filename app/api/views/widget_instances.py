@@ -32,6 +32,7 @@ from core.models import (
 from core.services.instance_service import WidgetInstanceService
 from core.services.perm_service import PermService
 from core.services.play_data_exporter_service import PlayDataExporterService
+from django.db.models import Value
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
@@ -119,7 +120,11 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             ]
 
         # Anyone can play a widget and get its qset
-        elif self.action == "question_set" or self.action == "question_sets" or self.action == "retrieve":
+        elif (
+            self.action == "question_set"
+            or self.action == "question_sets"
+            or self.action == "retrieve"
+        ):
             permission_classes = [AllowAny]
 
         # Catch all just to block anything else
@@ -572,8 +577,32 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         is_student = PermService.user_is_student(request.user)
 
+        queryset = LogPlay.objects.none()
+        semesters = semester_ids.split(",")
+
+        # preconstruct the queryset to pass to the export service
+        if export_type != "storage":
+            for semester in semesters:
+                [year, term] = semester.split("-")
+                semester_set = instance.get_play_logs_for_user(
+                    user=request.user, semester=term, year=year
+                )
+                queryset = queryset.union(semester_set)
+
+        # since the queryset is premade, anonymize the data in one go
+        if is_student:
+            queryset = queryset.annotate(
+                user=Value(None),
+                user_id=Value(None),
+            )
+
         result, file_ext = PlayDataExporterService.export(
-            instance, export_type, semester_ids, is_student, table, anonymous
+            instance=instance,
+            export_type=export_type,
+            semesters=semesters,
+            logs=queryset,
+            table=table,
+            anonymous=anonymous,
         )
 
         # technically supposed to use DRF's Response here, but it adds additional processing that makes switching

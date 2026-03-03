@@ -26,7 +26,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import DatabaseError, models, transaction
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -1271,7 +1271,11 @@ class WidgetInstance(models.Model):
         All filters are applied combinatorially - if multiple filters are provided,
         they will all be applied together.
         """
-        queryset = self.play_logs.all().order_by("-created_at")
+        queryset = (
+            self.play_logs.all()
+            .select_related("semester", "user")
+            .order_by("-created_at")
+        )
 
         # treat "all" as None
         semester = None if semester == "all" else semester
@@ -1279,8 +1283,7 @@ class WidgetInstance(models.Model):
 
         # Apply context_ids filter if provided
         if context_ids:
-            context_id_list = [ctx.strip() for ctx in context_ids.split(",")]
-            queryset = queryset.filter(context_id__in=context_id_list)
+            queryset = queryset.filter(context_id__in=context_ids)
 
         # Apply semester and year filters if provided
         if semester and year:
@@ -1298,6 +1301,22 @@ class WidgetInstance(models.Model):
             queryset = queryset.filter(semester__in=semesters)
 
         return queryset
+
+    def get_play_logs_for_user(self, user, semester=None, year=None):
+        perms = self.permissions.filter(
+            Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()),
+            user=user,
+        )
+
+        if not perms.exists() and not PermService.is_superuser_or_elevated(user):
+            return LogPlay.objects.none()
+
+        contexts = [perm.context_id for perm in perms if perm.context_id is not None]
+
+        if not contexts:
+            contexts = None
+
+        return self.get_play_logs(semester=semester, year=year, context_ids=contexts)
 
     @property
     def play_url(self):

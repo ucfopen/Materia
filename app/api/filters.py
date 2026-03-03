@@ -10,7 +10,7 @@ from core.models import (
 )
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
-from django.db.models import OuterRef, Q, Subquery
+from django.db.models import OuterRef, Q, Subquery, Value
 from django_filters import rest_framework
 from rest_framework import filters
 
@@ -78,25 +78,31 @@ class LogPlayFilterBackend(filters.BaseFilterBackend):
             return queryset.filter(user=user).order_by("-created_at")
         # user is requesting an arbitrary user's logs: requires elevated perms or self
         elif user_query is not None:
-            if (
-                user.is_superuser
-                or user.groups.filter(name="support_user").exists()
-                or str(user.id) == user_query
-            ):
+            if PermService.is_superuser_or_elevated(user) or str(user.id) == user_query:
                 return queryset.filter(user=user_query).order_by("-created_at")
             else:
                 return queryset.none()
 
         elif inst_id is not None:
-            semester = request.query_params.get("semester", None)
-            year = request.query_params.get("year", None)
-            context_ids = request.query_params.get("context_ids", None)
 
             instance = WidgetInstance.objects.filter(id=inst_id).first()
-            if instance is not None:
-                return instance.get_play_logs(
-                    semester=semester, year=year, context_ids=context_ids
+            if instance is None:
+                return queryset.none()
+
+            semester = request.query_params.get("semester", None)
+            year = request.query_params.get("year", None)
+
+            qs = instance.get_play_logs_for_user(
+                user=user, semester=semester, year=year
+            )
+
+            if PermService.user_is_student(user):
+                qs = qs.annotate(
+                    user=Value(None),
+                    user_id=Value(None),
                 )
+
+            return qs
 
             # user wants ALL the logs
         elif pk is None and user_query is None:
