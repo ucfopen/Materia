@@ -1,10 +1,9 @@
+from core.models import DateRange, LogPlay, Widget, WidgetInstance, WidgetQset
 from django.contrib.auth.models import Group, User
 from django.test import TestCase
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient
-
-from core.models import DateRange, LogPlay, Widget, WidgetInstance, WidgetQset
 
 
 class PlaySessionViewSetTestCase(TestCase):
@@ -181,15 +180,24 @@ class TestPlaySessionList(PlaySessionViewSetTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_list_by_instance_returns_plays(self):
+    def test_authenticated_user_can_list_own_instance_plays(self):
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(
+            "/api/play-sessions/", {"inst_id", self.regular_instance.id}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        play_ids = [play["id"] for play in response.data["results"]]
+        self.assertIn(self.user_play.id, play_ids)
+
+    def test_list_by_instance_other_owner_returns_no_plays(self):
         self.client.force_authenticate(user=self.author_user)
         response = self.client.get(
             "/api/play-sessions/", {"inst_id": self.regular_instance.id}
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        play_ids = [play["id"] for play in response.data["results"]]
-        self.assertIn(self.user_play.id, play_ids)
+        self.assertEqual(len(response.data["results"]), 0)
 
     def test_list_without_filter_returns_empty(self):
         self.client.force_authenticate(user=self.regular_user)
