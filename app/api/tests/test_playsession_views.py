@@ -183,7 +183,7 @@ class TestPlaySessionList(PlaySessionViewSetTestCase):
     def test_authenticated_user_can_list_own_instance_plays(self):
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.get(
-            "/api/play-sessions/", {"inst_id", self.regular_instance.id}
+            "/api/play-sessions/", {"inst_id": self.regular_instance.id}
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
