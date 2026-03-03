@@ -74,7 +74,7 @@ class Oauth
 			'http' => [
 				'method'  => 'POST',
 				'content' => $body,
-				'header'  => $request->to_header()."\r\nContent-Type: application/xml\r\n",
+				'header'  => $request->to_header()."\r\nContent-Type: application/xml\r\nUser-Agent: Materia-PHP-Server\r\n",
 			]
 		];
 
