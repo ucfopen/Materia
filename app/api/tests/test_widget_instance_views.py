@@ -1,14 +1,7 @@
+import uuid
 from unittest.mock import patch
 
-from django.contrib.auth.models import Group, User
-from django.core.cache import cache
-from django.test import TestCase
-from django.utils import timezone
-from rest_framework import status
-from rest_framework.test import APIClient
-
-import uuid
-
+from api.tests.base import MateriaTestCase
 from core.models import (
     DateRange,
     LogPlay,
@@ -17,14 +10,17 @@ from core.models import (
     WidgetInstance,
     WidgetQset,
 )
+from django.contrib.auth.models import User
+from django.core.cache import cache
+from django.utils import timezone
+from rest_framework import status
+from rest_framework.test import APIClient
 
 
-class WidgetInstanceViewSetTestCase(TestCase):
+class WidgetInstanceViewSetTestCase(MateriaTestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.author_group, _ = Group.objects.get_or_create(name="basic_author")
-        cls.support_group, _ = Group.objects.get_or_create(name="support_user")
-        cls.no_author_group, _ = Group.objects.get_or_create(name="no_author")
+        super().setUpTestData()
 
         cls.regular_user = User.objects.create_user(
             username="regular",
@@ -66,12 +62,8 @@ class WidgetInstanceViewSetTestCase(TestCase):
         )
         cls.no_author_user.groups.add(cls.no_author_group)
 
-        cls.semester = DateRange.objects.create(
-            semester="Fall",
-            year=2024,
-            start_at=timezone.now(),
-            end_at=timezone.now() + timezone.timedelta(days=120),
-        )
+        # DateRanges are now populated by MateriaTestCase
+        cls.semester = DateRange.objects.filter(semester="fall", year=2024).first()
 
         cls.widget = Widget.objects.create(
             name="Test Widget",

@@ -32,7 +32,6 @@ from core.models import (
 from core.services.instance_service import WidgetInstanceService
 from core.services.perm_service import PermService
 from core.services.play_data_exporter_service import PlayDataExporterService
-from django.db.models import Value
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
@@ -589,12 +588,13 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 )
                 queryset = queryset.union(semester_set)
 
-        # since the queryset is premade, anonymize the data in one go
         if is_student:
-            queryset = queryset.annotate(
-                user=Value(None),
-                user_id=Value(None),
-            )
+            # anonymize the data by setting user to None on each instance
+            logs = list(queryset)
+            for log in logs:
+                log.user = None
+                log.user_id = None
+            queryset = logs
 
         result, file_ext = PlayDataExporterService.export(
             instance=instance,

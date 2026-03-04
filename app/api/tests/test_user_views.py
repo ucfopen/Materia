@@ -1,16 +1,14 @@
-from django.contrib.auth.models import Group, User
-from django.test import TestCase
+from api.tests.base import MateriaTestCase
+from core.models import ObjectPermission, Widget, WidgetInstance
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import ObjectPermission, Widget, WidgetInstance
 
-
-class UserViewSetTestCase(TestCase):
+class UserViewSetTestCase(MateriaTestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.author_group, _ = Group.objects.get_or_create(name="basic_author")
-        cls.support_group, _ = Group.objects.get_or_create(name="support_user")
+        super().setUpTestData()
 
         cls.regular_user = User.objects.create_user(
             username="regular",
@@ -319,7 +317,7 @@ class TestRolesEndpoint(UserViewSetTestCase):
         self.assertTrue(self.john_doe.groups.filter(name="basic_author").exists())
 
 
-class TestLoginEndpoint(TestCase):
+class TestLoginEndpoint(MateriaTestCase):
     """Tests for POST /api/user/login/"""
 
     @classmethod
@@ -368,7 +366,7 @@ class TestLoginEndpoint(TestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class TestLogoutEndpoint(TestCase):
+class TestLogoutEndpoint(MateriaTestCase):
     """Tests for GET /users/logout/"""
 
     @classmethod

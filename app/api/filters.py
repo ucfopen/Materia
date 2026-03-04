@@ -10,7 +10,7 @@ from core.models import (
 )
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
-from django.db.models import OuterRef, Q, Subquery, Value
+from django.db.models import OuterRef, Q, Subquery
 from django_filters import rest_framework
 from rest_framework import filters
 
@@ -95,12 +95,6 @@ class LogPlayFilterBackend(filters.BaseFilterBackend):
             qs = instance.get_play_logs_for_user(
                 user=user, semester=semester, year=year
             )
-
-            if PermService.user_is_student(user):
-                qs = qs.annotate(
-                    user=Value(None),
-                    user_id=Value(None),
-                )
 
             return qs
 
