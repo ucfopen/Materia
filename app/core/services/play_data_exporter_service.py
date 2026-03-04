@@ -152,7 +152,7 @@ class PlayDataExporterService:
                     "score": 0,
                     "last_name": play.user.last_name,
                     "first_name": play.user.first_name,
-                    "semester": play.semester,
+                    "semester": f"{play.semester.semester} {play.semester.year}",
                 }
 
             # Update user's highest score in results dict
@@ -186,8 +186,16 @@ class PlayDataExporterService:
             if play.user:
                 continue
 
-            # Add to data list
-            data.append([f"Guest {++count}", "", "", f"{play.percent}%", play.semester])
+            count += 1
+            data.append(
+                [
+                    f"Guest {count}",
+                    "",
+                    "",
+                    f"{play.percent}%",
+                    f"{play.semester.semester} {play.semester.year}",
+                ]
+            )
 
         # Throw 404 when there is no data found
         if len(data) == 0:
@@ -234,7 +242,7 @@ class PlayDataExporterService:
                     last,
                     first,
                     play.id,
-                    play.semester,
+                    f"{play.semester.semester} {play.semester.year}",
                     play_event.log_type,
                     play_event.item_id,
                     play_event.text,
