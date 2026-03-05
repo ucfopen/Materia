@@ -20,6 +20,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	const [errorState, setErrorState] = useState(null)
 	const [attemptsLeft, setAttemptsLeft] = useState(-1)
 	const [currentAttempt, setCurrentAttempt] = useState(null)
+	const [initSent, setInitSent] = useState(false)
 
 	const [attempts, setAttempts] = useState([])
 
@@ -156,7 +157,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 					return new Date(a.created_at) - new Date(b.created_at)
 				})
 				for (let score of scores) {
-					score.roundedPercent = parseFloat(score.percent).toFixed(2)
+					score.roundedPercent = Math.round(parseFloat(score.percent))
 					const d = new Date(score.created_at)
 					const date = d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
 					score.date = date
@@ -205,6 +206,10 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 				...playScores.overview,
 				score: Math.round(playScores.overview.score),
 				table: Array.from(playScores.overview.table)
+			}
+
+			if (playScores.lti) {
+				overview.lti = { ...playScores.lti }
 			}
 
 			let details = {
@@ -257,7 +262,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	When parsed play data is updated, send it to the custom score screen (if enabled)
 	*/
 	useEffect(() => {
-		if (!errorState && customScoreScreen.show) {
+		if (!errorState && customScoreScreen.show && initSent) {
 			sendToWidget('updateWidget', [playData.qset, playData.details.table])
 		}
 	},[playData.id])
@@ -327,6 +332,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 				})
 			}
 			sendToWidget('initWidget', [playData.qset, playData.details.table, instance, isPreview, window.MEDIA_URL])
+			setInitSent(true)
 		}
 	}
 
@@ -535,8 +541,9 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	let overviewRender = null
 	if (!errorState && attributes.showScoresOverview && !!playData.overview) {
 		overviewRender = <ScoreOverview
-			inst_id={instID}
-			single_id={null}
+			instId={instID}
+			playId={playID}
+			isSingle={isSingle}
 			overview={playData.overview}
 			attemptNum={currentAttempt}
 			isPreview={isPreview}
@@ -544,7 +551,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	}
 
 	let customScoreScreenRender = null
-	if (!errorState && customScoreScreen.show) {
+	if (!errorState && customScoreScreen.show && !!playData.id) {
 		customScoreScreenRender = (
 			<iframe ref={scoreWidgetRef}
 				id='container'

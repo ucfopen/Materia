@@ -4,6 +4,7 @@ from api.views import (
     generation,
     notifications,
     playsessions,
+    playstorage,
     scores,
     sessions,
     users,
@@ -19,6 +20,7 @@ router.register(r"assets", assets.AssetViewSet)
 router.register(r"users", users.UserViewSet)
 router.register(r"widgets", widgets.WidgetViewSet)
 router.register(r"play-sessions", playsessions.PlaySessionViewSet)
+router.register(r"storage", playstorage.PlayStorageViewSet)
 router.register(
     r"instances", widget_instances.WidgetInstanceViewSet, basename="instances"
 )

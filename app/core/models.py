@@ -153,11 +153,11 @@ class Asset(models.Model):
 
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error(
-                "The following exception occurred while attempting to store an asset:"
+                "The following exception occurred while attempting to store an asset",
+                exc_info=True,
             )
-            logger.error(e)
             return False
 
     def delete(self, *args, **kwargs) -> bool:
@@ -176,11 +176,11 @@ class Asset(models.Model):
             self = Asset()
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error(
-                "The following exception occurred while attempting to remove an asset:"
+                "The following exception occurred while attempting to remove an asset",
+                exc_info=True,
             )
-            logger.error(e)
             return False
 
     def render(self, size="original"):
@@ -598,6 +598,40 @@ class Lti(models.Model):
             return self.consumer_guid
 
 
+class LtiPlayState(models.Model):
+    class SubmissionStatus(models.TextChoices):
+        NOT_SUBMITTED = "NOT_SUBMITTED", gettext_lazy("Not Submitted")
+        SUCCESS = "SUCCESS", gettext_lazy("Success")
+        AGS_NOT_INCLUDED = "AGS_NOT_INCLUDED", gettext_lazy("AGS Not Included")
+        NOT_GRADED = "NOT_GRADED", gettext_lazy("Not Graded")
+        ERR_NO_ATTEMPTS = "ERR_NO_ATTEMPTS", gettext_lazy("No Attempts")
+        ERR_FAILURE = "ERR_FAILURE", gettext_lazy("Failure")
+
+    id = models.BigAutoField(primary_key=True)
+    play = models.OneToOneField(
+        LogPlay,
+        related_name="lti_play_state",
+        on_delete=models.PROTECT,
+        db_column="play_id",
+    )
+    lti_association = models.ForeignKey(
+        Lti,
+        related_name="lti_association",
+        on_delete=models.PROTECT,
+        db_column="lti_assoc",
+    )
+    ags_line_item = models.CharField(max_length=255, db_collation="utf8_bin")
+    ags_user_id = models.CharField(max_length=255, db_collation="utf8_bin")
+    ags_scoring_enabled = models.BooleanField(default=True)
+    submission_status = models.CharField(
+        max_length=26,
+        choices=SubmissionStatus.choices,
+        default=SubmissionStatus.NOT_SUBMITTED,
+    )
+    submission_attempts = models.PositiveIntegerField(default=0)
+    last_submitted = models.DateTimeField(default=None, null=True)
+
+
 # this sucks
 # consider redoing the whole 'associate assets with questions that use them' process
 class MapAssetToObject(models.Model):
@@ -970,9 +1004,11 @@ class Widget(models.Model):
         exporter_mappings = getattr(script_globals, "mappings", None)
         if exporter_mappings is None:
             logger.error(
-                f"Play data exporter for widget '{self.name}' ({self.id}) is invalid!"
+                "Play data exporter for widget '%s' (%s) is invalid!"
+                "\n - Missing top level dict object named 'mappings'.",
+                self.name,
+                self.id,
             )
-            logger.error(" - Missing top level dict object named 'mappings'.")
             raise MsgFailure(
                 msg="Play data exporter script is invalid; missing 'mappings' dict"
             )
@@ -1156,7 +1192,7 @@ class WidgetInstance(models.Model):
                     super().save(*args, **kwargs)
                     success = True
                 except DatabaseError as e:
-                    logger.info(e)
+                    logger.info(e, exc_info=True)
                     # try again until the retries run out
 
         # UPDATING AN EXISTING INSTANCE
@@ -1171,7 +1207,7 @@ class WidgetInstance(models.Model):
         return qsets
 
     def duplicate(
-        self, owner: User, new_name: str, copy_exiting_perms: bool = False
+        self, owner: User, new_name: str, copy_existing_perms: bool = False
     ) -> Self:
         dupe = WidgetInstance.objects.get(pk=self.pk)
 
@@ -1187,7 +1223,6 @@ class WidgetInstance(models.Model):
         dupe.user = owner
 
         # These fields should default to False for new instances (since the new instance won't have any play history)
-        dupe.is_embedded = False
         dupe.embedded_only = False
 
         # Manually update created_at
@@ -1212,7 +1247,7 @@ class WidgetInstance(models.Model):
         dupe_qset.save()
 
         # Copy perms, if requested
-        if copy_exiting_perms:
+        if copy_existing_perms:
             existing_perms = self.permissions.all()
             for existing_perm in existing_perms:
                 dupe.permissions.create(
@@ -1354,7 +1389,7 @@ class WidgetQset(models.Model):
                 type=self.instance.widget,
                 data=question,
                 qset=self,
-                item_id=question["id"],
+                item_id=question["id"] if question.get("id", None) is not None else "",
             )
             new_question.save()
             questions_set.append(new_question)
@@ -1417,6 +1452,33 @@ class WidgetQset(models.Model):
         super().save(*args, **kwargs)
 
         self.process_and_create_questions()
+
+    @staticmethod
+    def find_item_with_id(decoded, item_id):
+        import copy
+
+        def _process_item(item):
+            if isinstance(item, list):
+                for element in item:
+                    result = _process_item(element)
+                    if result is not None:
+                        return result
+
+            elif isinstance(item, dict):
+                copied_item = copy.deepcopy(item)
+
+                if Question.is_question(copied_item):
+                    if copied_item.get("id") == item_id:
+                        return copied_item
+
+                for value in copied_item.values():
+                    if isinstance(value, (dict, list)):
+                        result = _process_item(value)
+                        if result is not None:
+                            return result
+            return None
+
+        return _process_item(decoded)
 
     class Meta:
         db_table = "widget_qset"

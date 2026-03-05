@@ -20,6 +20,6 @@ class Base64Util:
         try:
             decoded_bytes = base64.b64decode(data)
             return json.loads(decoded_bytes.decode("utf-8"))
-        except Exception as e:
-            logger.error(f"Error decoding JSON: {str(e)}")
+        except Exception:
+            logger.error("Error decoding JSON", exc_info=True)
             return {}

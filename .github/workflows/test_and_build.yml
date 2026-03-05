@@ -3,12 +3,42 @@ on: [push, pull_request]
 jobs:
   ci_tests:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: testpass
+          MYSQL_DATABASE: materia_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Run Tests
-      run: echo "Tests disabled temporarily"
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: pip install -r app/requirements.txt
+
+    - name: Run tests
+      working-directory: app
+      env:
+        MYSQL_HOST: 127.0.0.1
+        MYSQL_PORT: 3306
+        MYSQL_USER: root
+        MYSQL_PASSWORD: testpass
+        MYSQL_DATABASE: materia_test
+        BASE_URL: http://localhost
+        SESSION_DRIVER: db
+      run: python manage.py test
 
   build_and_upload_images:
     needs: ci_tests
@@ -99,4 +129,3 @@ jobs:
           echo "${{ steps.meta_fakes3.outputs.tags }}" | while IFS= read -r tag; do
             [ -n "$tag" ] && docker tag "$IMAGE_NAME" "$tag" && docker push "$tag"
           done
-
