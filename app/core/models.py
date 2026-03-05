@@ -1504,11 +1504,12 @@ class UserSettings(models.Model):
         if not self.profile_fields:
             self.initialize_profile_fields()
 
+        # prior versions of Materia used darkMode instead of theme. Replace the value if present.
         if "darkMode" in self.profile_fields:
-            self.profile_fields["theme"] = (
-                "dark" if self.profile_fields["darkMode"] else "light"
-            )
-            del self.profile_fields["darkMode"]
+            updated_fields = {**self.profile_fields}
+            updated_fields["theme"] = "dark" if updated_fields["darkMode"] else "light"
+            del updated_fields["darkMode"]
+            self.profile_fields = updated_fields
             self.save()
 
         return self.profile_fields
