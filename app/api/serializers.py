@@ -104,7 +104,7 @@ class UserSerializer(serializers.ModelSerializer):
 # User metadata (profile fields) serializer (inbound)
 class UserMetadataSerializer(serializers.Serializer):
     user_id = serializers.IntegerField(max_value=None, min_value=0)
-    profile_fields = serializers.DictField(child=serializers.BooleanField())
+    profile_fields = serializers.DictField(child=serializers.JSONField())
 
     def validate(self, data):
         user = User.objects.filter(pk=data["user_id"])
@@ -112,12 +112,22 @@ class UserMetadataSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError("User ID invalid.")
 
-        valid_keys = ["useGravatar", "notify", "darkMode", "beardMode"]
+        valid_keys = ["useGravatar", "notify", "theme", "beardMode"]
 
         for key, value in data["profile_fields"].items():
             if key not in valid_keys:
                 raise serializers.ValidationError(
                     f"Invalid profile field provided: {key}"
+                )
+            if key == "theme" and value not in ["dark", "light", "os"]:
+                raise serializers.ValidationError(
+                    f"Invalid value for darkMode: {value}"
+                )
+            if key in ["useGravatar", "notify", "beardMode"] and not isinstance(
+                value, bool
+            ):
+                raise serializers.ValidationError(
+                    f"Invalid value for {key}, must be boolean."
                 )
 
         return data["profile_fields"]

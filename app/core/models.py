@@ -1489,7 +1489,7 @@ class WidgetQset(models.Model):
 
 class UserSettings(models.Model):
 
-    DEFAULT_PROFILE_FIELDS = {"useGravatar": True, "darkMode": False}
+    DEFAULT_PROFILE_FIELDS = {"useGravatar": True, "theme": "light"}
 
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="profile_settings"
@@ -1503,6 +1503,15 @@ class UserSettings(models.Model):
     def get_profile_fields(self):
         if not self.profile_fields:
             self.initialize_profile_fields()
+
+        # prior versions of Materia used darkMode instead of theme. Replace the value if present.
+        if "darkMode" in self.profile_fields:
+            updated_fields = {**self.profile_fields}
+            updated_fields["theme"] = "dark" if updated_fields["darkMode"] else "light"
+            del updated_fields["darkMode"]
+            self.profile_fields = updated_fields
+            self.save()
+
         return self.profile_fields
 
     def initialize_profile_fields(self):
