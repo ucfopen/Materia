@@ -498,7 +498,7 @@ export const apiGetStorageData = instId => {
 }
 
 /**
- * Takes a widget instance ID, and returns a summary of scores submitted for that instance separated by semester.
+ * Takes a widget instance ID, and returns the ID of a newly instantiated play for the current user.
  * @param {string} instId - The ID of the widget instance.
  * @returns {Promise<any>} - Parsed response data.
  */
