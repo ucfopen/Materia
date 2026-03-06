@@ -32,9 +32,7 @@ from core.models import (
 from core.services.instance_service import WidgetInstanceService
 from core.services.perm_service import PermService
 from core.services.play_data_exporter_service import PlayDataExporterService
-from django.db.models import Q
 from django.http import HttpResponse
-from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -553,16 +551,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         can_publish = not instance.is_draft and not instance.widget.publishable_by(
             self.request.user
         )
-        # TODO:
-        # doing this here requires importing Q and timezone
-        # and it repeats code used elsewhere, namely in api/permissions.py
-        # consider adding a method to the WidgetInstance model that can be called from any location
-        #  on an instance object to do these permissions checks
-        can_edit = instance.permissions.filter(
-            Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()),
-            user=request.user,
-            permission=ObjectPermission.PERMISSION_FULL,
-        ).exists()
+        can_edit = instance.editable_by_current_user(request.user)
 
         return Response(
             {"is_locked": is_locked, "can_publish": can_publish, "can_edit": can_edit}

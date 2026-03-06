@@ -26,7 +26,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import DatabaseError, models, transaction
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -1163,7 +1163,9 @@ class WidgetInstance(models.Model):
         if isinstance(user, AnonymousUser):
             return False
         return self.permissions.filter(
-            user=user, permission=ObjectPermission.PERMISSION_FULL
+            Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()),
+            user=user,
+            permission=ObjectPermission.PERMISSION_FULL,
         ).exists()
 
     def save(self, *args, **kwargs):
