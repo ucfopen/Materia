@@ -541,22 +541,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         raise MethodNotAllowed(request.method)
 
-    @action(detail=True, methods=["get"])
-    def edit_perms(self, request, pk=None):
-        instance = self.get_object()
-
-        is_locked = not WidgetInstanceService.user_has_lock_or_is_unlocked(
-            instance, request.user
-        )
-        can_publish = not instance.is_draft and not instance.widget.publishable_by(
-            self.request.user
-        )
-        can_edit = instance.editable_by_current_user(request.user)
-
-        return Response(
-            {"is_locked": is_locked, "can_publish": can_publish, "can_edit": can_edit}
-        )
-
     @action(detail=True, methods=["put"])
     def copy(self, request, pk=None):
         request_serializer = WidgetInstanceCopyRequestSerializer(data=request.data)

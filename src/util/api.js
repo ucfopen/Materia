@@ -303,16 +303,6 @@ export const apiSetUserInstancePerms = ({ instId, permsObj }) => {
 }
 
 /**
- * Takes an instance ID, returns an object indicating whether the instance is locked, whether
- *  the current user can publish widget instances, and whether the current user can edit the instance.
- * @param {string} instId - Widget instance ID.
- * @returns {Promise<any>} - Parsed response data.
- */
-export const apiCanEditWidgets = instId => {
-	return handleRequest(methods.GET, `/api/instances/${instId}/edit_perms/`)
-}
-
-/**
  * Takes numerous pertinent arguments and updates a widget instance in the backend, then
  *  returns that instance.
  * @param {string} args.instId - The ID of the widget instance to update.
