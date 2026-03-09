@@ -30,16 +30,14 @@ class ScoreModuleFactory:
 
             ScoreClass = cls._load_score_class(script_path, instance)
             if not ScoreClass:
-                logger.error(f"No score module found for widget {instance.widget.id}")
+                logger.error("No score module found for widget %s", instance.widget.id)
                 return None
 
             # Create and return an instance of the score module
             return ScoreClass(play=play)
 
-        except Exception as e:
-            import traceback
-
-            logger.error(f"Failed to load score module: {e}\n{traceback.format_exc()}")
+        except Exception:
+            logger.error("Failed to load score module", exc_info=True)
             return None
 
     @staticmethod
@@ -51,8 +49,8 @@ class ScoreModuleFactory:
             mod = types.ModuleType("temp_score_module")
             exec(code, mod.__dict__)
             return getattr(mod, instance.widget.score_module, None)
-        except Exception as e:
-            logger.error(f"Failed to load score module: {e}")
+        except Exception:
+            logger.error("Failed to load score module", exc_info=True)
             return None
 
     @classmethod

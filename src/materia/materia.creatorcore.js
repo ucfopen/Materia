@@ -118,8 +118,20 @@ Namespace('Materia').CreatorCore = (() => {
 		_sendPostMessage('showMediaImporter', types)
 	}
 
-	const directUploadMedia = (mediaData) => {
-		_sendPostMessage('directUploadMedia', mediaData)
+	const directUploadMedia = (media) => {
+		media.arrayBuffer().then((buffer) => {
+			const data = {
+				buffer: buffer,
+				name: media.name,
+				type: media.type,
+				lastModified: media.lastModified
+			}
+
+			parent.postMessage({ type: 'directUploadMedia', source: 'creator-core', data: data }, {
+				targetOrigin: '*',
+				transfer: [data.buffer]
+			})
+		})
 	}
 
 	const save = (title, qset, version) => {

@@ -183,14 +183,14 @@ const Header = ({
 			<nav>
 				<ul>
 					<li>
-						<a href='/widgets' >Widget Catalog</a>
+						<a href='/widgets/' >Widget Catalog</a>
 					</li>
 					<li>
-						<a href='/my-widgets'>My Widgets</a>
+						<a href='/my-widgets/'>My Widgets</a>
 					</li>
 					{ profileNavRender }
 					<li>
-						<a href='/help'>Help</a>
+						<a href='/help/'>Help</a>
 					</li>
 
 					{ elevatedPermsNavRender }

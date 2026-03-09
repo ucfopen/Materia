@@ -51,10 +51,12 @@ const tooltipDescriptions = {
 	Fullscreen: 'This widget may be allowed to temporarily take up your entire screen.',
 }
 
-const renderGuideElement = (guideLocation, text) => (
-	<div className='feature'>
+const renderGuideElement = (guideLocation, text) => {
+	// enforce trailing slash in guide URL
+	if (guideLocation.at(-1) !== '/') guideLocation += '/'
+	return <div className='feature'>
 		<a className='guide-link'
-			href={guideLocation}>
+			href={ guideLocation }>
 			{ text }
 			<svg xmlns='http://www.w3.org/2000/svg'
 				width='24'
@@ -67,7 +69,7 @@ const renderGuideElement = (guideLocation, text) => (
 			</svg>
 		</a>
 	</div>
-)
+}
 
 const Detail = ({widget, isFetching}) => {
 	const [noAuthor, setNoAuthor] = useState(false)

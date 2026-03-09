@@ -12,15 +12,9 @@
 		<link rel="icon" href="/static/favicon-128.png" sizes="128x128" />
 		<link rel="icon" href="/static/favicon-180.png" sizes="180x180" />
 		<link rel="icon" href="/static/favicon-192.png" sizes="192x192" />
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="preload" href="/fonts/lato-v25-latin-regular.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/fonts/lato-v25-latin-700.woff2" as="font" type="font/woff2" crossorigin />
 		{{ css_render|safe }} {{ partials.google_analytics|default:''|safe }}
-
-		{% if fonts %}
-			{% for font in fonts %}
-				<link rel="stylesheet" href="{{ font }}" />
-			{% endfor %}
-		{% endif %}
 
 		{% if css_resources %}
 			{% for css in css_resources %}
@@ -28,8 +22,38 @@
 			{% endfor %}
 		{% endif %}
 
+		<script>
+			(function() {
+				const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+				const theme = "{{ theme|default:'light' }}";
+	
+				function applyTheme(type) {
+					if (type === "dark") {
+						document.body.classList.add("darkMode");
+					} else if (type === "light") {
+						document.body.classList.remove("darkMode");
+					} else if (type === "os") {
+						if (mediaQuery.matches) {
+							document.body.classList.add("darkMode");
+						} else {
+							document.body.classList.remove("darkMode");
+						}
+					}
+				}
+	
+				window.theme = theme;
+				applyTheme(theme);
+	
+				mediaQuery.addEventListener("change", () => {
+					if (window.theme === "os") {
+						applyTheme("os");
+					}
+				});
+			})();
+		</script>
+
 	</head>
-	<body class="{{ page_type|default:'' }} {% if darkMode %}darkMode{% endif %}">
+	<body class="{{ page_type|default:'' }}">
 
 		<div id="app"></div>
 		<div id="modal"></div>

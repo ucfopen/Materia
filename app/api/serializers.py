@@ -5,11 +5,13 @@ import json
 import logging
 import os
 
+import phpserialize
 from core.models import (
     Asset,
     DateRange,
     Log,
     LogPlay,
+    LogStorage,
     Lti,
     Notification,
     ObjectPermission,
@@ -19,6 +21,7 @@ from core.models import (
     WidgetInstance,
     WidgetQset,
 )
+from core.services.log_storage_service import LogStorageService
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
 from core.services.user_service import UserService
@@ -101,7 +104,7 @@ class UserSerializer(serializers.ModelSerializer):
 # User metadata (profile fields) serializer (inbound)
 class UserMetadataSerializer(serializers.Serializer):
     user_id = serializers.IntegerField(max_value=None, min_value=0)
-    profile_fields = serializers.DictField(child=serializers.BooleanField())
+    profile_fields = serializers.DictField(child=serializers.JSONField())
 
     def validate(self, data):
         user = User.objects.filter(pk=data["user_id"])
@@ -109,12 +112,22 @@ class UserMetadataSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError("User ID invalid.")
 
-        valid_keys = ["useGravatar", "notify", "darkMode", "beardMode"]
+        valid_keys = ["useGravatar", "notify", "theme", "beardMode"]
 
         for key, value in data["profile_fields"].items():
             if key not in valid_keys:
                 raise serializers.ValidationError(
                     f"Invalid profile field provided: {key}"
+                )
+            if key == "theme" and value not in ["dark", "light", "os"]:
+                raise serializers.ValidationError(
+                    f"Invalid value for darkMode: {value}"
+                )
+            if key in ["useGravatar", "notify", "beardMode"] and not isinstance(
+                value, bool
+            ):
+                raise serializers.ValidationError(
+                    f"Invalid value for {key}, must be boolean."
                 )
 
         return data["profile_fields"]
@@ -250,7 +263,7 @@ class WidgetSerializer(serializers.ModelSerializer):
                     f"Field not allowed to be modified: {field}"
                 )
 
-            logger.error(f"\nupdating widget field: {field}\n")
+            logger.info("updating widget field: %s", field)
             setattr(widget, field, value)
 
         if metadata_dict:
@@ -446,7 +459,6 @@ class PlayLogUpdateSerializer(serializers.Serializer):
             if not preview_instance_id and not preview_play_id:
                 play = LogPlay.objects.get(pk=self.context["session_id"])
 
-                # if not play.is_valid or play.user.id != user.id:
                 # TODO user validation, must accommodate guest mode
                 if not play.is_valid:
                     raise serializers.ValidationError(f"Play ID {play.id} invalid.")
@@ -475,10 +487,11 @@ class PlaySessionCreateSerializer(serializers.Serializer):
 
     def validate(self, data):
         is_preview = data.get("is_preview", False)
-        instance = WidgetInstance.objects.get(pk=data["instanceId"])
-        if not instance:
+        try:
+            instance = WidgetInstance.objects.get(pk=data["instanceId"])
+        except WidgetInstance.DoesNotExist:
             raise serializers.ValidationError(
-                f"Instance ID {data["InstanceId"]} invalid."
+                f"Instance ID {data["instanceId"]} invalid."
             )
 
         if not instance.playable_by_current_user(self.context["request"].user):
@@ -491,10 +504,17 @@ class PlaySessionSerializer(serializers.ModelSerializer):
     inst_name = serializers.CharField(source="instance.name", read_only=True)
     widget_name = serializers.CharField(source="instance.widget.name", read_only=True)
     widget_icon = serializers.SerializerMethodField()
+    submission_status = serializers.SerializerMethodField()
     user = UserSerializer(read_only=True)
 
     def get_widget_icon(self, play):
         return f"{play.instance.widget.id}-{play.instance.widget.clean_name}{os.sep}"
+
+    def get_submission_status(self, play):
+        # Return the submission_status from the related LtiPlayState
+        if hasattr(play, "play") and play.play.exists():
+            return play.play.first().submission_status
+        return None
 
     def __init__(self, *args, **kwargs):
         is_student_view = kwargs.pop("is_student_view", False)
@@ -524,7 +544,9 @@ class PlaySessionSerializer(serializers.ModelSerializer):
             field_set.append("user_id")
 
         if include_activity:
-            field_set.extend(["inst_name", "widget_name", "widget_icon"])
+            field_set.extend(
+                ["inst_name", "widget_name", "widget_icon", "submission_status"]
+            )
 
         if include_user_info:
             field_set.append("user")
@@ -555,6 +577,7 @@ class PlaySessionSerializer(serializers.ModelSerializer):
             "inst_name",
             "widget_name",
             "widget_icon",
+            "submission_status",
             "user",
         ]
 
@@ -572,23 +595,27 @@ class ScoreSummarySerializer(serializers.Serializer):
     students = serializers.IntegerField()
     average = serializers.FloatField()
     distribution = serializers.ListField()
+    storage = serializers.BooleanField()
 
     @classmethod
-    def create_from_plays(cls, logs):
+    def create_from_plays(cls, logs, include_storage=False):
 
         if not logs:
             return []
 
         summary = {}
+        storage_by_semester = {}
         unique_students = {}
 
         for log in logs:
 
             semester_key = f"{log.created_at.year}-{log.semester.semester}"
-            user_id = 0 if log.user is None else log.user.id
+            user_id = 0 if log.user_id is None else log.user_id
 
             if semester_key not in summary:
-
+                # one index per grade range in order:
+                # '0-9', '10-19', '20-29', '30-39', '40-49',
+                # '50-59', '60-69', '70-79', '80-89', '90-100'
                 distribution = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 for i in range(0, 10):
                     if i == (
@@ -599,6 +626,11 @@ class ScoreSummarySerializer(serializers.Serializer):
                         distribution[i] = 0
 
                 unique_students[semester_key] = [user_id]
+
+                if include_storage and semester_key not in storage_by_semester:
+                    storage_by_semester[semester_key] = log.storage_logs.exists()
+                else:
+                    storage_by_semester[semester_key] = False
 
                 summary[semester_key] = {
                     "id": log.semester.id,
@@ -622,6 +654,13 @@ class ScoreSummarySerializer(serializers.Serializer):
                     int(log.percent / 10) if int(log.percent / 10) < 10 else 9
                 ] += 1
 
+                if (
+                    include_storage
+                    and storage_by_semester[semester_key] is not True
+                    and log.storage_logs.exists()
+                ):
+                    storage_by_semester[semester_key] = True
+
         results = []
         for data in summary.values():
             results.append(
@@ -632,6 +671,7 @@ class ScoreSummarySerializer(serializers.Serializer):
                     "students": data["students"],
                     "average": round(data["total"] / data["count"], 2),
                     "distribution": data["distribution"],
+                    "storage": storage_by_semester[f"{data["year"]}-{data["term"]}"],
                 }
             )
 
@@ -742,7 +782,7 @@ class ScoresForUserSerializer(serializers.Serializer):
 
 class ScoreDetailsForPlaySerializer(serializers.Serializer):
     play_id = serializers.PrimaryKeyRelatedField(
-        queryset=LogPlay.objects.all(), required=True
+        queryset=LogPlay.objects.select_related("lti_play_state"), required=True
     )
 
 
@@ -779,7 +819,31 @@ class UserExtraAttemptsSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class PlayStorageSaveSerializer(serializers.Serializer):
-    play_id = serializers.CharField()
-    logs = serializers.JSONField()
+class PlayStorageSerializer(serializers.ModelSerializer):
+    data = serializers.SerializerMethodField()
 
+    class Meta:
+        model = LogStorage
+        fields = "__all__"
+
+    def get_data(self, storage_log):
+        raw = base64.b64decode(storage_log.data)
+        try:
+            data = phpserialize.loads(raw, decode_strings=True)
+        except ValueError:
+            data = json.loads(raw)
+        return dict(sorted(data.items()))
+
+
+class PlayStorageTableSerializer(serializers.Serializer):
+
+    def to_representation(self, queryset):
+        anonymize = self.context.get("anonymize", False)
+        return LogStorageService.build_log_tables_from_queryset(queryset, anonymize)
+
+
+class PlayStorageSaveSerializer(serializers.Serializer):
+    play_id = serializers.PrimaryKeyRelatedField(
+        queryset=LogPlay.objects.all(), required=True
+    )
+    logs = serializers.JSONField()

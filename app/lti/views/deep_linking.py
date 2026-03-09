@@ -33,7 +33,8 @@ def lti_deep_link_selection(request):
             cached_launch_id = request.session["lti-deep-link"]
         except Exception:
             logger.error(
-                f"LTI: ERROR: cached launch ID could not be recovered for deep linking selection of inst: {selection}."
+                "LTI: ERROR: cached launch ID could not be recovered for deep linking selection of inst: %s.",
+                selection,
             )
             return error_page(request, "error_launch_recovery")
 
@@ -45,7 +46,7 @@ def lti_deep_link_selection(request):
 
     except Exception:
         logger.error(
-            f"LTI: ERROR: could not recover cached launch with ID {cached_launch_id}."
+            "LTI: ERROR: could not recover cached launch with ID %s.", cached_launch_id
         )
         return error_page(request, "error_launch_recovery")
 

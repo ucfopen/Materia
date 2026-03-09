@@ -2,6 +2,8 @@ import os
 
 from core.utils.validator_util import ValidatorUtil
 
+from .urls import enforce_trailing_slash
+
 # amount of kilobytes alloted to any individual user for media storage
 MEDIA_QUOTA = 5000
 
@@ -36,7 +38,6 @@ DRIVER_SETTINGS = {
             "AWS_SECRET_ACCESS_KEY",
             os.environ.get("ASSET_STORAGE_S3_SECRET", "SECRET"),
         ),
-        "token": os.environ.get("AWS_SESSION_TOKEN", "TOKEN"),  # aws session token
         # use fakes3 unless explicitly disabled: this value is always false for prod
         "fakes3_enabled": ValidatorUtil.validate_bool(
             os.environ.get("DEV_ONLY_USE_FAKES3", True),
@@ -47,7 +48,11 @@ DRIVER_SETTINGS = {
         "use_cdn": ValidatorUtil.validate_bool(
             os.environ.get("ASSET_STORAGE_S3_USE_CDN", False),
         ),
-        "cdn_domain": os.environ.get("ASSET_STORAGE_S3_CDN_DOMAIN", ""),
+        "cdn_domain": (
+            enforce_trailing_slash(os.environ.get("ASSET_STORAGE_S3_CDN_DOMAIN", ""))
+            if os.environ.get("ASSET_STORAGE_S3_CDN_DOMAIN", "")
+            else ""
+        ),
     },
 }
 

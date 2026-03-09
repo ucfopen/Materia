@@ -4,10 +4,8 @@ import os
 from pathlib import Path
 
 import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-
-
 from core.utils.validator_util import ValidatorUtil
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from .apps import *  # noqa: F401, F403
 from .css import *  # noqa: F401, F403
@@ -80,8 +78,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "core.context_processors.dark_mode",
-                "core.context_processors.fonts",
+                "core.context_processors.theme",
             ],
         },
     },
@@ -205,6 +202,6 @@ if SENTRY_DSN:
         integrations=[DjangoIntegration()],
         environment=os.environ.get("SENTRY_ENVIRONMENT", "development"),
         send_default_pii=True,
-        # 0.1 is 10% of transactions sent to Sentry. can replace with `traces_sampler` later for more control
-        traces_sample_rate=0.1,
+        # 0.01 is 1% of transactions sent to Sentry. can replace with `traces_sampler` later for more control
+        traces_sample_rate=0.01,
     )
