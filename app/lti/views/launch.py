@@ -47,10 +47,11 @@ class ApplicationLaunchView(LtiLaunchBaseView):
 
     def handle_deep_linking_launch(self, request, lti_launch):
         launch_data = lti_launch.get_launch_data()
-        auth = LTIAuthService.authenticate(request, launch_data)
-
-        if auth is None:
-            logger.error("launch login invalid")
+        try:
+            auth = LTIAuthService.authenticate(request, launch_data)
+            if auth is None:
+                return error_page(request, "error_unknown_user")
+        except LTIAuthException:
             return error_page(request, "error_unknown_user")
 
         # we need access to the original launch data when sending the deep link selection back to the platform

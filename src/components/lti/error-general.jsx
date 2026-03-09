@@ -34,7 +34,7 @@ const ErrorGeneral = () => {
                 <section id="error-container">
                     <h4>Error type: Unknown User</h4>
                     <p>Materia cannot determine who you are using the information provided by the LMS.</p>
-                    <p>This may occur if you are using a non-standard account or if your information is missing from Materia due to recent changes to your account.</p>
+                    <p>This may occur if you are using a non-standard account or if the LMS is missing information about who you are.</p>
                     <p>If this message persists, contact support.</p>
                 </section>
             break;
