@@ -613,7 +613,9 @@ class ScoreSummarySerializer(serializers.Serializer):
             user_id = 0 if log.user_id is None else log.user_id
 
             if semester_key not in summary:
-
+                # one index per grade range in order:
+                # '0-9', '10-19', '20-29', '30-39', '40-49',
+                # '50-59', '60-69', '70-79', '80-89', '90-100'
                 distribution = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 for i in range(0, 10):
                     if i == (

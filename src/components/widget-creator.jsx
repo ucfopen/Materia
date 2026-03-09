@@ -643,14 +643,14 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const showMediaImporter = (types) => {
-		showEmbedDialog(`${window.BASE_URL}media/import#${types.join(',')}`)
+		showEmbedDialog(`${window.BASE_URL}media/import/#${types.join(',')}`)
 	}
 
 	const directUploadMedia = (media) => {
 		// showMediaImporter(['jpg', 'gif', 'png', 'mp3'])
 		setCreatorState({
 			...creatorState,
-			dialogPath: `${window.BASE_URL}media/import#${['jpg', 'gif', 'png', 'mp3'].join(',')}`,
+			dialogPath: `${window.BASE_URL}media/import/#${['jpg', 'gif', 'png', 'mp3'].join(',')}`,
 			directUploadMediaFile: media
 		})
 	}

@@ -161,7 +161,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("users/logout/", UsersApi.logout, name="logout"),
     # Media
-    path("media/import", MediaImportView.index, name="media importer"),
+    path("media/import/", MediaImportView.index, name="media importer"),
     path("media/upload/", MediaUpload.index),
     # matches media/asset_id, media/asset_id/thumbnail and media/asset_id/large
     re_path(
