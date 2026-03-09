@@ -12,7 +12,7 @@ $partial-value-color: #e2dee1;
 $preview-purple: #b944cc;
 
 .container {
-	width: 800px;
+	width: min(800px, calc(90vw));
 	margin: 0 auto;
 
 	background: $score-screen-bg;
@@ -171,6 +171,8 @@ $preview-purple: #b944cc;
 			color: #000;
 			background-color: $light-gray-bg;
 			font-size: 64px;
+
+			margin-bottom: 10px;
 		}
 
 		h1 {
@@ -194,7 +196,7 @@ $preview-purple: #b944cc;
 
 		#class-rank-button {
 			font-size: 12px;
-			margin: 10px 0px 10px;
+			margin: 0px 0px 10px;
 			display: block;
 		}
 	}
@@ -947,8 +949,8 @@ article {
 
 section.score-graph {
 	max-height: 0;
-	overflow: hidden;
-	transition: max-height 0.15s ease-in-out;
+	overflow: scroll;
+	transition: max-height 0.5s linear;
 
 	.graph {
 		&:not(.loading) {
@@ -1023,6 +1025,8 @@ iframe#container {
 	width: 100%;
 	border: none;
 
+	overflow: scroll;
+
 	&.margin-above {
 		margin-top: 25px;
 	}
@@ -1036,8 +1040,218 @@ iframe#container {
 	}
 }
 
+.question-number {
+	width: 50px;
+	height: 50px;
+
+	margin-left: auto;
+	margin-right: auto;
+
+	position: relative;
+	background-color: rgba(225, 234, 221, 1);
+	border-radius: 50%;
+	color: #555555;
+	text-align: center;
+	vertical-align: top;
+	font-weight: bold;
+	font-family: 'Lato';
+	font-size: 24px;
+
+	outline: 3px solid #db8081;
+	outline-offset: -3px;
+	
+	.text {
+		padding-top: 9px;
+		padding-right: 1px;
+	}
+
+	.arc {
+		--a: 100%; /* control the progression */
+		
+		position: absolute;
+
+		width: 50px;
+		height: 50px;
+		aspect-ratio: 1;
+		padding: 3px; /* the border thickness */
+		box-sizing: border-box;
+		border-radius: 50%;
+		background: #7dba72;
+		mask:
+			linear-gradient(#0000 0 0) content-box intersect,
+			conic-gradient(#000 var(--a),#0000 0);
+	}
+}
+
 @media (max-width: 720px) {
 	.score-header nav {
 		max-height: none;
+	}
+
+	.overview {
+		flex-direction: column;
+		width: 100%;
+
+		#overview-score {
+			width: 80%;
+			margin: 0 auto;
+		}
+
+		#overview-table {
+			width: 100%;
+			min-height: fit-content;
+			padding-top: 16px;
+		}
+	}
+
+	.details {
+		table {
+			tr {
+				td {
+					padding: 4px 7px;
+					font-size: 12px;
+				}
+
+				th {
+					padding: 7px 7px;
+					font-size: 12px;
+				}
+			}
+		}
+	}
+
+	.question-number {
+		width: 35px;
+		height: 35px;
+	
+		font-size: 18px;
+		
+		.text {
+			padding-top: 6px;
+			padding-right: 2px;
+		}
+	
+		.arc {
+			width: 35px;
+			height: 35px;
+			padding: 3px; /* the border thickness */
+		}
+	}
+
+	article {
+		header {
+			justify-content: space-between;
+			align-items: center;
+			min-height: 65px;
+	
+			margin: 0;
+			padding: 0 1em;
+	
+			background: $header-color;
+	
+			&.justify-left {
+				justify-content: flex-start;
+				gap: 2em;
+			}
+	
+			&.preview {
+				margin-top: 45px;
+				border-top: 4px $preview-purple solid;
+	
+				&:before {
+					position: absolute;
+					left: 0;
+					top: -36px;
+					width: fit-content;
+					height: 20px;
+					padding: 8px 12px 8px 12px;
+	
+					content: 'Previewing';
+					background: $preview-purple;
+	
+					font-size: 14px;
+					font-weight: 700;
+				}
+	
+				&:after {
+					position: absolute;
+					right: 0;
+					top: -40px;
+		
+					font-size: 14px;
+					font-weight: 300;
+
+					text-align: right;
+					align-content: end;
+					height: 30px;
+
+					width: 65vw;
+		
+					font-size: 12px;
+					font-weight: 300;
+				}
+			}
+			
+			a#play-again {
+				padding: 6px 6px;
+				font-size: 0px;
+				
+				#play-again span {
+					margin-left: 0.5em;
+					font-size: 8px;
+				}
+			}
+
+			a#play-again::before {
+				font-size: 12px;
+				content: url(/img/rotate-cw.svg);
+			}
+	
+			nav.previous-attempts {
+				padding: 0;
+				h1 {
+					padding: 6px 6px;
+					border-radius: 5px;
+					font-size: 0px;
+				}
+
+				h1::before {
+					font-size: 12px;
+					content: url(/img/history.svg);
+				}
+	
+				ul {
+					min-width: 175px;
+	
+					li {
+						padding: 0.5em 1em;
+	
+						a {
+							display: flex;
+							flex-direction: column;
+							gap: 0.25em;
+	
+							font-size: 0.8em;	
+	
+							.date {
+								margin-left: 0.5em;
+	
+								font-size: 0.9em;
+							}
+	
+							.score {
+								font-size: 1.5em;
+							}
+						}
+	
+	
+					}
+				}
+			}
+		}
+	
+		&.container header > h1 {
+			font-size: clamp(16px, 2vw, 21px);
+		}
 	}
 }

@@ -72,7 +72,7 @@ const ScoreOverview = ({instId, playId, isSingle, overview, attemptNum, isPrevie
 	}
 
 	let classRankBtn = null
-	if ( ! isPreview ) {
+	if ( ! isPreview && ! isSingle ) {
 		classRankBtn = (
 			<div id="class-rank-button" className="action_button" onClick={fetchOrDisplayOverview}>
 				{`${showGraph ? 'Close' : 'Compare With Class'}`}

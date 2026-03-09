@@ -20,14 +20,14 @@ const ScoreDetails = ({details, complete}) => {
 			switch (row.graphic) {
 				case 'modifier':
 					greyMode = row.score === 0
-					scoreGraphic = <ScoreGraphic type="modifier" width={50} height={50} number={index} percent={percent} greyMode={greyMode} />
+					scoreGraphic = <ScoreGraphic type="modifier" number={index} percent={percent} greyMode={greyMode} />
 					break
 				case 'final':
-					scoreGraphic = <ScoreGraphic type="final" width={50} height={50} number={index} percent={percent} greyMode={greyMode} />
+					scoreGraphic = <ScoreGraphic type="final" number={index} percent={percent} greyMode={greyMode} />
 					break
 				case 'score':
 					greyMode = row.score === -1
-					scoreGraphic = <ScoreGraphic type="score" width={50} height={50} number={index} percent={percent} greyMode={greyMode} />
+					scoreGraphic = <ScoreGraphic type="score" number={index} percent={percent} greyMode={greyMode} />
 					break
 			}
 
