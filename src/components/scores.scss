@@ -1093,14 +1093,14 @@ iframe#container {
 		width: 100%;
 
 		#overview-score {
-			margin: 0 0;
+			width: 80%;
+			margin: 0 auto;
 		}
 
 		#overview-table {
 			width: 100%;
 			min-height: fit-content;
 			padding-top: 16px;
-			padding-bottom: 16px;
 		}
 	}
 
