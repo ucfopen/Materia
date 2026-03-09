@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 class DBAssetStorageDriver:
+
+    @staticmethod
     def exists(asset_id, size):
         from core.models import AssetData
 
@@ -18,6 +20,7 @@ class DBAssetStorageDriver:
         except AssetData.DoesNotExist:
             return False
 
+    @staticmethod
     def store(asset, asset_path, size):
         from core.models import AssetData
 
@@ -39,10 +42,14 @@ class DBAssetStorageDriver:
                 data_obj.created_at = timezone.now()
 
                 data_obj.save()
-        except Exception as e:
-            logger.error(f"Exception while storing asset data for asset {asset.id}")
-            logger.error(e)
+        except Exception:
+            logger.error(
+                "Exception while storing asset data for asset %s",
+                asset.id,
+                exc_info=True,
+            )
 
+    @staticmethod
     def render(asset, size):
         from core.models import AssetData
         from django.http import HttpResponse, HttpResponseNotFound
@@ -62,7 +69,7 @@ class DBAssetStorageDriver:
                 asset_obj = AssetData.objects.get(id=asset.id, size=size)
                 asset_bytes = asset_obj.data
         except Exception as e:
-            logger.error(e)
+            logger.error(e, exc_info=True)
             return HttpResponseNotFound()
 
         asset_response = HttpResponse(asset_bytes)
@@ -75,6 +82,7 @@ class DBAssetStorageDriver:
 
         return asset_response
 
+    @staticmethod
     def handle_uploaded_file(asset, uploaded_file):
         from core.models import AssetData
 
@@ -92,11 +100,11 @@ class DBAssetStorageDriver:
             data_obj.created_at = timezone.now()
 
             data_obj.save()
-        except Exception as e:
-            logger.error("DB driver file upload error")
-            logger.error(e)
+        except Exception:
+            logger.error("DB driver file upload error", exc_info=True)
 
     # Build a specified size of an asset; either 'original', 'large', or 'thumbnail'
+    @staticmethod
     def build_size(asset, size):
         from core.models import AssetData
         from PIL import Image
@@ -154,6 +162,7 @@ class DBAssetStorageDriver:
 
         return resized_bytes.getvalue()
 
+    @staticmethod
     def migrate_to(driver, cleanup_delete=False):
         from core.models import Asset, AssetData
 

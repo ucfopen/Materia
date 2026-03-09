@@ -190,7 +190,7 @@ header {
 	.profile-bar
 	{
 		position: absolute;
-		top: 45px;
+		top: 40px;
 		right: 30px;
 		display: flex;
 		flex-direction: row;
@@ -779,7 +779,7 @@ header {
 			display: block;
 			position: absolute;
 			right: 15px;
-			top: 25px;
+			top: 30px;
 			height: 35px;
 			width: 37px;
 			border: none;
@@ -846,7 +846,7 @@ header {
 		.profile-bar {
 			gap: 20px;
 			right: 75px;
-			top: 25px;
+			top: 30px;
 
 			.desktop-notifications {
 				display: none;

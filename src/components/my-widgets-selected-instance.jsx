@@ -1,6 +1,4 @@
 import React, { useEffect, useRef, useCallback, useState, useMemo} from 'react'
-import { useQuery } from 'react-query'
-import { apiCanEditWidgets } from '../util/api'
 import { iconUrl } from '../util/icon-url'
 import parseTime from '../util/parse-time'
 import MyWidgetsScores from './my-widgets-scores'
@@ -73,22 +71,6 @@ const MyWidgetSelectedInstance = ({
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
-	const { data: editPerms, isFetching: permsFetching} = useQuery({
-		queryKey: ['widget-perms', inst.id],
-		queryFn: () => apiCanEditWidgets(inst.id),
-		placeholderData: null,
-		enabled: !!inst.id,
-		staleTime: Infinity,
-		retry: false,
-		onError: (err) => {
-			if (err.message == "Invalid Login")
-			{
-				setInvalidLogin(true)
-			} else {
-				setError((err.message || "Error") + ": Failed to retrieve widget.")
-			}
-		}
-	})
 
 	// Initializes the data when widgets changes
 	useEffect(() => {
@@ -140,26 +122,13 @@ const MyWidgetSelectedInstance = ({
 	}, [myPerms, inst])
 
 	const onEditClick = inst => {
-		if (inst.widget.is_editable && state.perms.editable && editPerms && editPerms.can_edit && !permsFetching) {
+		if (inst.widget.is_editable && state.perms.editable && state.can.edit) {
 			const editUrl = `${window.location.origin}/widgets/${inst.widget.dir}create/${inst.id}`
 
-			if(editPerms.is_locked){
-				setShowLocked(true)
-				return
-			}
-			if(inst.is_draft){
+			if (inst.is_draft) {
 				window.location = editUrl
-				return
-			}
-
-			if (editPerms.can_publish){
-				// show editPublished warning
+			} else {
 				showModal(setShowWarning)
-				return
-			}
-			else {
-				// show restricted publish warning
-				return
 			}
 		}
 	}
@@ -428,7 +397,7 @@ const MyWidgetSelectedInstance = ({
 					</ul>
 					<ul className='options' role='menu'>
 						<li className='share'>
-							<div className={`link ${state.perms.stale || permsFetching ? 'disabled' : ''}`}
+							<div className='link'
 								role='menuitem'
 								tabIndex="0"
 								onClick={collaborateClickHandler}>

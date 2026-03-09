@@ -17,6 +17,13 @@ const SettingsPage = () => {
 	})
 	const [error, setError] = useState('')
 	const mounted = useRef(false)
+
+	const [state, setState] = useState({
+		notify: false,
+		useGravatar: false,
+		theme: 'light'
+	})
+
 	const { data: currentUser, isFetching} = useQuery({
 		queryKey: ['user', 'me'],
 		queryFn: ({ queryKey }) => {
@@ -39,12 +46,16 @@ const SettingsPage = () => {
 	useEffect(() => {
 		if (mounted && ! isFetching && currentUser) {
 			mounted.current = true
-			setState({...state, notify: currentUser.profile_fields.notify, useGravatar: currentUser.profile_fields.useGravatar, darkMode: currentUser.profile_fields.darkMode ? currentUser.profile_fields.darkMode : false})
-			return () => (mounted.current = false)
+			setState({
+				notify: currentUser.profile_fields.notify,
+				useGravatar: currentUser.profile_fields.useGravatar,
+				theme: currentUser.profile_fields.theme
+			})
+		}
+		return () => {
+			mounted.current = false
 		}
 	},[isFetching])
-
-	const [state, setState] = useState({notify: false, useGravatar: false, darkMode: false})
 
 	const mutateUserSettings = useUpdateUserSettings()
 
@@ -57,8 +68,10 @@ const SettingsPage = () => {
 		setState({...state, useGravatar: pref})
 	}
 
-	const _updateDarkModePref = event => {
-		setState({...state, darkMode: !state.darkMode});
+	const _updateThemePref = (e) => {
+		const newTheme = e.target.value
+		setState(prev => ({ ...prev, theme: newTheme }))
+		window.theme = newTheme
 	}
 
 	const _submitSettings = () => {
@@ -67,13 +80,22 @@ const SettingsPage = () => {
 			profile_fields: {
 				notify: state.notify,
 				useGravatar: state.useGravatar,
-				darkMode: state.darkMode
+				theme: state.theme
 			},
 			successFunc: () => {
-				// immediately apply/revoke darkmode to body tag. This will be automatically applied
-				// on subsequent page views across the application
-				if (state.darkMode) document.body.classList.add('darkMode')
-				else document.body.classList.remove('darkMode')
+				// Immediately apply/revoke theme to body
+				if (state.theme === 'dark') {
+					document.body.classList.add('darkMode')
+				} else if (state.theme === 'light') {
+					document.body.classList.remove('darkMode')
+				} else if (state.theme === 'os') {
+					const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+					if (prefersDark) {
+						document.body.classList.add('darkMode')
+					} else {
+						document.body.classList.remove('darkMode')
+					}
+				}
 			},
 			errorFunc: (err) => {
 				if (err.message == 'Invalid Login') {
@@ -197,19 +219,47 @@ const SettingsPage = () => {
 							</label>
 						</li>
 					</ul>
-					<span>Dark Mode</span>
-					<ul>
+					<span>Theme</span>
+					<ul className="theme-select" role="radiogroup">
 						<li>
-							<label className="checkbox-wrapper">
+							<label className="radio-wrapper">
 								<input
-									type="checkbox"
-									id="darkMode"
-									name="darkMode"
-									checked={state.darkMode == true}
-									onChange={_updateDarkModePref}
+									type="radio"
+									name="theme"
+									value="dark"
+									checked={state.theme === "dark"}
+									onChange={_updateThemePref}
 								/>
-								<span className="custom-checkbox" role="checkbox" aria-checked={state.darkMode == true}></span>
-								Use Dark Mode
+								<span className="custom-radio" role="radio" aria-checked={state.theme === "dark"}></span>
+								Dark
+							</label>
+						</li>
+
+						<li>
+							<label className="radio-wrapper">
+								<input
+									type="radio"
+									name="theme"
+									value="light"
+									checked={state.theme === "light"}
+									onChange={_updateThemePref}
+								/>
+								<span className="custom-radio" role="radio" aria-checked={state.theme === "light"}></span>
+								Light
+							</label>
+						</li>
+
+						<li>
+							<label className="radio-wrapper">
+								<input
+									type="radio"
+									name="theme"
+									value="os"
+									checked={state.theme === "os"}
+									onChange={_updateThemePref}
+								/>
+								<span className="custom-radio" role="radio" aria-checked={state.theme === "os"}></span>
+								System Preference
 							</label>
 							<p className="exp">Note: This does not influence widgets.</p>
 						</li>

@@ -25,7 +25,7 @@ const ErrorGeneral = () => {
             content =
                 <section id="error-container">
                     <h4>Error type: Unknown Assignment</h4>
-                    <p>This Materia assignment hasn't been setup correctly in the system.</p>
+                    <p>This Materia assignment hasn't been setup correctly in the LMS.</p>
 	                <p>Your instructor will need to complete the setup process.</p>
                 </section>
             break;
@@ -33,9 +33,18 @@ const ErrorGeneral = () => {
             content =
                 <section id="error-container">
                     <h4>Error type: Unknown User</h4>
-                    <p>Materia can not determine who you are using the information provided by the system.</p>
-                    <p>This may occur if you are using a non-standard account or if your information is missing from Materia due to recent changes to your account.</p>
-                    <p>If you need help accessing this tool, contact support.</p>
+                    <p>Materia cannot determine who you are using the information provided by the LMS.</p>
+                    <p>This may occur if you are using a non-standard account or if the LMS is missing information about who you are.</p>
+                    <p>If this message persists, contact support.</p>
+                </section>
+            break;
+        case 'error_launch_validation':
+            content =
+                <section id="error-container">
+                    <h4>Error type: Launch Validation Failed</h4>
+                    <p>The launch information provided by the LMS failed validation.</p>
+                    <p>Try accessing the tool again without using the back button. If prompted to re-submit page data, try leaving the page and re-selecting the activity.</p>
+                    <p>If this message persists, contact support.</p>
                 </section>
             break;
         case 'error_autoplay_misconfigured':
@@ -49,6 +58,7 @@ const ErrorGeneral = () => {
         case 'error_lti_guest_mode':
             content =
                 <section id="error-container">
+                    <h4>Error type: Guest Mode Enabled</h4>
                     <p>This assignment has guest mode enabled.</p>
                     <p>This assignment can only record scores anonymously and therefore cannot be played as an embedded assignment.</p>
                     <p>Your instructor will need to disable guest mode or provide a link to play as a guest.</p>
@@ -62,6 +72,13 @@ const ErrorGeneral = () => {
                     <p>We recommend contacting support:</p>
                 </section>
             break;
+        case 'error_launch_recovery':
+            content =
+            <section id="error-container">
+                <h4>Error type: Launch Recovery Failure</h4>
+                <p>Materia couldn't complete this operation because of a session caching issue.</p>
+                <p>This almost certainly isn't because of anything you did. If possible, please report the issue to support.</p>
+            </section>
         default:
             content =
                 <section id="error-container">

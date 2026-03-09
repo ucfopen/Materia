@@ -4,6 +4,9 @@ const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const WebpackRemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts')
 const BundleTracker = require('webpack-bundle-tracker')
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
+
+const WIDGET_CORE_BUNDLES = ['materia.enginecore', 'materia.creatorcore', 'materia.scorecore']
 
 const jsPath = path.join(__dirname, 'src')
 const packageJsPath = path.join(__dirname, 'fuel', 'packages')
@@ -18,7 +21,10 @@ const packageJSON = require('./package.json')
  *   Note that additional comments can be found in the default webpack config
  */
 
-const entry = {}
+const entry = {
+	// Fonts CSS - emitted separately for better load performance
+	fonts: path.join(cssPath, 'fonts.css')
+}
 
 const getEntryName = (file, basePath) => {
 	const relativePath = path.relative(basePath, file)
@@ -42,7 +48,12 @@ module.exports = {
 	entry,
 	output: {
 		path: path.join(__dirname, 'public/'),
-		filename: 'js/[name].js',
+		filename: (pathData) => {
+			if (WIDGET_CORE_BUNDLES.includes(pathData.chunk.name)) {
+				return 'js/[name].js'
+			}
+			return 'js/[name].[contenthash:8].js'
+		},
 		publicPath: '/static/',
 	},
 	module: {
@@ -90,7 +101,19 @@ module.exports = {
 		new BundleTracker({ filename: './webpack-stats.json' }),
 		new WebpackRemoveEmptyScriptsPlugin(),
 		new MiniCssExtractPlugin({
-			filename: 'css/[name].css',
+			filename: 'css/[name].[contenthash:8].css',
+		}),
+		new WebpackManifestPlugin({
+			fileName: 'manifest.json',
+			publicPath: '',
+			generate: (seed, files, entries) => {
+				const manifest = {}
+				files.forEach(file => {
+					const dir = file.path.substring(0, file.path.lastIndexOf('/') + 1)
+					manifest[dir + file.name] = file.path
+				})
+				return manifest
+			}
 		}),
 	],
 	resolve: {

@@ -55,7 +55,7 @@ const CatalogCard = ({
 		<div className={`widget ${isFiltered ? 'filtered' : ''}`}>
 			<a
 				className='infocard'
-				href={`/widgets/${id}-${clean_name}`}
+				href={`/widgets/${id}-${clean_name}/`}
 				target='_self'>
 				<div className='header'>
 					{ featuredLabelRender }

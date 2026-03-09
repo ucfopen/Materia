@@ -4,7 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 
 from core.message_exception import MsgInvalidInput
-from core.models import Log, LogPlay
+from core.models import Log, LogPlay, WidgetQset
 
 logger = logging.getLogger(__name__)
 
@@ -192,6 +192,11 @@ class ScoreModule(ABC):
         returns the json data of the question, not a question model instance
         """
         question = next((q for q in self.questions if q.item_id == item_id), None)
+        # no matching Question instance was found
+        # see if we can identify this question in the qset
+        if question is None:
+            return WidgetQset.find_item_with_id(self.qset, item_id)
+
         return question.data
 
     def get_score_details(self):
@@ -239,9 +244,11 @@ class ScoreModule(ABC):
         text = log.text if hasattr(log, "text") else log["text"]
         for answer in answers:
             if text == answer["text"]:
-                feedback = answer.get("options", {}).get("feedback", "")
-                if feedback:
-                    return feedback
+                options = answer.get("options", {})
+                if isinstance(options, dict):
+                    feedback = options.get("feedback", "")
+                    if feedback:
+                        return feedback
         return None
 
     def get_detail_style(self, score) -> str:
@@ -263,16 +270,16 @@ class ScoreModule(ABC):
         return log.text
 
     def get_ss_expected_answers(self, log, question) -> str:
-        if question["type"] == "mc":
+        if question["type"] == "MC" or question["type"] == "mc":
             max_value = 0
             max_answers = []
             for ans in question["answers"]:
                 val = int(ans["value"])
                 if val > max_value:
                     max_value = val
-                    max_answers = [ans["text"]]
+                    max_answers = [str(ans["text"])]
                 elif val == max_value:
-                    max_answers.append(ans["text"])
+                    max_answers.append(str(ans["text"]))
             return " or ".join(max_answers)
         else:
             return question["answers"][0]["text"]

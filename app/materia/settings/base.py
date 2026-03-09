@@ -3,7 +3,9 @@
 import os
 from pathlib import Path
 
+import sentry_sdk
 from core.utils.validator_util import ValidatorUtil
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from .apps import *  # noqa: F401, F403
 from .css import *  # noqa: F401, F403
@@ -14,6 +16,7 @@ from .extra import *  # noqa: F401, F403
 from .generation import *  # noqa: F401, F403
 from .js import *  # noqa: F401, F403
 from .lti import *  # noqa: F401, F403
+from .security import *  # noqa: F401, F403
 
 # import additional config files
 from .session import *  # noqa: F401, F403
@@ -37,22 +40,11 @@ DIRS = {
     ),  # + os.sep
 }
 
-SESSION_COOKIE_SAMESITE = "None"
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = "None"
-CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = [os.environ.get("BASE_URL").rstrip("/")]
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "materia-local-dev-secret-key"
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_ENV", "prod") == "dev"
-
-ALLOWED_HOSTS = ["*", "localhost", "127.0.0.1"]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -62,14 +54,13 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    # "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "lti_tool.middleware.LtiLaunchMiddleware",
 ]
@@ -87,8 +78,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "core.context_processors.dark_mode",
-                "core.context_processors.fonts",
+                "core.context_processors.theme",
             ],
         },
     },
@@ -178,6 +168,12 @@ LOGIN_URL = "/login/"
 
 NAME = "Materia"
 
+# Auth Overrides
+AUTH_LOGIN_ROUTE_OVERRIDE = os.environ.get("AUTH_LOGIN_ROUTE_OVERRIDE", "false")
+RESTRICT_LOGINS_TO_LAUNCHES = ValidatorUtil.validate_bool(
+    os.environ.get("RESTRICT_LOGINS_TO_LAUNCHES", False)
+)
+
 # Email config
 SEND_EMAILS = ValidatorUtil.validate_bool(os.environ.get("SEND_EMAILS", False))
 EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
@@ -197,3 +193,15 @@ EMAIL_SSL_CERTFILE = os.environ.get("EMAIL_SSL_CERTFILE")
 # Sendgrid config
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+
+# Sentry config
+SENTRY_DSN = os.environ.get("SENTRY_DSN")
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        environment=os.environ.get("SENTRY_ENVIRONMENT", "development"),
+        send_default_pii=True,
+        # 0.01 is 1% of transactions sent to Sentry. can replace with `traces_sampler` later for more control
+        traces_sample_rate=0.01,
+    )

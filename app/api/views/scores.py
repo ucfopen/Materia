@@ -10,6 +10,7 @@ from core.message_exception import MsgExpired, MsgNoPerm
 from core.models import LogPlay, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
+from django.utils import timezone
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -56,7 +57,9 @@ class ScoresView(APIView):
             the current user is an author or staff where request is launched from LTI
             """
             is_author_or_staff = False
-            if LTILaunchService.is_lti_launch(request):
+            if LTILaunchService.is_lti_launch(
+                request
+            ) and LTILaunchService.is_last_launch_still_valid(request):
                 launch = request.lti_launch.get_launch_data()
                 is_author_or_staff = LTIAuthService.is_user_course_author(
                     launch
@@ -78,11 +81,6 @@ class ScoresView(APIView):
 
             scores = []
             for play in plays.order_by("-created_at"):
-                module = ScoreModuleFactory.create_score_module(
-                    instance=instance, play=play
-                )
-
-                details = module.get_score_report()
 
                 current_context = (
                     play.context_id == context and play.semester == semester
@@ -92,8 +90,9 @@ class ScoresView(APIView):
                     {
                         "id": play.id,
                         "created_at": play.created_at.isoformat(),
-                        "percent": details.get("overview", {}).get("score", 0),
+                        "percent": play.percent,
                         "current_context": current_context,
+                        "lti": play.auth == "lti",
                     }
                 )
 
@@ -183,7 +182,9 @@ class ScoresDetailView(APIView):
                 play_user_id = None if play.user is None else play.user.id
 
                 is_author_or_staff = False
-                if LTILaunchService.is_lti_launch(request):
+                if LTILaunchService.is_lti_launch(
+                    request
+                ) and LTILaunchService.is_last_launch_still_valid(request):
                     launch = request.lti_launch.get_launch_data()
                     is_author_or_staff = LTIAuthService.is_user_course_author(
                         launch
@@ -209,5 +210,26 @@ class ScoresDetailView(APIView):
                     if qset_data
                     else {"version": None, "data": None}
                 )
+
+                response["lti"] = None
+                if play.auth == "lti":
+                    play_state = (
+                        play.lti_play_state if hasattr(play, "lti_play_state") else None
+                    )
+
+                    if play_state is None:
+                        response["lti"] = {
+                            "is_legacy": True,
+                        }
+                    else:
+                        response["lti"] = {
+                            "is_legacy": False,
+                            "status": play_state.submission_status,
+                            "submit_attempts": play_state.submission_attempts,
+                            "submission_available": (
+                                timezone.now() - play.created_at
+                            ).total_seconds()
+                            <= 86400,
+                        }
 
                 return Response(response)

@@ -9,6 +9,7 @@ const Header = ({
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [optionsOpen, setOptionsOpen] = useState(false)
 
+	const [user, setUser] = useState(null)
 	const [verified, setVerified] = useState(false)
 	const [permLevel, setPermLevel] = useState('anonymous')
 
@@ -18,15 +19,18 @@ const Header = ({
 		staleTime: Infinity,
 		retry: false
 	})
-	const { data: user, isLoading: userLoading} = useQuery({
+	const { data: userData, isLoading: userLoading} = useQuery({
 		queryKey: ['user', 'me'],
-		queryFn: ({ queryKey }) => {
-			const [_key, user] = queryKey
-			return apiGetUser(user)
-		},
+		queryFn: () => apiGetUser('me'),
 		staleTime: Infinity,
 		enabled: !!verified
 	})
+
+	useEffect(() => {
+		if (userData != undefined) {
+			setUser(userData)
+		}
+	},[userData])
 
 	useEffect(() => {
 		if (userPerms != undefined) {
@@ -95,15 +99,13 @@ const Header = ({
 	*/
 	let logoutNavRender = null
 	let profileMenuRender = null
-	let notificationRender = null;
-
+	let notificationRender = null
 	let userRender = null
 	if (!userLoading) {
-		let userAvatarRender = null;
-		let loginRender = null;
+		let userAvatarRender = null
+		let loginRender = null
 
-		// this used to be !!user - not sure if the distinction was important
-		if (user) {
+		if (userPerms?.isAuthenticated && !!user) {
 
 			notificationRender = <Notifications user={user}/>
 
@@ -165,7 +167,7 @@ const Header = ({
 	}
 
 	return (
-		<header className={user ? 'logged-in' : 'logged-out'} >
+		<header className={userData ? 'logged-in' : 'logged-out'} >
 			<h1 className='logo'><a href='/'>Materia</a></h1>
 			{ userRender }
 			<div className="mobile-notifications">
@@ -181,14 +183,14 @@ const Header = ({
 			<nav>
 				<ul>
 					<li>
-						<a href='/widgets' >Widget Catalog</a>
+						<a href='/widgets/' >Widget Catalog</a>
 					</li>
 					<li>
-						<a href='/my-widgets'>My Widgets</a>
+						<a href='/my-widgets/'>My Widgets</a>
 					</li>
 					{ profileNavRender }
 					<li>
-						<a href='/help'>Help</a>
+						<a href='/help/'>Help</a>
 					</li>
 
 					{ elevatedPermsNavRender }
