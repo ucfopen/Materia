@@ -576,8 +576,33 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         is_student = PermService.user_is_student(request.user)
 
+        queryset = LogPlay.objects.none()
+        semesters = semester_ids.split(",")
+
+        # preconstruct the queryset to pass to the export service
+        if export_type != "storage":
+            for semester in semesters:
+                [year, term] = semester.split("-")
+                semester_set = instance.get_play_logs_for_user(
+                    user=request.user, semester=term, year=year
+                )
+                queryset = queryset.union(semester_set)
+
+        if is_student:
+            # anonymize the data by setting user to None on each instance
+            logs = list(queryset)
+            for log in logs:
+                log.user = None
+                log.user_id = None
+            queryset = logs
+
         result, file_ext = PlayDataExporterService.export(
-            instance, export_type, semester_ids, is_student, table, anonymous
+            instance=instance,
+            export_type=export_type,
+            semesters=semesters,
+            logs=queryset,
+            table=table,
+            anonymous=anonymous,
         )
 
         # technically supposed to use DRF's Response here, but it adds additional processing that makes switching

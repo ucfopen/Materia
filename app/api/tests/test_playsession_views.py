@@ -1,16 +1,14 @@
-from django.contrib.auth.models import Group, User
-from django.test import TestCase
-from django.utils import timezone
+from api.tests.base import MateriaTestCase
+from core.models import DateRange, LogPlay, Widget, WidgetInstance, WidgetQset
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import DateRange, LogPlay, Widget, WidgetInstance, WidgetQset
 
-
-class PlaySessionViewSetTestCase(TestCase):
+class PlaySessionViewSetTestCase(MateriaTestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.author_group, _ = Group.objects.get_or_create(name="basic_author")
+        super().setUpTestData()
 
         cls.regular_user = User.objects.create_user(
             username="regular",
@@ -31,12 +29,7 @@ class PlaySessionViewSetTestCase(TestCase):
             password="testpass123",
         )
 
-        cls.semester = DateRange.objects.create(
-            semester="Fall",
-            year=2024,
-            start_at=timezone.now(),
-            end_at=timezone.now() + timezone.timedelta(days=120),
-        )
+        cls.semester = DateRange.objects.filter(semester="fall", year=2024).first()
 
         cls.widget = Widget.objects.create(
             name="Test Widget",
@@ -61,6 +54,8 @@ class PlaySessionViewSetTestCase(TestCase):
             is_draft=False,
             guest_access=False,
         )
+
+        cls.regular_instance.permissions.create(user=cls.author_user, permission="full")
 
         cls.guest_instance = WidgetInstance.objects.create(
             id="guest123",
@@ -181,7 +176,7 @@ class TestPlaySessionList(PlaySessionViewSetTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_list_by_instance_returns_plays(self):
+    def test_authenticated_user_can_list_own_instance_plays(self):
         self.client.force_authenticate(user=self.author_user)
         response = self.client.get(
             "/api/play-sessions/", {"inst_id": self.regular_instance.id}
@@ -190,6 +185,15 @@ class TestPlaySessionList(PlaySessionViewSetTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         play_ids = [play["id"] for play in response.data["results"]]
         self.assertIn(self.user_play.id, play_ids)
+
+    def test_list_by_instance_other_owner_returns_no_plays(self):
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(
+            "/api/play-sessions/", {"inst_id": self.regular_instance.id}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 0)
 
     def test_list_without_filter_returns_empty(self):
         self.client.force_authenticate(user=self.regular_user)
