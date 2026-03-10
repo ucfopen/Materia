@@ -155,6 +155,29 @@
 			}
 		}
 
+		.empty-distribution, .empty-logs {
+			min-height: 300px;
+			background: none;
+			border: solid 1px #dbdbdb;
+
+			header {
+				height: auto;
+				margin: 0;
+				padding: 1.5em 1.5em 0em 2.5em;
+				font-weight: 700;
+				font-size: 1.1em;
+
+				background: none;
+			}
+
+			p {
+				margin: 1em 2.5em;
+				padding: 1em 0 0 0;
+				font-weight: 400;
+				border-top: solid 1px #dbdbdb;
+			}
+		}
+
 		.storage {
 			font-weight: bold;
 			padding: 0 0 2px 0;
@@ -692,6 +715,14 @@
 			}
 		}
 
+		.empty-distribution {
+			border: solid 1px $color-input-box-border-dark;
+
+			p {
+				border-color: $light-gray;
+			}
+		}
+
 		.storage {
 			border-bottom: 1px #1778af solid;
 			color: #1778af;
@@ -909,7 +940,7 @@
 		}
 		tbody {
 			tr:nth-child(odd) {
-				background-color: #eee;
+				background-color: #000;
 			}
 			tr {
 				background-color: white;

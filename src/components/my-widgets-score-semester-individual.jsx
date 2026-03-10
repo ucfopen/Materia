@@ -53,7 +53,6 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, contexts, setInvali
 					setState({ ...state, logs: newLogs, filteredLogs: newLogs })
 				} else if (result.length == 0) {
 					setState({ ...state, logs: [], isLoading: false })
-					setError("Unfortunately, we don't have any play information to show you.")
 				}
 			},
 			onError: (err) => {
@@ -104,7 +103,17 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, contexts, setInvali
 	if (error) {
 		mainContentRender = <div className='error'>{error}</div>
 	}
-	else if (!state.isLoading) {
+	else if (!state.isLoading && state.filteredLogs.length == 0) {
+		mainContentRender =
+		(
+			<div className='empty-distribution'>
+				<header>No Results Available</header>
+				<p>
+					No play records to display. This is likely because you do not have permission to view them.
+				</p>
+			</div>
+		)
+	} else if (!state.isLoading ) {
 		const studentSearch = (
 			<>
 				<div className='search-icon'>
