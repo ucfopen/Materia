@@ -278,7 +278,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 			const _width = (parseInt(widget.width) + 10) + 'px'
 
 			createPlaySession.mutate({
-				widgetId: widget.meta_data.demo,
+				instId: widget.meta_data.demo,
 				successFunc: (data) => setDemoData({
 					demoLoading: true,
 					showDemoCover: false,
