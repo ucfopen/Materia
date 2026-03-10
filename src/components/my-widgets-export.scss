@@ -113,6 +113,19 @@
 						margin-right: 10px;
 					}
 				}
+
+				.error {
+					display: block;
+					width: 80%;
+
+					margin: 0 auto;
+
+					color: $color-red;
+					font-weight: 700;
+					background: #ffdddd;
+					padding: 0.5em;
+					border-radius: 0.5em;
+				}
 			}
 		}
 
