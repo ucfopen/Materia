@@ -23,10 +23,10 @@
 		{% endif %}
 
 		<script>
-			(function() {
+			document.addEventListener("DOMContentLoaded", function() {
 				const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 				const theme = "{{ theme|default:'light' }}";
-	
+
 				function applyTheme(type) {
 					if (type === "dark") {
 						document.body.classList.add("darkMode");
@@ -40,16 +40,16 @@
 						}
 					}
 				}
-	
+
 				window.theme = theme;
 				applyTheme(theme);
-	
+
 				mediaQuery.addEventListener("change", () => {
 					if (window.theme === "os") {
 						applyTheme("os");
 					}
 				});
-			})();
+			});
 		</script>
 
 	</head>
