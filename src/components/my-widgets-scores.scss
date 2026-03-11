@@ -823,7 +823,7 @@
 						}
 
 						&.disable {
-							color: #555;
+							color: #bbb;
 							opacity: 0.5;
 						}
 					}
@@ -940,10 +940,12 @@
 		}
 		tbody {
 			tr:nth-child(odd) {
-				background-color: #000;
+				background-color: $color-header-dark;
+			}
+			tr:nth-child(even) {
+				background-color: $color-background-dark-gray;
 			}
 			tr {
-				background-color: white;
 				text-align: left;
 			}
 		}
