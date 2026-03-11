@@ -309,7 +309,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
     def performance(self, request, pk=None):
         instance = self.get_object()
 
-        logs = LogPlay.objects.filter(instance=instance, is_complete=True)
+        logs = LogPlay.objects.filter(instance=instance)
 
         # only prefetch storage logs if storage is enabled to reduce unnecessary DB pressure
         if instance.widget.is_storage_enabled:

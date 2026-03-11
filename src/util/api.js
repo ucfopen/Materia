@@ -414,8 +414,8 @@ export const apiGetScoreSummary = instId => {
 			'90-100',
 		]
 		scores.forEach(semester => {
-			semester.graphData = semester.distribution?.map((d, i) => ({ label: ranges[i], value: d }))
-			semester.totalScores = semester.distribution?.reduce((total, count) => total + count)
+			semester.graphData = semester.distribution?.length ? semester.distribution?.map((d, i) => ({ label: ranges[i], value: d })) : null
+			semester.totalScores = semester.distribution?.length ? semester.distribution?.reduce((total, count) => total + count) : 0
 		})
 
 		return scores

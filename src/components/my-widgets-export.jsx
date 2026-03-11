@@ -16,6 +16,7 @@ const initState = () => ({
 
 const MyWidgetsExport = ({onClose, inst, scores}) => {
 	const [state, setState] = useState(initState())
+	const [error, setError] = useState(null)
 	const [showOptions, setShowOptions] = useState(false)
 
 	// Initializes data
@@ -117,11 +118,15 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 				try {
 					messageJson = await response.json()
 				} catch {
+					setError('Unfortunately, the data could not be downloaded.')
 					throw new Error(response.statusText)
 				}
 				if (messageJson.msg && messageJson.title) {
+					if (response.status == 404) setError('Error downloading data: no logs available.')
+					else setError('Unfortunately, the data could not be downloaded.')
 					throw new Error(messageJson.title, {cause: messageJson.msg, halt: messageJson.halt ?? true, type: messageJson.type})
 				} else {
+					setError('Unfortunately, the data could not be downloaded.')
 					throw new Error(response.statusText)
 				}
 			}
@@ -209,6 +214,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 									Download {state.exportType}
 								</button>
 							</p>
+							{ error != null ? <span className='error'>{error}</span> : '' }
 							{ canvasDataDisclaimer }
 						</div>
 					</div>
