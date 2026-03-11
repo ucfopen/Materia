@@ -658,8 +658,11 @@ class ScoreSummarySerializer(serializers.Serializer):
 
                 if log.is_complete:
 
+                    # check to see if the distribution has been provisioned in cases where
+                    # the semester key is already present
                     if len(summary[semester_key]["distribution"]) == 0:
 
+                        # init the distribution list, equivalent to what's being done on L624
                         summary[semester_key]["distribution"] = [
                             0,
                             0,
