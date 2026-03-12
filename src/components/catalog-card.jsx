@@ -8,8 +8,8 @@ const isValidAccessVal = val => ['Full', 'Limited'].includes(val)
 const CatalogCard = ({
 	id,
 	clean_name = '',
-	in_catalog = '0',
-	featured = '0',
+	in_catalog = false,
+	featured = false,
 	name = '',
 	dir = '',
 	meta_data,
@@ -18,7 +18,7 @@ const CatalogCard = ({
 }) => {
 	// 'Featured' label
 	let featuredLabelRender = null
-	if (featured === '1') {
+	if (featured) {
 		featuredLabelRender = <div className='featured-label'>
 			<svg xmlns='http://www.w3.org/2000/svg'
 				width='18'
@@ -31,11 +31,11 @@ const CatalogCard = ({
 		</div>
 	}
 
-	const supportedDataRender = meta_data.supported_data.map(supported =>
+	const supportedDataRender = meta_data.supported_data?.map(supported =>
 		<li className={`${activeFilters.includes(supported) ? 'selected' : ''}`} key={supported}>{supported}</li>
 	)
 
-	const featuresRender = meta_data.features.map(filter =>
+	const featuresRender = meta_data.features?.map(filter =>
 		<li className={`${activeFilters.includes(filter) ? 'selected' : ''}`} title={filter} key={filter}>{filter}</li>
 	)
 
@@ -55,11 +55,11 @@ const CatalogCard = ({
 		<div className={`widget ${isFiltered ? 'filtered' : ''}`}>
 			<a
 				className='infocard'
-				href={`/widgets/${id}-${clean_name}`}
+				href={`/widgets/${id}-${clean_name}/`}
 				target='_self'>
 				<div className='header'>
 					{ featuredLabelRender }
-					<h1 className={`infoHeader ${in_catalog === '1' ? 'featured' : ''}`} >{name}</h1>
+					<h1 className={`infoHeader ${featured ? 'featured' : ''}`} >{name}</h1>
 				</div>
 
 				<div className='img-holder'>

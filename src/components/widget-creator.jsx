@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon';
-import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify, apiIsGenerable, apiWidgetPromptGenerate} from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiUserVerify, apiIsGenerable, apiWidgetPromptGenerate} from '../util/api'
 import NoPermission from './no-permission'
 import Alert from './alert'
 import { creator } from './materia-constants';
@@ -19,6 +19,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		editable: true
 	})
 
+	const guideReplaceExpr = /(create\/[a-zA-Z0-9-]{5,}\/?)/
+
 	// state information about the creator
 	const [creatorState, setCreatorState] = useState({
 		mode: 'edit', // 'edit' is for new or draft widgets; 'update' is for existing widgets
@@ -28,7 +30,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		dialogType: 'embed_dialog',
 		heartbeatEnabled: true,
 		hasCreatorGuide: false,
-		creatorGuideUrl: window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/creators-guide',
+		creatorGuideUrl: window.location.pathname.replace(guideReplaceExpr, 'creators-guide/'),
 		showActionBar: true,
 		showRollbackConfirm: false,
 		showGenerationConfirm: false,
@@ -68,17 +70,17 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	/* =========== react queries =========== */
 
 	// load widget info (NOT instance info)
+	// load only when instId is not set (new widget)
 	// requires: widgetId prop (always set)
 	const { isLoading: widgetInfoIsLoading } = useQuery({
 		queryKey: ['widget', widgetId],
 		queryFn: () => apiGetWidget(widgetId),
-		enabled: !!widgetId,
+		enabled: !!widgetId && !instId,
 		staleTime: Infinity,
 		retry: false,
 		onSuccess: (info) => {
 			if (info) {
-				setInstance({ ...instance, widget: info })
-				setCreatorState({...creatorState, canGenerateQset: info.is_generable == "1"})
+				setInstance({ ...instance, widget: info[0] })
 			}
 		},
 		onError: (error) => {
@@ -119,8 +121,12 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	useEffect(() => {
 		if ( !qsetQuery.isLoading && qsetQuery.data != null ) {
 			if (qsetQuery.isSuccess && qsetQuery.data != undefined) {
-				setCreatorState({...creatorState, invalid: false})
-				setInstance({ ...instance, qset: qsetQuery.data })
+				setCreatorState((curCreatorState) => {
+					return {...curCreatorState, invalid: false}
+				})
+				setInstance((curInstData) => {
+					return { ...curInstData, qset: qsetQuery.data }
+				})
 			} else {
 				onInitFail(qsetQuery.error)
 			}
@@ -148,7 +154,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 	useQuery({
 		queryKey: 'heartbeat',
-		queryFn: () => apiAuthorVerify(),
+		queryFn: () => apiUserVerify(),
 		staleTime: 30000,
 		refetchInterval: 30000,
 		enabled: creatorState.heartbeatEnabled,
@@ -210,42 +216,39 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		if (creatorState.lastSave) updateElapsed()
 	},[creatorState.lastSave])
 
-	// the listener is applied (and reapplied) when the widget is ready
 	useEffect(() => {
-		// setup the postmessage listener
-		window.addEventListener('message', onPostMessage, false)
-
-		// cleanup this listener
-		return () => {
-			window.removeEventListener('message', onPostMessage, false)
-		}
-	},[widgetReady])
-
-	useEffect(() => {
-
 		if (instance.id) {
 			instIdRef.current = instance.id
-			setCreatorState({
-				...creatorState,
-				publishText: !instance.is_draft ? 'Update' : 'Publish...',
-				mode: !instance.is_draft ? 'update' : 'edit',
-				returnUrl: getMyWidgetsUrl(instance.id),
-				returnLocation: 'My Widgets'
+			setCreatorState((curCreatorState) => {
+				return {
+					...curCreatorState,
+					publishText: !instance.is_draft ? 'Update' : 'Publish...',
+					mode: !instance.is_draft ? 'update' : 'edit',
+					returnUrl: getMyWidgetsUrl(instance.id),
+					returnLocation: 'My Widgets'
+				}
 			})
 		} else {
-			setCreatorState({...creatorState, returnUrl: `${window.BASE_URL}widgets`, returnLocation: 'Widget Catalog'})
+			setCreatorState((curCreatorState) => {
+				return {...curCreatorState, returnUrl: `${window.BASE_URL}widgets`, returnLocation: 'Widget Catalog'}
+			})
 		}
 
 	}, [instance])
 
 	useEffect(() => {
 		if (instance.widget) {
-			let creatorPath = instance.widget.creator.substring(0, 4) === 'http' ? instance.widget.creator : window.WIDGET_URL + instance.widget.dir + instance.widget.creator
+			let creatorPath = instance.widget.creator.substring(0, 4) === 'http' ?
+				instance.widget.creator :
+				window.WIDGET_URL.replace(/\/$/, '') + '/' + instance.widget.dir + instance.widget.creator
 
-			setCreatorState({
-				...creatorState,
-				creatorPath: creatorPath + '?' + instance.widget.created_at,
-				hasCreatorGuide: instance.widget.creator_guide != ''
+			setCreatorState((curCreatorState) => {
+				return {
+					...curCreatorState,
+					creatorPath: creatorPath + '?' + instance.widget.created_at,
+					hasCreatorGuide: instance.widget.creator_guide != '',
+					canGenerateQset: !!instance.widget.is_generable
+				}
 			})
 		}
 	}, [instance.widget])
@@ -345,8 +348,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	const onPostMessage = (e) => {
 		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
-			if (typeof e.data !== 'string' || !e.data) return
-			const msg = JSON.parse(e.data)
+			if (!e.data) return
+			let msg = null
+			if (typeof e.data === 'string') {
+				msg = JSON.parse(e.data)
+			} else {
+				msg = e.data
+			}
 			switch (
 				msg.source // currently 'creator-core' || 'media-importer' - can be extended to other sources
 			) {
@@ -357,8 +365,19 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						// if a file is pre-selected (by direct upload pipeline), go ahead and send it over
 						// this behavior only occurs for direct media uploads, bypassing user input
 						case 'readyForDirectUpload':
-							if (creatorState.directUploadMediaFile) return e.source.postMessage(creatorState.directUploadMediaFile, e.origin)
-							else return false
+							if (creatorState.directUploadMediaFile) {
+								setCreatorState({...creatorState, directUploadMediaFile: null})
+								return e.source.postMessage(
+									creatorState.directUploadMediaFile,
+									{
+										targetOrigin: e.origin,
+										transfer: [creatorState.directUploadMediaFile.buffer]
+									}
+								)
+							}
+							else {
+								return false
+							}
 						default:
 							return false
 					}
@@ -391,6 +410,17 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 		console.warn(`Unknown message from creator: ${origin}`)
 	}
+
+	// the listener is applied (and reapplied) when the widget is ready
+	useEffect(() => {
+		// setup the postmessage listener
+		window.addEventListener('message', onPostMessage, false)
+
+		// cleanup this listener
+		return () => {
+			window.removeEventListener('message', onPostMessage, false)
+		}
+	}, [widgetReady, onPostMessage])
 
 	const onCreatorReady = () => {
 		setWidgetReady(true)
@@ -434,11 +464,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			return false;
 		}
 		let newWidget = {
-			widget_id: widgetId,
+			widgetId: widgetId,
 			name: instanceName,
 			qset: { version, data: qset },
-			is_draft: saveModeRef.current !== 'publish',
-			inst_id: instIdRef.current,
+			isDraft: saveModeRef.current !== 'publish',
+			instId: instIdRef.current,
 		}
 
 		// requested the current qset from the creator to cache for qset history rollback
@@ -476,13 +506,20 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					case 'save':
 						setSaveWidgetComplete(saveModeRef.current)
 						if (!instIdRef.current) instIdRef.current = inst.id
+
+						const parts = window.location.pathname.split('/');
+						parts[parts.length - 1] = inst.id;
+						window.history.replaceState(null, '', parts.join('/'));
+
 						setInstance(currentInstance => ({ ...currentInstance, ...inst }))
-						sendToCreator('onSaveComplete', [
-							inst.name,
-							inst.widget,
-							inst.qset.data,
-							inst.qset.version
-						])
+						apiGetQuestionSet(inst.id).then((qset) => {
+							sendToCreator('onSaveComplete', [
+								inst.name,
+								inst.widget,
+								qset.data,
+								qset.version
+							])
+						}).catch(err => onInitFail(err))
 						break
 				}
 			}
@@ -568,7 +605,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const showQsetHistoryImporter = () => {
-		showEmbedDialog(`${window.BASE_URL}qsets/import/?inst_id=${instance.id}`, 'embed_dialog')
+		showEmbedDialog(`${window.BASE_URL}qsets/history/?inst_id=${instance.id}`, 'embed_dialog')
 	}
 
 	const showQuestionGenerator = () => {
@@ -606,15 +643,15 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const showMediaImporter = (types) => {
-		showEmbedDialog(`${window.BASE_URL}media/import#${types.join(',')}`)
+		showEmbedDialog(`${window.BASE_URL}media/import/#${types.join(',')}`)
 	}
 
 	const directUploadMedia = (media) => {
 		// showMediaImporter(['jpg', 'gif', 'png', 'mp3'])
 		setCreatorState({
 			...creatorState,
-			dialogPath: `${window.BASE_URL}media/import#${['jpg', 'gif', 'png', 'mp3'].join(',')}`,
-			directUploadMedia: media
+			dialogPath: `${window.BASE_URL}media/import/#${['jpg', 'gif', 'png', 'mp3'].join(',')}`,
+			directUploadMediaFile: media
 		})
 	}
 
@@ -806,8 +843,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 
 	let actionBarRender = null
-	if (creatorState.showActionBar) {
-
+	if (creatorState.showActionBar && (!instanceIsLoading && !widgetInfoIsLoading)) {
 		let returnLocationUrl = creatorState.returnLocation == 'Widget Catalog' ? '/widgets' : '/my-widgets#' + instance.id
 
 		actionBarRender = (
@@ -815,7 +851,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				<a id="returnLink" href={returnLocationUrl}>&larr;Return to {creatorState.returnLocation}</a>
 				{ creatorState.hasCreatorGuide ? <a id="creatorGuideLink" href={creatorState.creatorGuideUrl} target="_blank">Creator's Guide</a> : '' }
 				{ instance.id ? <a id="saveHistoryLink" onClick={showQsetHistoryImporter}>Save History</a> : '' }
-				<a id="importLink" onClick={showQuestionImporter}>Import</a>
 				{ creatorState.canGenerateQset ? <a id="generateLink" onClick={showQuestionGenerator}>Generate</a> : <></> }
 				{ editButtonsRender }
 				<div className="dot"></div>

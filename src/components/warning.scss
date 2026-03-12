@@ -1,0 +1,33 @@
+.warning-container {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  background-color: var(--warning-bkg-color);
+  opacity: 0.9;
+  margin: 0 20px;
+  padding: 10px 15px;
+  border: 1px solid var(--warning-border-color);
+  border-left-width: 5px;
+  border-radius: 3px;
+  gap: 15px;
+
+  font-weight: 400;
+
+  & .warning-icon {
+    width: 22px;
+    opacity: 0.6;
+  }
+
+  --warning-bkg-color: #ffeca8;
+  --warning-border-color: #c5c59b;
+}
+
+.darkMode .warning-container {
+  --warning-bkg-color: #353226;
+  --warning-border-color: #8d8d55;
+
+  & .warning-icon {
+    filter: invert(1);
+    opacity: 0.8;
+  }
+}

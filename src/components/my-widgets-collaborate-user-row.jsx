@@ -12,7 +12,8 @@ const accessLevels = {
 const initRowState = () => {
 	return({
 		remove: false,
-		showDemoteDialog: false
+		showDemoteDialog: false,
+		provisionalAccessRemoved: false
 	})
 }
 
@@ -40,8 +41,13 @@ const CalendarContainer = ({children}) => {
 	)
 }
 
-const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, readOnly}) => {
-	const [state, setState] = useState({...initRowState(), ...perms, expireDate: timestampToDisplayDate(perms.expireTime)})
+const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPermHolder, removedCurrentUser, onChange, readOnly}) => {
+	const [state, setState] = useState({
+		...initRowState(),
+		...perms,
+		// passing null sets date to 12/31/1969, passing nothing uses current date
+		expireDate: perms.expireTime ? new Date(perms.expireTime) : new Date()
+	})
 	const ref = useRef()
 
 	// updates parent everytime local state changes
@@ -50,8 +56,8 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 			accessLevel: state.accessLevel,
 			expireTime: state.expireTime,
 			editable: state.editable,
-			shareable: state.shareable,
 			can: state.can,
+			contexts: state.contexts,
 			remove: state.remove
 		})
 	}, [state])
@@ -69,17 +75,18 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 
 	const toggleShowExpire = () => {
 		if (!isCurrentUser)
-			setState({...state, showExpire: !state.showExpire})
+			setState({...state, showExpire: !state.showExpire, expireTime: state.expireDate})
 	}
 
-	const clearExpire = () => setState({...state, showExpire: false, expireDate: timestampToDisplayDate(), expireTime: null})
+	const clearExpire = () => setState({...state, showExpire: false, expireDate: new Date(), expireTime: null})
 
 	const changeLevel = e => setState({...state, accessLevel: e.target.value})
 
 	const onExpireChange = date => {
-		const timestamp = date.getTime()/1000
-		setState({...state, expireDate: date, expireTime: timestamp})
+		setState({...state, expireDate: date, expireTime: date})
 	}
+
+	const removeContexts = () => setState({...state, contexts: null, provisionalAccessRemoved: true})
 
 	let selfDemoteWarningRender = null
 	if (state.showDemoteDialog) {
@@ -119,7 +126,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 	} else {
 		if (state.expireTime !== null) {
 			expirationSettingRender = (
-				<button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'}
+				<button className={(readOnly || isCurrentUser || perms.contexts != null) ? 'expire-open-button-disabled' : 'expire-open-button'}
 					data-testid={`${user.id}-expire`}
 					onClick={toggleShowExpire}
 					disabled={readOnly}>
@@ -128,37 +135,59 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 			)
 		} else {
 			expirationSettingRender = (
-				<button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'}
+				<button className={(readOnly || isCurrentUser || removedCurrentUser || perms.contexts != null) ? 'expire-open-button-disabled' : 'expire-open-button'}
 					data-testid={`${user.id}-never-expire`}
 					onClick={toggleShowExpire}
-					disabled={readOnly || isCurrentUser}>
+					disabled={readOnly || isCurrentUser || removedCurrentUser || perms.contexts != null}>
 					Never
 				</button>
 			)
 		}
 	}
 
+	let provisionalAccess = null
+	if ((state.contexts != null || state.provisionalAccessRemoved == true) && !readOnly ) {
+		provisionalAccess = (
+			<div className='provisional-access-container'>
+				{ state.provisionalAccessRemoved == false ? (
+					<>
+						<span>
+							This user has provisional access due to the widget being embedded in their course. They can only see scores associated
+							with that course. Selecting Unrestrict Access will allow them to view all scores the widget has collected.
+						</span>
+						<button className='action_button' onClick={removeContexts}>
+							Unrestrict Access
+						</button>
+					</>
+				) : (
+					<span>Provisional access removed, you can change permissions further and select Save when ready.</span>
+				)}
+			</div>
+		)
+	}
+
 	return (
-		<div className={`user-perm ${state.remove ? 'deleted' : ''}`}>
+		<div className={`user-perm ${state.remove ? 'deleted' : ''} ${ (state.contexts != null || state.provisionalAccessRemoved == true) ? 'provisional' : ''}`}>
 			<button tabIndex='0'
 				onClick={checkForWarning}
 				className='remove'
-				disabled={readOnly && !isCurrentUser}
-				aria-hidden={readOnly && !isCurrentUser}
+				disabled={onlyOneFullPermHolder && (perms.accessLevel === access.FULL)}
+				aria-hidden={onlyOneFullPermHolder && (perms.accessLevel === access.FULL)}
+				aria-label="Remove user access"
 				data-testid={`${user.id}-delete-user`}>
-				X
+				&#10799;
 			</button>
 
 			<div className='about'>
 				<img className='avatar' src={user.avatar} />
 
 				<span className={`name ${user.is_owner ? 'user-match-owner' : user.is_student ? 'user-match-student' : ''}`}>
-					{`${user.first} ${user.last}`}
+					{`${user.first_name} ${user.last_name}`}
 				</span>
 			</div>
 			{ selfDemoteWarningRender }
 			<div className='options'>
-				<select disabled={readOnly}
+				<select disabled={readOnly || isCurrentUser || removedCurrentUser || state.contexts != null}
 					data-testid={`${user.id}-select`}
 					tabIndex='0'
 					className='perm'
@@ -171,6 +200,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 					{ expirationSettingRender }
 				</div>
 			</div>
+			{ provisionalAccess }
 		</div>
 	)
 }

@@ -37,7 +37,7 @@ const ExtraAttemptsRow = ({extraAttempt, user, onChange}) => {
 					<img className="avatar" src={user.avatar} />
 
 					<span className='user_name'>
-						{`${user.first} ${user.last}`}
+						{`${user.first_name} ${user.last_name}`}
 					</span>
 				</div>
 			</div>
@@ -46,7 +46,6 @@ const ExtraAttemptsRow = ({extraAttempt, user, onChange}) => {
 				<input type="text"
 					value={state.context_id}
 					onChange={onContextChange}
-					required
 					placeholder="e.g. 'nGjdE'"/>
 			</div>
 

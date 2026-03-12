@@ -106,10 +106,10 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			tempPerms.set(
 				match.id,
 				{
-					accessLevel: 1,
+					accessLevel: access.VISIBLE,
 					expireTime: null,
 					editable: false,
-					shareable: false,
+					contexts: null,
 					can: {
 						view: true,
 						copy: false,
@@ -152,9 +152,10 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			// Only send a request to update current user perms so that it doesn't get no-perm'd by the server
 			let currentUserPerms = state.updatedAllUserPerms.get(currentUser.id);
 			permsObj.push({
-				user_id: currentUser.id,
+				user: currentUser.id,
 				expiration: currentUserPerms.expireTime,
-				perms: {[currentUserPerms.accessLevel]: !currentUserPerms.remove}
+				perm_level: currentUserPerms.remove ? null : currentUserPerms.accessLevel,
+				has_contexts: currentUserPerms.contexts != null
 			})
 		}
 		else
@@ -162,9 +163,10 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			// else send a request to update all perms
 			permsObj = Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
 				return {
-					user_id: userId,
+					user: userId,
 					expiration: userPerms.expireTime,
-					perms: {[userPerms.accessLevel]: !userPerms.remove}
+					perm_level: userPerms.remove ? null : userPerms.accessLevel,
+					has_contexts: userPerms.contexts != null
 				}
 			})
 		}
@@ -175,7 +177,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			successFunc: (data) => {
 				if (mounted.current) {
 					if (delCurrUser) {
-						queryClient.invalidateQueries('widgets')
+						queryClient.invalidateQueries(['instances', currentUser])
 					}
 					queryClient.invalidateQueries('search-widgets')
 					queryClient.invalidateQueries(['user-perms', inst.id])
@@ -223,7 +225,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	// Can't search unless you have full access.
 	let searchContainerRender = null
-	if (myPerms?.shareable || myPerms?.isSupportUser) {
+	if (myPerms?.can?.share || myPerms?.isSupportUser) {
 		let searchResultsRender = null
 		if (debouncedSearchTerm !== '' && state.searchText !== '' && userList.users?.length && userList.users?.length !== 0) {
 			const searchResultElements = userList.users?.map(match =>
@@ -232,7 +234,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					onClick={() => onClickMatch(match)}>
 					<img className='collab-match-avatar' src={match.avatar} alt="user avatar" />
 					<p className={`collab-match-name ${match.is_student ? 'collab-match-student' : ''}`}>
-						{match.first} {match.last}
+						{match.first_name} {match.last_name}
 					</p>
 				</div>
 			)
@@ -261,6 +263,11 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		)
 	}
 
+	const fullPermHolders = Array.from(state.updatedAllUserPerms.values())
+		.filter(u => u.accessLevel === access.FULL && !u.remove)
+		.length;
+	const onlyOneFullPermHolder = fullPermHolders === 1
+	const removedCurrentUser = state.updatedAllUserPerms.get(currentUser.id)?.remove === true
 	let mainContentRender = <LoadingIcon />
 	if (!isFetching) {
 		mainContentRender = <NoContentIcon />
@@ -275,11 +282,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					return <div key={userId}></div>
 				}
 
-				if (user.id == inst.user_id) {
-					user.is_owner = true;
-				} else {
-					user.is_owner = false;
-				}
+				user.is_owner = user.id === inst.user_id;
 
 				return <CollaborateUserRow
 					key={user.id}
@@ -287,8 +290,10 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					perms={userPerms}
 					myPerms={myPerms}
 					isCurrentUser={currentUser.id === user.id}
+					onlyOneFullPermHolder={onlyOneFullPermHolder}
+					removedCurrentUser={removedCurrentUser}
 					onChange={(userId, perms) => updatePerms(userId, perms)}
-					readOnly={myPerms?.shareable === false}
+					readOnly={myPerms?.can?.share === false}
 				/>
 			})
 
@@ -338,7 +343,12 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					<div id='calendar-portal' />
 					<p className='disclaimer'>
 						Users with full access can edit or copy this widget and can
-						add or remove people in this list.
+						add or remove people in this list. 
+						{onlyOneFullPermHolder && myPerms.accessLevel == access.FULL && (
+							<em>
+								{'\u00A0'}Note: There must be at least one user with full access.
+							</em>
+						)}
 					</p>
 					<div className='btn-box'>
 						<a tabIndex='0'

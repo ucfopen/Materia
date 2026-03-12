@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
+import { getCSRFToken } from '../../util/api'
 import useInstanceList from '../hooks/useInstanceList'
-import LoadingIcon from '../loading-icon';
+import LoadingIcon from '../loading-icon'
 
 const SelectItem = () => {
-	const [strHeader, setStrHeader] = useState('Select a Widget:');
-	const [selectedInstance, setSelectedInstance] = useState(null);
+	const [strHeader, setStrHeader] = useState('Select a Widget:')
+	const [selectedInstance, setSelectedInstance] = useState(null)
 	const [searchText, setSearchText] = useState('')
 	const [easterMode, setEasterMode] = useState(false)
 	const [showRefreshArrow, setShowRefreshArrow] = useState(false)
@@ -12,10 +13,17 @@ const SelectItem = () => {
 	const fillRef = useRef(null)
 	const [progressComplete, setProgressComplete] = useState(false)
 	const [error, setError] = useState("")
+	const [launchID, setLaunchID] = useState('')
 
-	const instanceList = useInstanceList()
+	const instanceList = useInstanceList("me")
 
 	useEffect(() => {
+		const params = new URLSearchParams(window.location.search)
+		setLaunchID(params.get('lid') || '')
+	}, [])
+
+	useEffect(() => {
+		// @TODO window.SYSTEM is never defined
 		if (window.SYSTEM) {
 			setStrHeader(`Select a Widget for use in ${window.SYSTEM}:`)
 		}
@@ -25,7 +33,7 @@ const SelectItem = () => {
 		const result = new Set()
 		if(searchText == '') return result
 
-		const re = RegExp(searchText, 'i')
+		const re = RegExp(RegExp.escape(searchText), 'i')
 		if (instanceList.instances && instanceList.instances.length > 0)
 			instanceList.instances.forEach(i => {
 				if(!re.test(`${i.name} ${i.widget.name} ${i.id}`)){
@@ -78,12 +86,41 @@ const SelectItem = () => {
 			}
 
 			if (!!window.RETURN_URL) {
-				// add a ? or & depending on window.RETURN_URL already containing query params
-				const separator = window.RETURN_URL.includes('?') ? '&' : '?'
-				// encode the url
-				const url = encodeURI(selectedInstance.embed_url)
-				// redirect the client to the return url with our new variables
-				window.location = `${window.RETURN_URL}${separator}embed_type=basic_lti&url=${url}`
+
+				const createFormItem = (name, value) => {
+					const input = document.createElement('input')
+					input.type = 'hidden'
+					input.name = name
+					input.value = value
+
+					return input
+				}
+
+				// Create a form element that will be submitted to RETURN_URL
+				const form = document.createElement('form')
+				form.method = 'POST'
+				form.action = window.RETURN_URL
+				
+				// append launch ID to form - we need it for submission to the platform
+				const inputLaunchID = createFormItem('lid', launchID)
+				form.appendChild(inputLaunchID)
+
+				// append embed url to form
+				const inputUrl = createFormItem('instance', selectedInstance.embed_url)
+				form.appendChild(inputUrl)
+
+				// append resource name to form
+				const inputName = createFormItem('name', `${selectedInstance.name} Materia Widget`)
+				form.appendChild(inputName)
+
+				// append CSRF token to form
+				const inputCsrf = createFormItem('csrfmiddlewaretoken', getCSRFToken())
+				form.appendChild(inputCsrf)
+
+				// Add the form to the document, submit it, then remove it
+				document.body.appendChild(form)
+				form.submit()
+				document.body.removeChild(form)
 			}
 		}
 		// Start progress bar
@@ -174,7 +211,7 @@ const SelectItem = () => {
 		noInstanceRender = <div id="no-widgets-container">
 			<div id="no-instances">
 				<p>You don't have any widgets yet. Click this button to create a widget, then return to this tab/window and select your new widget.</p>
-				<a role="button" id="create-widget-button" onClick={() => setShowRefreshArrow(true)} className="external action_button" target="_blank" href={window.BASE_URL + "/widgets"}>Create a widget at Materia</a>
+				<a role="button" id="create-widget-button" onClick={() => setShowRefreshArrow(true)} className="external action_button" target="_blank" href={window.BASE_URL + "widgets"}>Create a widget at Materia</a>
 			</div>
 		</div>
 	} else {

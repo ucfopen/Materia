@@ -1,0 +1,11 @@
+{
+  "supportEmail": "SUPPORT EMAIL HERE",
+  "supportPhoneNumber": "SUPPORT NUMBER HERE",
+  "supportWebsite": "SUPPORT SITE HERE",
+  "accessibilityEmail": "ACCESSIBILITY EMAIL HERE",
+  "accessibilityReportLink": "ACCESSIBILITY ISSUE REPORT URL HERE",
+  "loginUsernameText": "Materia Username",
+  "loginPasswordText": "Password",
+  "loginHelpText": "visit our help desk",
+  "loginHelpLink": "LOGIN HELP LINK HERE"
+}

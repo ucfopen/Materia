@@ -1,5 +1,6 @@
 import React, { useState, useEffect} from 'react'
 import { iconUrl } from '../util/icon-url'
+import { waitForWindow } from '../util/wait-for-window'
 
 const Summary = () => {
 
@@ -8,19 +9,12 @@ const Summary = () => {
 	const [avail, setAvail] = useState(null)
 
 	useEffect(() => {
-		waitForWindow().then(() => {
+		waitForWindow(['NAME', 'ICON_DIR']).then(() => {
 			setName(window.NAME)
 			setIcon(iconUrl(`${window.ICON_DIR}`,'',92))
 			setAvail(window.AVAIL)
 		})
 	})
-
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('NAME')
-		&& !window.hasOwnProperty('ICON_DIR')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
 
 	let bodyRender = null
 	if (!!name) {
@@ -30,7 +24,7 @@ const Summary = () => {
 					<img src={ icon } alt=""/>
 				</div>
 				<ul className="widget_about">
-					{ name && <li className="widget_name">{ name }</li>}
+					{ name && <li className="widget_name" dangerouslySetInnerHTML={{ __html: name }}></li>}
 					{ avail && <li className="widget_availability">{ avail }</li>}
 				</ul>
 			</section>

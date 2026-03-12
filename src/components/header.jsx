@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetUser, apiAuthorVerify, apiAuthorSuper, apiAuthorSupport } from '../util/api'
+import { apiGetUser, apiUserVerify } from '../util/api'
 import Notifications from './notifications'
 
 const Header = ({
@@ -9,30 +9,36 @@ const Header = ({
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [optionsOpen, setOptionsOpen] = useState(false)
 
-	const { data: verified} = useQuery({
+	const [user, setUser] = useState(null)
+	const [verified, setVerified] = useState(false)
+	const [permLevel, setPermLevel] = useState('anonymous')
+
+	const { data: userPerms } = useQuery({
 		queryKey: 'isLoggedIn',
-		queryFn: apiAuthorVerify,
+		queryFn: apiUserVerify,
 		staleTime: Infinity,
 		retry: false
 	})
-	const { data: user, isLoading: userLoading} = useQuery({
-		queryKey: 'user',
-		queryFn: apiGetUser,
+	const { data: userData, isLoading: userLoading} = useQuery({
+		queryKey: ['user', 'me'],
+		queryFn: () => apiGetUser('me'),
 		staleTime: Infinity,
 		enabled: !!verified
 	})
-	const { data: isAdmin} = useQuery({
-		queryKey: 'isAdmin',
-		enabled: !!user && user.loggedIn,
-		queryFn: apiAuthorSuper,
-		staleTime: Infinity
-	})
-	const { data: isSupport} = useQuery({
-		queryKey: 'isSupport',
-		enabled: !!user && user.loggedIn,
-		queryFn: apiAuthorSupport,
-		staleTime: Infinity
-	})
+
+	useEffect(() => {
+		if (userData != undefined) {
+			setUser(userData)
+		}
+	},[userData])
+
+	useEffect(() => {
+		if (userPerms != undefined) {
+
+			setVerified(!!userPerms.isAuthenticated)
+			setPermLevel(userPerms.permLevel ?? 'anonymous')
+		}
+	},[userPerms])
 
 	const toggleMobileNavMenu = () => setMenuOpen(!menuOpen)
 
@@ -45,13 +51,11 @@ const Header = ({
 		setOptionsOpen(!optionsOpen);
 	}
 
-	let userDataRender = <span id='current-user' data-logged-in='false'></span>
-
 	let profileNavRender = null
 
-	let adminNavRender = null
-	if (isAdmin) {
-		adminNavRender = (
+	let elevatedPermsNavRender = null
+	if (permLevel == 'super_user') {
+		elevatedPermsNavRender = (
 			<li className='nav_expandable'>
 				<span className='elevated admin'>Admin</span>
 				<ul>
@@ -64,14 +68,15 @@ const Header = ({
 					<li>
 						<a className='elevated' href='/admin/instance'>Instances</a>
 					</li>
+					<li>
+						<a className='elevated' href='/admin/' target="_blank">Django Admin</a>
+					</li>
 				</ul>
 			</li>
 		)
 	}
-
-	let supportNavRender = null
-	if (isSupport) {
-		supportNavRender = (
+	else if (permLevel == 'support_user') {
+		elevatedPermsNavRender = (
 			<li className='nav_expandable'>
 				<span className='elevated support'>Support</span>
 				<ul>
@@ -94,15 +99,13 @@ const Header = ({
 	*/
 	let logoutNavRender = null
 	let profileMenuRender = null
-	let notificationRender = null;
-
+	let notificationRender = null
 	let userRender = null
 	if (!userLoading) {
-		let userAvatarRender = null;
-		let loginRender = null;
+		let userAvatarRender = null
+		let loginRender = null
 
-		// this used to be !!user - not sure if the distinction was important
-		if (user) {
+		if (userPerms?.isAuthenticated && !!user) {
 
 			notificationRender = <Notifications user={user}/>
 
@@ -114,7 +117,7 @@ const Header = ({
 			userAvatarRender = (
 				<>
 					<div className="profile-bar-options">
-						<a href='/profile' aria-label='Visit your profile page.'>{`${user.first} ${user.last}`}</a>
+						<a href='/profile' aria-label='Visit your profile page.'>{`${user.first_name} ${user.last_name}`}</a>
 						<a onClick={logoutUser}>Logout</a>
 					</div>
 					<a href='/profile' aria-label='User avatar. Click to visit your profile page.'><img src={user.avatar} onClick={showUserOptions}/></a>
@@ -136,7 +139,7 @@ const Header = ({
 					<span className="arrow-top"></span>
 					<ul>
 						<li>
-							<span>{`${user.first} ${user.last}`}</span>
+							<span>{`${user.first_name} ${user.last_name}`}</span>
 						</li>
 						<li>
 							<a href='/profile'>Profile</a>
@@ -148,7 +151,7 @@ const Header = ({
 
 		} else {
 			if (allowLogins) {
-				loginRender = <a href='/users/login' id="loginLink">Login</a>
+				loginRender = <a href='/login' id="loginLink">Login</a>
 			}
 		}
 
@@ -164,7 +167,7 @@ const Header = ({
 	}
 
 	return (
-		<header className={user ? 'logged-in' : 'logged-out'} >
+		<header className={userData ? 'logged-in' : 'logged-out'} >
 			<h1 className='logo'><a href='/'>Materia</a></h1>
 			{ userRender }
 			<div className="mobile-notifications">
@@ -180,18 +183,17 @@ const Header = ({
 			<nav>
 				<ul>
 					<li>
-						<a href='/widgets' >Widget Catalog</a>
+						<a href='/widgets/' >Widget Catalog</a>
 					</li>
 					<li>
-						<a href='/my-widgets'>My Widgets</a>
+						<a href='/my-widgets/'>My Widgets</a>
 					</li>
 					{ profileNavRender }
 					<li>
-						<a href='/help'>Help</a>
+						<a href='/help/'>Help</a>
 					</li>
 
-					{ adminNavRender }
-					{ supportNavRender }
+					{ elevatedPermsNavRender }
 
 					{ logoutNavRender }
 				</ul>

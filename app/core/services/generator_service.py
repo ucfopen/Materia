@@ -1,0 +1,346 @@
+import json
+import logging
+from datetime import datetime
+
+from core.models import Widget, WidgetInstance
+from django.conf import settings
+from openai import NOT_GIVEN, OpenAI, OpenAIError
+from openai.types.chat import ChatCompletion
+from core.message_exception import (
+    MsgInvalidInput,
+    MsgNotFound,
+    MsgFailure,
+    MsgException,
+)
+
+logger = logging.getLogger(__name__)
+
+
+class GenerationUtil:
+    client = None
+
+    @staticmethod
+    def generate_qset(
+        widget: Widget,
+        topic: str,
+        num_questions: int,
+        build_off_existing: bool,
+        include_images: bool = False,
+        instance: WidgetInstance = None,
+    ) -> dict:
+        # Check if generation is enabled
+        if not GenerationUtil.is_enabled():
+            raise MsgFailure(msg="Generation is not enabled")
+
+        # Check if image generation is allowed. Overrides what parameter says.
+        if not settings.AI_GENERATION["ALLOW_IMAGES"]:
+            include_images = False
+
+        # Get demo for widget
+        widget_demo_id = widget.metadata.get("demo")
+        widget_demo = WidgetInstance.objects.filter(id=widget_demo_id).first()
+        if widget_demo is None:
+            raise MsgNotFound()
+
+        # Prepare a few variables
+        about = widget.metadata.get("about")
+        qset_version = 1
+
+        # Grab custom prompt from the widget engine if it's available
+        custom_engine_prompt = (
+            widget.metadata["custom_engine_prompt"]
+            if "custom_engine_prompt" in widget.metadata
+            else None
+        )
+
+        # Start logging time
+        start_time = datetime.now()
+        time_elapsed_seconds = 0
+
+        ###################
+        # Assemble prompt #
+        ###################
+
+        # build_off_existing is set. Append questions to an existing qset. The instance must have been previously saved.
+        if build_off_existing:
+            # Validate instance
+            qset = instance.get_latest_qset()
+            if instance is None:
+                raise MsgInvalidInput(
+                    msg="Requires a previously saved instance to build from"
+                )
+            if not qset.data:
+                raise MsgFailure(msg="No existing question set found")
+            if qset.version:
+                qset_version = qset.version
+
+            qset_encoded = json.dumps(qset.get_data())
+
+            prompt_text = (
+                f"{widget.name} is a 'widget', an interactive piece of educational web content described "
+                f"as:'{about}'. Using the exact same json format of the following question set, without "
+                f"changing any field keys or data types and without changing any of the existing questions, "
+                f"generate {num_questions} more questions and add them to the existing question set. The "
+                f"name of this particular instance of {widget.name} is {instance.name} and the new "
+                f"questions must be based on this topic: '{topic}'. Return only the JSON for the resulting "
+                f"question set."
+            )
+
+            # Generate image descriptions, if requested
+            if include_images:
+                prompt_text += (
+                    " In every asset or assets object in each new question, add a field titled "
+                    "'description' that best describes the image within the answer or question's context, "
+                    "unless otherwise specified later on in this prompt. Do not generate descriptions "
+                    "that would violate OpenAI's image generation safety system and do not use real "
+                    "names. IDs must be null."
+                )
+            else:
+                prompt_text += (
+                    " Leave the asset field empty or otherwise equivalent to asset fields in questions "
+                    "with no associated asset. IDs must be null."
+                )
+
+            # Insert custom engine prompt, if it exists
+            if custom_engine_prompt:
+                prompt_text += (
+                    f"Lastly, the following instructions apply to the {widget.name} widget specifically, "
+                    f"and supersede earlier instructions where applicable: {custom_engine_prompt}"
+                )
+
+            # Insert existing qset
+            prompt_text += f"\n{qset_encoded}"
+
+        # Building a brand new qset
+        else:
+            # Validate/process demo
+            qset = widget_demo.get_latest_qset()
+            if not qset:
+                raise MsgNotFound(
+                    msg="Unable to locate demo question set for widget engine"
+                )
+            if qset.version:
+                qset_version = qset.version
+
+            qset_encoded = json.dumps(qset.get_data())
+
+            prompt_text = (
+                f"{widget.name} is a 'widget', an interactive piece of educational web content described "
+                f"as: '{about}'. The following is a 'demo' question set for the widget titled "
+                f"'{widget_demo.name}'. Using the same json format as the demo question set, and without "
+                f"changing any field keys or data types, return only the JSON for a question set based on "
+                f"this topic: '{topic}'. Ignore the topic of the demo contents entirely. Replace the "
+                f"relevant field values with generated values. Generate a total {num_questions} of "
+                f"questions. IDs must be NULL."
+            )
+
+            # Generate image descriptions, if requested
+            if include_images:
+                prompt_text += (
+                    " In every asset or assets object in each new question, add a field titled "
+                    "'description' that best describes the image within the answer or question's context, "
+                    "unless otherwise specified later on in this prompt. Do not generate descriptions "
+                    "that would violate OpenAI's image generation safety system and do not use real "
+                    "names. IDs must be null."
+                )
+            else:
+                prompt_text += (
+                    "Asset fields associated with media (image, audio, or video) should be left blank. For "
+                    "text assets, or if the 'materiaType' of an asset is 'text', create a field titled "
+                    "'value' with the text inside the asset object."
+                )
+
+            # Insert custom engine prompt, if it exists
+            if custom_engine_prompt:
+                prompt_text += (
+                    f" Lastly, the following instructions apply to the {widget.name} widget specifically, "
+                    f"and supersede earlier instructions where applicable: {custom_engine_prompt}"
+                )
+
+            # Insert qset
+            prompt_text += f"\n{qset_encoded}"
+
+        # Send the prompt to the generative AI provider
+        try:
+            result = GenerationUtil._query(prompt_text, "json")
+            time_elapsed_seconds = datetime.now().timestamp() - start_time.timestamp()
+        except MsgException as e:
+            logger.error(
+                f"Error generating question set:\n"
+                f"- Widget: {widget.name}\n"
+                f"- Date: {datetime.now()}\n"
+                f"- Time to complete (seconds): {time_elapsed_seconds}\n"
+                f"- Number of questions asked to generate: {num_questions}",
+                exc_info=True,
+            )
+            raise e
+
+        # A qset was received - decode it
+        content = result.choices[0].message.content
+        qset = json.loads(content)
+        logger.info("Generated question set received: %s", qset)
+
+        # Log
+        if settings.AI_GENERATION["LOG_STATS"]:
+            logger.debug(
+                f"Successfully generated question set:\n"
+                f"- Widget: {widget.name}\n"
+                f"- Date: {datetime.now()}\n"
+                f"- Time to complete (seconds): {time_elapsed_seconds}\n"
+                f"- Number of questions asked to generate: {num_questions}\n"
+                f"- Included images: {include_images}\n"
+                f"- Prompt tokens: {result.usage.prompt_tokens}\n"
+                f"- Completion tokens: {result.usage.completion_tokens}\n"
+                f"- Total tokens: {result.usage.total_tokens}\n"
+            )
+
+        # Done!
+        return {
+            "qset": qset,
+            "version": qset_version,
+        }
+
+    @staticmethod
+    def generate_from_prompt(prompt: str) -> str:
+        # Check if generation is enabled
+        if not GenerationUtil.is_enabled():
+            raise MsgFailure(msg="Generation is not enabled")
+
+        # Do query
+        try:
+            result = GenerationUtil._query(prompt, "text")
+        except MsgException as e:
+            logger.error(
+                "GENERATION UTIL: Error while generation prompt:\n - Prompt: %s",
+                prompt,
+                exc_info=True,
+            )
+            raise e
+
+        return result.choices[0].message.content
+
+    @staticmethod
+    def is_enabled() -> bool:
+        return bool(settings.AI_GENERATION["ENABLED"])
+
+    @staticmethod
+    def _query(prompt: str, response_format: str = "json") -> ChatCompletion:
+        # Get client
+        client = GenerationUtil._get_client()
+        if client is None:
+            raise MsgFailure(msg="Failed to initialize generation client")
+
+        # Process response format
+        # TODO in the future, maybe look into supporting json_schema? it looks neat
+        match response_format:
+            case "json":
+                response_format = {"type": "json_object"}
+            case "text":
+                response_format = {"type": "text"}
+            case _:
+                response_format = NOT_GIVEN
+
+        try:
+            completion = client.chat.completions.create(
+                model=settings.AI_GENERATION["MODEL"],
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=16000,
+                frequency_penalty=0,
+                presence_penalty=0,
+                temperature=1,
+                top_p=1,
+                response_format=response_format,
+            )
+        except OpenAIError:
+            logger.error(
+                "GENERATION ERROR: Client threw an error while attempting completion.",
+                exc_info=True,
+            )
+            raise MsgFailure(msg="Client threw an error while attempting completion")
+        except Exception:
+            logger.error(
+                "GENERATION ERROR: Unknown error occurred while attempting completion.",
+                exc_info=True,
+            )
+            raise MsgFailure(msg="Unknown error occurred while attempting completion")
+
+        # Check for refusal
+        message = completion.choices[0].message
+        if message.refusal is not None:
+            logger.error(
+                "GENERATION ERROR: Provider actively refused to run completion. Reason given: '%s'",
+                message.refusal,
+            )
+            raise MsgFailure(msg="Provider actively refused to run completion")
+
+        return completion
+
+    @staticmethod
+    def _get_client():
+        # Initialize the client if not loaded
+        if GenerationUtil.client is None and GenerationUtil.is_enabled():
+            GenerationUtil.client = GenerationUtil._initialize_client()
+        return GenerationUtil.client
+
+    @staticmethod
+    def _initialize_client():
+        client = None
+
+        # Check if provider is provided (lol)
+        if not settings.AI_GENERATION["PROVIDER"]:
+            logger.error(
+                "GENERATION ERROR: Question generation provider config missing."
+            )
+            return None
+
+        # Set up based on type of provider
+        # AZURE OPENAI
+        if settings.AI_GENERATION["PROVIDER"] == "azure_openai":
+            api_key = settings.AI_GENERATION["API_KEY"]
+            endpoint = settings.AI_GENERATION["ENDPOINT"]
+            model = settings.AI_GENERATION["MODEL"]
+
+            if not api_key or not endpoint or not model:
+                logger.error(
+                    "GENERATION ERROR: Azure OpenAI question generation configs missing."
+                )
+                return None
+
+            try:
+                client = OpenAI(
+                    api_key=api_key,
+                    base_url=endpoint + "openai/v1",
+                )
+            except Exception:
+                logger.error(
+                    "GENERATION ERROR: Failed to initialize Azure OpenAI client",
+                    exc_info=True,
+                )
+
+        # OPENAI
+        elif settings.AI_GENERATION["PROVIDER"] == "openai":
+            api_key = settings.AI_GENERATION["API_KEY"]
+            model = settings.AI_GENERATION["MODEL"]
+
+            if not api_key or not model:
+                logger.error(
+                    "GENERATION ERROR: OpenAI Platform question generation configs missing."
+                )
+                return None
+
+            try:
+                client = OpenAI(api_key=api_key)
+            except Exception:
+                logger.error(
+                    "GENERATION ERROR: Failed to initialize OpenAI client",
+                    exc_info=True,
+                )
+
+        # NOT A SUPPORTED PROVIDER
+        else:
+            logger.error(
+                "GENERATION ERROR: Question generation provider config invalid."
+            )
+            return None
+
+        return client

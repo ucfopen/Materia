@@ -1,6 +1,7 @@
 import React, { useState, useEffect} from 'react'
 import Header from './header'
 import WidgetPlayer from './widget-player'
+import { waitForWindow } from '../util/wait-for-window'
 
 const EMBED = 'embed'
 const PLAY = 'play'
@@ -22,74 +23,78 @@ const getWidgetType = path => {
 }
 
 const WidgetPlayerPage = () => {
+
 	const type = getWidgetType(window.location.pathname)
 	const nameArr = window.location.pathname.replace(`/${type}/`, '').split('/')
 	const [state, setState] = useState({
 		playID: undefined,
 		widgetHeight: 0,
 		widgetWidth: 0,
-		widgetID: undefined
+		widgetID: undefined,
+		ltiToken: undefined
 	})
 
 	// Waits for window values to load from server then sets them
 	useEffect(() => {
 		if (type == EMBED || type == PREVIEW_EMBED || type == LEGACY_EMBED) document.body.classList.add('embedded')
 
-		waitForWindow()
+		waitForWindow(['WIDGET_HEIGHT', 'WIDGET_WIDTH', 'PLAY_ID', 'DEMO_ID'])
 		.then(() => {
 			switch(type) {
 				case PREVIEW_EMBED:
 				case PREVIEW:
-					setState({
-						playID: null,
+					setState(state => ({
+						...state,
 						widgetHeight: window.WIDGET_HEIGHT,
 						widgetWidth: window.WIDGET_WIDTH,
-						widgetID: nameArr.length >= 1 ? nameArr[0] : null
-					})
+						widgetID: nameArr.length >= 1 ? nameArr[0] : null,
+						playID: window.PLAY_ID,
+					}))
 					break
 				case LEGACY_EMBED:
 					const params = window.location.search
 					const instId = new URLSearchParams(params).get('widget')
-					setState({
-						playID: window.PLAY_ID,
+					setState(state => ({
+						...state,
 						widgetHeight: window.WIDGET_HEIGHT,
 						widgetWidth: window.WIDGET_WIDTH,
-						widgetID: instId
-					})
+						widgetID: instId,
+						playID: window.PLAY_ID,
+						ltiToken: window.LTI_TOKEN
+					}))
 					break
 				case DEMO:
-					setState({
-						playID: window.PLAY_ID,
+					setState(state => ({
+						...state,
 						widgetHeight: window.WIDGET_HEIGHT,
 						widgetWidth: window.WIDGET_WIDTH,
-						widgetID: window.DEMO_ID
-					})
+						widgetID: window.DEMO_ID,
+						playID: window.PLAY_ID,
+					}))
 					break
 				default:
-					setState({
-						playID: window.PLAY_ID,
+					setState(state => ({
+						...state,
 						widgetHeight: window.WIDGET_HEIGHT,
 						widgetWidth: window.WIDGET_WIDTH,
-						widgetID: nameArr.length >= 1 ? nameArr[0] : null
-					})
+						widgetID: nameArr.length >= 1 ? nameArr[0] : null,
+						playID: window.PLAY_ID,
+						ltiToken: window.LTI_TOKEN
+					}))
 					break
 			}
 		})
 	}, [])
 
-	// Used to wait for window data to load
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('PLAY_ID')
-		&& !window.hasOwnProperty('WIDGET_HEIGHT')
-		&& !window.hasOwnProperty('WIDGET_WIDTH')
-		&& !window.hasOwnProperty('DEMO_ID')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
+	useEffect(() => {
+		if ( !!state.ltiToken) {
+			history.pushState(null, '', `${window.location.pathname}?token=${state.ltiToken}`)
 		}
-	}
+	},[state.ltiToken])
 
 	let headerRender = <Header />
 	// No header for embedded widgets
-	if ( type == EMBED || type == PREVIEW_EMBED || type == LEGACY_EMBED ) headerRender = null
+	if ( type == EMBED || type == PREVIEW_EMBED || type == LEGACY_EMBED || !!window.LTI_TOKEN ) headerRender = null
 
 	let bodyRender = null
 

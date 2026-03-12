@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useReducer } from 'react'
+import React, {useState, useEffect, useRef, useReducer, useMemo} from 'react'
 import { useQuery } from 'react-query'
 import { v4 as uuidv4 } from 'uuid';
 import { apiGetWidgetInstance, apiGetQuestionSet, apiSessionVerify } from '../util/api'
@@ -85,7 +85,7 @@ const _translateForApiVersion = (instance, qset) => {
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/') || window.location.href.includes('/lti/assignment')
 
-const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=true}) => {
+const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=true}) => {
 
 	const [alert, setAlert] = useState({
 		msg: '',
@@ -110,6 +110,11 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	const savePlayLog = usePlayLogSave()
 	const saveStorage = usePlayStorageDataSave()
+
+	const previewPlayId = useMemo(() => {
+		if (!isPreview) return null
+		return crypto.randomUUID() // Generate a random preview play ID
+	}, [])
 
 	// refs are used instead of state when value updates do not require a component rerender
 	const centerRef = useRef(null)
@@ -238,7 +243,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 			_onLoadFail('Unable to get widget info.')
 		}
 		else if (inst && qset) {
-			const fullscreen = inst.widget.meta_data.features.find((f) => f.toLowerCase() === 'fullscreen')
+			const fullscreen = inst.widget.meta_data.features?.find((f) => f.toLowerCase() === 'fullscreen')
 			let enginePath
 
 			if (!isPreview && playId === null) {
@@ -252,7 +257,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				enginePath = inst.widget.player
 			} else {
 				// link to the static widget
-				enginePath = window.WIDGET_URL + inst.widget.dir + inst.widget.player
+				enginePath = window.WIDGET_URL.replace(/\/$/, '') + '/' + inst.widget.dir + inst.widget.player
 			}
 
 			// Starts up the demo with the htmlPath
@@ -280,7 +285,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		}
 	},[alert])
 
-
 	// hook associated with log queue management
 	useEffect(() => {
 
@@ -289,9 +293,12 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 			// PLAY logs
 			if (pendingLogs.play && pendingLogs.play.length > 0) {
-				const args = [playId, pendingLogs.play]
+				const args = { playId, logs: pendingLogs.play }
 				if (isPreview) {
-					args.push(inst.id)
+					// TODO clean these up?
+					args['previewInstanceId'] = (inst.id)
+					args['previewPlayId'] = previewPlayId
+					if (isPreview) args['playId'] = previewPlayId
 				}
 				_pushPendingLogs([{ request: args }])
 			}
@@ -415,7 +422,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		setQueueProcessing(true)
 
 		// create an array of the queue ids we can pass to the reducer to remove those logs from the pendingLogs state object
-		let qIds = logQueue[0].request[1]?.map((log) => {
+		let qIds = logQueue[0].request['logs']?.map((log) => {
 			return log.queueId
 		})
 
@@ -425,7 +432,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 				setRetryCount(0) // reset on success
 
-				if (result) {
+				if (result?.success) {
 					// this removes all the currently queued logs from the pendingLogs state object, by way of the reducer
 					// leverages React's built-in state management to prevent race conditions with log processing
 					// when a function is passed to useState, the results of the function are passed to each subsequent call of useState
@@ -522,12 +529,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	const _initScoreScreenUrl = () => {
 		let _scoreScreenURL = ''
 			if (isPreview) {
-				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}/${previewPlayId}`
 			} else if (isEmbedded) {
-				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}#play-${playId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}/${playId}`
 			} else {
-				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}#play-${playId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}/${playId}`
 			}
+			// do we have an LTI token? Make sure it's appended to the score screen URL so we can play again with the same launch
+			if ( !!window.LTI_TOKEN) _scoreScreenURL += `?token=${window.LTI_TOKEN}`
 		return _scoreScreenURL
 	}
 
@@ -551,7 +560,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	})
 
 	const _beforeUnload = e => {
-		if (inst.widget.is_scorable === '1' && !isPreview && playState !== 'end') {
+		if (inst.widget.is_scorable == true && !isPreview && playState !== 'end') {
 			const confirmationMsg = 'Wait! Leaving now will forfeit this attempt. To save your score you must complete the widget.'
 			e.returnValue = confirmationMsg
 			e.preventDefault()
@@ -599,7 +608,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	let footerRender = null
 	if (!isPreview && showFooter) {
-		const logoPath = darkModeRef.current ? "/img/materia-logo-thin-darkmode.svg" : "/img/materia-logo-thin.svg"
+		const logoPath = darkModeRef.current ? "/static/img/materia-logo-thin-darkmode.svg" : "/static/img/materia-logo-thin.svg"
 		footerRender = <section className='player-footer' style={{ width: attributes.width !== '0px' ? attributes.width : 'auto' }}>
 			<a className="materia-logo" href={window.BASE_URL} target="_blank"><img src={logoPath} alt="materia logo" /></a>
 			{ inst?.widget?.player_guide ? <a href={`${window.BASE_URL}widgets/${inst.widget.dir}players-guide`} target="_blank">Player Guide</a> : null }
@@ -633,3 +642,4 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 }
 
 export default WidgetPlayer
+

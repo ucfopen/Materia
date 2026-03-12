@@ -144,8 +144,7 @@
 						color: #0093e7;
 						text-align: center;
 						font-size: 2em;
-						font-weight: 900;
-						font-family: 'Kameron', Georgia, 'Times New Roman', Times, serif;
+						font-weight: 700;
 					}
 
 					h4 {
@@ -153,6 +152,29 @@
 						margin: 0;
 					}
 				}
+			}
+		}
+
+		.empty-distribution, .empty-logs {
+			min-height: 300px;
+			background: none;
+			border: solid 1px #dbdbdb;
+
+			header {
+				height: auto;
+				margin: 0;
+				padding: 1.5em 1.5em 0em 2.5em;
+				font-weight: 700;
+				font-size: 1.1em;
+
+				background: none;
+			}
+
+			p {
+				margin: 1em 2.5em;
+				padding: 1em 0 0 0;
+				font-weight: 400;
+				border-top: solid 1px #dbdbdb;
 			}
 		}
 
@@ -213,7 +235,8 @@
 		.display.table {
 			display: flex;
 			background: #f3f3f3;
-			width: 570px;
+			width: 100%;
+			margin-right: 10px;
 			min-height: 300px;
 
 			&.loading {
@@ -223,6 +246,26 @@
 			.no-user-search-results {
 				margin-left: 20px;
 				font-weight: 700;
+			}
+
+			td {
+				font-weight: 400;
+				font-size: 0.9em;
+			}
+
+			span.score-auth-indicator {
+				font-size: 0.8em;
+				font-weight: 400;
+				color: #fff;
+
+				padding: 0.25em 0.5em;
+
+				background: rgb(67, 139, 57);
+				border-radius: 0.5em;
+
+				&.lti {
+					background: rgb(38, 97, 139);
+				}
 			}
 		}
 
@@ -507,12 +550,12 @@
 		border-bottom: 1px solid #dbdbdb;
 
 		background: none;
-		
+
 		font-size: 10pt;
 		font-weight: bold;
-		text-decoration: underline;	
+		text-decoration: underline;
 		text-align: center;
-		
+
 		cursor: pointer;
 
 		&.hide {
@@ -596,7 +639,7 @@
 .darkMode .scores {
 	.student-activity-header {
 		border-bottom: #08090c dotted 1px;
-	
+
 		.action_button {
 			color: $extremely-dark-gray;
 			text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
@@ -669,6 +712,14 @@
 
 			li.scoreTypeSelected a {
 				background: #4c4e58;
+			}
+		}
+
+		.empty-distribution {
+			border: solid 1px $color-input-box-border-dark;
+
+			p {
+				border-color: $light-gray;
 			}
 		}
 
@@ -772,7 +823,7 @@
 						}
 
 						&.disable {
-							color: #555;
+							color: #bbb;
 							opacity: 0.5;
 						}
 					}
@@ -889,10 +940,12 @@
 		}
 		tbody {
 			tr:nth-child(odd) {
-				background-color: #eee;
+				background-color: $color-header-dark;
+			}
+			tr:nth-child(even) {
+				background-color: $color-background-dark-gray;
 			}
 			tr {
-				background-color: white;
 				text-align: left;
 			}
 		}

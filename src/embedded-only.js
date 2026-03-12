@@ -1,7 +1,7 @@
 import React from 'react'
 import {createRoot} from 'react-dom/client'
 import { QueryClient, QueryClientProvider, QueryCache } from 'react-query'
-import EmbeddedOnly from './components/embedded-only'
+import EmbeddedOnly from '@/components/embedded-only'
 
 const queryCache = new QueryCache()
 export const queryClient = new QueryClient({ queryCache })

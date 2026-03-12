@@ -1,6 +1,6 @@
 {
   "name": "@ucfopen/materia",
-  "version": "10.3.3",
+  "version": "11.0.0",
   "license": "AGPL-3.0",
   "engines": {
     "node": ">=18.0.0"
@@ -23,6 +23,7 @@
     "prettier:detectchanges": "git diff --exit-code ./src || (echo '!! Prettier created files that need to be manually added.'; exit 1;)"
   },
   "dependencies": {
+    "@mdx-js/loader": "^3.1.0",
     "d3": "^7.2.0",
     "fs-extra": "^8.0.1",
     "js-base64": "^3.7.2",
@@ -63,6 +64,7 @@
     "sass-loader": "^13.2.0",
     "string-replace-loader": "^3.1.0",
     "webpack": "^5.94.0",
+    "webpack-bundle-tracker": "^0.4.3",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.11.1",
     "webpack-manifest-plugin": "^5.0.0",

@@ -1,0 +1,84 @@
+{% load static %}
+{% load get_type %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		{% csrf_token %}
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+		{{ partials.meta|default:'' }}
+		<title>{{ title|default:'' }} | Materia</title>
+		<link rel="icon" href="/static/favicon-32.png" sizes="32x32" />
+		<link rel="icon" href="/static/favicon-128.png" sizes="128x128" />
+		<link rel="icon" href="/static/favicon-180.png" sizes="180x180" />
+		<link rel="icon" href="/static/favicon-192.png" sizes="192x192" />
+		<link rel="preload" href="/fonts/lato-v25-latin-regular.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/fonts/lato-v25-latin-700.woff2" as="font" type="font/woff2" crossorigin />
+		{{ css_render|safe }} {{ partials.google_analytics|default:''|safe }}
+
+		{% if css_resources %}
+			{% for css in css_resources %}
+				<link rel="stylesheet" type="text/css" href="{% static css %}" />
+			{% endfor %}
+		{% endif %}
+
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+				const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+				const theme = "{{ theme|default:'light' }}";
+
+				function applyTheme(type) {
+					if (type === "dark") {
+						document.body.classList.add("darkMode");
+					} else if (type === "light") {
+						document.body.classList.remove("darkMode");
+					} else if (type === "os") {
+						if (mediaQuery.matches) {
+							document.body.classList.add("darkMode");
+						} else {
+							document.body.classList.remove("darkMode");
+						}
+					}
+				}
+
+				window.theme = theme;
+				applyTheme(theme);
+
+				mediaQuery.addEventListener("change", () => {
+					if (window.theme === "os") {
+						applyTheme("os");
+					}
+				});
+			});
+		</script>
+
+	</head>
+	<body class="{{ page_type|default:'' }}">
+
+		<div id="app"></div>
+		<div id="modal"></div>
+		{% if js_resources %}
+			{% for js in js_resources %}
+				<script type="text/javascript" src="{% static js %}"></script>
+			{% endfor %}
+		{% endif %}
+		{% if js_global_variables %}
+			<script>
+				{% for key, value in js_global_variables.items %}
+					{% if value|get_type == "NoneType" %}
+						var {{key}} = null;
+					{% elif value|get_type == "str" %}
+						var {{key}} = '{{value}}';
+					{% elif value|get_type == "bool" and value %}
+						var {{key}} = true;
+					{% elif value|get_type == "bool" and not value %}
+						var {{key}} = false;
+					{% else %}
+						var {{key}} = {{value}};
+					{% endif %}
+				{% endfor %}
+			</script>
+		{% endif %}
+		<!-- { render_bundle bundle_name } { render_bundle 'commons' } -->
+	</body>
+</html>

@@ -4,149 +4,149 @@ Materia is a platform and ecosystem for small, self-contained, customizable e-le
 
 Materia and its associated library of widgets is an open-source project of the University of Central Florida's Center for Distributed Learning.
 
-View the [Materia Docs](http://ucfopen.github.io/Materia-Docs/) for info on installing, using, and developing Materia and widgets.
+# This repo is for the Materia Django Rewrite. You might be looking for [ucfopen/Materia](https://github.com/ucfopen/Materia) instead.
 
-[Join UCF Open Slack Discussions](https://dl.ucf.edu/join-ucfopen/) [![Join UCF Open Slack Discussions](https://badgen.net/badge/icon/ucfopen?icon=slack&label=slack&color=e01563)](https://dl.ucf.edu/join-ucfopen/)
+This version of Materia is **heavily work-in-progress**. You have been warned.
 
-## Using Materia at Your Institution
+## Setup and installation
 
-It's important to note that UCF maintains an instance of Materia for the UCF community, but it cannot grant access to users of other institutions. External institutions are welcome to host their own copy of Materia, and interested parties should contact their IT and distance learning department(s) about making Materia available to their students. We also welcome questions and inquiries on the UCF Open Slack discussion linked above.
+We recommend cloning this repository alongside the PHP version of Materia. The two can coexist, and you will probably need PHP Materia to reference the original codebase:
 
-## Widgets & Associated Repositories
-
-While casual references to _Materia_ typically involve both the platform and its associated ecosystem of widgets, this repository only includes the Materia platform itself. Additional open-source repositories associated with Materia include:
-
-- Most first-party widgets authored by UCF. These can be found by searching for "widget" under the UCFOpen GitHub organization or visiting the [Materia Widget Gallery](https://ucfopen.github.io/materia-widget-gallery/).
-- The [Materia Widget Developer Kit (MWDK)](https://github.com/ucfopen/Materia-Widget-Dev-Kit). This is a required dependency of all widgets and includes a built-in express server and webpack configs for rapid in-situ development of widgets.
-- [Materia-Theme-UCF](https://github.com/ucfopen/Materia-Theme-UCF). This is a FuelPHP module that allows for overrides of certain views (login, help pages) with institution-specific variants.
-
-## Installation
-
-Materia is configured to use docker containers in production environments, orchestrated through docker compose, though other orchestration frameworks could potentially be used instead. While it may be possible to deploy Materia without docker, we **do not recommend doing so**.
-
-### Docker Deployment
-
-Refer to the [Materia docker readme](docker/README.md) for a full breakdown of Materia's docker configuration and deployment in both development and production.
-
-### Configuration
-
-Materia uses environment variables to facilitate application and webserver configuration. These are typically sourced from `.env` or `.env.local` files on the host machine that are volume mounted into their associated containers.
-
-Visit docker README as well as the [Server Variables](https://ucfopen.github.io/Materia-Docs/admin/server-variables.html) page on our docs site for information about configuration through environment variables. The [root env file](.env) serves as a configuration template for production instances of Materia.
-
-## Setup
-
-Materia provides a pair of setup scripts for out-of-the-box deployment based on two different use cases:
-
-1. `run_first_for_dev.sh` sets up and configures your local instance of Materia for development. This includes additional volume mounts for project files and makes use of additional containers for mysql, s3, and memcached.
-2. `run_first_for_nondev.sh` is ideal for users who just want to explore Materia locally and potentially transition to a production instance. The script dynamically configures the override compose file based on selections you make in the script.
-
-> [!NOTE]
-> `yq` is required for the nondev script. This may come preinstalled in some OS distributions but you should ensure the correct version is installed. Consult the [yq installation guide](https://github.com/mikefarah/yq?tab=readme-ov-file#install) for more info.
-
-In either case, first-time setup involves the following:
+#### Clone the repo and check out django-working
 
 ```
-git clone https://github.com/ucfopen/Materia.git
-cd Materia/docker
+$ mkdir materia-django
+$ git clone git@github.com:ucfcdl/Materia.git materia-django
+$ git checkout django-working
 ```
 
-Followed by either:
-```
-./run_first_for_dev.sh
-```
-For local development or 
+#### Update environment variables
 
 ```
-./run_first_for_nondev.sh
-```
-For creating a local instance where development is not desired.
-
-The `run_first` scripts only have to be run once for initial setup. Afterwards, your local copy will persist in a docker volume unless you explicitly use `docker compose down` or delete the volumes manually.
-
-Use `docker compose up` to run your local instance. The compose process must persist to keep the application alive. Materia is configured to run at `https://localhost` by default.
-
-Note that Materia uses a self-signed certificate to facilitate https traffic locally. Your browser may require security exceptions for your application on ports `443` and `8008` (if setup for local development).
-
-> [!NOTE]
-> If local development of static assets (JS and CSS) is desired, run `yarn dev` in a separate terminal window to enable the webpack dev server and live reloading. This requires node and yarn to be installed on the host machine.
-
-### Creating additional users
-
-See the wiki page for [Creating a local user](https://github.com/ucfopen/Materia/wiki#creating-a-local-user).
-
-### Running Tests
-
-Tests run in the docker environment to maintain consistency. View the `run_tests_*.sh` scripts in the docker directory for options.
-
-### Git Hooks
-
-There is a pre-commit hook available to ensure your code follows our linting standards. Check out the comments contained inside the hook files (in the githooks directory) to install it, you may need a few dependencies installed to get linting working.
-
-## Contributing
-
-Code contributors should review the [CONTRIBUTING](CONTRIBUTING.md) document before proceeding.
-
-## Authentication
-
-Materia supports two forms of authentication:
-
-- Direct authentication through direct logins. Note that Materia does not provide an out-of-the-box tool for user generation. If your goal is to connect to an external identity management platform or service, you will need to author an authentication module to support this. Review FuelPHP's [Auth package and Login driver](https://fuelphp.com/docs/packages/auth/types/login.html) documentation, as well as the `ltiauth` and `materiaauth` packages located in `fuel/packages` to get started.
-- Authentication over LTI. This is the more out-of-the-box solution for user management and authentication. In fact, you can disable direct authentication altogether through the `BOOL_LTI_RESTRICT_LOGINS_TO_LAUNCHES` environment variable, making LTI authentication the only way to access Materia. Visit our [LTI Integration Overview](https://ucfopen.github.io/Materia-Docs/develop/lti-integrations.html) page on the docs site for more information.
-
-## Asset Storage
-
-Users can upload media assets (images and audio) for use in their widgets, facilitated through a media importer that is provided by Materia itself. Asset storage drivers include:
-
-- `file`: Assets are stored on the local filesystem of the application. It is recommended that assets are backed up and synced with an external storage solution (such as S3) to ensure the files persist across application instances.
-- `s3`: Files are uploaded to and requested directly from AWS S3. This is the most straightforward and recommended storage driver option. Be sure to consult the [Materia Docker Readme](docker/README.md) for additional environment variables associated with using S3.
-- `db`: This storage driver stores asset binaries directly in the database. This option allows Materia to run on cloud hosting options with very limited storage volumes. The `db` storage driver option is not recommended for general use.
-
-> [!WARNING]
-> The `db` asset storage driver option is deprecated and will be removed in the next major version of Materia.
-
-The storage driver is configured via the `ASSET_STORAGE_DRIVER` environment variable.
-
-### Local Asset Storage With S3
-
-A `fakes3` container is instantiated as part of the default development stack and the `ASSET_STORAGE_DRIVER` environment variable is set to `s3` by default in the development `.env` file located in `docker/.env`. When using `fakes3`, this is all that is required to simulate S3 usage locally.
-
-To use an actual S3 bucket for local dev:
-
-1. Set `DEV_ONLY_FAKES3_DISABLED` environment variable in `docker/.env` to `true`
-2. Set `ASSET_STORAGE_S3_BUCKET` to your bucket name
-3. Set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` in `.env.local`. (Tip: You can run `aws configure export-credentials --profile YOUR_PROFILE_NAME --format env-no-export` to get these)
-
-> [!NOTE]
-> Note that `fakes3` asset storage is disabled when `FUEL_ENV` is set to `production`.
-
-## Widget Management
-
-A default list of widgets will be installed as part of the first-time setup process, but the widget ecosystem has many more! Peruse the [Materia Widget Gallery](https://ucfopen.github.io/materia-widget-gallery/) to view additional widgets to install.
-
-### Installing Widgets
-
-Widgets can be installed in one of two ways:
-
-1. A user with the `super_user` role can visit the Widget Admin panel by navigating to `your.materia.url/admin/widget` or by selecting the orange "Admin" button at the top. Select a `.wigt` file from the file upload dialog to install it.
-2. Widgets can be installed from the cli on the application container once running:
-
-```
-$ docker exec -it <container name or id> sh
-$ wget url/for/materia/widget.wigt
-$ php oil r widget:install widget.wigt
+$ cp docker/.env_template docker/.env
 ```
 
-The `.wigt` files do not need to be retained once a widget is installed.
+In `.env`, be sure to update the following values:
+```
+BASE_URL = http://127.0.0.1/
+MEDIA_URL = http://127.0.0.1/media/
+MEDIA_UPLOAD_URL = http://127.0.0.1/media/upload/
+WIDGET_URL = http://127.0.0.1/widget/
+STATIC_CROSSDOMAIN = http://127.0.0.1/
+SESSION_DRIVER="redis"
+ASSET_STORAGE_DRIVER="file"
+```
 
-## Theming
+You can replace `http://127.0.0.1/` with your preferred local address.
 
-Theme overrides are facilitated through FuelPHP packages, installed via composer. Materia ships with `Materia-Theme-UCF` by default.
+#### Set up local containers
 
-Review the [repository README](https://github.com/ucfopen/Materia-Theme-UCF) for `Materia-Theme-UCF` for a breakdown of using theme overrides in Materia 10.x and later.
+If you have `make` available, you can use the paired Makefile to easily run certain commands.
 
-## Transitioning to Production
+```
+$ make build
+$ make start
+```
 
-More information about creating a production-capable Materia instance can be found in the [Materia Docker Readme](docker/README.md).
+Alternatively, run the docker compose commands directly:
+```
+$ docker compose build
+$ docker compose up
+```
 
+#### Compile front-end assets
 
+You'll need `yarn` 1.x to compile front-end assets if you're building images from source:
+```
+$ yarn install
+$ yarn build
+```
+
+You can also run `yarn dev` to enable auto-compilation of asset files with webpack dev server:
+```
+$ yarn dev
+```
+
+#### Run post-install commands
+
+Run the `post-install` make command to quickly perform post-install server configurations:
+```
+$ make post-install
+```
+
+Alternatively, you can manually use `docker exec` to get shell access to the python container:
+```
+$ docker exec -it materia-django-python-1 sh
+```
+
+Then run the following manage commands:
+```
+$ python manage.py migrate
+$ python manage.py post-install populate_default_groups
+$ python manage.py post-install populate_dateranges 2020 2032
+$ python manage.py createsuperuser
+```
+
+#### Create User Records
+
+Lastly, you'll probably want to create a non-superuser user.
+
+1. Log in to `https://127.0.0.1/admin` (replacing the base URL with your own, if required) as your super user.
+2. Select "+Add" button next to Users on the left to create a new user with username and password. Select Save.
+3. Edit the new user by selecting the row. Add a first name, last name, and email. Under permissions, add "basic_author" and optionally "support_user". Select Save.
+
+#### Installing Widgets
+
+A management command exists to install widgets from config, but the widgets will not yet contain python score modules. Widgets with python score modules are currently tracked [as issues in the ucfcdl/Materia repo](https://github.com/ucfcdl/Materia/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22Widget%20Score%20Module%22) under the "Widget Score Module" tag.
+
+The easiest way to install widgets is to visit the widget admin panel as your superuser.
+
+### Using pyenv
+
+[Install pyenv](https://github.com/pyenv/pyenv?tab=readme-ov-file#installation).
+[Install pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv?tab=readme-ov-file#installation).
+Using `pyenv`, make sure the required version of Python is installed and available. This may change over time.
+
+Keep in mind also that the following exports may be necessary in order to properly enable pyenv:
+```
+# pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+```
+
+### Using Make
+
+Make sure [make](https://www.gnu.org/software/make/manual/make.html) is installed. Typically you can confirm this by checking the output of `which make` in *nix systems. Otherwise, it's up to you to determine how to use Makefiles on your operating system.
+
+Several `make` commands are provided for your convenience:
+ * `make dev-check` will check to ensure that the requisite tools `pyenv` and `pyenv-virtualenv` are installed, as well as the required version of Python. If any of the prerequisites are unavailable, you will be notified.
+ * `make dev-setup` will, assuming all requirements in `dev-check` pass, automatically create a local dev environment with `pyenv` and `virtualenv`, install all necessary Python packages, and install pre-commit hooks.
+
+Run `make help` to see a full list of commands that will simplify linting your code, running migrations, or starting interactive shell sessions within the container.
+
+## Using LTI
+
+Testing your local instance with LTI is a lot of work - it requires setting up a proxy like ngrok and having appropriate permissions with an LMS (currently just Canvas). You must be able to set up an LTI developer key in your LMS instance as well as having authorship access to a course.
+
+1. Install and configure ngrok. Initialize it by running `ngrok http http://your-local-materia-instance`. You may want to enable "static domain" by selecting the static domain name under "Deploy your app online" from the ngrok web dashboard.
+2. Update your `.env` file with the URL the ngrok process is hosting from: `BASE_URL`, `MEDIA_URL`, `MEDIA_UPLOAD_URL`, `WIDGET_URL`, and `STATIC_CROSSDOMAIN`. You will have to restart your python container after setting these values.
+3. SSH into the Materia Django docker container and Create a new LTI-related key by running: `python manage.py rotate_keys`.
+4. Create a new developer LTI key in your Canvas instance. Select the configure method "Paste JSON," and copy the json content provided at https://your-ngrok-instance.ngrok-free.app/lticonfig. Note that we will have to revisit the configuration in a later step once we have a registration UUID.
+5. Save the developer key and toggle it to ON.
+6. Copy the number formatted as "1000000000XXXX" in the developer keys details column. This is the tool's Client ID.
+7. With a superuser account, visit the Materia django admin page. Create a new LTI registration with the following values:
+    - Name: This is the name of the registration. This can be anything you want, but it should be descriptive enough to identify the registration later. We recommend naming after your platform.
+    - Client ID: This is the client ID for the tool. This will be generated by Canvas when you create a developer key.
+    - Issuer: This is the issuer for the tool. For Canvas, this is https://canvas.instructure.com.
+    - Auth URL: This is the URL for the authentication endpoint. For Canvas, this is https://\<your-canvas-domain>\/api/lti/authorize_redirect.
+    - Access Token URL: This is the URL for the access token endpoint. For Canvas, this is https://\<your-canvas-domain>\/login/oauth2/token.
+    - Keyset URL: This is the URL for the keyset endpoint. For Canvas, this is https://\<your-canvas-domain>\/api/lti/security/jwks.
+8. Set to is active to allow the registration to be used. Save the registration.
+9. Reload your https://your-ngrok-instance.ngrok-free.app/lticonfig, which should have several updated values now that the Canvas registration has a UUID. Copy the JSON.
+10. Revisit the new developer LTI key in Canvas and replace the pasted JSON with the updated version. Copy the client ID again once saved.
+11. Visit the settings page for the course you want to use Materia in. Select "Apps" and add a new app. Select "By client ID" and enter the Client ID previously copied from the developer keys page.
+12. Copy the Deployment ID of the tool once installed. Visit the django admin panel again and paste the developer key in the first row under "Deployments" at the bottom. Select "Is Active" and select Canvas as the platform instance (if you don't see any platforms yet - don't worry about it.)
+
+Materia should be available in your course now. You can enable it in course navigation or select it as an external tool in a new assignment.

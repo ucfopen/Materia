@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import Header from './header'
 import Summary from './widget-summary'
 import './login-page.scss'
-import EmbedFooter from './widget-embed-footer';
+import EmbedFooter from './widget-embed-footer'
+import { waitForWindow } from '../util/wait-for-window'
 
 const Closed = () => {
 
@@ -11,32 +12,52 @@ const Closed = () => {
 		instName: '',
 		widgetName: '',
 		summary: '',
-		description: ''
+		description: '',
+		start: '',
+		end: ''
 	})
 
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('IS_EMBEDDED')
-		&& !window.hasOwnProperty('NAME')
-		&& !window.hasOwnProperty('WIDGET_NAME')
-		&& !window.hasOwnProperty('ICON_DIR')
-		&& !window.hasOwnProperty('SUMMARY')
-		&& !window.hasOwnProperty('DESC')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
-
 	useEffect(() => {
-		waitForWindow()
+		waitForWindow(['IS_EMBEDDED', 'NAME', 'WIDGET_NAME', 'ICON_DIR', 'SUMMARY', 'DESC', 'START', 'END'])
 		.then(() => {
 			setState({
 				isEmbedded: window.IS_EMBEDDED,
 				instName: window.NAME,
 				widgetName: window.WIDGET_NAME,
 				summary: window.SUMMARY,
-				description: window.DESC
+				description: window.DESC,
+				start: window.START,
+				end: window.END,
 			})
 		})
 	},[])
+
+	// Format datetimes to local date/time strings
+	const [hydratedSummary, hydratedDescription] = useMemo(() => {
+		// Process given datetimes
+		const startDatetime = new Date(state.start)
+		const endDatetime = new Date(state.end)
+
+		// Format datetimes
+		const startDate = startDatetime.toLocaleDateString('en-US', { dateStyle: 'short' })
+		const startTime = startDatetime.toLocaleTimeString('en-US', { timeStyle: 'short' })
+		const endDate = endDatetime.toLocaleDateString('en-US', { dateStyle: 'short' })
+		const endTime = endDatetime.toLocaleTimeString('en-US', { timeStyle: 'short' })
+
+		const summary = state.summary
+			.replace("{start_date}", startDate)
+			.replace("{start_time}", startTime)
+			.replace("{end_date}", endDate)
+			.replace("{end_time}", endTime)
+
+		const description = state.description
+			.replace("{start_date}", startDate)
+			.replace("{start_time}", startTime)
+			.replace("{end_date}", endDate)
+			.replace("{end_time}", endTime)
+
+		return [summary, description]
+	}, [state.summary, state.description, state.start, state.end])
 
 	return (
 		<>
@@ -44,8 +65,8 @@ const Closed = () => {
 			<div className="container">
 				<section className="page">
 					<Summary />
-					<h3>{ state.summary }</h3>
-					<p>{ state.description }</p>
+					<h3>{ hydratedSummary }</h3>
+					<p>{ hydratedDescription }</p>
 					<EmbedFooter/>
 				</section>
 			</div>

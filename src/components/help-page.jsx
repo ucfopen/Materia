@@ -17,10 +17,10 @@ const HelpPage = () => {
 		if (match != null && match[1] != null) setPage(match[1])
 		else setPage('home')
 	}
-	
+
 	useEffect(() => {
 		window.addEventListener('hashchange', listenToHashChange)
-	
+
 		return () => {
 			window.removeEventListener('hashchange', listenToHashChange)
 		}
@@ -35,7 +35,6 @@ const HelpPage = () => {
 			helpContentRender = <HelpForInstructors />
 			break
 		case 'accessibility':
-			console.log('accessibility yes')
 			helpContentRender = <HelpAccessibility />
 			break
 		default:

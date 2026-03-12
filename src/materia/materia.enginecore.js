@@ -67,7 +67,7 @@ Namespace('Materia').Engine = (() => {
 		_sendPostMessage('alert', { title, msg, fatal })
 	}
 
-	const getMediaUrl = (mediaId) => `${_mediaUrl}/${mediaId}`
+	const getMediaUrl = (mediaId) => _mediaUrl.replace(/\/$/, '') + '/' + mediaId
 
 	const end = (showScoreScreenAfter) => {
 		if (showScoreScreenAfter == null) {

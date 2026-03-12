@@ -18,15 +18,8 @@ export const objectTypes = {
 }
 
 export const access = {
-	VISIBLE: 1,
-	PLAY: 5,
-	SCORE: 10,
-	DATA: 15,
-	EDIT: 20,
-	COPY: 25,
-	FULL: 30,
-	SHARE: 35,
-	SU: 90,
+	VISIBLE: "visible",
+	FULL: "full",
 }
 
 export const WIDGET_URL = window.location.origin + '/widget/'

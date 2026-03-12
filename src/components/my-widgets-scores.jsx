@@ -7,7 +7,7 @@ import LoadingIcon from './loading-icon'
 import NoScoreContent from'./no-score-content'
 import './my-widgets-scores.scss'
 
-const MyWidgetsScores = ({inst, beardMode, setInvalidLogin}) => {
+const MyWidgetsScores = ({inst, contexts, beardMode, setInvalidLogin}) => {
 	const [state, setState] = useState({
 		isShowingAll: false,
 		hasScores: false,
@@ -76,13 +76,14 @@ const MyWidgetsScores = ({inst, beardMode, setInvalidLogin}) => {
 		contentRender = <div className='error'>{error}</div>
 	}
 	else if (isFetched) {
-		contentRender = <NoScoreContent scorable={parseInt(inst.widget.is_scorable)} isDraft={inst.is_draft} beardMode={beardMode} />
+		contentRender = <NoScoreContent scorable={inst.widget.is_scorable} isDraft={inst.is_draft} beardMode={beardMode} />
 		if (state.hasScores || containsStorage()) {
 			const semesterElements = displayedSemesters.map(semester => (
 				<MyWidgetScoreSemester key={semester.id}
 					semester={semester}
 					instId={inst.id}
 					hasScores={state.hasScores}
+					contexts={contexts}
 					setInvalidLogin={setInvalidLogin}
 				/>
 			))

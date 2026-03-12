@@ -1,0 +1,2 @@
+Folder is kept here to allow Docker to do a nested bind here while 'public' is mounted as read-only.
+Do not put any of your theme files in here, instead put then in [ProjectRoot]/theme
