@@ -524,10 +524,14 @@ class Widget_Installer
 		{
 			throw new \Exception('Missing score module file');
 		}
-		if ( ! file_exists("$dir/_score-modules/test_score_module.php"))
-		{
-			throw new \Exception('Missing score module tests');
-		}
+		// for the most part the score module 'tests' were always just placeholders
+		//  that we meant to but never actually got around to fully implementing
+		// this would be required for backwards compatibility at best, but since there
+		//  are no tests practically this requirement is kind of meaningless
+		// if ( ! file_exists("$dir/_score-modules/test_score_module.php"))
+		// {
+		// 	throw new \Exception('Missing score module tests');
+		// }
 	}
 
 	public static function generate_install_params(array $manifest_data, string $package_file): array
