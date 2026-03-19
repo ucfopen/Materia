@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Materia Notification</title>
+    <link rel="icon" href="{{ static_url }}/favicon-32.png" sizes="32x32" />
+    <link rel="icon" href="{{ static_url }}/favicon-128.png" sizes="128x128" />
+    <link rel="icon" href="{{ static_url }}/favicon-180.png" sizes="180x180" />
+    <link rel="icon" href="{{ static_url }}/favicon-192.png" sizes="192x192" />
+
+    <style>
+        * {
+          margin: 0;
+        }
+
+        body {
+          margin: 0;
+        }
+
+        .action_button {
+          padding: 7px 23px 8px 23px;
+          background-color: #ffd439;
+          transition: all 0.4s ease-in-out;
+          font-weight: 700;
+          font-size: 18px;
+          position: relative;
+          cursor: pointer;
+          display: inline-block;
+          user-select: none;
+          text-decoration: none;
+          border: none;
+          border-radius: 4px;
+          color: #333 !important;
+        }
+
+        .action_button:hover {
+          background-color: #ffc904;
+          color: #000;
+          box-shadow: 0px 1px 3px #979696;
+          text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <img
+        src="{{ static_url }}img/materia-logo-thin.png"
+        alt="Materia Logo"
+        height="30"
+    />
+
+    <div id="gap1" style="height: 10px"></div>
+
+    {% block content %}{% endblock %}
+</body>
+</html>

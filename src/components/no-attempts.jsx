@@ -2,27 +2,20 @@ import React, { useState, useEffect} from 'react'
 import Summary from './widget-summary'
 import Header from './header'
 import EmbedFooter from './widget-embed-footer'
+import { waitForWindow } from '../util/wait-for-window'
 
 const NoAttempts = () => {
 	const [attempts, setAttempts] = useState(null)
 	const [scoresPath, setScoresPath] = useState(null)
 
 	useEffect(() => {
-	waitForWindow().then(() => {
-	const scoresPath = `/scores${window.IS_EMBEDDED ? '/embed' : ''}/${window.WIDGET_ID}`;
+		waitForWindow(['WIDGET_ID', 'IS_EMBEDDED', 'ATTEMPTS']).then(() => {
+		const scoresPath = `/scores${window.IS_EMBEDDED ? '/embed' : ''}/${window.WIDGET_ID}`;
 
-	setScoresPath(scoresPath);
-	setAttempts(window.ATTEMPTS)
-	})
-}, [])
-
-const waitForWindow = async () => {
-		while(!window.hasOwnProperty('WIDGET_ID')
-		&& !window.hasOwnProperty('IS_EMBEDDED')
-		&& !window.hasOwnProperty('ATTEMPTS')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
+		setScoresPath(scoresPath);
+		setAttempts(window.ATTEMPTS)
+		})
+	}, [])
 
 	let bodyRender = null
 	if (!!attempts) {

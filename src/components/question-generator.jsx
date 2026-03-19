@@ -49,12 +49,12 @@ const QsetGenerator = () => {
 		loading.current = true
 
 		generateQuestion.mutate({
-			inst_id: instId,
-			widget_id: widgetId,
-			topic: topic,
-			include_images: includeImages,
-			num_questions: numQuestions,
-			build_off_existing: buildOffExisting,
+			instId,
+			widgetId,
+			topic,
+			includeImages,
+			numQuestions,
+			buildOffExisting: (!!instId ? buildOffExisting : false),
 			successFunc: (result) => {
 				window.parent.Materia.Creator.onQsetReselectionComplete(
 					JSON.stringify(result.qset),
@@ -97,7 +97,7 @@ const QsetGenerator = () => {
 	}
 
 	const onNumberChange = (e) => {
-		setNumQuestions(e.target.value)
+		setNumQuestions(parseInt(e.target.value))
 	}
 
 	return (
@@ -131,7 +131,7 @@ const QsetGenerator = () => {
 				</div> */}
 				<div id="build-off-existing-field">
 					<label htmlFor="build-off-existing">Keep current questions</label>
-					<input type="checkbox" id="build-off-existing" name="build-off-existing" onChange={(e) => setBuildOffExisting(e.target.checked)}/>
+					<input type="checkbox" id="build-off-existing" name="build-off-existing" disabled={!instId} onChange={(e) => setBuildOffExisting(e.target.checked)}/>
 					<span className="description">
 						If selected, generated content will be appended to existing content. If unselected, generated content will replace existing content.
 					</span>

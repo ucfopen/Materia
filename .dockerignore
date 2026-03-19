@@ -1,0 +1,6 @@
+app/logfile.log
+app/**/*.log
+app/cache/
+app/__pycache__/
+app/**/__pycache__/
+public/widget/**/*

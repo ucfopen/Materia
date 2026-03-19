@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import { apiDeleteWidget } from '../../util/api'
 import { useState } from 'react'
 
-export default function useDeleteWidget() {
+export default function useDeleteWidget(user) {
 	const queryClient = useQueryClient()
 
 	return useMutation(
@@ -10,13 +10,13 @@ export default function useDeleteWidget() {
 		{
 			onSuccess: (data, variables) => {
 				// Optimistic update for deleting a widget
-				queryClient.setQueryData('widgets', previous => {
+				queryClient.setQueryData(['instances', user], previous => {
 					if (!previous || !previous.pages) return previous
 					return {
 						...previous,
 						pages: previous.pages.map((page) => ({
 							...page,
-							pagination: page.pagination.filter(widget => widget.id !== data)
+							results: page.results.filter(widget => widget.id !== variables['instId'])
 						})),
 						modified: Math.floor(Date.now() / 1000)
 					}
@@ -25,7 +25,7 @@ export default function useDeleteWidget() {
 			},
 			onError: (err, variables, context) => {
 				variables.errorFunc(err)
-				queryClient.setQueryData('widgets', (previous) => {
+				queryClient.setQueryData(['instances', user], (previous) => {
 					return context.previousValue
 				})
 			}

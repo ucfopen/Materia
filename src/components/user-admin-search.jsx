@@ -17,7 +17,7 @@ const UserAdminSearch = ({onClick = () => {}}) => {
 					<img src={user.avatar} alt="user avatar"/>
 				</div>
 				<div className="info-holder">
-					{user.first} {user.last}
+					{user.first_name} {user.last_name}
 				</div>
 			</div>
 		)
@@ -41,7 +41,7 @@ const UserAdminSearch = ({onClick = () => {}}) => {
 	let searchPromptRender = (
 		<div className='user_search'>
 			<p>{`${searchText.length == 0 || (userList.users && userList.users.length > 0)
-				|| userList.isFetching ? 'Search for a user by entering their name'
+				|| userList.isFetching ? 'Search Materia\'s internal user records by name or email.'
 				: 'No users match your description'}`}</p>
 		</div>
 	)

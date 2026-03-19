@@ -1,0 +1,36 @@
+import Common from 'MateriaCommon'
+
+<div className="supportSection">
+  ### Helpdesk
+
+  <div className="supportItem">
+    **Website**
+    <a href={Common.supportWebsite}>{Common.supportWebsite}</a>
+  </div>
+
+  <div className="supportItem">
+    **Email**
+    <a href={"mailto:" + Common.supportEmail}>{Common.supportEmail}</a>
+  </div>
+
+  <div className="supportItem">
+    **Phone**
+    <a href={"tel:" + Common.supportPhoneNumberHref}>{Common.supportPhoneNumber}</a>
+  </div>
+</div>
+
+
+<div className="supportSection">
+  ### Accessibility
+
+  <div className="supportItem">
+    **Email**
+    <a href={"mailto:" + Common.accessibilityEmail}>{Common.accessibilityEmail}</a>
+  </div>
+
+  <div className="supportItem">
+    **Report Issues**
+    <a href={Common.accessibilityReportLink}>{Common.accessibilityReportLink}</a>
+  </div>
+</div>
+

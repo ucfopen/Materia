@@ -2,15 +2,15 @@
 import React, { useState, useEffect, useCallback, useRef, useId } from 'react'
 import { useQueryClient, useQuery } from 'react-query'
 import { apiGetPlayLogs } from '../util/api'
-import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
+import ScoreAuthIndicator from './score-auth-indicator'
 import useDebounce from './hooks/useDebounce'
 import LoadingIcon from './loading-icon'
 
-const showScore = (instId, playId) => window.open(`/scores/single/${playId}/${instId}`)
+const showScore = (instId, playId) => window.open(`/scores/single/${instId}/${playId}/`)
 const _compareScores = (a, b) => { return (parseInt(b.created_at) - parseInt(a.created_at)) }
 
 const timestampToDateDisplay = timestamp => {
-	const d = new Date(parseInt(timestamp, 10) * 1000)
+	const d = new Date(timestamp)
 	return d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
 }
 
@@ -22,7 +22,7 @@ const initState = () => ({
 	filteredLogs: []
 })
 
-const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) => {
+const MyWidgetScoreSemesterIndividual = ({ semester, instId, contexts, setInvalidLogin }) => {
 	const [state, setState] = useState(initState())
 	const [page, setPage] = useState(1)
 	const [error, setError] = useState('')
@@ -32,7 +32,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 		refetch
 	} = useQuery(
 		['play-logs', instId, semester],
-		() => apiGetPlayLogs(instId, semester.term, semester.year, page),
+		() => apiGetPlayLogs(instId, semester.term, semester.year, contexts, page),
 		{
 			keepPreviousData: true,
 			enabled: !!instId && !!semester && !!semester.term && !!semester.year,
@@ -51,6 +51,8 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 					})
 
 					setState({ ...state, logs: newLogs, filteredLogs: newLogs })
+				} else if (result.length == 0) {
+					setState({ ...state, logs: [], isLoading: false })
 				}
 			},
 			onError: (err) => {
@@ -101,7 +103,17 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 	if (error) {
 		mainContentRender = <div className='error'>{error}</div>
 	}
-	else if (!state.isLoading) {
+	else if (!state.isLoading && state.filteredLogs.length == 0) {
+		mainContentRender =
+		(
+			<div className='empty-distribution'>
+				<header>No Results Available</header>
+				<p>
+					No play records to display. This is likely because you do not have permission to view them.
+				</p>
+			</div>
+		)
+	} else if (!state.isLoading ) {
 		const studentSearch = (
 			<>
 				<div className='search-icon'>
@@ -156,6 +168,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 							<tr>
 								<th>Date</th>
 								<th>Score</th>
+								<th>Type</th>
 								<th>Duration</th>
 								<th aria-label="View Details Button"></th>
 							</tr>
@@ -163,6 +176,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 								<tr key={score.playId}>
 									<td>{timestampToDateDisplay(score.created_at)}</td>
 									<td>{score.score}</td>
+									<td><ScoreAuthIndicator type={score.auth} /></td>
 									<td>{score.elapsed}</td>
 									<td>
 										<button
@@ -204,7 +218,6 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 					 id={`table_${semester.id}`}>
 				{mainContentRender}
 			</div>
-			<MyWidgetScoreSemesterSummary {...semester} />
 		</>
 	)
 }

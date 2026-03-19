@@ -1,19 +1,19 @@
 import { useMutation, useQueryClient } from 'react-query'
-import { apiUpdateWidget } from '../../util/api'
+import { apiUpdateWidgetInstance } from '../../util/api'
 
-export default function useUpdateWidget() {
+export default function useUpdateWidget(user) {
 	const queryClient = useQueryClient()
 
 	let widgetList = null
 
 	// Optimistically updates the cache value on mutate
 	return useMutation(
-		apiUpdateWidget,
+		apiUpdateWidgetInstance,
 		{
 			onMutate: async formData => {
 				// cancel any in-progress queries and grab the current query cache for widgets
-				await queryClient.cancelQueries('widgets')
-				widgetList = queryClient.getQueryData('widgets')
+				await queryClient.cancelQueries(['instances', user])
+				widgetList = queryClient.getQueryData(['instances', user])
 
 				// widgetList is passed to onSuccess or onError depending on resolution of mutation function
 				return { ...widgetList }
@@ -21,19 +21,19 @@ export default function useUpdateWidget() {
 			onSuccess: (updatedInst, variables) => {
 				// update successful - insert new values into our local copy of widgetList
 				for (const page of widgetList?.pages) {
-					for (const inst of page?.pagination) {
-						if (inst.id === variables.args[0]) {
-							inst.open_at = parseInt(variables.args[4])
-							inst.close_at = parseInt(variables.args[5])
-							inst.attempts = parseInt(variables.args[6])
-							inst.guest_access = variables.args[7]
-							inst.embedded_only = variables.args[8]
+					for (const inst of page?.results) {
+						if (inst.id === variables.instId) {
+							inst.open_at = parseInt(variables.openAt)
+							inst.close_at = parseInt(variables.closeAt)
+							inst.attempts = parseInt(variables.attempts)
+							inst.guest_access = variables.guestAccess
+							inst.embedded_only = variables.embeddedOnly
 							break
 						}
 					}
 				}
 				// update query cache for widgets. This does NOT invalidate the cache, forcing a re-fetch!!
-				queryClient.setQueryData('widgets', previous => {
+				queryClient.setQueryData(['instances', user], previous => {
 					return {
 						...widgetList,
 						modified: Math.floor(Date.now() / 1000)

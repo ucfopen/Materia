@@ -1,31 +1,90 @@
+name: materia-django
+
+networks:
+  backend:
+  frontend:
+
 services:
-  webserver:
-    image: ghcr.io/ucfopen/materia:webserver-dev
+  nginx:
     build:
       context: ../
-      dockerfile: materia-webserver.Dockerfile
+      dockerfile: materia-app.nginx.Dockerfile
     ports:
-      - "80:80" # main materia
-      - "443:443" # main materia
+      - "420:80"
+    volumes:
+      - ../public:/var/www/html/staticfiles:ro
+      - ../theme/img:/var/www/html/staticfiles/theme/img:ro
+      - ../public/widget:/var/www/html/staticfiles/widget/:ro
+      - ./config/nginx/sites-enabled/site.dev.conf:/etc/nginx/conf.d/site.conf:ro
     networks:
       - frontend
+      - backend
     depends_on:
-      - app
+      - python
 
-  app:
-    image: ghcr.io/ucfopen/materia:app-dev
+  python:
     build:
       context: ../
-      dockerfile: materia-app.Dockerfile
+      dockerfile: materia-app.python.Dockerfile
+    networks:
+      - backend
+    ports:
+      - "8001:8001"
+      - "25:25"
+    depends_on:
+      - mysql
+    environment:
+      - DJANGO_ENV=dev
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=materia_dev
+      - MYSQL_USER=materia_user
+      - MYSQL_PASSWORD=kogneato
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
     env_file:
-      .env
+      - .env
+    volumes:
+      - ../app:/var/www/html
+      - uploaded_media:/var/www/html/media/
+      - ../public/widget:/var/www/html/staticfiles/widget/:rw
+    command: /wait_for_it.sh mysql:3306 -t 15 -- gunicorn materia.wsgi:application --bind 0.0.0.0:8001 --reload --workers 4 --threads 2 --timeout 150 --log-level info --access-logfile - --error-logfile -
+
+  mysql:
+    image: mysql:8.0.39
+    platform: linux/amd64
+    networks:
+      - backend
+    ports:
+      - "3309:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=materia_dev
+      - MYSQL_USER=materia_user
+      - MYSQL_PASSWORD=kogneato
+    volumes:
+      - ./config/mysql/override.cnf:/etc/mysql/conf.d/override.cnf
+
+  fakes3:
+    image: ghcr.io/ucfopen/materia:fake-s3-dev
+    build:
+      context: ../
+      dockerfile: materia-fake-s3.Dockerfile
+    volumes:
+      - s3_media:/s3mnt/fakes3_root/fake_bucket/media/
+    ports:
+      - "10001:10001"
     networks:
       - frontend
       - backend
 
-networks:
-  frontend:
-    name: materia_frontend
-  backend:
-    name: materia_backend
+  redis:
+    image: redis:3.2
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
 
+volumes:
+  # static_files: {} # compiled js/css and uploaded widgets
+  uploaded_media: {} # uploaded media files
+  s3_media: {}

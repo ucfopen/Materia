@@ -17,26 +17,29 @@ section.widget {
 	left: 20px;
 	right: 20px;
 	bottom: 20px;
-	top: 110px;
+	top: 95px;
 	min-height: 400px;
 	min-width: 400px;
 
 	&.preview {
 		top: 150px;
+
+		.center {
+			top: -44px;
+		}
 	}
 
 	.preview-bar {
-		position: absolute;
-		left: 50%;
-		transform: translateX(-50%);
+		position: relative;
+		top: -44px;
 		display: block;
 		border-bottom: 4px #b944cc solid;
 		width: 100%;
 		height: 40px;
 		padding: 0;
 		background: none;
-		margin-top: -44px;
 		z-index: 1;
+		margin: 0 auto;
 
 		&:before {
 			content: 'Previewing';
@@ -182,6 +185,54 @@ h3 {
 
 		a {
 			color: $color-link-dark;
+		}
+	}
+}
+
+@media (max-width: 720px) {
+	section.widget {
+		left: 10px;
+		right: 10px;
+		bottom: 10px;
+		top: 95px;
+		min-height: 0px;
+		min-width: 0px;
+
+		&.preview {
+			top: 135px;
+		}
+	
+		.preview-bar {
+			height: 32px;
+			padding: 0;
+			min-height: 32px;
+			padding-bottom: 4px;
+	
+			&:before {
+				left: 0px;
+				top: 0px;
+				width: fit-content;
+				height: 20px;
+				
+				padding: 8px 12px 8px 12px;
+	
+				font-size: 14px;
+				font-weight: 700;
+			}
+	
+			&:after {
+				text-align: right;
+				align-content: end;
+				height: 30px;
+	
+				right: 0px;
+				top: 0px;
+
+				width: 65vw;
+	
+				font-size: 12px;
+				font-weight: 300;
+			}
 		}
 	}
 }

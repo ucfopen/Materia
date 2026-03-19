@@ -2,6 +2,7 @@ const glob = require('glob')
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const WebpackRemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts')
+const BundleTracker = require('webpack-bundle-tracker');
 
 const jsPath = path.join(__dirname, 'src',)
 const packageJsPath = path.join(__dirname, 'fuel','packages')
@@ -9,7 +10,10 @@ const cssPath = path.join(__dirname, 'src', 'css')
 
 const packageJSON = require('./package.json')
 
-const entry = {}
+const entry = {
+	// Fonts CSS - emitted separately for better load performance
+	fonts: path.join(cssPath, 'fonts.css')
+}
 // Webpack Entry Point Registration Overview
 // Create object with:
 // Key = output name and path, Value = source file path
@@ -83,6 +87,13 @@ module.exports = {
 				]
 			},
 			{
+				test: /\.mdx?$/,
+				use: [
+					{ loader: 'babel-loader', options: {} },
+					{ loader: '@mdx-js/loader', options: {} },
+				],
+			},
+			{
 				test: /homepage.jsx$/,
 				use: {
 					loader: 'string-replace-loader',
@@ -95,6 +106,7 @@ module.exports = {
 		]
 	},
 	plugins: [
+		new BundleTracker({filename: './webpack-stats.json'}),
 		new WebpackRemoveEmptyScriptsPlugin(), // webpack produces a js file for each emitted bundle no matter what. This removes leftover & unncessary js duplicates within css/
 		new MiniCssExtractPlugin({
 			filename: "css/[name].css"
@@ -102,6 +114,11 @@ module.exports = {
 	],
 	resolve: {
 		extensions: ['.js', '.jsx'],
+		alias: {
+			'@': [path.resolve(__dirname, 'theme/src'), path.resolve(__dirname, 'src')],
+			'MateriaText': [path.resolve(__dirname, 'theme/text'), path.resolve(__dirname, 'src/text')],
+			'MateriaCommon': [path.resolve(__dirname, 'theme/common.json'), path.resolve(__dirname, 'src/common.json')],
+		},
 	},
 	optimization: {
 		splitChunks: {

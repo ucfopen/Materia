@@ -1,0 +1,77 @@
+from django.db import migrations, models
+
+
+def do_boolean_conversion(apps, schema_editor, field_name):
+    old_field = field_name
+    new_field = f"{field_name}_new"
+
+    Widget = apps.get_model("core", "Widget")
+    for widget in Widget.objects.all():
+        old_value = getattr(widget, old_field)
+        if old_value == "0":
+            setattr(widget, new_field, False)
+            widget.save()
+        elif old_value == "1":
+            setattr(widget, new_field, True)
+            widget.save()
+        else:
+            print(
+                f"Widget {widget.id} has an invalid boolean field on {field_name}: {old_value}. Deleting..."
+            )
+            widget.delete()
+
+
+def do_boolean_conversion_reverse(apps, schema_editor, field_name):
+    old_field = field_name
+    new_field = f"{field_name}_new"
+
+    Widget = apps.get_model("core", "Widget")
+    for widget in Widget.objects.all():
+        new_value = getattr(widget, new_field)
+        if new_value:
+            setattr(widget, old_field, "1")
+        else:
+            setattr(widget, old_field, "0")
+        widget.save()
+
+
+def create_boolean_migration(model_name: str, field_name: str, default: bool) -> list:
+    return [
+        migrations.AddField(
+            model_name=model_name,
+            name=f"{field_name}_new",
+            field=models.BooleanField(default=default),
+        ),
+        migrations.RunPython(
+            lambda a, s: do_boolean_conversion(a, s, field_name),
+            lambda a, s: do_boolean_conversion_reverse(a, s, field_name),
+        ),
+        migrations.RemoveField(
+            model_name=model_name,
+            name=field_name,
+        ),
+        migrations.RenameField(
+            model_name=model_name,
+            old_name=f"{field_name}_new",
+            new_name=field_name,
+        ),
+    ]
+
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ("core", "0009_usersettings"),
+    ]
+
+    operations = [
+        migrations.AlterField(
+            model_name="widget",
+            name="is_generable",
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AlterField(
+            model_name="widget",
+            name="uses_prompt_generation",
+            field=models.BooleanField(default=False),
+        ),
+    ]

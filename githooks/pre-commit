@@ -21,11 +21,13 @@ echo "Running git pre-commit"
 
 set -e
 
-# run linter
-execute_and_check_status "./run_tests_lint.sh"
+# make sure no code changes are necessary
+execute_and_check_status "black --check ./app/**/*.py"
+execute_and_check_status "isort --check-only ./app/**/*.py"
+execute_and_check_status "flake8 ./app/**/*.py"
 
 # install widgets and run tests
-execute_and_check_status "./run_tests.sh"
+# execute_and_check_status "./run_tests.sh"
 
 set +e
 

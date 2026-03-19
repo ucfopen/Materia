@@ -7,7 +7,10 @@
 	.error {
 		width: 80%;
 		margin: 50px auto 5px auto;
-		color: red;
+		color: $color-red;
+
+		font-weight: 700;
+		text-align: center;
 	}
 
 	.container {
@@ -471,7 +474,7 @@
 								right: 0.7em;
 							}
 
-							&:hover {
+							&:hover:not(.disabled) {
 								fill: #a2c129;
 								background: none;
 							}
@@ -736,6 +739,21 @@
 		.controls dl {
 			margin: 10px 0 0 10px;
 			font-size: 0.8em;
+		}
+
+		.provisional-access-container {
+			margin: 0 1em;
+			padding: 1em;
+			border-radius: 1em;
+
+			font-size: 10pt;
+			font-weight: 400;
+
+			background: $color-yellow-bg;
+
+			h3 {
+				margin: 0.5em 0;
+			}
 		}
 
 		.share-widget-container {
@@ -1045,6 +1063,10 @@
 			}
 		}
 
+		.provisional-access-container {
+			background: #4a4121;
+		}
+
 		.overview {
 			.controls {
 				.preview-svg {
@@ -1200,7 +1222,7 @@
 		}
 
 		.share-widget-container {
-			
+
 			.share-widget-options-first {
 				border-left: 8px solid rgba(239, 129, 82, 0.5);
 			}
@@ -1294,7 +1316,7 @@
 			section.directions {
 
 				&.unchosen {
-					
+
 					min-height: 650px;
 
 					&:not(.bearded), &.bearded {
@@ -1364,7 +1386,7 @@
 						padding: 10px;
 						margin: 0 auto;
 					}
-					
+
 					.controls {
 						width: auto;
 						height: auto;

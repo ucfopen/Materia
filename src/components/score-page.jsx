@@ -1,59 +1,61 @@
-import React, { useState, useEffect} from 'react'
+import React, {useState, useEffect, useMemo} from 'react'
 import Header from './header'
 import Scores from './scores'
+import LoadingIcon from './loading-icon'
+import { waitForWindow } from '../util/wait-for-window'
 
 const ScorePage = () => {
-	// get the play_id from the url if using /scores/single/:play_id/:inst_id url
-	const res = window.location.pathname.match(/\/scores\/single\/([a-z0-9\-_]+)/i)
-	const single_id = (res && res[1]) || null
 
-	// We don't want users who click the 'View more details' link via an LTI to play again, since at that point
-	// the play will no longer be connected to the LTI details.
-	// This is a cheap way to hide the button:
-	const hidePlayAgain = document.URL.indexOf('details=1') > -1
-	// get widget id from url like https://my-server.com:8080/scores/nLAmG#play-NbmVXrZe9Wzb
-	const inst_id = document.URL.match(/^.+\/([a-z0-9]+)/i)[1]
+	let isSingle = false
+	let isPreview = false
+	let isEmbed = false
+	let instID = null
+	let playID = null
+	let token = null
 
-	// this is only actually set to something when coming from the profile page
-	const play_id = window.location.hash.split('play-')[1]
+	const urlElements = window.location.pathname.match(/\/scores\/(single\/)?(preview\/)?(embed\/)?([a-z0-9\-_]+)(?:\/([a-z0-9\-_]+))?/i)
+	if (urlElements) {
+		isSingle = urlElements[1] == "single/"
+		isPreview = urlElements[2] == "preview/"
+		isEmbed = urlElements[3] == "embed/"
+		instID = urlElements[4]
+		playID = urlElements[5]
 
-	const pathIsPreview = window.location.pathname.includes('/preview/')
-	const pathIsEmbedded = window.location.pathname.includes('/embed/')
+		// edge case handler for /scores/single/playID/instID
+		// required to support previous score submissions in LMSs; these URIs are stored by the LMS so we need to continue to support them
+		if (playID && instID && playID.length < instID.length) {
+			[instID, playID] = [playID, instID]
+		}
+	}
+
+
+	const urlParams = new URLSearchParams(window.location.search)
+	token = urlParams.get('token')
 
 	const [state, setState] = useState({
-		instanceID: undefined,
-		playID: undefined,
-		singleID: undefined,
-		sendToken: undefined,
-		isEmbedded: pathIsEmbedded,
-		isPreview: pathIsPreview
+		instanceID: instID,
+		userID: undefined,
+		playID: playID,
+		isEmbedded: isEmbed,
+		isPreview: isPreview,
+		isSingle: isSingle,
+		ready: false
 	})
 
-	// Waits for window values to load from server then sets them
 	useEffect(() => {
-		waitForWindow()
+		waitForWindow(['USER_ID'])
 		.then(() => {
-			if (window.IS_EMBEDDED) document.body.classList.add('embedded')
-
 			setState({
-				instanceID: (inst_id ? inst_id : null),
-				playID: play_id ? play_id : null,
-				singleID: single_id ? single_id : null,
-				sendToken: typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null ? window.LAUNCH_TOKEN : play_id,
-				isEmbedded: window.IS_EMBEDDED == 'true' || window.IS_EMBEDDED == true || pathIsEmbedded ? true : false,
-				isPreview: window.IS_PREVIEW == 'true' || window.IS_PREVIEW == true || pathIsPreview ? true : false,
+				...state,
+				userID: window.USER_ID ?? null,
+				playID: playID,
+				token: token ?? null,
+				contextID: window.CONTEXT_ID ?? null,
+				isEmbedded: isEmbed || !!token || !!window.LTI_EMBEDDED,
+				ready: true
 			})
 		})
 	}, [])
-
-	// Used to wait for window data to load
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('IS_EMBEDDED')
-		&& !window.hasOwnProperty('IS_PREVIEW')
-		&& !window.hasOwnProperty('LAUNCH_TOKEN')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
 
 
 	let headerRender = null
@@ -62,14 +64,22 @@ const ScorePage = () => {
 	}
 
 	let bodyRender = null
-	if ( state.isPreview !== undefined ) {
-		bodyRender = <Scores inst_id={state.instanceID}
-		play_id={state.playID}
-		single_id={state.singleID}
-		send_token={state.sendToken}
+	if (state.ready) {
+		bodyRender = <Scores
+		instID={state.instanceID}
+		playID={state.playID}
+		userID={state.userID}
+		token={state.token}
+		contextID={state.contextID}
 		isEmbedded={state.isEmbedded}
-		isPreview={state.isPreview}/>
+		isPreview={state.isPreview}
+		isSingle={state.isSingle}/>
 	}
+	else {
+		bodyRender = <LoadingIcon size='med' />
+	}
+
+	if (state.isEmbedded) document.body.classList.add('embedded')
 
 	return (
 		<>

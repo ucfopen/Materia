@@ -1,4 +1,4 @@
-# temp files from editors
+# temp files from editors and environments
 *~
 *.bak
 .DS_Store
@@ -11,85 +11,36 @@ build
 nbproject/
 *.pem
 .phpunit.result.cache
+.vscode
+.bash_history
+.bash_logout
+.bash_profile
+.bashrc
+.viminfo
+
+.cache/
+.npm/
+.ssh/
 
 # custom config
 .env.local
 .env.local.mysql
+**/.env
 
 # hidden files created by Windows
 Thumbs.db
 desktop.ini
 
-# the composer package lock file and install directory
-/composer.lock
-/fuel/vendor
-
-# any of the fuel packages installed by default
-/docs/
-/fuel/core/
-/fuel/packages/auth/
-/fuel/packages/email/
-/fuel/packages/oil/
-/fuel/packages/orm/
-/fuel/packages/parser/
-/fuel/packages/ucfauth/
-/fuel/packages/materia-theme-ucf/
-
-
-# dynamically generated files
-/fuel/app/logs/**/*
-/fuel/app/logs/*
-/fuel/app/cache/**/*
-/fuel/app/config/asset_hash*
-/fuel/app/config/**/migrations.php
-
 # NPM modules
 node_modules
 
-public/css/admin.css
-public/css/login.css
-public/css/media-import.css
-public/css/my-widgets.css
-public/css/scores.css
-public/css/ng-modal.css
-public/css/beard-mode.css
-public/css/core.css
-public/css/errors.css
-public/css/help.css
-public/css/my-widgets.css
-public/css/profile.css
-public/css/store_delete.css
-public/css/util-lti-picker.css
-public/css/util-media-import.css
-public/css/util-question-import.css
-public/css/util-qset-history.css
-public/css/widget-catalog.css
-public/css/widget-create.css
-public/css/widget-detail.css
-public/css/widget-embed-placeholder.css
-public/css/widget-guide.css
-public/css/widget-play.css
+public/css/**/*
+public/js/**/*
 
-
-public/js/admin.js
-public/js/author.js
-public/js/details.js
-public/js/materia.coms.json.js
-public/js/materia.creatorcore.js
-public/js/materia.enginecore.js
-public/js/materia.js
-public/js/materia.namespace.js
-public/js/materia.score.js
-public/js/materia.scorecore.js
-public/js/materia.storage.manager.js
-public/js/materia.storage.table.js
-public/js/student.js
-public/js/vendor/*
-
-public/openai_usage.txt
+webpack-stats.json
 
 # Installed Widgets
-public/widget
+public/widget/**/*
 spec/widgets/*
 
 # Any widget zip packages
@@ -97,20 +48,13 @@ spec/widgets/*
 *.wigt
 
 # media files
-fuel/packages/materia/media/*
-fuel/app/media/*
-
-fuel/app/tmp
-fuel/packages/materia/tests/widget_source/**/yarn.lock
-
-# Compiled assets
+media/
 
 # dont include coverage files
+.coverage
 coverage.txt
 coverage.xml
 coverage/*
-
-fuel/app/backend/*
 
 licenses/LICENSES_COMPOSER
 licenses/LICENSES_NPM
@@ -120,13 +64,30 @@ materia-pkg-build-info.yml
 
 yarn-error.log
 
+public/rest_framework
 public/dist/*
 !public/dist/package.json
 !public/dist/path.js
 !public/dist/README.md
 
-public/js
-public/css
+__pycache__
+**/*.log
+app/materia/settings.py
+**/venv
+
+# django webpack
+app/media/**/*
+app/media/uploads/*
+app/staticfiles/
+public/css/
+public/js/
+
+**/.python-version
+
+**/venv
 
 # docker override is now untracked as of v10.3.0
 docker/docker-compose.override.yml
+
+#  sql files that may contain sensitive information
+*.sql

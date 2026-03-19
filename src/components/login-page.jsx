@@ -1,113 +1,160 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { apiLoginDirect } from '../util/api'
+import { waitForWindow } from '../util/wait-for-window'
+
 import Header from './header'
 import Summary from './widget-summary'
-import './login-page.scss'
+import LoginSubtitle from 'MateriaText/login/login-subtitle.mdx'
+import LoginHelp from 'MateriaText/login/login-help.mdx'
 import EmbedFooter from './widget-embed-footer'
 
-const LoginPage = () => {
+import Common from 'MateriaCommon'
+import './login-page.scss'
 
-	const mounted = useRef(false)
+const LoginPage = () => {
 	const [state, setState] = useState({
-		loginUser: '',
-		loginPw: '',
-		actionLogin: '',
-		actionRedirect: '',
-		bypass: false,
-		loginLinks: '',
+		actionRedirect: '/profile/',
+		redirectActive: false,
+		externalLogin: '',
 		errContent: '',
-		noticeContent: ''
+		noticeContent: '',
+		context: 'login',
 	})
 
 	useEffect(() => {
-		waitForWindow()
+		waitForWindow(['BASE_URL', 'WIDGET_URL', 'STATIC_CROSSDOMAIN'])
 		.then(() => {
-			let links = decodeURIComponent(window.LOGIN_LINKS).split('@@@').map((link, index) => {
-				let vals = link.split('***')
-				return <li key={index}><a href={`${vals[0]}`}>{`${vals[1]?.replace('+',' ')}`}</a></li>
-			})
 
-			let actionRedirect = window.location.search && window.location.search.split("?redirect=").length > 1 ? window.location.search.split("?redirect=")[1] : ''
-
-			// If there is no redirect query in the url but there is a hash, it will redirect to my-widgets#hash
-			// Otherwise, it adds it onto the end of the redirect query
-			actionRedirect += (window.location.hash ? window.location.hash : '') 
+			const params = new URLSearchParams(window.location.search)
+			let actionRedirect = params.get('next') || ''
+			actionRedirect += (window.location.hash ? window.location.hash : '')
+			const directLogin = params.get('directlogin') | ''
 
 			setState({
-				loginUser: window.LOGIN_USER,
-				loginPw: window.LOGIN_PW,
-				actionLogin: window.ACTION_LOGIN,
-				actionRedirect: actionRedirect.length > 0 ? actionRedirect : window.ACTION_REDIRECT,
-				is_embedded: window.EMBEDDED != undefined ? window.EMBEDDED : false,
-				bypass: window.BYPASS,
+				directLogin: !!directLogin,
+				isEmbedded: window.IS_EMBEDDED ?? false,
+				externalLogin: window.EXTERNAL_LOGIN_URL ?? '',
+				restrictedToLMS: window.LOGINS_RESTRICTED_TO_LMS ?? false,
+				actionRedirect: actionRedirect.length > 0 ? actionRedirect : '/profile/',
+				redirectActive: window.AUTH_REDIRECT_ACTIVE ?? false,
 				context: window.CONTEXT,
 				instName: window.NAME != undefined ? window.INST_NAME : null,
 				widgetName: window.WIDGET_NAME != undefined ? window.WIDGET_NAME : null,
-				isPreview: window.IS_PREVIEW != undefined ? window.IS_PREVIEW : null,
-				loginLinks: links,
-				errContent: window.ERR_LOGIN != undefined ? <div className='error'><p>{`${window.ERR_LOGIN}`}</p></div> : '',
-				noticeContent: window.NOTICE_LOGIN != undefined ? <div className='error'><p>{`${window.NOTICE_LOGIN}`}</p></div> : ''
+				errContent: window.ERR_LOGIN ? window.ERR_LOGIN : null,
+				noticeContent: window.NOTICE_LOGIN ?? null
 			})
 		})
 	}, [])
 
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('LOGIN_USER')
-		&& !window.hasOwnProperty('LOGIN_PW')
-		&& !window.hasOwnProperty('ACTION_LOGIN')
-		&& !window.hasOwnProperty('ACTION_REDIRECT')
-		&& !window.hasOwnProperty('BYPASS')
-		&& !window.hasOwnProperty('LOGIN_LINKS')
-		&& !window.hasOwnProperty('CONTEXT')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
+	const handleLogin = (e) => {
+		e.preventDefault()
+		const username = document.getElementById('username').value
+		const password = document.getElementById('password').value
+
+		apiLoginDirect(username, password).then((res) => {
+			window.location.href = state.actionRedirect
+		}).catch((e) => {
+			let errorMsg = 'Authentication failed due to an error.'
+			if (e.data?.isAuthenticated == false) {
+				errorMsg = 'Invalid login.'
+			}
+			setState(prevState => ({
+				...prevState,
+				errContent: errorMsg,
+			}))
+		})
+	}
+
+	const handleInputChange = (e) => {
+		const { name, value } = e.target
+		setState(prevState => ({
+			...prevState,
+			[name]: value
+		}))
 	}
 
 	let detailContent = <></>
 	if (!state.context || state.context == 'login') {
-		detailContent = 
+		detailContent =
 		<div className="login_context detail">
-			<h2 className="context-header">Log In to Your Account</h2>
-			<span className="subtitle">{`Using your ${state.loginUser} and ${state.loginPw} to access your Widgets.`}</span>
+			<h2 className="context-header">Login to Your Account</h2>
+			{ !!state.externalLogin ? '' : <LoginSubtitle /> }
 		</div>
 	} else if (state.context && state.context == 'widget') {
-		detailContent = 
+		detailContent =
 		<div className="login_context detail">
-			<h2 className="context-header">Log in to play this widget</h2>
-			<span className="subtitle">{`Using your ${state.loginUser} and ${state.loginPw} to access your Widgets.`}</span>
+			<h2 className="context-header">Login to play this widget</h2>
+			{ !!state.externalLogin ? '' : <LoginSubtitle /> }
 		</div>
+	}
+
+	let errContent = null
+	if ( !!state.errContent) {
+		errContent = <div role="alert" className="login-error">{state.errContent}</div>
+	}
+
+	let noticeContent = null
+	if ( !!state.noticeContent) {
+		noticeContent = <div role="alert" className="login-notice">{state.noticeContent}</div>
+	}
+
+	let loginContent = null
+	if ( (!state.restrictedToLMS && !state.redirectActive) || state.directLogin) {
+		loginContent = (
+			<div id="form">
+				<form onSubmit={handleLogin} className='form-content'>
+					<ul>
+						<li>
+							<input type="text" name="username" id="username" placeholder={Common.loginUsernameText} tabIndex="1" autoComplete="username" onChange={handleInputChange}/>
+						</li>
+						<li>
+							<input type="password" name="password" id="password" placeholder={Common.loginPasswordText} tabIndex="2" autoComplete="current-password" onChange={handleInputChange}/>
+						</li>
+						<li className="submit_button">
+							<button type="submit" tabIndex="3" className="action_button">Login</button>
+						</li>
+					</ul>
+				</form>
+			</div>
+		)
+	} else if (state.restrictedToLMS && state.externalLogin.length) {
+		loginContent = (
+			<div className='external-auth-link'>
+				<a className="action_button" href={state.externalLogin}>External Login</a>
+			</div>
+		)
+	} else if (state.redirectActive) {
+
+		const loginPath = `${window.BASE_URL}login?next=${state.actionRedirect}`
+		loginContent = (
+			<div className='external-auth-link'>
+				<a className="action_button" href={loginPath}>Login</a>
+			</div>
+		)
+
+		if (state.isEmbedded) {
+			loginContent = (
+				<div className='external-auth-link'>
+					<a className="action_button" href={loginPath} target="_blank">External Login</a>
+				</div>
+		)
+		}
+
 	}
 
 	return (
 		<>
-			{ state.is_embedded ? '' : <Header /> }
+			{ state.isEmbedded ? '' : <Header /> }
 			<div className="container">
 				<section className="page">
 					{ state.context && state.context == 'widget' ? <Summary /> : ''}
 					{ detailContent }
 
-					<div id="form">
-						{ state.errContent }
-						{ state.noticeContent }
-						<form method="post" action={`${state.actionLogin}?redirect=${state.actionRedirect}`} className='form-content'>
-							<ul>
-								<li>
-									<input type="text" name="username" id="username" placeholder={state.loginUser} tabIndex="1" autoComplete="username" />
-								</li>
-								<li>
-									<input type="password" name="password" id="password" placeholder={state.loginPw} tabIndex="2" autoComplete="current-password" />
-								</li>
-								<li className="submit_button">
-									<button type="submit" tabIndex="3" className="action_button">Login</button>
-								</li>
-							</ul>
-							{ state.bypass ?  
-								<ul className="help_links">
-									{ state.loginLinks }
-									<li><a href="/help">Help</a></li>
-								</ul>
-							: '' }
-						</form>
-					</div>
+					{ errContent }
+					{ noticeContent }
+					
+					{ loginContent }
+					{ state.context != 'widget' ? <LoginHelp /> : '' }
 					{ state.context && state.context == 'widget' ? <EmbedFooter /> : ''}
 				</section>
 			</div>

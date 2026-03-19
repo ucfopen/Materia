@@ -5,6 +5,7 @@ import DetailFeatureList from './detail-feature-list'
 import LoadingIcon from './loading-icon'
 import AccessibilityIndicator from './accessibility-indicator'
 import { WIDGET_URL } from './materia-constants'
+import { waitForWindow } from '../util/wait-for-window'
 
 const initWidgetData = () => ({
 	hasPlayerGuide: false,
@@ -13,9 +14,9 @@ const initWidgetData = () => ({
 	dataLoading: true,
 	maxPageWidth: '0px',
 	date: '',
-	creatorurl: document.location.pathname + '/create',
-	creators_guide: document.location.pathname + '/creators-guide',
-	players_guide: document.location.pathname + '/players-guide',
+	creatorurl: document.location.pathname + 'create',
+	creators_guide: document.location.pathname + 'creators-guide',
+	players_guide: document.location.pathname + 'players-guide',
 	features: [],
 	supported_data: [],
 	accessibility: {},
@@ -50,10 +51,12 @@ const tooltipDescriptions = {
 	Fullscreen: 'This widget may be allowed to temporarily take up your entire screen.',
 }
 
-const renderGuideElement = (guideLocation, text) => (
-	<div className='feature'>
+const renderGuideElement = (guideLocation, text) => {
+	// enforce trailing slash in guide URL
+	if (guideLocation.at(-1) !== '/') guideLocation += '/'
+	return <div className='feature'>
 		<a className='guide-link'
-			href={guideLocation}>
+			href={ guideLocation }>
 			{ text }
 			<svg xmlns='http://www.w3.org/2000/svg'
 				width='24'
@@ -66,7 +69,7 @@ const renderGuideElement = (guideLocation, text) => (
 			</svg>
 		</a>
 	</div>
-)
+}
 
 const Detail = ({widget, isFetching}) => {
 	const [noAuthor, setNoAuthor] = useState(false)
@@ -83,10 +86,10 @@ const Detail = ({widget, isFetching}) => {
 				hasPlayerGuide: widget.player_guide != '',
 				hasCreatorGuide: widget.creator_guide != '',
 				maxWidth: ((parseInt(widget.width) || 700) + 150) + 'px',
-				supported_data: widget.meta_data['supported_data'].map(_tooltipObject),
-				features: widget.meta_data['features'].map(_tooltipObject),
+				supported_data: widget.meta_data.supported_data?.map(_tooltipObject),
+				features: widget.meta_data.features?.map(_tooltipObject),
 				accessibility: getAccessibilityData(widget.meta_data),
-				date: new Date(widget['created_at'] * 1000).toLocaleDateString(),
+				date: new Date(widget.created_at).toLocaleDateString(),
 				dataLoading: false,
 			})
 		}
@@ -94,18 +97,12 @@ const Detail = ({widget, isFetching}) => {
 
 	// Waits for window value to load from server then sets it
 	useEffect(() => {
-		waitForWindow()
+		waitForWindow(['NO_AUTHOR', 'WIDGET_HEIGHT'])
 		.then(() => {
-			setNoAuthor(window.NO_AUTHOR === '1' ? true : false)
-			setHeight(window.WIDGET_HEIGHT === '0' ? '' : window.WIDGET_HEIGHT) // Preloads height to avoid detail window resizing
+			setNoAuthor( !!window.NO_AUTHOR )
+			setHeight( window.WIDGET_HEIGHT == '0' ? '' : window.WIDGET_HEIGHT) // Preloads height to avoid detail window resizing
 		})
 	}, [])
-
-	// Used to wait for window data to load
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('NO_AUTHOR') || !window.hasOwnProperty('WIDGET_HEIGHT'))
-			await new Promise(resolve => setTimeout(resolve, 500))
-	}
 
 	let iconRender = null
 	let contentRender = <div className='loading-icon-holder'><LoadingIcon size='lrg'/></div>
@@ -122,20 +119,20 @@ const Detail = ({widget, isFetching}) => {
 		)
 
 		let featuresRender = null
-		if (widgetData.features.length > 0) {
+		if (widgetData.features?.length > 0) {
 			featuresRender = (
 				<DetailFeatureList widgetData={widgetData} title='Features' type='features'/>
 			)
 		}
 
 		let supportedDataRender = null
-		if (widgetData.supported_data.length > 0) {
+		if (widgetData.supported_data?.length > 0) {
 			supportedDataRender = (
 				<DetailFeatureList widgetData={widgetData} title='Supported Data' type='supported-data'/>
 			)
 		}
 
-		let accessibilityRender = null 
+		let accessibilityRender = null
 		if(!widgetData.dataLoading) {
 			accessibilityRender = <AccessibilityIndicator widget={widgetData} />
 		}

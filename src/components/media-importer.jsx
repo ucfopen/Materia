@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, {useState, useEffect, useRef, useCallback} from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import DragAndDrop from './drag-and-drop'
 import LoadingIcon from './loading-icon'
-import { apiDeleteAsset, apiGetAssets, apiRestoreAsset } from '../util/api'
+import { apiDeleteAsset, apiGetAssets, apiRestoreAsset, getCSRFToken } from '../util/api'
 import './media.scss'
 
 const sortString = (field, a, b) => a[field].toLowerCase().localeCompare(b[field].toLowerCase())
@@ -64,6 +64,27 @@ const MediaImporter = () => {
 	const [showDeletedAssets, setShowDeletedAssets] = useState(false)
 	const [filterSearch, setFilterSearch] = useState('') // Search bar filter
 
+	// Tell the creator that the media importer is ready to receive a direct upload file, if there is one
+	useEffect(() => {
+		parent.postMessage(JSON.stringify({ type: 'readyForDirectUpload', source: 'media-importer', data: '' }), '*')
+	}, [])
+
+	const postMessageHandler = useCallback((e) => {
+		const origin = `${e.origin}/`
+		if (origin !== window.STATIC_CROSSDOMAIN && origin !== window.BASE_URL) return
+		const file = new File(
+			[e.data.buffer],
+			e.data.name,
+			{ type: e.data.type, lastModified: e.data.lastModified }
+		)
+		_upload(file)
+	}, [])
+
+	useEffect(() => {
+		window.addEventListener('message', postMessageHandler)
+		return () => window.removeEventListener('message', postMessageHandler)
+	})
+
 	const { data: listOfAssets } = useQuery({
 		queryKey: ['media-assets', selectedAsset],
 		queryFn: () => apiGetAssets(),
@@ -71,15 +92,15 @@ const MediaImporter = () => {
 		onSuccess: (data) => {
 			if (data) {
 				const list = data.map(asset => {
-					const creationDate = new Date(asset.created_at * 1000)
+					const creationDate = new Date(asset.created_at)
 					return {
 						id: asset.id,
-						type: asset.type,
+						type: asset.file_type,
 						name: asset.title.split('.').shift(),
-						timestamp: asset.created_at,
-						thumb: _thumbnailUrl(asset.id, asset.type),
+						timestamp: creationDate,
+						thumb: _thumbnailUrl(asset.id, asset.file_type),
 						created: [creationDate.getMonth(), creationDate.getDate(), creationDate.getFullYear()].join('/'),
-						is_deleted: parseInt(asset.is_deleted)
+						is_deleted: parseInt(asset.is_deleted) || asset.is_deleted === true
 					}
 				})
 
@@ -144,12 +165,15 @@ const MediaImporter = () => {
 			case 'jpeg': // intentional case fall-through
 			case 'png': // intentional case fall-through
 			case 'gif': // intentional case fall-through
-				return `${MEDIA_URL}/${data}/thumbnail`
+				if (window.USE_CDN && window.CDN_URL){
+					return `${window.CDN_URL}${data}_thumbnail`
+				}
+				return `${window.MEDIA_URL}${data}/thumbnail`
 
 			case 'mp3': // intentional case fall-through
 			case 'wav': // intentional case fall-through
 			case 'm4a': // intentional case fall-through
-				return '/img/audio.png'
+				return '/static/img/audio.png'
 		}
 	}
 
@@ -206,8 +230,8 @@ const MediaImporter = () => {
 		}
 	}
 
+	// TODO: make an API util function to handle this?
 	const _upload = (fileData) => {
-
 		const fd = new FormData()
 		fd.append('name', fileData.name)
 		fd.append('Content-Type', fileData.type)
@@ -236,6 +260,7 @@ const MediaImporter = () => {
 		}
 
 		request.open('POST', MEDIA_UPLOAD_URL, true)
+		request.setRequestHeader('X-CSRFToken', getCSRFToken())
 		request.send(fd)
 	}
 

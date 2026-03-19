@@ -15,7 +15,7 @@ const NoScoreContent = ({scorable, isDraft, beardMode}) => {
 			{ isDraft ? <p>Publish your widget to enable score collection.</p> : <p>Once students play it, score information will be displayed here.</p> }
 		</div>
 
-	return scorable == 1 ? noScoreContentRender : notScorableRender
+	return scorable == true ? noScoreContentRender : notScorableRender
 }
 
 export default NoScoreContent

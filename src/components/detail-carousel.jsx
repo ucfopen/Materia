@@ -278,13 +278,13 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 			const _width = (parseInt(widget.width) + 10) + 'px'
 
 			createPlaySession.mutate({
-				widgetId: widget.meta_data.demo,
-				successFunc: (idVal) => setDemoData({
+				instId: widget.meta_data.demo,
+				successFunc: (data) => setDemoData({
 					demoLoading: true,
 					showDemoCover: false,
 					demoHeight: _height,
 					demoWidth: _width,
-					playId: idVal
+					playId: data.playId
 				}),
 				errorFunc: (err) => {
 					setError("Failed to create play session. Please try again later.")
@@ -292,7 +292,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 			})
 		}
 		else {
-			window.location = document.location.pathname + '/demo'
+			window.location = document.location.pathname + 'demo'
 		}
 	}
 

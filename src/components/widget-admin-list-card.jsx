@@ -1,5 +1,6 @@
-import { apiUpdateWidgetAdmin } from '../util/api'
-import React, { useState, useEffect } from 'react'
+import {apiCheckWidgetForUpdate, apiInstallWidgetUpdate, apiUpdateWidgetEngine} from '../util/api'
+import React, {useState, useEffect, useMemo} from 'react'
+import {useMutation, useQuery, useQueryClient} from "react-query";
 
 const WidgetListCard = ({widget = null}) => {
     const [state, setState] = useState({
@@ -79,32 +80,17 @@ const WidgetListCard = ({widget = null}) => {
 			demo: state.widget.meta_data.demo,
         }
 
-        apiUpdateWidgetAdmin(update).then(response => {
-            let errorMessage = []
-            let success = false
-			for (let prop in response) {
-				const stat = response[prop]
-				if (stat !== true) {
-                    errorMessage.push(stat)
-				}
-            }
-            if (errorMessage.length == 0)
-            {
-                if (response.length < 1)
-                {
-                    errorMessage.push("Error")
-                }
-                else success = true
-            }
-            setState(prevState => ({...prevState, errorMessage: errorMessage, success: success}))
+        apiUpdateWidgetEngine(update)
+        .then(response => {
+            setState(prevState => ({...prevState, success: true}))
         }).catch(err => {
-            setState(prevState => ({...prevState, errorMessage: [err], success: false}))
+            setState(prevState => ({...prevState, errorMessage: err.message, success: false}))
         })
     }
 
     let widgetErrorsRender = null
     if (state.errorMessage) {
-        widgetErrorsRender = state.errorMessage.map((error, i) => <div key={i} className="error"><p>{error}</p></div>)
+        widgetErrorsRender = <div className="error"><p>{state.errorMessage}</p></div>
     }
 
     let widgetSuccessRender = null
@@ -116,17 +102,17 @@ const WidgetListCard = ({widget = null}) => {
 
     let featuresRender = null
     if (state.widget.meta_data.features) {
-        featuresRender = state.widget.meta_data.features.map((feature, i) => <li key={i}>{ feature }</li>)
+        featuresRender = state.widget.meta_data.features?.map((feature, i) => <li key={i}>{ feature }</li>)
     }
 
     let questionTypes = null
     if (state.widget.meta_data.supported_data) {
-        questionTypes = state.widget.meta_data.supported_data.map((qtype, i) => <li key={i}>{ qtype }</li>)
+        questionTypes = state.widget.meta_data.supported_data?.map((qtype, i) => <li key={i}>{ qtype }</li>)
     }
 
     let exportOptions = null
     if (state.widget.meta_data.playdata_exporters) {
-        exportOptions = state.widget.meta_data.playdata_exporters.map((qtype, i) => <li key={i}>{ qtype }</li>)
+        exportOptions = state.widget.meta_data.playdata_exporters?.map((qtype, i) => <li key={i}>{ qtype }</li>)
     }
 
     return (
@@ -144,17 +130,23 @@ const WidgetListCard = ({widget = null}) => {
                 <div className='info-holder'>
                     <div>
                         <span>
-                            <label>ID:</label>{ state.widget.id }
+                            <label>ID:</label>{state.widget.id}
                         </span>
                     </div>
                     <div>
                         <span>
-                            <label>Installed:</label>{ state.widget.created_at /* * 1000 | date:yyyy-MM-dd */ }
+                            <label>Version:</label>
+                            {state.widget.meta_data.version ? state.widget.meta_data.version.trim() : 'Unknown'}
                         </span>
                     </div>
                     <div>
                         <span>
-                            <label>Dimensions:</label>{ state.widget.width }w x { state.widget.height }h
+                            <label>Installed:</label>{new Date(state.widget.created_at).toLocaleString()}
+                        </span>
+                    </div>
+                    <div>
+                        <span>
+                            <label>Dimensions:</label>{state.widget.width}w x {state.widget.height}h
                         </span>
                     </div>
                     <div>
@@ -172,35 +164,35 @@ const WidgetListCard = ({widget = null}) => {
                             <div>
                                 <label className="normal">
                                     <input type="checkbox" checked={state.widget.in_catalog}
-                                    onChange={toggleInCatalog}/>
+                                           onChange={toggleInCatalog}/>
                                     In Catalog
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
                                     <input type="checkbox" checked={state.widget.is_editable}
-                                    onChange={toggleIsEditable}/>
+                                           onChange={toggleIsEditable}/>
                                     Is Editable
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
                                     <input type="checkbox" checked={state.widget.is_playable}
-                                    onChange={toggleIsPlayable}/>
+                                           onChange={toggleIsPlayable}/>
                                     Is Playable
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
                                     <input type="checkbox" checked={state.widget.is_scorable}
-                                    onChange={toggleIsScoreable}/>
+                                           onChange={toggleIsScoreable}/>
                                     Is Scorable
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
                                     <input type="checkbox" checked={state.widget.restrict_publish}
-                                    onChange={toggleRestrictPublish}/>
+                                           onChange={toggleRestrictPublish}/>
                                     Restrict Publish
                                 </label>
                             </div>
@@ -210,18 +202,21 @@ const WidgetListCard = ({widget = null}) => {
                         <span>
                             <label htmlFor="demo">Demo:</label>
                             <input value={state.widget.meta_data.demo}
-                            onChange={handleDemoChange} type='text' id="demo"/>
+                                   onChange={handleDemoChange} type='text' id="demo"/>
                         </span>
                     </div>
                     <div>
                         <span className="long">
                             <label htmlFor="about">About:</label>
-                            <textarea id="about" value={state.widget.meta_data.about} onChange={handleAboutChange}></textarea>
+                            <textarea id="about" value={state.widget.meta_data.about}
+                                      onChange={handleAboutChange}></textarea>
                         </span>
                     </div>
                     <div>
                         <span className="long">
-                            <label htmlFor="excerpt">Excerpt:</label><textarea id="excerpt" value={state.widget.meta_data.excerpt} onChange={handleExcerptChange}></textarea>
+                            <label htmlFor="excerpt">Excerpt:</label><textarea id="excerpt"
+                                                                               value={state.widget.meta_data.excerpt}
+                                                                               onChange={handleExcerptChange}></textarea>
                         </span>
                     </div>
                     <div>
@@ -230,7 +225,7 @@ const WidgetListCard = ({widget = null}) => {
                         </span>
                         <span>
                             <ul>
-                                { featuresRender }
+                                {featuresRender}
                             </ul>
                         </span>
                     </div>
@@ -242,7 +237,7 @@ const WidgetListCard = ({widget = null}) => {
                         </span>
                         <span>
                             <ul>
-                                { questionTypes }
+                                {questionTypes}
                             </ul>
                         </span>
                     </div>
@@ -254,7 +249,7 @@ const WidgetListCard = ({widget = null}) => {
                         </span>
                         <span>
                             <ul>
-                                { exportOptions }
+                                {exportOptions}
                             </ul>
                         </span>
                     </div>

@@ -1,4 +1,4 @@
-import { apiGetWidgetsAdmin } from '../util/api'
+import { apiGetWidget } from '../util/api'
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 
@@ -6,20 +6,20 @@ import Header from './header'
 import WidgetInstall from './widget-admin-install'
 import WidgetList from './widget-admin-list'
 import { iconUrl } from '../util/icon-url'
+import WidgetUpdater from "@/components/widget-admin-updater";
 
 const WidgetAdminPage = () => {
 	const [widgets, setWidgets] = useState([])
 
 	const { data, isLoading, refetch: refetchWidgets} = useQuery({
 		queryKey: ['widgets'],
-		queryFn: apiGetWidgetsAdmin,
+		queryFn: () => apiGetWidget([], 'admin'),
 		staleTime: Infinity,
 		retry: false,
 		onSuccess: (widgetData) => {
 			widgetData.forEach((w) => {
 				w.icon = iconUrl('/widget/', w.dir, 60)
 				// Convert "0" and "1" to false and true
-				w.featured = !!+w.featured
 				w.in_catalog = !!+w.in_catalog
 				w.is_editable = !!+w.is_editable
 				w.restrict_publish = !!+w.restrict_publish
@@ -39,8 +39,9 @@ const WidgetAdminPage = () => {
 
 	let pageRenderContent = (
         <>
-            <WidgetInstall refetchWidgets={refetchWidgets}/>
-            <WidgetList widgets={widgets} isLoading={isLoading}/>
+            <WidgetInstall refetchWidgets={refetchWidgets} />
+            <WidgetUpdater widgets={widgets} isLoading={isLoading} />
+            <WidgetList widgets={widgets} isLoading={isLoading} />
         </>
     )
 

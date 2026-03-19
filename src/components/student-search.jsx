@@ -33,14 +33,14 @@ const StudentSearch = ({addUser, debounceTime=300, setError}) => {
 						alt="user avatar"
 					/>
 					<p className={`attempts_match_name ${match.is_student ? 'attempts_match_student' : ''}`}>
-						{match.first + ' ' + match.last}
+						{match.first_name + ' ' + match.last_name}
 					</p>
 			</div>
 		))
 
 		searchMatchElementsRender = (
 			<div className='attempts_search_list'>
-				{ searchMatchElements}
+				{ searchMatchElements }
 			</div>
 		)
 	}

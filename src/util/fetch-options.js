@@ -1,14 +1,16 @@
+import {getCSRFToken} from "./api";
 
-const fetchPOSTOptions = ({body}) => ({
-	headers: {
-		pragma: 'no-cache',
+const fetchWriteOptions = (method, {body = {}} = {}) => ({
+	'headers': {
 		'cache-control': 'no-cache',
-		'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+		'pragma': 'no-cache',
+		'content-type': 'application/json; charset=UTF-8',
+		'X-CSRFToken': getCSRFToken(),
 	},
-	method: 'POST',
-	mode: 'cors',
-	credentials: 'include',
-	body
+	'method': method,
+	'mode': 'cors',
+	'credentials': 'include',
+	body: JSON.stringify(body ?? {}),
 })
 
-export default fetchPOSTOptions
+export default fetchWriteOptions

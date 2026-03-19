@@ -46,46 +46,35 @@ const MyWidgetsPage = () => {
 		enableLoginButton: false
 	})
 
-	const instanceList = useInstanceList()
+	const instanceList = useInstanceList("me")
 	const [invalidLogin, setInvalidLogin] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
 
 	const [beardMode, setBeardMode] = useState(!!localBeard ? localBeard === 'true' : false)
 	const validCode = useKonamiCode()
-	const deleteWidget = useDeleteWidget()
+	const deleteWidget = useDeleteWidget('me')
 
-	const { data: user } = useQuery({
-		queryKey: 'user',
-		queryFn: apiGetUser,
+	const { data: user, isSuccess: userLoaded } = useQuery({
+		queryKey: ['user', 'me'],
+		queryFn: ({ queryKey }) => {
+			const [_key, user] = queryKey
+			return apiGetUser(user)
+		},
 		staleTime: Infinity,
 		retry: false,
 		onError: (err) => {
-			if (err.message == "Invalid Login")
-			{
-				setInvalidLogin(true)
-			} else {
-				setAlertDialog({
-					enabled: true,
-					message: 'Failed to get user data.',
-					title: err.message,
-					fatal: err.halt,
-					enableLoginButton: false
-				})
-			}
+			setInvalidLogin(true)
 		}
 	})
 
 	const { data: permUsers } = useQuery({
 		queryKey: ['user-perms', state.selectedInst?.id, state.widgetHash],
-		queryFn: () => apiGetUserPermsForInstance(state.selectedInst?.id),
+		queryFn: () => apiGetUserPermsForInstance(state.selectedInst.id),
 		enabled: !!state.selectedInst && !!state.selectedInst.id && state.selectedInst?.id !== undefined,
-		placeholderData: null,
 		staleTime: Infinity,
 		retry: false,
 		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setInvalidLogin(true)
-			}
+			setInvalidLogin(true)
 		}
 	})
 
@@ -111,7 +100,7 @@ const MyWidgetsPage = () => {
 
 	// checks whether "-collab" is contained in hash id
 	const hashContainsCollab = () => {
-		const match = window.location.hash.match(/#(?:[A-Za-z0-9]{5})(-collab)*$/)
+		const match = window.location.hash.match(/#(?:[A-Za-z0-9]{5,})(-collab)*$/)
 
 		if (match != null && match[1] != null)
 		{
@@ -122,22 +111,24 @@ const MyWidgetsPage = () => {
 
 	// hook associated with updates to the selected instance and perms associated with that instance
 	useEffect(() => {
-		if (state.selectedInst && permUsers && user && permUsers.user_perms?.hasOwnProperty(user.id)) {
-			const isEditable = state.selectedInst.widget.is_editable === "1"
+		if (!userLoaded) return
+
+		const ownPerms = permUsers?.filter(perm => perm.user === user.id)
+
+		if (state.selectedInst && permUsers && user && ownPerms.length) {
+			const isEditable = state.selectedInst.widget.is_editable
+
 			const othersPerms = new Map()
-			for (const i in permUsers.widget_user_perms) {
-				othersPerms.set(parseInt(i), rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
-			}
-			let _myPerms
-			for (const i in permUsers.user_perms) {
-				_myPerms = rawPermsToObj(permUsers.user_perms[i], isEditable)
-			}
-			setState({ ...state, otherUserPerms: othersPerms, myPerms: _myPerms })
+			permUsers.forEach(other => {
+				othersPerms.set(other.user, rawPermsToObj(other, isEditable))
+			})
+
+			setState(state => ({...state, myPerms: rawPermsToObj(ownPerms[0], isEditable), otherUserPerms: othersPerms}))
 		}
 		else if (state.selectedInst && permUsers) {
-			setState({...state, noAccess: true})
+			setState(state => ({...state, noAccess: true}))
 		}
-	}, [state.selectedInst, JSON.stringify(permUsers)])
+	}, [state.selectedInst, JSON.stringify(permUsers), userLoaded])
 
 	// hook associated with updates to the widget list OR an update to the widget hash
 	// if there is a widget hash present AND the selected instance does not match the hash, perform an update to the selected widget state info
@@ -207,14 +198,15 @@ const MyWidgetsPage = () => {
 	// hook to watch otherUserPerms (which despite the name also includes the current user perms)
 	// if the current user is no longer in the perms list, purge the selected instance & force a re-fetch of the list
 	useEffect(() => {
-		if (state.selectedInst && !state.otherUserPerms?.get(user.id)) {
+		if (state.otherUserPerms == null) return
+		if (state.selectedInst && userLoaded && !state.otherUserPerms?.get(user.id)) {
 			setState({
 				...state,
 				selectedInst: null,
 				widgetHash: null
 			})
 		}
-	},[state.otherUserPerms])
+	},[state.otherUserPerms, userLoaded])
 
 	// event listener to listen to hash changes in the URL, so the selected instance can be updated appropriately
 	const listenToHashChange = () => {

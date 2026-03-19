@@ -22,8 +22,8 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 			const features = new Set()
 			const accessibility = new Set()
 			widgets.forEach(w => {
-				w.meta_data.features.forEach(f => {features.add(f)})
-				w.meta_data.supported_data.forEach(f => {features.add(f)})
+				w.meta_data.features?.forEach(f => {features.add(f)})
+				w.meta_data.supported_data?.forEach(f => {features.add(f)})
 				if(w.meta_data.hasOwnProperty('accessibility_keyboard')) accessibility.add('Keyboard Accessible')
 				if(w.meta_data.hasOwnProperty('accessibility_reader')) accessibility.add('Screen Reader Accessible')
 			})
@@ -39,10 +39,8 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 	const [filteredWidgets, isFiltered] = useMemo(() => {
 		let isFiltered = false
 
-		// create initial set of widgets to filter from - only including playable widgets
-		let results = widgets.filter(w => {
-			return parseInt(w.is_playable) === 1
-		})
+		// all filter types now remove non-playable widgets by default
+		let results = [...widgets]
 
 		// filters are active, only match active filters
 		if(state.activeFilters.length){
@@ -64,14 +62,14 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 		// search widget names
 		if(state.searchText !== '') {
 			isFiltered = true
-			const re = new RegExp(state.searchText, 'i')
+			const re = new RegExp(RegExp.escape(state.searchText), 'i')
 			results = results.filter(w => re.test(w.name))
 		}
 
 		// if there are no filters set, take out the featured widgets (those with featured = 1)
 		// when no filter is present, a featured section appears already showing featured widgets
 		if (!isFiltered) {
-			results = results.filter(w => parseInt(w.featured) !== 1)
+			results = results.filter(w => !w.featured)
 		}
 
 		return [results, isFiltered]
@@ -189,7 +187,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 
 	let featuredWidgetsRender = null
 	if (!isFiltered && totalWidgets > 0 ) {
-		const featuredWidgetListRender = widgets.filter(w => w.featured==='1')
+		const featuredWidgetListRender = widgets.filter(w => w.featured)
 		.map(w => <CatalogCard {...w} key={w.id} />)
 		featuredWidgetsRender = (
 			<div className='widget-group'>
