@@ -10,7 +10,7 @@ services:
       context: ../
       dockerfile: materia-app.nginx.Dockerfile
     ports:
-      - "420:80"
+      - "80:80"
     volumes:
       - ../public:/var/www/html/staticfiles:ro
       - ../theme/img:/var/www/html/staticfiles/theme/img:ro
