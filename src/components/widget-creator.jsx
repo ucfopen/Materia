@@ -6,7 +6,7 @@ import NoPermission from './no-permission'
 import Alert from './alert'
 import { creator } from './materia-constants';
 
-const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
+const WidgetCreator = ({instId, widgetId, minHeight='', minWidth='', isEmbedded=false}) => {
 
 	/* =========== state information =========== */
 
@@ -485,7 +485,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				}
 				switch (saveModeRef.current) {
 					case 'preview':
-						var url = `${window.BASE_URL}preview/${inst.id}`
+						var url = `${window.BASE_URL}${isEmbedded ? 'preview-embed' : 'preview'}/${inst.id}`
 						var popup = window.open(url)
 						setInstance(currentInstance => ({ ...currentInstance, id: inst.id }))
 						instIdRef.current = inst.id
