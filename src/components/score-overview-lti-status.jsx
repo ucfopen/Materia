@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import ScoreLtiResubmit from './score-lti-resubmit'
 
 
-const ScoreOverviewLtiStatus = ({ lti, single, playId }) => {
+const ScoreOverviewLtiStatus = ({ lti, single, playId, score }) => {
 
 	const [status, setStatus] = useState(lti.status)
 
@@ -29,12 +29,22 @@ const ScoreOverviewLtiStatus = ({ lti, single, playId }) => {
 		const article = single ? 'The' : 'Your'
 		switch (status) {
 			case 'SUCCESS':
-				ltiContentBody = (
-					<>
-						<h3>Grade Submitted</h3>
-						<p>{article} score was successfully synced with the gradebook.</p>
-					</>
-				)
+
+				if (lti.max_score != null && lti.max_score != score) {
+					ltiContentBody = (
+						<>
+							<h3>Grade Submitted</h3>
+							<p>{article} highest score of {lti.max_score}% was submitted instead of the current {score}% score.</p>
+						</>
+					)
+				} else {
+					ltiContentBody = (
+						<>
+							<h3>Grade Submitted</h3>
+							<p>{article} score was successfully synced with the gradebook.</p>
+						</>
+					)
+				} 
 				break
 			case 'AGS_NOT_INCLUDED':
 			case 'NOT_GRADED':
