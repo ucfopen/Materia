@@ -178,9 +178,13 @@ class S3AssetStorageDriver:
             Key=S3AssetStorageDriver.get_key_name(asset.id, "original"),
             ExtraArgs={"ContentType": asset.get_mime_type()},
         )
-        # Upload the thumbnail
-        thumbnail_buffer = io.BytesIO(file_bytes)
-        S3AssetStorageDriver.build_size(asset, "thumbnail", s3_client, thumbnail_buffer)
+
+        # If this is an image, create and upload a thumbnail as well
+        if asset.get_mime_type().split("/")[0] == "image":
+            thumbnail_buffer = io.BytesIO(file_bytes)
+            S3AssetStorageDriver.build_size(
+                asset, "thumbnail", s3_client, thumbnail_buffer
+            )
 
     @staticmethod
     def render(asset, size):
