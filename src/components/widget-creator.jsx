@@ -509,7 +509,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth='', isEmbedded=
 
 						const parts = window.location.pathname.split('/');
 						parts[parts.length - 1] = inst.id;
-						window.history.replaceState(null, '', parts.join('/'));
+						window.history.replaceState(null, '', parts.join('/')+(isEmbedded ? '?is_embedded=true' : ''))
 
 						setInstance(currentInstance => ({ ...currentInstance, ...inst }))
 						apiGetQuestionSet(inst.id).then((qset) => {
