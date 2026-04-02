@@ -4,8 +4,8 @@ import os
 import tempfile
 import threading
 
-import boto3
 import botocore
+from core.services.boto_session_service import BotoSessionService
 from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseRedirect
 
@@ -92,23 +92,7 @@ class S3AssetStorageDriver:
             # Create new session and client/resource
             # We only cache the client/resource objects created from it
             try:
-                # Configure credentials depending on whether we're providing them from env or Amazon's IMDSv2 service
-                # IMDS is HIGHLY recommended for prod usage on AWS
-                session = None
-                if s["credential_provider"] == "imds":
-                    # Credentials are sourced from the EC2 instance's IAM role
-                    session = boto3.Session()
-                elif s["credential_provider"] == "env":
-                    session_config = {
-                        "region_name": s["region"],
-                        "aws_access_key_id": s["key"],
-                        "aws_secret_access_key": s["secret_key"],
-                    }
-                    session = boto3.Session(**session_config)
-                else:
-                    raise Exception(
-                        "S3: Failed to determine credential provider. Did you set the appropriate environment variable?"
-                    )
+                session = BotoSessionService.get_session()
             except Exception:
                 logger.error("S3: Failed to create S3 session.", exc_info=True)
                 raise
