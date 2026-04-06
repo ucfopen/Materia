@@ -34,7 +34,7 @@ const ExtraAttemptsRow = ({extraAttempt, user, onChange}) => {
 					X
 				</button>
 				<div className='user'>
-					<img className="avatar" src={user.avatar} />
+					<img className="avatar" src={user.avatar} alt=""/>
 
 					<span className='user_name'>
 						{`${user.first_name} ${user.last_name}`}
