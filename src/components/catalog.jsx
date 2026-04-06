@@ -104,7 +104,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 	let searchCloseRender = null
 	if (state.searchText) {
 		searchCloseRender = (
-			<button className='search-close'
+			<button className='search-close' title='close search'
 				tabIndex='0'
 				onClick={ () => { setState({...state, searchText: ''}) } } />
 		)
