@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef} from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetWidgetInstancePlayScores, apiGetWidgetInstancePreviewScores } from '../util/api'
 
 import LoadingIcon from './loading-icon'
