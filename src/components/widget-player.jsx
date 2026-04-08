@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useRef, useReducer, useMemo} from 'react'
-import { useQuery } from 'react-query'
+import React, { useState, useEffect, useRef, useReducer, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { v4 as uuidv4 } from 'uuid';
 import { apiGetWidgetInstance, apiGetQuestionSet, apiSessionVerify } from '../util/api'
 import { player } from './materia-constants'
@@ -19,13 +19,13 @@ const initLogs = () => ({ play: [], storage: [] })
 const logReducer = (state, action) => {
 	switch (action.type) {
 		case 'addPlay':
-			return {...state, play: [...state.play, action.payload.log]}
+			return { ...state, play: [...state.play, action.payload.log] }
 		case 'shiftPlay':
-			return {...state, play: [...state.play].filter((play) => !action.payload.ids.includes(play.queueId))}
+			return { ...state, play: [...state.play].filter((play) => !action.payload.ids.includes(play.queueId)) }
 		case 'addStorage':
-			return {...state, storage: [...state.storage, action.payload.log]}
+			return { ...state, storage: [...state.storage, action.payload.log] }
 		case 'shiftStorage':
-			return {...state, storage: [...state.storage].filter((storage) => !action.payload.ids.includes(storage.queueId))}
+			return { ...state, storage: [...state.storage].filter((storage) => !action.payload.ids.includes(storage.queueId)) }
 
 		default:
 			throw new Error(`Unrecognized action: ${action.type}`);
@@ -85,7 +85,7 @@ const _translateForApiVersion = (instance, qset) => {
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/') || window.location.href.includes('/lti/assignment')
 
-const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=true}) => {
+const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFooter = true }) => {
 
 	const [alert, setAlert] = useState({
 		msg: '',
@@ -124,82 +124,75 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 
 	/*********************** queries ***********************/
 
-	const { data: inst } = useQuery({
+	const { data: inst, error: instError } = useQuery({
 		queryKey: ['widget-inst', instanceId],
 		queryFn: () => apiGetWidgetInstance(instanceId),
 		enabled: instanceId !== null,
 		staleTime: Infinity,
 		retry: false,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setAlert({
-					msg: "You are no longer logged in.",
-					title: 'Invalid Play Session',
-					fatal: true,
-					showLoginButton: true
-				})
-			} else if (err.message == "Permission Denied") {
-				setAlert({
-					msg: "You do not have permission to view this widget.",
-					title: 'Failure',
-					fatal: err.halt,
-					showLoginButton: false
-				})
-			}
-			else _onLoadFail("There was a problem loading the widget instance.")
-		}
 	})
 
-	const { data: qset } = useQuery({
+
+	const { data: qset, error: qsetError } = useQuery({
 		queryKey: ['qset', instanceId],
 		queryFn: () => apiGetQuestionSet(instanceId, playId),
 		staleTime: Infinity,
 		placeholderData: null,
 		retry: false,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setAlert({
-					msg: "You are no longer logged in.",
-					title: 'Invalid Play Session',
-					fatal: true,
-					showLoginButton: true
-				})
-			} else if (err.message == "Permission Denied") {
-				setAlert({
-					msg: "You do not have permission to view this widget.",
-					title: 'Failure',
-					fatal: err.halt,
-					showLoginButton: false
-				})
-			}
-			else _onLoadFail("There was a problem loading the widget's question set.")
-		}
 	})
 
-	const { data: heartbeat } = useQuery({
+	const { data: heartbeat, error: heartbeatError } = useQuery({
 		queryKey: ['heartbeat', playId],
 		queryFn: () => apiSessionVerify(playId),
 		staleTime: Infinity,
 		refetchInterval: HEARTBEAT_INTERVAL,
 		enabled: !!playId && heartbeatActive,
-		retry: 1,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setAlert({
-					msg: "You are no longer logged in.",
-					title: 'Invalid Play Session',
-					fatal: true,
-					showLoginButton: true
-				})
-			}
-			else _onLoadFail("Your play session is no longer valid.  You'll need to reload the page and start over.")
-		},
-		onSuccess: (data) => {
-			if (!data) {
-				_onLoadFail("Your play session is no longer valid.  You'll need to reload the page and start over.")
-			}
-		}
+		retry: 1
 	})
+
+	useEffect(() => {
+		if (!heartbeat) {
+			_onLoadFail("Your play session is no longer valid.  You'll need to reload the page and start over.")
+		}
+	}, [heartbeat])
+
+	useEffect(() => {
+		[instError, heartbeatError, qsetError].some(someErr => {
+			if (!someErr) return false;
+			switch (err.status) {
+				case 401: {
+					setAlert({
+						msg: "You are no longer logged in.",
+						title: 'Invalid Play Session',
+						fatal: true,
+						showLoginButton: true
+					})
+					break;
+				}
+				case 403: {
+					setAlert({
+						msg: "You do not have permission to view this widget.",
+						title: 'Failure',
+						fatal: err.halt,
+						showLoginButton: false
+					})
+					break;
+				}
+				default: {
+					if (someErr == qsetError)
+						_onLoadFail("There was a problem loading the widget's question set.")
+					else if (someErr == instError)
+						_onLoadFail("There was a problem loading the widget instance.")
+					else if (someErr == heartbeatErr)
+						_onLoadFail("Your play session is no longer valid. You'll need to reload the page and start over.")
+					else
+						_onLoadFail("An unknown error has occurred.")
+					break;
+				}
+			}
+			return true;
+		})
+	}, [instError, heartbeatError, qsetError])
 
 	/*********************** listeners ***********************/
 	/* note: the values being tracked by these hooks is so the state values referenced in the callbacks is up-to-date */
@@ -235,7 +228,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 		if (bodyRef && bodyRef.classList.contains('darkMode')) {
 			darkModeRef.current = true
 		}
-	},[])
+	}, [])
 
 	// Starts the widget player once the instance and qset have loaded
 	useEffect(() => {
@@ -261,7 +254,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 			}
 
 			// Starts up the demo with the htmlPath
-			setAttributes ({
+			setAttributes({
 				allowFullScreen: fullscreen != undefined,
 				loading: false,
 				htmlPath: enginePath + '?' + inst.widget.created_at,
@@ -276,14 +269,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 	// initializes heartbeat
 	useEffect(() => {
 		if (startTime !== 0 && !isPreview && !!inst && !inst.guest_access && !heartbeatActive) setHeartbeatActive(true)
-	},[startTime, inst, isPreview])
+	}, [startTime, inst, isPreview])
 
 	// was a fatal alert triggered? Turn off the heartbeat, the play is abandoned
 	useEffect(() => {
 		if (!!alert.msg && !!alert.title && alert.fatal) {
 			setHeartbeatActive(false)
 		}
-	},[alert])
+	}, [alert])
 
 	// hook associated with log queue management
 	useEffect(() => {
@@ -366,7 +359,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 					throw new Error(`Unknown PostMessage received from player core: ${msg.type}`)
 			}
 		}
-		else if( ! ['react-devtools-content-script', 'react-devtools-bridge', 'react-devtools-inject-backend'].includes(e.data.source)) {
+		else if (!['react-devtools-content-script', 'react-devtools-bridge', 'react-devtools-inject-backend'].includes(e.data.source)) {
 			throw new Error(
 				`Post message Origin does not match. Expected: ${expectedOrigin}, Actual: ${origin}`
 			)
@@ -379,7 +372,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 		} else {
 			const convertedInstance = _translateForApiVersion(inst, qset)
 			setStartTime(new Date().getTime())
-			_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
+			_sendToWidget('initWidget', [qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
 			setPlayState('playing')
 		}
 	}
@@ -415,7 +408,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 		const d = new Date().getTime()
 		log['game_time'] = (d - startTime) / 1000 // log time in seconds
 		log['queueId'] = uuidv4() // this isn't actually used by the server, instead it's a way to identify which logs have been processed. Using a uuid to prevent collisions
-		dispatchPendingLogs({type: 'addPlay', payload: {log: log}})
+		dispatchPendingLogs({ type: 'addPlay', payload: { log: log } })
 	}
 
 	const _pushPendingLogs = logQueue => {
@@ -437,7 +430,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 					// leverages React's built-in state management to prevent race conditions with log processing
 					// when a function is passed to useState, the results of the function are passed to each subsequent call of useState
 					// this way, the pendingLogs state object remains immutable and the alterations should be queued correctly
-					dispatchPendingLogs({type: 'shiftPlay', payload: { ids: [...qIds]}})
+					dispatchPendingLogs({ type: 'shiftPlay', payload: { ids: [...qIds] } })
 					logQueue.shift()
 
 					// score_url is sent from the server to redirect to a specific url
@@ -473,7 +466,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 						_pushPendingLogs(logQueue)
 					}, retrySpeed)
 
-					return oldCount+1
+					return oldCount + 1
 				})
 			}
 		})
@@ -492,7 +485,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 			logs: logQueue[0].request[1],
 			successFunc: (result) => {
 				if (result) {
-					dispatchPendingLogs({type: 'shiftStorage', payload: { ids: [...qIds]}})
+					dispatchPendingLogs({ type: 'shiftStorage', payload: { ids: [...qIds] } })
 					logQueue.shift()
 
 					if (logQueue.length > 0) _pushPendingStorageLogs(logQueue)
@@ -521,29 +514,29 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 	}
 
 	const _sendStorage = msg => {
-		dispatchPendingLogs({type: 'addStorage', payload: {log: {...msg, queueId: uuidv4()}}})
+		dispatchPendingLogs({ type: 'addStorage', payload: { log: { ...msg, queueId: uuidv4() } } })
 	}
 
 	/*********************** helper methods ***********************/
 
 	const _initScoreScreenUrl = () => {
 		let _scoreScreenURL = ''
-			if (isPreview) {
-				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}/${previewPlayId}`
-			} else if (isEmbedded) {
-				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}/${playId}`
-			} else {
-				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}/${playId}`
-			}
-			// do we have an LTI token? Make sure it's appended to the score screen URL so we can play again with the same launch
-			if ( !!window.LTI_TOKEN) _scoreScreenURL += `?token=${window.LTI_TOKEN}`
+		if (isPreview) {
+			_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}/${previewPlayId}`
+		} else if (isEmbedded) {
+			_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}/${playId}`
+		} else {
+			_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}/${playId}`
+		}
+		// do we have an LTI token? Make sure it's appended to the score screen URL so we can play again with the same launch
+		if (!!window.LTI_TOKEN) _scoreScreenURL += `?token=${window.LTI_TOKEN}`
 		return _scoreScreenURL
 	}
 
 	const _setHeight = h => {
 		const min_h = inst.widget.height
 		let desiredHeight = Math.max(h, min_h)
-		setAttributes((oldData) => ({...oldData, height: `${desiredHeight}px`}))
+		setAttributes((oldData) => ({ ...oldData, height: `${desiredHeight}px` }))
 	}
 
 	const _setVerticalScroll = location => {
@@ -576,7 +569,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 	if (isPreview) {
 		previewBarRender = (
 			<header className='preview-bar'
-				style={{width: attributes.width !== '0px' ? attributes.width : ''}}>
+				style={{ width: attributes.width !== '0px' ? attributes.width : '' }}>
 			</header>
 		)
 	}
@@ -601,7 +594,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 				fatal={alert.fatal}
 				showLoginButton={alert.showLoginButton}
 				onCloseCallback={() => {
-					setAlert({msg: '', title: '', fatal: false, showLoginButton: false})
+					setAlert({ msg: '', title: '', fatal: false, showLoginButton: false })
 				}} />
 		)
 	}
@@ -611,31 +604,33 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 		const logoPath = darkModeRef.current ? "/static/img/materia-logo-thin-darkmode.svg" : "/static/img/materia-logo-thin.svg"
 		footerRender = <section className='player-footer' style={{ width: attributes.width !== '0px' ? attributes.width : 'auto' }}>
 			<a className="materia-logo" href={window.BASE_URL} target="_blank"><img src={logoPath} alt="materia logo" /></a>
-			{ inst?.widget?.player_guide ? <a href={`${window.BASE_URL}widgets/${inst.widget.dir}players-guide`} target="_blank">Player Guide</a> : null }
+			{inst?.widget?.player_guide ? <a href={`${window.BASE_URL}widgets/${inst.widget.dir}players-guide`} target="_blank">Player Guide</a> : null}
 		</section>
 	}
 
 	return (
 		<>
-			{ alertDialogRender }
+			{alertDialogRender}
 			<section className={`widget ${isPreview ? 'preview' : ''}`}
-				style={{display: attributes.loading ? 'none' : 'block'}}>
-				{ previewBarRender }
+				style={{ display: attributes.loading ? 'none' : 'block' }}>
+				{previewBarRender}
 				<div className='center'
 					ref={centerRef}
-					style={{minHeight: minHeight + 'px',
+					style={{
+						minHeight: minHeight + 'px',
 						minWidth: minWidth + 'px',
 						width: attributes.width !== '0px' ? attributes.width : 'auto',
-						height: attributes.height !== '0px' ? attributes.height : '100%'}}>
-					<iframe src={ attributes.htmlPath }
+						height: attributes.height !== '0px' ? attributes.height : '100%'
+					}}>
+					<iframe src={attributes.htmlPath}
 						id='container'
 						className='html'
 						scrolling='yes'
 						ref={frameRef}
 					/>
-					{ loadingRender }
+					{loadingRender}
 				</div>
-				{ footerRender }
+				{footerRender}
 			</section>
 		</>
 	)
