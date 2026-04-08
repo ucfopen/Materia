@@ -1,6 +1,6 @@
 import React, {useMemo, useRef, useState} from 'react'
 import WidgetUpdateTableRow from "@/components/widget-update-table-row";
-import {useMutation, useQueryClient} from "react-query";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {apiCheckAllWidgetsForUpdates, apiInstallWidgetUpdate} from "@/util/api";
 
 const WidgetUpdater = ({ widgets = [], isLoading = true }) => {

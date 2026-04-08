@@ -1,4 +1,4 @@
-import { useMutation } from 'react-query'
+import { useMutation } from '@tanstack/react-query'
 import {apiCreateExtraAttempts, apiDeleteExtraAttempts, apiUpdateExtraAttempts} from '@/util/api'
 
 export function useCreateExtraAttempts() {

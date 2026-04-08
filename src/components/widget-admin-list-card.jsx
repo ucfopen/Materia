@@ -1,6 +1,5 @@
 import {apiCheckWidgetForUpdate, apiInstallWidgetUpdate, apiUpdateWidgetEngine} from '../util/api'
 import React, {useState, useEffect, useMemo} from 'react'
-import {useMutation, useQuery, useQueryClient} from "react-query";
 
 const WidgetListCard = ({widget = null}) => {
     const [state, setState] = useState({

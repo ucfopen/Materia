@@ -1,4 +1,4 @@
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { apiGenerateQset } from "../../util/api";
 
 export default function useQuestionGeneration() {

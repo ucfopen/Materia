@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import UserAdminInstanceAvailable from './user-admin-instance-available'
 import UserAdminInstancePlayed from './user-admin-instance-played'
 import useInstanceList from './hooks/useInstanceList'

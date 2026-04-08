@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useInfiniteQuery } from 'react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { apiGetUserPlaySessions } from '../../util/api'
 
 // facilitates paginated requests for widget instances. Returns a flat list with some handlers associated with the query.

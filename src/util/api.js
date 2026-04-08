@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import fetchWriteOptions from './fetch-options'
-import { useQueryClient } from 'react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const getCSRFToken = () => {
 	const cookies = document.cookie.split(';')
