@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetQuestionSetHistory } from '../util/api'
 import './question-history.scss'
 
@@ -12,24 +12,22 @@ const getInstId = () => {
 
 const QuestionHistory = () => {
 	const [saves, setSaves] = useState([])
-	const [error, setError] = useState('')
 	const [instId, setInstId] = useState(getInstId())
 
-	const { data: qsetHistory, isLoading: loading } = useQuery({
+	const { data: qsetHistory, isLoading: loading, error: qsetHistoryError } = useQuery({
 		queryKey: ['questions', instId],
 		queryFn: () => apiGetQuestionSetHistory(instId),
 		enabled: !!instId,
 		staleTime: Infinity,
-		retry: false,
-		onError: (err) => {
-			setError("Error fetching question set history.")
-			console.error(err.cause)
-		}
+		retry: false
 	})
 
+	if (qsetHistoryError) {
+		console.error(qsetHistoryError.cause)
+	}
+
 	useEffect(() => {
-		if (qsetHistory)
-		{
+		if (qsetHistory) {
 			qsetHistory.map((qset) => {
 				return {
 					id: qset.id,
@@ -78,10 +76,10 @@ const QuestionHistory = () => {
 			</div>
 		)
 	}
-	else if (error) {
+	else if (qsetHistoryError) {
 		noSavesRender = (
 			<div className="no_saves">
-				<h3><i>{error}</i></h3>
+				<h3><i>Error fetching question set history.</i></h3>
 			</div>
 		)
 	}

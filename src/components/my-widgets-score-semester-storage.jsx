@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetStorageData, apiExportDataStorageTable } from '../util/api'
 import LoadingIcon from './loading-icon'
 import PaginateButtons from './score-storage-paginate-buttons'
@@ -30,22 +30,26 @@ const MyWidgetScoreSemesterStorage = ({semester, instId, setInvalidLogin}) => {
 	const [searchInput, setSearchInput] = useState('')
 	const mounted = useRef(false)
 	const [error, setError] = useState('')
-	const { data: results } = useQuery({
+	const { data: results, error: scoreStorageError } = useQuery({
 		queryKey: ['score-storage', instId],
 		queryFn: () => apiGetStorageData(instId),
 		enabled: !!instId,
 		staleTime: Infinity,
 		placeholderData: {},
-		retry: false,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setInvalidLogin(true);
-			} else {
-				setError((err.message || "Error") + ": Failed to retrieve storage data.")
-			}
-			setState({...state, isLoading: false})
-		}
+		retry: false
 	})
+
+	useEffect(() => {
+		if (!scoreStorageError) return
+		switch (scoreStorageError.status) {
+			case 401:
+				setInvalidLogin(true);
+				break
+			default:
+				setError((err.message || "Error") + ": Failed to retrieve storage data.")
+		}
+		setState({...state, isLoading: false})
+	}, [scoreStorageError])
 
 	useEffect(() => {
 		mounted.current = true

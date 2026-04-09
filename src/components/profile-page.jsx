@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useQuery, useInfiniteQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import LoadingIcon from './loading-icon'
-import {apiGetUser, apiGetUserPlaySessions} from '../util/api'
+import { apiGetUser } from '../util/api'
 import useGetPlaySessions from './hooks/useGetPlaySessions'
 import Header from './header'
 import './profile-page.scss'
@@ -16,18 +16,21 @@ const ProfilePage = () => {
 		enableLoginButton: false
 	})
 	const [activityData, setActivityData] = useState([])
-	let userActivity =  useGetPlaySessions("me", false)
+	let userActivity = useGetPlaySessions("me", false)
 
 	const mounted = useRef(false)
-	const { data: currentUser, isFetching } = useQuery({
+	const { data: currentUser, isFetching, error: currentUserError } = useQuery({
 		queryKey: ['user', 'me'],
 		queryFn: ({ queryKey }) => {
 			const [_key, user] = queryKey
 			return apiGetUser(user)
 		},
 		staleTime: Infinity,
-		retry: false,
-		onError: (err) => {
+		retry: false
+	})
+
+	useEffect(() => {
+		if (currentUserError) {
 			setAlertDialog({
 				enabled: true,
 				message: 'You must be logged in to view your profile.',
@@ -36,7 +39,7 @@ const ProfilePage = () => {
 				enableLoginButton: true
 			})
 		}
-	})
+	}, [currentUserError])
 
 	useEffect(() => {
 		if (userActivity?.plays) {

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiGetNotifications } from '../util/api'
 import useDeleteNotification from './hooks/useDeleteNotification'
 import setUserInstancePerms from './hooks/useSetUserInstancePerms'

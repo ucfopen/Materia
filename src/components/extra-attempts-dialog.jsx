@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetExtraAttempts, apiGetUsers } from '../util/api'
 import { useCreateExtraAttempts, useDeleteExtraAttempts, useUpdateExtraAttempts } from './hooks/useExtraAttempts'
 import Modal from './modal'
@@ -34,60 +34,61 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 	const createExtraAttempts = useCreateExtraAttempts()
 	const deleteExtraAttempts = useDeleteExtraAttempts()
 	const updateExtraAttempts = useUpdateExtraAttempts()
-	const { data: attempts, isLoading: attemptsLoading, isFetching, remove: removeAttempts } = useQuery({
+	const { data: attempts, isLoading: attemptsLoading, isFetching, remove: removeAttempts, error: attemptsError } = useQuery({
 		queryKey: 'extra-attempts',
 		queryFn: () => apiGetExtraAttempts(inst.id),
 		placeholderData: [],
-		staleTime: Infinity,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				window.location.href = '/login'
-			} else {
-				setError((err.message || "Error") + ": Failed to retrieve extra attempts.")
-			}
-		}
+		staleTime: Infinity
 	})
-	const { data: queryUsers, remove: removeUsers } = useQuery({
+	const { data: queryUsers, remove: removeUsers, error: usersError } = useQuery({
 		queryKey: ['attempt-users', inst.id],
 		queryFn: () => apiGetUsers(state.userIDs),
 		enabled: !!state.userIDs && state.userIDs.length > 0 && attemptsLoading == false,
 		placeholderData: {},
-		staleTime: Infinity,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				window.location.href = '/login'
-			} else {
-				setError((err.message || "Error") + ": Failed to retrieve user(s).")
-			}
-		}
+		staleTime: Infinity
 	})
 
 	useEffect(() => {
-    mounted.current = true
-    return () => (mounted.current = false)
+		[usersError, attemptsError].some((someErr) => {
+			switch (someErr.status) {
+				case 401:
+					window.location.href = '/login'
+					break;
+				default:
+					if (someErr == usersError)
+						setError((err.message || "Error") + ": Failed to retrieve user(s).")
+					else if (someErr == attemptsError)
+						setError((err.message || "Error") + ": Failed to retrieve extra attempts.")
+			}
+		})
+	}, [usersError, attemptsError])
+
+	useEffect(() => {
+		mounted.current = true
+		return () => (mounted.current = false)
 	}, [])
 
 	// Sets the users and attempts on load
 	useEffect(() => {
 		if (attempts !== null && mounted.current) {
 			const idArr = []
-			attempts.forEach(user => {idArr.push(user.user)})
-			setState({...state, userIDs: idArr, extraAttempts: attempts})
+			attempts.forEach(user => { idArr.push(user.user) })
+			setState({ ...state, userIDs: idArr, extraAttempts: attempts })
 		}
 	}, [JSON.stringify(attempts), mounted.current])
 
 	useEffect(() => {
 		if (mounted.current) {
-			setState({...state, users: {...queryUsers}})
+			setState({ ...state, users: { ...queryUsers } })
 		}
 	}, [JSON.stringify(queryUsers)])
 
 	const addUser = (match) => {
 		// add user to users list if not already there
-		const tempUsers = {...state.users}
+		const tempUsers = { ...state.users }
 		const tempAttempts = [...state.extraAttempts]
 
-		if(!(match.id in state.users)){
+		if (!(match.id in state.users)) {
 			tempUsers[match.id] = match
 
 			// add another extra attempts row if needed

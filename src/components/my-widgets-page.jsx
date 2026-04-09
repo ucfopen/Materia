@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetUser, readFromStorage, apiGetUserPermsForInstance } from '../util/api'
 import rawPermsToObj from '../util/raw-perms-to-object'
 import Header from './header'
@@ -54,29 +54,28 @@ const MyWidgetsPage = () => {
 	const validCode = useKonamiCode()
 	const deleteWidget = useDeleteWidget('me')
 
-	const { data: user, isSuccess: userLoaded } = useQuery({
+	const { data: user, isSuccess: userLoaded, isError: userError } = useQuery({
 		queryKey: ['user', 'me'],
 		queryFn: ({ queryKey }) => {
 			const [_key, user] = queryKey
 			return apiGetUser(user)
 		},
 		staleTime: Infinity,
-		retry: false,
-		onError: (err) => {
-			setInvalidLogin(true)
-		}
+		retry: false
 	})
 
-	const { data: permUsers } = useQuery({
+	const { data: permUsers, isError: permUserError } = useQuery({
 		queryKey: ['user-perms', state.selectedInst?.id, state.widgetHash],
 		queryFn: () => apiGetUserPermsForInstance(state.selectedInst.id),
 		enabled: !!state.selectedInst && !!state.selectedInst.id && state.selectedInst?.id !== undefined,
 		staleTime: Infinity,
-		retry: false,
-		onError: (err) => {
-			setInvalidLogin(true)
-		}
+		retry: false
 	})
+
+	useEffect(() => {
+		if (!permUserError && !userError) return
+		setInvalidLogin(true)
+	}, [permUserError, userError])
 
 	// konami code activate (or deactivate)
 	useEffect(() => {
@@ -234,7 +233,6 @@ const MyWidgetsPage = () => {
 
 	// an instance has been deleted: the mutation will optimistically update the widget list while the list is re-fetched from the server
 	const onDelete = inst => {
-
 		deleteWidget.mutate(
 			{
 				instId: inst.id,
