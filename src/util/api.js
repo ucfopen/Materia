@@ -731,7 +731,8 @@ export const apiWidgetPromptGenerate = (prompt) => {
  * helper and instead directly interfaces with the Fetch API to handle a
  * Server-Sent Events (SSE) stream.
  * @param {Object} params - The parameters for the streaming request.
- * @param {Object[]} params.request - The conversation history to send to the backend.
+ * @param {Object[]} params.request.conversation - The conversation history to send to the backend.
+ *  * @param {Object[]} params.request.systemPrompt - The system prompt to send to the backend.
  * @param {Function} [params.onChunk] - Optional callback invoked with each received text chunk.
  *  Receives two arguments: the latest chunk of text, and the full accumulated text so far.
  * @returns {Promise<{response: string}>} - Resolves with an object containing the full
@@ -739,7 +740,8 @@ export const apiWidgetPromptGenerate = (prompt) => {
  * @throws {Error} - Throws an HTTP error if the response status is not OK.
  */
 export const apiStreamingResponseGenerate = async (params) => {
-	const conversation = params.request
+	const conversation = params.request.conversation
+	const system_prompt = params.request.systemPrompt
 	const onChunk = params.onChunk // Extract the onChunk callback
 	
 	const response = await fetch('/api/generate/streaming/', {
@@ -748,7 +750,7 @@ export const apiStreamingResponseGenerate = async (params) => {
 			'Content-Type': 'application/json',
 			'X-CSRFToken': getCSRFToken(),
 		},
-		body: JSON.stringify({conversation}),
+		body: JSON.stringify({conversation, system_prompt}),
 	})
 
 	if (!response.ok) {

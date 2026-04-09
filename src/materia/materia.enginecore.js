@@ -113,8 +113,8 @@ Namespace('Materia').Engine = (() => {
 
 	const escapeScriptTags = (text) => text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-	const submitGenerationRequest = (request) => {
-		_sendPostMessage('generationStreamingRequest', request)
+	const submitGenerationRequest = (conversation, systemPrompt) => {
+		_sendPostMessage('generationStreamingRequest', [conversation, systemPrompt])
 	}
 
 	return {

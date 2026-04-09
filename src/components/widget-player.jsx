@@ -364,7 +364,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 				case 'setVerticalScroll':
 					return _setVerticalScroll(msg.data[0])
 				case 'generationStreamingRequest':
-					return _submitGenerationRequestForPlayer(msg.data)
+					return _submitGenerationRequestForPlayer(msg.data[0], msg.data[1])
 				case 'initialize':
 					break
 				default:
@@ -557,9 +557,12 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 		window.scrollTo(0, calculatedLocation)
 	}
 
-	const _submitGenerationRequestForPlayer = request => {
+	const _submitGenerationRequestForPlayer = (conversation, systemPrompt = "") => {
 		sendPlayerPromptStream.mutate({
-			request: request,
+			request: {
+				conversation: conversation,
+				systemPrompt: systemPrompt
+			},
 			onChunk: (chunk, fullText) => {
 				_sendToWidget('promptResponse', [fullText, false])
 			},

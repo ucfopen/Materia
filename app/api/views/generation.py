@@ -120,10 +120,12 @@ class GenerateStreamingResponseView(APIView):
         request_serializer.is_valid(raise_exception=True)
 
         messages = request_serializer.validated_data["conversation"]
+        system_prompt = request_serializer.validated_data["system_prompt"]
 
         driver = GenerationDriverFactory.get_driver()
         response = StreamingHttpResponse(
-            driver.generate_prompt_stream(messages), content_type="text/event-stream"
+            driver.generate_prompt_stream(messages, system_prompt),
+            content_type="text/event-stream",
         )
         response["Cache-Control"] = "no-cache"
         response["X-Accel-Buffering"] = "no"

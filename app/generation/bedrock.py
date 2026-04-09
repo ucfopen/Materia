@@ -70,7 +70,9 @@ class BedrockGenerationDriver(GenerationDriver):
         return generated_text
 
     @staticmethod
-    def query_streaming(messages: list) -> Generator[str, None, None]:
+    def query_streaming(
+        messages: list, system_prompt=None
+    ) -> Generator[str, None, None]:
 
         client = BedrockGenerationDriver.get_client()
 
@@ -79,6 +81,9 @@ class BedrockGenerationDriver(GenerationDriver):
             "messages": messages,
             "max_tokens": 4096,
         }
+
+        if system_prompt is not None:
+            request_body["system"] = system_prompt
 
         response = client.invoke_model_with_response_stream(
             modelId=settings.AI_GENERATION["MODEL"], body=json.dumps(request_body)
@@ -94,8 +99,8 @@ class BedrockGenerationDriver(GenerationDriver):
         yield "data: [DONE]\n\n"
 
     @staticmethod
-    def generate_prompt_stream(messages: list):
-        yield from BedrockGenerationDriver.query_streaming(messages)
+    def generate_prompt_stream(messages: list, system_prompt: str | None):
+        yield from BedrockGenerationDriver.query_streaming(messages, system_prompt)
 
     @staticmethod
     def generate_qset(

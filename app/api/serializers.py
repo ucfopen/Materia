@@ -730,6 +730,7 @@ class PromptGenerationRequestSerializer(serializers.Serializer):
 
 class PromptStreamingRequestSerializer(serializers.Serializer):
     conversation = serializers.ListField()
+    system_prompt = serializers.CharField(required=False)
 
 
 # Used for incoming requests to copy a widget instance. Does NOT map to a model.
