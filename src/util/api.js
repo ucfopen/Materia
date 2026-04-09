@@ -110,7 +110,7 @@ export const apiGetWidgetInstances = (user, pageParam) => {
  * @param {boolean} [getDeleted=false] - Whether to return the requested widget instance if it is deleted.
  * @returns {Promise<any>} - Parsed response data.
  */
-export const apiGetWidgetInstance = (instId, getDeleted = false) => {
+export const apiGetWidgetInstance = (instId, getDeleted=false) => {
 	return handleRequest(methods.GET, `/api/instances/${instId}/`)
 }
 
@@ -132,7 +132,7 @@ export const apiGetWidgetInstance = (instId, getDeleted = false) => {
  * @param {'admin'|'all'|'playable'|'featured'|'catalog'|'default'} [widgetType='catalog'] - The type of lookup to perform.
  * @returns {Promise<any>} - Parsed response data.
  */
-export const apiGetWidget = (ids = [], widgetType = 'catalog') => {
+export const apiGetWidget = (ids=[], widgetType='catalog') => {
 	let params = `?type=${widgetType}`
 
 	if (ids.length) {
@@ -352,8 +352,8 @@ export const apiGetWidgetLock = (id = null) => {
  * @returns {Promise<any>} - Parsed response data.
  */
 export const apiExportDataStorageTable = (instId, table, semester, anonymous) => {
-	const url = `/api/instances/${instId}/export_playdata/?type=storage&table=${table}&semesters=${semester}&anonymous=${anonymous}`
-	return handleRequest(methods.GET, url)
+  const url = `/api/instances/${instId}/export_playdata/?type=storage&table=${table}&semesters=${semester}&anonymous=${anonymous}`
+  return handleRequest(methods.GET, url)
 }
 
 export const apiSearchInstances = (input, pageParam = 1, include_deleted = false) => {
@@ -368,7 +368,7 @@ export const apiSearchInstances = (input, pageParam = 1, include_deleted = false
  * @param {string} [contextId=null] - Optional context ID to filter score results by.
  * @returns {Promise<any>} - Parsed response data.
  */
-export const apiGetWidgetInstanceScores = (instId, userId, contextId = null) => {
+export const apiGetWidgetInstanceScores = (instId, userId, contextId=null) => {
 	const url = `/api/scores/?inst_id=${instId}&user=${userId}${contextId != null ? '&context=' + contextId : ''}`
 	return handleRequest(methods.GET, url)
 }
@@ -399,27 +399,27 @@ export const apiGetWidgetInstancePreviewScores = (playId, previewInstId) => {
  */
 export const apiGetScoreSummary = instId => {
 	return handleRequest(methods.GET, `/api/instances/${instId}/performance/`)
-		.then(data => {
-			const scores = data
-			const ranges = [
-				'0-9',
-				'10-19',
-				'20-29',
-				'30-39',
-				'40-49',
-				'50-59',
-				'60-69',
-				'70-79',
-				'80-89',
-				'90-100',
-			]
-			scores.forEach(semester => {
-				semester.graphData = semester.distribution?.length ? semester.distribution?.map((d, i) => ({ label: ranges[i], value: d })) : null
-				semester.totalScores = semester.distribution?.length ? semester.distribution?.reduce((total, count) => total + count) : 0
-			})
-
-			return scores
+	.then(data => {
+		const scores = data
+		const ranges = [
+			'0-9',
+			'10-19',
+			'20-29',
+			'30-39',
+			'40-49',
+			'50-59',
+			'60-69',
+			'70-79',
+			'80-89',
+			'90-100',
+		]
+		scores.forEach(semester => {
+			semester.graphData = semester.distribution?.length ? semester.distribution?.map((d, i) => ({ label: ranges[i], value: d })) : null
+			semester.totalScores = semester.distribution?.length ? semester.distribution?.reduce((total, count) => total + count) : 0
 		})
+
+		return scores
+	})
 }
 
 /**
@@ -522,7 +522,7 @@ export const apiGetQuestionSet = (instanceId, playId = null) => {
  * @param {boolean} buildOffExisting - Whether to create a new question set or append to an existing one.
  * @returns {Promise<any>} - Parsed response data.
  */
-export const apiGenerateQset = ({ instId, widgetId, topic, includeImages, numQuestions, buildOffExisting }) => {
+export const apiGenerateQset = ({instId, widgetId, topic, includeImages, numQuestions, buildOffExisting}) => {
 	return handleRequest(methods.POST, '/api/generate/qset/', ({
 		instance_id: instId,
 		widget_id: widgetId,
@@ -540,9 +540,9 @@ export const apiGenerateQset = ({ instId, widgetId, topic, includeImages, numQue
  */
 export const apiSessionVerify = (playId) => {
 	return handleRequest(methods.GET, `/api/play-sessions/${playId}/verify/`)
-		.then(data => {
-			return data.valid
-		})
+	.then(data => {
+		return data.valid
+	})
 }
 
 /**
@@ -552,14 +552,14 @@ export const apiSessionVerify = (playId) => {
  * @returns {Promise<any>} - Parsed response data.
  */
 export const apiSavePlayStorage = ({ play_id, logs }) => {
-	return handleRequest(
-		methods.POST,
-		'/api/storage/',
-		{
-			"play_id": play_id,
-			"logs": logs
-		},
-	)
+  return handleRequest(
+    methods.POST,
+    '/api/storage/',
+    {
+      "play_id": play_id,
+      "logs": logs
+    },
+  )
 }
 
 /**
@@ -616,7 +616,7 @@ export const apiGetUserRoles = (id) => {
 }
 
 export const apiUpdateUserRoles = (roles) => {
-	return handleRequest(methods.PATCH, `/api/users/${roles.id}/roles/`, roles)
+	return handleRequest(methods.PATCH, `/api/users/${roles.id}/roles/`,  roles)
 }
 
 /**
@@ -658,7 +658,7 @@ export const apiGetExtraAttempts = instId => {
  * @returns {Promise<any>} - Parsed response data.
  */
 export const apiUpdateExtraAttempts = (attempt) => {
-	return handleRequest(methods.PUT, `/api/extra-attempts/${attempt.id}/`, attempt)
+  return handleRequest(methods.PUT, `/api/extra-attempts/${attempt.id}/`, attempt)
 }
 
 /**
@@ -667,7 +667,7 @@ export const apiUpdateExtraAttempts = (attempt) => {
  * @returns {Promise<any>} - Parsed response data.
  */
 export const apiCreateExtraAttempts = (attempt) => {
-	return handleRequest(methods.POST, `/api/extra-attempts/`, attempt)
+  return handleRequest(methods.POST, `/api/extra-attempts/`, attempt)
 }
 
 /**
@@ -676,7 +676,7 @@ export const apiCreateExtraAttempts = (attempt) => {
  * @returns {Promise<any>} - Parsed response data.
  */
 export const apiDeleteExtraAttempts = (extraAttemptsId) => {
-	return handleRequest(methods.DELETE, `/api/extra-attempts/${extraAttemptsId}/`)
+  return handleRequest(methods.DELETE, `/api/extra-attempts/${extraAttemptsId}/`)
 }
 
 /**
@@ -721,7 +721,7 @@ export const apiUnDeleteWidget = ({ instId }) => {
  * @returns {Promise<any>} - Parsed response data.
  */
 export const apiWidgetPromptGenerate = (prompt) => {
-	return handleRequest(methods.POST, `/api/generate/from_prompt/`, { prompt })
+	return handleRequest(methods.POST, `/api/generate/from_prompt/`, {prompt})
 }
 
 /**
@@ -757,7 +757,7 @@ export const apiCheckAllWidgetsForUpdates = () => {
  * @param {string} password
  * @returns {Promise<any>} - Parsed response data.
  */
-export const apiLoginDirect = (username, password) => {
+export const apiLoginDirect = ( username, password ) => {
 	return handleRequest(methods.POST, `/api/user/login/`, { username, password })
 }
 

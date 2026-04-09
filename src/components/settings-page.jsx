@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import LoadingIcon from './loading-icon'
-import { apiGetUser } from '../util/api'
+import {apiGetUser} from '../util/api'
 import useUpdateUserSettings from './hooks/useUpdateUserSettings'
 import Header from './header'
 import './profile-page.scss'
@@ -47,7 +47,7 @@ const SettingsPage = () => {
 	}, [currentUserError])
 
 	useEffect(() => {
-		if (mounted && !isFetching && currentUser) {
+		if (mounted && ! isFetching && currentUser) {
 			mounted.current = true
 			setState({
 				notify: currentUser.profile_fields.notify,
@@ -84,48 +84,43 @@ const SettingsPage = () => {
 				notify: state.notify,
 				useGravatar: state.useGravatar,
 				theme: state.theme
-			}
-		},
-			{
-				onSuccess:
-					() => {
-						// Immediately apply/revoke theme to body
-						if (state.theme === 'dark') {
-							document.body.classList.add('darkMode')
-						} else if (state.theme === 'light') {
-							document.body.classList.remove('darkMode')
-						} else if (state.theme === 'os') {
-							const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-							if (prefersDark) {
-								document.body.classList.add('darkMode')
-							} else {
-								document.body.classList.remove('darkMode')
-							}
-						}
-					},
-				onError: (err) => {
-					if (err.message == 'Invalid Login') {
-						setAlertDialog({
-							enabled: true,
-							message: 'You must be logged in to view your settings.',
-							title: 'Login Required',
-							fatal: true,
-							enableLoginButton: true
-						})
-					} else if (err.message == 'Unauthorized') {
-						setAlertDialog({
-							enabled: true,
-							message: 'You do not have permission to view this page.',
-							title: 'Action Failed',
-							fatal: err.halt,
-							enableLoginButton: false
-						})
-					}
-					setError((err.message || 'Error') + ': Failed to update settings.')
-				}
-
 			},
-		)
+			successFunc: () => {
+				// Immediately apply/revoke theme to body
+				if (state.theme === 'dark') {
+					document.body.classList.add('darkMode')
+				} else if (state.theme === 'light') {
+					document.body.classList.remove('darkMode')
+				} else if (state.theme === 'os') {
+					const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+					if (prefersDark) {
+						document.body.classList.add('darkMode')
+					} else {
+						document.body.classList.remove('darkMode')
+					}
+				}
+			},
+			errorFunc: (err) => {
+				if (err.message == 'Invalid Login') {
+					setAlertDialog({
+						enabled: true,
+						message: 'You must be logged in to view your settings.',
+						title: 'Login Required',
+						fatal: true,
+						enableLoginButton: true
+					})
+				} else if (err.message == 'Unauthorized') {
+					setAlertDialog({
+						enabled: true,
+						message: 'You do not have permission to view this page.',
+						title: 'Action Failed',
+						fatal: err.halt,
+						enableLoginButton: false
+					})
+				}
+				setError((err.message || 'Error') + ': Failed to update settings.')
+			}
+		})
 	}
 
 	let errorRender = null

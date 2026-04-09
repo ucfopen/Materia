@@ -39,19 +39,19 @@ const WidgetAdminPage = () => {
 	}, [widgets])
 
 	let pageRenderContent = (
-		<>
-			<WidgetInstall refetchWidgets={refetchWidgets} />
-			<WidgetUpdater widgets={normalWidgets} isLoading={isLoading} />
-			<WidgetList widgets={normalWidgets} isLoading={isLoading} />
-		</>
-	)
+        <>
+            <WidgetInstall refetchWidgets={refetchWidgets} />
+            <WidgetUpdater widgets={widgets} isLoading={isLoading} />
+            <WidgetList widgets={widgets} isLoading={isLoading} />
+        </>
+    )
 
 	return (
 		<>
 			<Header />
 			<div className="widget-admin-page">
 				<div>
-					{pageRenderContent}
+					{ pageRenderContent }
 				</div>
 			</div>
 		</>

@@ -7,7 +7,7 @@ import LoadingIcon from './loading-icon'
 import NoScoreContent from './no-score-content'
 import './my-widgets-scores.scss'
 
-const MyWidgetsScores = ({ inst, contexts, beardMode, setInvalidLogin }) => {
+const MyWidgetsScores = ({inst, contexts, beardMode, setInvalidLogin}) => {
 	const [state, setState] = useState({
 		isShowingAll: false,
 		hasScores: false,
@@ -27,7 +27,7 @@ const MyWidgetsScores = ({ inst, contexts, beardMode, setInvalidLogin }) => {
 		if (!currScoresError) return
 		switch (currScoresError.status) {
 			case 401:
-				setInvalidLogin(true);
+				setInvalidLogin(true)
 				break
 			default:
 				setError((err.message || "Error") + ": Failed to retrieve scores.")

@@ -19,16 +19,16 @@ const initLogs = () => ({ play: [], storage: [] })
 const logReducer = (state, action) => {
 	switch (action.type) {
 		case 'addPlay':
-			return { ...state, play: [...state.play, action.payload.log] }
+			return {...state, play: [...state.play, action.payload.log]}
 		case 'shiftPlay':
-			return { ...state, play: [...state.play].filter((play) => !action.payload.ids.includes(play.queueId)) }
+			return {...state, play: [...state.play].filter((play) => !action.payload.ids.includes(play.queueId))}
 		case 'addStorage':
-			return { ...state, storage: [...state.storage, action.payload.log] }
+			return {...state, storage: [...state.storage, action.payload.log]}
 		case 'shiftStorage':
-			return { ...state, storage: [...state.storage].filter((storage) => !action.payload.ids.includes(storage.queueId)) }
+			return {...state, storage: [...state.storage].filter((storage) => !action.payload.ids.includes(storage.queueId))}
 
 		default:
-			throw new Error(`Unrecognized action: ${action.type}`);
+			throw new Error(`Unrecognized action: ${action.type}`)
 	}
 }
 
@@ -85,7 +85,7 @@ const _translateForApiVersion = (instance, qset) => {
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/') || window.location.href.includes('/lti/assignment')
 
-const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFooter = true }) => {
+const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0, showFooter=true}) => {
 
 	const [alert, setAlert] = useState({
 		msg: '',
@@ -158,7 +158,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 
 	useEffect(() => {
 		[instError, heartbeatError, qsetError].some(someErr => {
-			if (!someErr) return false;
+			if (!someErr) return false
 			switch (err.status) {
 				case 401: {
 					setAlert({
@@ -167,7 +167,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 						fatal: true,
 						showLoginButton: true
 					})
-					break;
+					break
 				}
 				case 403: {
 					setAlert({
@@ -176,7 +176,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 						fatal: err.halt,
 						showLoginButton: false
 					})
-					break;
+					break
 				}
 				default: {
 					if (someErr == qsetError)
@@ -187,10 +187,10 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 						_onLoadFail("Your play session is no longer valid. You'll need to reload the page and start over.")
 					else
 						_onLoadFail("An unknown error has occurred.")
-					break;
+					break
 				}
 			}
-			return true;
+			return true
 		})
 	}, [instError, heartbeatError, qsetError])
 
@@ -228,7 +228,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 		if (bodyRef && bodyRef.classList.contains('darkMode')) {
 			darkModeRef.current = true
 		}
-	}, [])
+	},[])
 
 	// Starts the widget player once the instance and qset have loaded
 	useEffect(() => {
@@ -254,7 +254,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 			}
 
 			// Starts up the demo with the htmlPath
-			setAttributes({
+			setAttributes ({
 				allowFullScreen: fullscreen != undefined,
 				loading: false,
 				htmlPath: enginePath + '?' + inst.widget.created_at,
@@ -269,14 +269,14 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 	// initializes heartbeat
 	useEffect(() => {
 		if (startTime !== 0 && !isPreview && !!inst && !inst.guest_access && !heartbeatActive) setHeartbeatActive(true)
-	}, [startTime, inst, isPreview])
+	},[startTime, inst, isPreview])
 
 	// was a fatal alert triggered? Turn off the heartbeat, the play is abandoned
 	useEffect(() => {
 		if (!!alert.msg && !!alert.title && alert.fatal) {
 			setHeartbeatActive(false)
 		}
-	}, [alert])
+	},[alert])
 
 	// hook associated with log queue management
 	useEffect(() => {
@@ -359,7 +359,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 					throw new Error(`Unknown PostMessage received from player core: ${msg.type}`)
 			}
 		}
-		else if (!['react-devtools-content-script', 'react-devtools-bridge', 'react-devtools-inject-backend'].includes(e.data.source)) {
+		else if ( ! ['react-devtools-content-script', 'react-devtools-bridge', 'react-devtools-inject-backend'].includes(e.data.source)) {
 			throw new Error(
 				`Post message Origin does not match. Expected: ${expectedOrigin}, Actual: ${origin}`
 			)
@@ -372,7 +372,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 		} else {
 			const convertedInstance = _translateForApiVersion(inst, qset)
 			setStartTime(new Date().getTime())
-			_sendToWidget('initWidget', [qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
+			_sendToWidget('initWidget',[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
 			setPlayState('playing')
 		}
 	}
@@ -408,7 +408,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 		const d = new Date().getTime()
 		log['game_time'] = (d - startTime) / 1000 // log time in seconds
 		log['queueId'] = uuidv4() // this isn't actually used by the server, instead it's a way to identify which logs have been processed. Using a uuid to prevent collisions
-		dispatchPendingLogs({ type: 'addPlay', payload: { log: log } })
+		dispatchPendingLogs({ type: 'addPlay', payload: {log: log} })
 	}
 
 	const _pushPendingLogs = logQueue => {
@@ -430,7 +430,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 					// leverages React's built-in state management to prevent race conditions with log processing
 					// when a function is passed to useState, the results of the function are passed to each subsequent call of useState
 					// this way, the pendingLogs state object remains immutable and the alterations should be queued correctly
-					dispatchPendingLogs({ type: 'shiftPlay', payload: { ids: [...qIds] } })
+					dispatchPendingLogs({type: 'shiftPlay', payload: { ids: [...qIds]}})
 					logQueue.shift()
 
 					// score_url is sent from the server to redirect to a specific url
@@ -466,7 +466,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 						_pushPendingLogs(logQueue)
 					}, retrySpeed)
 
-					return oldCount + 1
+					return oldCount+1
 				})
 			}
 		})
@@ -485,7 +485,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 			logs: logQueue[0].request[1],
 			successFunc: (result) => {
 				if (result) {
-					dispatchPendingLogs({ type: 'shiftStorage', payload: { ids: [...qIds] } })
+					dispatchPendingLogs({type: 'shiftStorage', payload: { ids: [...qIds]}})
 					logQueue.shift()
 
 					if (logQueue.length > 0) _pushPendingStorageLogs(logQueue)
@@ -514,7 +514,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 	}
 
 	const _sendStorage = msg => {
-		dispatchPendingLogs({ type: 'addStorage', payload: { log: { ...msg, queueId: uuidv4() } } })
+		dispatchPendingLogs({type: 'addStorage', payload: { log: { ...msg, queueId: uuidv4() }}})
 	}
 
 	/*********************** helper methods ***********************/
@@ -536,7 +536,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 	const _setHeight = h => {
 		const min_h = inst.widget.height
 		let desiredHeight = Math.max(h, min_h)
-		setAttributes((oldData) => ({ ...oldData, height: `${desiredHeight}px` }))
+		setAttributes((oldData) => ({...oldData, height: `${desiredHeight}px`}))
 	}
 
 	const _setVerticalScroll = location => {
@@ -569,7 +569,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 	if (isPreview) {
 		previewBarRender = (
 			<header className='preview-bar'
-				style={{ width: attributes.width !== '0px' ? attributes.width : '' }}>
+				style={{width: attributes.width !== '0px' ? attributes.width : ''}}>
 			</header>
 		)
 	}
@@ -594,7 +594,7 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 				fatal={alert.fatal}
 				showLoginButton={alert.showLoginButton}
 				onCloseCallback={() => {
-					setAlert({ msg: '', title: '', fatal: false, showLoginButton: false })
+					setAlert({msg: '', title: '', fatal: false, showLoginButton: false})
 				}} />
 		)
 	}
@@ -604,33 +604,31 @@ const WidgetPlayer = ({ instanceId, playId, minHeight = 0, minWidth = 0, showFoo
 		const logoPath = darkModeRef.current ? "/static/img/materia-logo-thin-darkmode.svg" : "/static/img/materia-logo-thin.svg"
 		footerRender = <section className='player-footer' style={{ width: attributes.width !== '0px' ? attributes.width : 'auto' }}>
 			<a className="materia-logo" href={window.BASE_URL} target="_blank"><img src={logoPath} alt="materia logo" /></a>
-			{inst?.widget?.player_guide ? <a href={`${window.BASE_URL}widgets/${inst.widget.dir}players-guide`} target="_blank">Player Guide</a> : null}
+			{ inst?.widget?.player_guide ? <a href={`${window.BASE_URL}widgets/${inst.widget.dir}players-guide`} target="_blank">Player Guide</a> : null }
 		</section>
 	}
 
 	return (
 		<>
-			{alertDialogRender}
+			{ alertDialogRender }
 			<section className={`widget ${isPreview ? 'preview' : ''}`}
-				style={{ display: attributes.loading ? 'none' : 'block' }}>
-				{previewBarRender}
+				style={{display: attributes.loading ? 'none' : 'block'}}>
+				{ previewBarRender }
 				<div className='center'
 					ref={centerRef}
-					style={{
-						minHeight: minHeight + 'px',
+					style={{minHeight: minHeight + 'px',
 						minWidth: minWidth + 'px',
 						width: attributes.width !== '0px' ? attributes.width : 'auto',
-						height: attributes.height !== '0px' ? attributes.height : '100%'
-					}}>
+						height: attributes.height !== '0px' ? attributes.height : '100%'}}>
 					<iframe src={attributes.htmlPath}
 						id='container'
 						className='html'
 						scrolling='yes'
 						ref={frameRef}
 					/>
-					{loadingRender}
+					{ loadingRender }
 				</div>
-				{footerRender}
+				{ footerRender }
 			</section>
 		</>
 	)

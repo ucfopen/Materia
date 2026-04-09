@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import { useQuery } from 'react-query'
+import { useQuery } from '@react-query'
 import LoadingIcon from './loading-icon';
 import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiUserVerify, apiIsGenerable, apiWidgetPromptGenerate} from '../util/api'
 import NoPermission from './no-permission'

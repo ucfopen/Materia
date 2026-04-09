@@ -16,7 +16,7 @@ const ProfilePage = () => {
 		enableLoginButton: false
 	})
 	const [activityData, setActivityData] = useState([])
-	let userActivity = useGetPlaySessions("me", false)
+	let userActivity =  useGetPlaySessions("me", false)
 
 	const mounted = useRef(false)
 	const { data: currentUser, isFetching, error: currentUserError } = useQuery({

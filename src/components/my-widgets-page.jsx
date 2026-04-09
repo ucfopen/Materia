@@ -233,6 +233,7 @@ const MyWidgetsPage = () => {
 
 	// an instance has been deleted: the mutation will optimistically update the widget list while the list is re-fetched from the server
 	const onDelete = inst => {
+		
 		deleteWidget.mutate(
 			{
 				instId: inst.id,

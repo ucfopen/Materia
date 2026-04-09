@@ -53,7 +53,7 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 			switch (someErr.status) {
 				case 401:
 					window.location.href = '/login'
-					break;
+					break
 				default:
 					if (someErr == usersError)
 						setError((err.message || "Error") + ": Failed to retrieve user(s).")
@@ -72,23 +72,23 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 	useEffect(() => {
 		if (attempts !== null && mounted.current) {
 			const idArr = []
-			attempts.forEach(user => { idArr.push(user.user) })
-			setState({ ...state, userIDs: idArr, extraAttempts: attempts })
+			attempts.forEach(user => {idArr.push(user.user) })
+			setState({...state, userIDs: idArr, extraAttempts: attempts })
 		}
 	}, [JSON.stringify(attempts), mounted.current])
 
 	useEffect(() => {
 		if (mounted.current) {
-			setState({ ...state, users: { ...queryUsers } })
+			setState({...state, users: {...queryUsers }})
 		}
 	}, [JSON.stringify(queryUsers)])
 
 	const addUser = (match) => {
 		// add user to users list if not already there
-		const tempUsers = { ...state.users }
+		const tempUsers = {...state.users}
 		const tempAttempts = [...state.extraAttempts]
 
-		if (!(match.id in state.users)) {
+		if ( !(match.id in state.users)){
 			tempUsers[match.id] = match
 
 			// add another extra attempts row if needed
