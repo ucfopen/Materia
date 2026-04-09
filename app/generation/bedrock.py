@@ -1,6 +1,7 @@
 import json
 import logging
 import threading
+from typing import Generator
 
 from core.message_exception import MsgFailure
 from core.models import Widget, WidgetInstance
@@ -48,7 +49,7 @@ class BedrockGenerationDriver(GenerationDriver):
             return _bedrock_client_cache
 
     @staticmethod
-    def query(prompt: str, response_format: str = "json") -> str:
+    def query_sync(prompt: str, response_format: str = "json") -> str:
 
         # Get Bedrock client
         client = BedrockGenerationDriver.get_client()
@@ -59,7 +60,6 @@ class BedrockGenerationDriver(GenerationDriver):
             "max_tokens": 4096,
         }
 
-        # Invoke Bedrock model
         response = client.invoke_model(
             modelId=settings.AI_GENERATION["MODEL"], body=json.dumps(request_body)
         )
@@ -68,6 +68,34 @@ class BedrockGenerationDriver(GenerationDriver):
         generated_text = response_body.get("content", [{}])[0].get("text", "")
 
         return generated_text
+
+    @staticmethod
+    def query_streaming(messages: list) -> Generator[str, None, None]:
+
+        client = BedrockGenerationDriver.get_client()
+
+        request_body = {
+            "anthropic_version": "bedrock-2023-05-31",
+            "messages": messages,
+            "max_tokens": 4096,
+        }
+
+        response = client.invoke_model_with_response_stream(
+            modelId=settings.AI_GENERATION["MODEL"], body=json.dumps(request_body)
+        )
+
+        for event in response["body"]:
+            chunk = json.loads(event["chunk"]["bytes"])
+            if chunk.get("type") == "content_block_delta":
+                delta = chunk.get("delta", {})
+                if delta.get("type") == "text_delta":
+                    yield f"data: {json.dumps({'text': delta['text']})}\n\n"
+
+        yield "data: [DONE]\n\n"
+
+    @staticmethod
+    def generate_prompt_stream(messages: list):
+        yield from BedrockGenerationDriver.query_streaming(messages)
 
     @staticmethod
     def generate_qset(
@@ -83,7 +111,7 @@ class BedrockGenerationDriver(GenerationDriver):
         )
 
         try:
-            result = BedrockGenerationDriver.query(prompt)
+            result = BedrockGenerationDriver.query_sync(prompt)
             parsed = json.loads(result)
 
             return parsed
@@ -98,7 +126,7 @@ class BedrockGenerationDriver(GenerationDriver):
     @staticmethod
     def generate_from_prompt(prompt: str) -> str:
         try:
-            result = BedrockGenerationDriver.query(prompt)
+            result = BedrockGenerationDriver.query_sync(prompt)
         except Exception as e:
             logger.error("Generation failure for prompt %s", prompt, exc_info=True)
             raise e

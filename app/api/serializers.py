@@ -728,6 +728,10 @@ class PromptGenerationRequestSerializer(serializers.Serializer):
     prompt = serializers.CharField(min_length=1, max_length=10000)
 
 
+class PromptStreamingRequestSerializer(serializers.Serializer):
+    conversation = serializers.ListField()
+
+
 # Used for incoming requests to copy a widget instance. Does NOT map to a model.
 class WidgetInstanceCopyRequestSerializer(serializers.Serializer):
     new_name = serializers.ModelField(

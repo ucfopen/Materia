@@ -38,5 +38,6 @@ urlpatterns = [
     # AI generation
     path("generate/qset/", generation.GenerateQsetView.as_view()),
     path("generate/from_prompt/", generation.GenerateFromPromptView.as_view()),
+    path("generate/streaming/", generation.GenerateStreamingResponseView.as_view()),
     path("lti/<slug:context_id>/instances/", LtiWidgetInstancesInCourseView.as_view()),
 ]

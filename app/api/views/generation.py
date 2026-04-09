@@ -4,9 +4,11 @@ import re
 from api.permissions import CanCreateWidgetInstances
 from api.serializers import (
     PromptGenerationRequestSerializer,
+    PromptStreamingRequestSerializer,
     QsetGenerationRequestSerializer,
 )
 from core.message_exception import MsgFailure, MsgInvalidInput, MsgNoLogin
+from django.http import StreamingHttpResponse
 from generation.core import GenerationCore
 from generation.factory import GenerationDriverFactory
 from rest_framework.response import Response
@@ -93,7 +95,7 @@ class GenerateFromPromptView(APIView):
 
         # Get the appropriate driver and perform generation
         driver = GenerationDriverFactory.get_driver()
-        result = driver.query(prompt)
+        result = driver.query_sync(prompt)
 
         return Response(
             {
@@ -101,3 +103,28 @@ class GenerateFromPromptView(APIView):
                 "response": result,
             }
         )
+
+
+class GenerateStreamingResponseView(APIView):
+    http_method_names = ["post"]
+    permission_classes = [CanCreateWidgetInstances]
+
+    def post(self, request):
+        # Check if generation is available
+        if not GenerationCore.is_enabled():
+            raise MsgFailure(
+                msg="AI generation is not enabled on this instance of Materia"
+            )
+
+        request_serializer = PromptStreamingRequestSerializer(data=request.data)
+        request_serializer.is_valid(raise_exception=True)
+
+        messages = request_serializer.validated_data["conversation"]
+
+        driver = GenerationDriverFactory.get_driver()
+        response = StreamingHttpResponse(
+            driver.generate_prompt_stream(messages), content_type="text/event-stream"
+        )
+        response["Cache-Control"] = "no-cache"
+        response["X-Accel-Buffering"] = "no"
+        return response
