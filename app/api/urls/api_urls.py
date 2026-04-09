@@ -1,5 +1,6 @@
 from api.views import (
     assets,
+    community_library,
     extra_attempts,
     generation,
     notifications,
@@ -26,6 +27,7 @@ router.register(
 )
 router.register(r"notifications", notifications.NotificationsViewSet)
 router.register(r"extra-attempts", extra_attempts.UserExtraAttemptsViewSet)
+router.register(r"community-library", community_library.CommunityLibraryViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

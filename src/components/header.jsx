@@ -188,6 +188,9 @@ const Header = ({
 					<li>
 						<a href='/my-widgets/'>My Widgets</a>
 					</li>
+					<li>
+						<a href='/community-library'>Community Library</a>
+					</li>
 					{ profileNavRender }
 					<li>
 						<a href='/help/'>Help</a>

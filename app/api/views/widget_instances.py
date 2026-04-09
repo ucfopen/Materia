@@ -15,6 +15,7 @@ from api.serializers import (
     ObjectPermissionSerializer,
     PermsUpdateRequestListSerializer,
     PlayIdSerializer,
+    PublishToLibrarySerializer,
     QuestionSetSerializer,
     ScoreSummarySerializer,
     WidgetInstanceCopyRequestSerializer,
@@ -22,10 +23,13 @@ from api.serializers import (
 )
 from core.message_exception import MsgFailure, MsgInvalidInput, MsgNoPerm
 from core.models import (
+    CommunityLibraryEntry,
+    LibrarySnapshot,
     LogActivity,
     LogPlay,
     Notification,
     ObjectPermission,
+    UserSettings,
     WidgetInstance,
     WidgetQset,
 )
@@ -90,6 +94,14 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # must have (any) access to instance or elevated perms
         # TODO: question_sets can't be restricted in this way, but we may want more context-sensitive authorization
         elif self.action == "copy":
+            permission_classes = [HasFullPerms | IsSuperOrSupportUser]
+
+        elif self.action in (
+            "publish_to_library",
+            "unpublish_from_library",
+            "update_in_library",
+            "pull_from_library",
+        ):
             permission_classes = [HasFullPerms | IsSuperOrSupportUser]
 
         elif self.action == "export_playdata":
@@ -559,6 +571,118 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             raise MsgFailure(msg="Widget instance could not be copied.")
 
         return Response(WidgetInstanceSerializer(duplicate).data)
+
+    @action(detail=True, methods=["put"])
+    def publish_to_library(self, request, pk=None):
+        instance = self.get_object()
+
+        user_settings = UserSettings.objects.get(user=request.user)
+        if user_settings.library_banned:
+            return Response(
+                {"error": "You are not allowed to publish to the Community Library."},
+                status=403,
+            )
+
+        serializer = PublishToLibrarySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        category = serializer.validated_data["category"]
+        course_level = serializer.validated_data.get("course_level", "")
+
+        latest_qset = instance.get_latest_qset()
+        qset_data = latest_qset.data
+        qset_version = latest_qset.version
+
+        existing_entry = getattr(instance, "library_entry", None)
+
+        if existing_entry:
+            # Re-publishing: update entry and create new snapshot
+            existing_entry.category = category
+            existing_entry.course_level = course_level
+            existing_entry.save(update_fields=["category", "course_level"])
+            LibrarySnapshot.objects.create(
+                entry=existing_entry,
+                name=instance.name,
+                qset_data=qset_data,
+                qset_version=qset_version,
+            )
+        else:
+            # New publish: create entry and snapshot
+            entry = CommunityLibraryEntry.objects.create(
+                instance=instance,
+                category=category,
+                course_level=course_level,
+            )
+            LibrarySnapshot.objects.create(
+                entry=entry,
+                name=instance.name,
+                qset_data=qset_data,
+                qset_version=qset_version,
+            )
+
+        instance.is_shared = True
+        instance.save(update_fields=["is_shared"])
+
+        return Response({"success": True})
+
+    @action(detail=True, methods=["put"])
+    def update_in_library(self, request, pk=None):
+        instance = self.get_object()
+
+        entry = getattr(instance, "library_entry", None)
+        if not entry:
+            return Response(
+                {"error": "This widget is not published to the library."},
+                status=400,
+            )
+
+        latest_qset = instance.get_latest_qset()
+
+        LibrarySnapshot.objects.create(
+            entry=entry,
+            name=instance.name,
+            qset_data=latest_qset.data,
+            qset_version=latest_qset.version,
+        )
+
+        return Response({"success": True})
+
+    @action(detail=True, methods=["put"])
+    def unpublish_from_library(self, request, pk=None):
+        instance = self.get_object()
+
+        instance.is_shared = False
+        instance.save(update_fields=["is_shared"])
+        return Response({"success": True})
+
+    @action(detail=True, methods=["put"])
+    def pull_from_library(self, request, pk=None):
+        instance = self.get_object()
+
+        entry = instance.copied_from_entry
+        if not entry:
+            return Response(
+                {"error": "This widget was not copied from the Community Library."},
+                status=400,
+            )
+
+        if not entry.instance.is_shared:
+            return Response(
+                {"error": "This library entry is no longer published."},
+                status=400,
+            )
+
+        snapshot = entry.snapshots.order_by("-created_at").first()
+
+        instance.name = snapshot.name
+        instance.save(update_fields=["name"])
+
+        latest_qset = instance.get_latest_qset()
+        latest_qset.data = snapshot.qset_data
+        latest_qset.version = snapshot.qset_version
+        latest_qset.save(update_fields=["data", "version"])
+
+        return Response(WidgetInstanceSerializer(instance).data)
 
     # WAS /data/export/
     # This endpoint can be visited directly and the file will download, or can be called like a normal API endpoint

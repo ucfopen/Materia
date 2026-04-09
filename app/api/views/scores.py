@@ -7,9 +7,10 @@ from api.serializers import (
     ScoresForUserSerializer,
 )
 from core.message_exception import MsgExpired, MsgNoPerm
-from core.models import LogPlay, WidgetInstance
+from core.models import CommunityLibraryEntry, LogPlay, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
+from core.utils.b64_util import Base64Util
 from django.utils import timezone
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
@@ -146,17 +147,48 @@ class ScoresDetailView(APIView):
                 if len(preview_logs) == 0:
                     raise MsgExpired()
 
+                snapshot_id = request.query_params.get("snapshot_id")
+                entry_id = request.query_params.get("entry_id")
+                snapshot = None
+                qset_override = None
+
+                if snapshot_id and entry_id:
+                    entry = CommunityLibraryEntry.objects.filter(pk=entry_id).first()
+                    snapshot = (
+                        entry.snapshots.filter(pk=snapshot_id).first()
+                        if entry
+                        else None
+                    )
+                    if not snapshot:
+                        return Response({"error": "Snapshot not found."}, status=404)
+
+                    qset_override = preview_inst.get_latest_qset()
+                    qset_override.data = snapshot.qset_data
+                    qset_override.version = snapshot.qset_version
+
                 module = ScoreModuleFactory.create_score_module_for_preview(
                     instance=preview_inst,
                     preview_id=validated.get("play_id"),
                     logs=preview_logs,
                     user=request.user,
+                    qset_override=qset_override,
                 )
 
                 response = module.get_score_report()
-                response["qset"] = QuestionSetSerializer(
-                    preview_inst.get_latest_qset()
-                ).data
+
+                if snapshot:
+                    response["qset"] = {
+                        "data": (
+                            Base64Util.decode(snapshot.qset_data)
+                            if snapshot.qset_data
+                            else {}
+                        ),
+                        "version": snapshot.qset_version,
+                    }
+                else:
+                    response["qset"] = QuestionSetSerializer(
+                        preview_inst.get_latest_qset()
+                    ).data
 
                 return Response(response)
 

@@ -388,8 +388,10 @@ export const apiGetWidgetInstancePlayScores = (playId) => {
  * @param {string} previewInstId - The instance ID of the widget instance being previewed.
  * @returns {Promise<any>} - Parsed response data.
  */
-export const apiGetWidgetInstancePreviewScores = (playId, previewInstId) => {
-	return handleRequest(methods.GET, `/api/scores/details/?play_id=${playId}&preview_inst_id=${previewInstId}`)
+export const apiGetWidgetInstancePreviewScores = (playId, previewInstId, snapshotId, entryId) => {
+	let url = `/api/scores/details/?play_id=${playId}&preview_inst_id=${previewInstId}`
+	if (snapshotId && entryId) url += `&snapshot_id=${snapshotId}&entry_id=${entryId}`
+	return handleRequest(methods.GET, url)
 }
 
 /**
@@ -796,4 +798,58 @@ export const readFromStorage = () => {
 			}
 		}
 	}, [])
+}
+
+export const apiGetCommunityLibrary = ({ pageParam = 1, search = '', widgetId = '', category = '', courseLevel = '', sort = 'newest' }) => {
+	let url = `/api/community-library/?page=${pageParam}`
+	if (search) url += `&search=${search}`
+	if (widgetId) url += `&widget_id=${widgetId}`
+	if (category) url += `&category=${category}`
+	if (courseLevel) url += `&course_level=${courseLevel}`
+	if (sort) url += `&sort=${sort}`
+	return handleRequest(methods.GET, url)
+}
+
+export const apiCopyFromLibrary = (entryId) => {
+	return handleRequest(methods.POST, `/api/community-library/${entryId}/copy/`)
+}
+
+export const apiToggleLike = (entryId) => {
+	return handleRequest(methods.POST, `/api/community-library/${entryId}/like/`)
+}
+
+export const apiReportEntry = (entryId, data) => {
+	return handleRequest(methods.POST, `/api/community-library/${entryId}/report/`, data)
+}
+
+export const apiPublishToLibrary = (instId, data) => {
+	return handleRequest(methods.PUT, `/api/instances/${instId}/publish_to_library/`, data)
+}
+
+export const apiUnpublishFromLibrary = (instId) => {
+	return handleRequest(methods.PUT, `/api/instances/${instId}/unpublish_from_library/`)
+}
+
+export const apiUpdateInLibrary = (instId) => {
+	return handleRequest(methods.PUT, `/api/instances/${instId}/update_in_library/`)
+}
+
+export const apiPullFromLibrary = (instId) => {
+	return handleRequest(methods.PUT, `/api/instances/${instId}/pull_from_library/`)
+}
+
+export const apiModerateEntry = (entryId, data) => {
+	return handleRequest(methods.PATCH, `/api/community-library/${entryId}/moderate/`, data)
+}
+
+export const apiGetLibraryModeration = (status = 'banned') => {
+	return handleRequest(methods.GET, `/api/community-library/?moderation=true&status=${status}`)
+}
+
+export const apiGetSnapshotInstance = (entryId, snapshotId) => {
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/snapshot_instance/${snapshotId}/`)
+}
+
+export const apiGetSnapshotQset = (entryId, snapshotId) => {
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/snapshot_qset/${snapshotId}/`)
 }

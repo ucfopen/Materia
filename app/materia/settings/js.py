@@ -9,6 +9,7 @@ JS_GROUPS = {
     "my-widgets": [JS_BASEURL + "my-widgets.js"],
     "help": [JS_BASEURL + "help.js"],
     "catalog": [JS_BASEURL + "catalog.js"],
+    "community-library": [JS_BASEURL + "community-library.js"],
     "detail": [JS_BASEURL + "detail.js"],
     "player": [JS_BASEURL + "player-page.js"],
     "creator": [JS_BASEURL + "creator-page.js"],

@@ -23,10 +23,12 @@ from core.views.admin import instance as instance_admin
 from core.views.admin import user as user_admin
 from core.views.admin import widget as widget_admin
 from core.views.catalog import CatalogView
+from core.views.community_library import CommunityLibraryView
 from core.views.media import MediaImportView, MediaRender, MediaUpload
 from core.views.my_widgets import MyWidgetsView
 from core.views.scores import ScoresView, ScoresViewSingle
 from core.views.widget import (
+    SnapshotPreviewView,
     WidgetCreatorView,
     WidgetDemoView,
     WidgetDetailView,
@@ -48,6 +50,7 @@ urlpatterns = [
     path("help/", core_views.help, name="help"),
     # Widgets
     path("widgets/", CatalogView.index, name="widget catalog"),
+    path("community-library/", CommunityLibraryView.index, name="community library"),
     path(
         "widgets/<slug:widget_slug>/", WidgetDetailView.as_view(), name="widget detail"
     ),
@@ -82,6 +85,11 @@ urlpatterns = [
         WidgetPlayView.as_view(),
         {"is_embed": True},
         name="widget embed",
+    ),
+    path(
+        "preview/snapshot/<int:snapshot_id>/",
+        SnapshotPreviewView.as_view(),
+        name="snapshot preview",
     ),
     path(
         "preview/<slug:widget_instance_id>/",

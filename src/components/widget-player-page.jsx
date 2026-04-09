@@ -6,6 +6,7 @@ import { waitForWindow } from '../util/wait-for-window'
 const EMBED = 'embed'
 const PLAY = 'play'
 const PREVIEW = 'preview'
+const SNAPSHOT_PREVIEW = 'snapshot-preview'
 const DEMO = 'demo'
 const PREVIEW_EMBED = 'preview-embed'
 const LEGACY_EMBED = 'legacy-embed'
@@ -14,6 +15,7 @@ const getWidgetType = path => {
 	switch(true) {
 		case path.includes('/embed/'): return EMBED
 		case path.includes('/play/'): return PLAY
+		case path.includes('/preview/snapshot/'): return SNAPSHOT_PREVIEW
 		case path.includes('/preview/'): return PREVIEW
 		case path.includes('/demo'): return DEMO
 		case path.includes('/preview-embed/'): return PREVIEW_EMBED
@@ -31,12 +33,28 @@ const WidgetPlayerPage = () => {
 		widgetHeight: 0,
 		widgetWidth: 0,
 		widgetID: undefined,
-		ltiToken: undefined
+		ltiToken: undefined,
+		snapshotId: undefined,
+		snapshotEntryId: undefined
 	})
 
 	// Waits for window values to load from server then sets them
 	useEffect(() => {
 		if (type == EMBED || type == PREVIEW_EMBED || type == LEGACY_EMBED) document.body.classList.add('embedded')
+
+		if (type == SNAPSHOT_PREVIEW) {
+			waitForWindow(['WIDGET_HEIGHT', 'WIDGET_WIDTH', 'SNAPSHOT_ID', 'SNAPSHOT_ENTRY_ID'])
+			.then(() => {
+				setState(state => ({
+					...state,
+					widgetHeight: window.WIDGET_HEIGHT,
+					widgetWidth: window.WIDGET_WIDTH,
+					snapshotId: window.SNAPSHOT_ID,
+					snapshotEntryId: window.SNAPSHOT_ENTRY_ID
+				}))
+			})
+			return
+		}
 
 		waitForWindow(['WIDGET_HEIGHT', 'WIDGET_WIDTH', 'PLAY_ID', 'DEMO_ID'])
 		.then(() => {
@@ -98,7 +116,17 @@ const WidgetPlayerPage = () => {
 
 	let bodyRender = null
 
-	if( !!state.widgetID && state.playID !== undefined ) {
+	if ( type == SNAPSHOT_PREVIEW && !!state.snapshotEntryId ) {
+		bodyRender = (
+			<WidgetPlayer instanceId={null}
+				playId={null}
+				snapshotId={state.snapshotId}
+				snapshotEntryId={state.snapshotEntryId}
+				minHeight={state.widgetHeight}
+				minWidth={state.widgetWidth}/>
+		)
+	}
+	else if( !!state.widgetID && state.playID !== undefined ) {
 		bodyRender = (
 			<WidgetPlayer instanceId={state.widgetID}
 				playId={state.playID}

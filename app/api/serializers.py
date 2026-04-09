@@ -8,7 +8,9 @@ import os
 import phpserialize
 from core.models import (
     Asset,
+    CommunityLibraryEntry,
     DateRange,
+    LibraryReport,
     Log,
     LogPlay,
     LogStorage,
@@ -16,6 +18,7 @@ from core.models import (
     Notification,
     ObjectPermission,
     UserExtraAttempts,
+    UserLike,
     UserSettings,
     Widget,
     WidgetInstance,
@@ -328,6 +331,13 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
     embed_url = serializers.CharField(read_only=True, allow_null=True)
     is_embedded = serializers.BooleanField(read_only=True)
     qset = QuestionSetSerializer(required=False)
+    copied_from_entry_id = serializers.SerializerMethodField()
+
+    def get_copied_from_entry_id(self, instance):
+        entry = instance.copied_from_entry
+        if entry and entry.instance.is_shared:
+            return entry.id
+        return None
 
     # remove sensitive info if context flag set
     def get_fields(self):
@@ -377,6 +387,24 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
     id = serializers.CharField(
         required=False
     )  # Model's save function will auto-generate an ID if it is empty
+    library_entry = serializers.SerializerMethodField()
+
+    def get_library_entry(self, instance):
+        entry = CommunityLibraryEntry.objects.filter(instance=instance).first()
+        if entry is None:
+            return None
+        return {
+            "id": entry.id,
+            "category": entry.category,
+            "category_display": entry.get_category_display(),
+            "course_level": entry.course_level,
+            "course_level_display": entry.get_course_level_display(),
+            "featured": entry.featured,
+            "is_banned": entry.is_banned,
+            "report_count": entry.report_count,
+            "copy_count": entry.copy_count,
+            "like_count": entry.like_count,
+        }
 
     class Meta:
         model = WidgetInstance
@@ -393,6 +421,9 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "attempts",
             "is_deleted",
             "embedded_only",
+            "is_shared",
+            "copied_from_entry_id",
+            "library_entry",
             "widget",
             "widget_id",
             "preview_url",
@@ -405,6 +436,7 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "id",
             "user_id",
             "is_student_made",
+            "copied_from_entry_id",
             "widget",
             "widget_id",
             "is_embedded",
@@ -873,3 +905,79 @@ class PlayStorageSaveSerializer(serializers.Serializer):
         queryset=LogPlay.objects.all(), required=True
     )
     logs = serializers.JSONField()
+
+
+class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
+    instance_id = serializers.CharField(source="instance.id", read_only=True)
+    instance_name = serializers.SerializerMethodField()
+    widget = WidgetSerializer(source="instance.widget", read_only=True)
+    owner_display_name = serializers.SerializerMethodField()
+    category_display = serializers.CharField(
+        source="get_category_display", read_only=True
+    )
+    course_level_display = serializers.CharField(
+        source="get_course_level_display", read_only=True
+    )
+    latest_snapshot_id = serializers.SerializerMethodField()
+    user_has_liked = serializers.SerializerMethodField()
+    last_reported_at = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CommunityLibraryEntry
+        fields = [
+            "id",
+            "instance_id",
+            "instance_name",
+            "widget",
+            "owner_display_name",
+            "category",
+            "category_display",
+            "course_level",
+            "course_level_display",
+            "featured",
+            "copy_count",
+            "like_count",
+            "report_count",
+            "is_banned",
+            "latest_snapshot_id",
+            "user_has_liked",
+            "created_at",
+            "last_reported_at",
+        ]
+
+    def get_instance_name(self, entry):
+        snapshot = entry.snapshots.order_by("-created_at").first()
+        return snapshot.name
+
+    def get_latest_snapshot_id(self, entry):
+        snapshot = entry.snapshots.order_by("-created_at").first()
+        return snapshot.id
+
+    def get_owner_display_name(self, entry):
+        user = entry.instance.user
+        first = user.first_name or ""
+        last = user.last_name or ""
+        return f"{first} {last}".strip()
+
+    def get_last_reported_at(self, entry):
+        latest_report = entry.reports.order_by("-created_at").first()
+        return latest_report.created_at if latest_report else None
+
+    def get_user_has_liked(self, entry):
+        request = self.context.get("request")
+        return UserLike.objects.filter(user=request.user, entry=entry).exists()
+
+
+class LibraryReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LibraryReport
+        fields = ["reason", "details"]
+
+
+class PublishToLibrarySerializer(serializers.Serializer):
+    category = serializers.ChoiceField(choices=CommunityLibraryEntry.CATEGORY_CHOICES)
+    course_level = serializers.ChoiceField(
+        choices=[("", "")] + CommunityLibraryEntry.COURSE_LEVEL_CHOICES,
+        required=False,
+        default="",
+    )
