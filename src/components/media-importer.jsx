@@ -189,7 +189,9 @@ const MediaImporter = () => {
 		if (!asset.is_deleted) {
 			asset.is_deleted = 1
 			apiDeleteAsset(asset.id).then(() => {
-				queryClient.invalidateQueries('media-assets')
+				queryClient.invalidateQueries({
+					queryKey: ['media-assets']
+				})
 			})
 			.catch((err) => {
 				setErrorState(err.message)
@@ -197,7 +199,9 @@ const MediaImporter = () => {
 		} else {
 			asset.is_deleted = 0
 			apiRestoreAsset(asset.id).then(() => {
-				queryClient.invalidateQueries('media-assets')
+				queryClient.invalidateQueries({
+					queryKey: ['media-assets']
+				})
 			})
 			.catch((err) => {
 				setErrorState(err.message)

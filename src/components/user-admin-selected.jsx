@@ -19,7 +19,7 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 
 	useEffect(() => {
 		if (currentUser) {
-			const userPerms = queryClient.getQueryData('isLoggedIn')
+			const userPerms = queryClient.getQueryData(['isLoggedIn'])
 			if (userPerms?.permLevel && userPerms?.permLevel == 'super_user') setIsSuper(true)
 		}
 	},[currentUser])

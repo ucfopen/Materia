@@ -152,7 +152,9 @@ const Notifications = ({user}) => {
 				}
 				else
 				{
-					queryClient.invalidateQueries(['user-perms', notif.item_id])
+					queryClient.invalidateQueries({
+						queryKey: ['user-perms', notif.item_id]
+					})
 					window.location.hash = notif.item_id + '-collab'
 				}
 

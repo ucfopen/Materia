@@ -53,10 +53,10 @@ const WidgetUpdater = ({ widgets = [], isLoading = true }) => {
       })
     }),
     onSettled: ((_, __, widgetId) => {
-      queryClient.refetchQueries(['widget-update-check', widgetId])
+      queryClient.refetchQueries({ queryKey: ['widget-update-check', widgetId] })
       if (widgetRefetchDebounceTimer.current) clearTimeout(widgetRefetchDebounceTimer.current)
       widgetRefetchDebounceTimer.current = setTimeout(() => {
-        queryClient.refetchQueries(['widgets'])
+        queryClient.refetchQueries({ queryKey: ['widgets'] })
       }, 1000)
     })
   })

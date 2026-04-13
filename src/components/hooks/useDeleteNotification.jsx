@@ -9,29 +9,29 @@ export default function useDeleteNotification() {
 			mutationFn: apiDeleteNotification,
 			// Handles the optomistic update for deleting a Notification
 			onMutate: async data => {
-				await queryClient.cancelQueries('notifications')
+				await queryClient.cancelQueries({ queryKey: ['notifications'] })
 
-				const previousValue = queryClient.getQueryData('notifications')
+				const previousValue = queryClient.getQueryData(['notifications'])
 
 				if (data.deleteAll)
 				{
-					queryClient.setQueryData('notifications', [])
+					queryClient.setQueryData(['notifications'], [])
 				}
 				else
 				{
-					queryClient.setQueryData('notifications', old => old.filter(notif => notif.id != data.notifId))
+					queryClient.setQueryData(['notifications'], old => old.filter(notif => notif.id != data.notifId))
 				}
 
 				// Stores the old value for use if there is an error
 				return { previousValue }
 			},
 			onSuccess: (data, variables) => {
-				// queryClient.invalidateQueries('notifications')
+				// queryClient.invalidateQueries({ queryKey: ['notifications']})
 				if (data) variables.successFunc(data);
 			},
 			onError: (err, variables, context) => {
 				variables.errorFunc(err)
-				queryClient.setQueryData('notifications', context.previousValue)
+				queryClient.setQueryData(['notifications'], context.previousValue)
 			}
 		}
 	)

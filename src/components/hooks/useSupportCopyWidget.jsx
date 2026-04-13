@@ -9,7 +9,8 @@ export default function useSupportCopyWidget() {
 			mutationFn: apiCopyWidget,
 			onSuccess: (data, variables) => {
 				variables.successFunc(data)
-				queryClient.removeQueries('search-widgets', {
+				queryClient.removeQueries({
+					queryKey: ['search-widgets'],
 					exact: false
 				})
 			},

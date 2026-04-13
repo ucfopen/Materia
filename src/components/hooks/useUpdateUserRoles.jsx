@@ -9,20 +9,22 @@ export default function useUpdateUserRoles() {
 		{
 			mutationFn: apiUpdateUserRoles,
 			onMutate: async roles => {
-				await queryClient.cancelQueries('search-users')
-				const val = {...queryClient.getQueryData('search-users')}
-				const prior = queryClient.getQueryData('search-users')
+				await queryClient.cancelQueries({ queryKey: ['search-users']})
+				const val = {...queryClient.getQueryData(['search-users'])}
+				const prior = queryClient.getQueryData(['search-users'])
 
-				queryClient.setQueryData('search-users', () => val)
+				queryClient.setQueryData(['search-users'], () => val)
 
 				return { prior }
 			},
 			onSuccess: (data, variables, context) => {
-				queryClient.invalidateQueries('search-users')
+				queryClient.invalidateQueries({
+					queryKey: ['search-users']}
+				)
 				variables.successFunc(data)
 			},
 			onError: (err, variables, context) => {
-				queryClient.setQueryData('search-users', context.previousValue)
+				queryClient.setQueryData(['search-users'], context.previousValue)
 				variables.errorFunc(err)
 			}
 		}

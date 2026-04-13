@@ -41,8 +41,8 @@ const WidgetAdminPage = () => {
 	let pageRenderContent = (
         <>
             <WidgetInstall refetchWidgets={refetchWidgets} />
-            <WidgetUpdater widgets={widgets} isLoading={isLoading} />
-            <WidgetList widgets={widgets} isLoading={isLoading} />
+            <WidgetUpdater widgets={normalWidgets} isLoading={isLoading} />
+            <WidgetList widgets={normalWidgets} isLoading={isLoading} />
         </>
     )
 

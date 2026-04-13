@@ -54,7 +54,8 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 
 			// Create a rich error object with all available info
 			const error = new Error(
-				errorData?.msg || errorData?.title || `HTTP error ${response.status}: ${response.statusText}`
+				// For some reason, Django uses msg.detail="", while we use msg=""
+				errorData?.msg?.detail ?? errorData?.msg ?? errorData?.title ?? `HTTP error ${response.status}: ${response.statusText}`
 			)
 
 			// Add extra properties to the error
@@ -792,7 +793,7 @@ export const readFromStorage = () => {
 				const data = queriesWithData[queryKey];
 
 				queryClient.setQueryData(queryKey, data);
-				queryClient.invalidateQueries(queryKey)
+				queryClient.invalidateQueries({ queryKey: queryKey })
 			}
 		}
 	}, [])

@@ -30,8 +30,13 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const userList = useUserList(debouncedSearchTerm)
 	const [collabUsers, setCollabUsers] = useState({})
 
-	const { data, remove: clearUsers, isFetching, error: usersError } = useQuery({
-		queryKey: ['collab-users', inst.id, (otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)], // check for changes in otherUserPerms
+	const collabUsersQueryKey = [
+		'collab-users',
+		inst.id,
+		(otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)
+	] // check for changes in otherUserPerms
+	const { data, isFetching, error: usersError } = useQuery({
+		queryKey: collabUsersQueryKey,
 		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys()).length > 0,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		staleTime: Infinity,
@@ -51,7 +56,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		}
 	}, [usersError])
 
-	seEffect(() => {
+	useEffect(() => {
 		if (!data) return
 		setCollabUsers(prev => ({ ...prev, ...data }))
 	}, [data])
@@ -181,12 +186,14 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			successFunc: (data) => {
 				if (mounted.current) {
 					if (delCurrUser) {
-						queryClient.invalidateQueries(['instances', currentUser])
+						queryClient.invalidateQueries({
+							queryKey: ['instances', currentUser]
+						})
 					}
-					queryClient.invalidateQueries('search-widgets')
-					queryClient.invalidateQueries(['user-perms', inst.id])
-					queryClient.invalidateQueries(['user-search', inst.id])
-					queryClient.removeQueries(['collab-users', inst.id])
+					queryClient.invalidateQueries({ queryKey: ['search-widgets'] })
+					queryClient.invalidateQueries({ queryKey: ['user-perms', inst.id] })
+					queryClient.invalidateQueries({ queryKey: ['user-search', inst.id] })
+					queryClient.removeQueries({ queryKey: ['collab-users', inst.id] })
 
 					setOtherUserPerms(state.updatedAllUserPerms)
 					customClose()
@@ -217,7 +224,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	}
 
 	const customClose = () => {
-		clearUsers()
+		queryClient.removeQueries({ queryKey: collabUsersQueryKey })
 		onClose()
 	}
 

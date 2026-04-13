@@ -9,22 +9,24 @@ export default function useUpdateUserSettings() {
 		{
 			mutationFn: apiUpdateUserSettings,
 			onMutate: async settings => {
-				await queryClient.cancelQueries('user')
-				const val = {...queryClient.getQueryData('user')}
-				const prior = queryClient.getQueryData('user')
+				await queryClient.cancelQueries({ queryKey: ['user']})
+				const val = {...queryClient.getQueryData(['user'])}
+				const prior = queryClient.getQueryData(['user'])
 
-				queryClient.setQueryData('user', () => val)
+				queryClient.setQueryData(['user'], () => val)
 
 				return { prior }
 			},
 			onSuccess: (data, variables, context) => {
 				variables.successFunc()
-				queryClient.invalidateQueries('user')
+				queryClient.invalidateQueries({
+					queryKey: ['user']
+				})
 
 			},
 			onError: (err, variables, context) => {
 				variables.errorFunc(err)
-				queryClient.setQueryData('user', context.previousValue)
+				queryClient.setQueryData(['user'], context.previousValue)
 			}
 		}
 	)

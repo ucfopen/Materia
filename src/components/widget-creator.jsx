@@ -72,41 +72,36 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth='', isEmbedded=
 	// load widget info (NOT instance info)
 	// load only when instId is not set (new widget)
 	// requires: widgetId prop (always set)
-	const { isLoading: widgetInfoIsLoading } = useQuery({
+	const { data: widgetInfo, isLoading: widgetInfoIsLoading, error: widgetInfoError } = useQuery({
 		queryKey: ['widget', widgetId],
 		queryFn: () => apiGetWidget(widgetId),
 		enabled: !!widgetId && !instId,
 		staleTime: Infinity,
-		retry: false,
-		onSuccess: (info) => {
-			if (info) {
-				setInstance({ ...instance, widget: info[0] })
-			}
-		},
-		onError: (error) => {
-			onInitFail(error)
-		}
+		retry: false
 	})
+
+	useEffect(() => {
+		if (widgetInfo) setInstance({ ...instance, widget: widgetInfo[0] })
+	}, [widgetInfo])
 
 	// load instance info
 	// requires: instId prop (may be null, for new widgets)
-	const { isLoading: instanceIsLoading } = useQuery({
+	const { data: instanceData, isLoading: instanceIsLoading, error: instanceError } = useQuery({
 		queryKey: ['widget-inst', instId],
 		queryFn: () => apiGetWidgetInstance(instId),
 		enabled: !!instId,
 		staleTime: Infinity,
-		retry: false,
-		onSuccess: (data) => {
-			// this value will include a qset that's always empty
-			// it will override the instance's qset property even if it's already set
-			// remove it so the existing qset data isn't overwritten
-			if (data.qset) delete data.qset
-			setInstance({ ...instance, ...data })
-		},
-		onError: (error) => {
-			onInitFail(error)
-		}
+		retry: false
 	})
+	
+	useEffect(() => {
+		if (!instanceData) return
+		// this value will include a qset that's always empty
+		// it will override the instance's qset property even if it's already set
+		// remove it so the existing qset data isn't overwritten
+		if (instanceData.qset) delete instanceData.qset
+		setInstance({ ...instance, ...instanceData })
+	},[instanceData	])
 
 	// load question set (qset) for given instance id
 	// requires: instance.id state property to be set (widget instance query is settled)
@@ -136,43 +131,39 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth='', isEmbedded=
 
 	// verify user can publish a given instance
 	// requires: instance.widget is set (value is determined by widget type and user perms)
-	const { data: canPublish } = useQuery({
+	const { data: canPublish, error: canPublishError } = useQuery({
 		queryKey: ['can-publish', instance.id],
 		queryFn: () => apiCanBePublishedByCurrentUser(instance.widget?.id),
 		enabled: instance?.widget !== null,
 		staleTime: Infinity,
-		retry: false,
-		onSuccess: (success) => {
-			if (!success && !instance.is_draft) {
-				onInitFail('Widget type can not be edited by students after publishing.')
-			}
-		},
-		onError: (error) => {
-			onInitFail(error)
-		}
+		retry: false
 	})
+	
+	useEffect(() => {
+		if (canPublish === false && !instance.is_draft) {
+			onInitFail('Widget type can not be edited by students after publishing.')
+		}
+	}, [canPublish])
 
-	useQuery({
+	const { data: heartbeatData, error: heartbeatError} = useQuery({
 		queryKey: ['heartbeat'],
 		queryFn: () => apiUserVerify(),
 		staleTime: 30000,
 		refetchInterval: 30000,
 		enabled: creatorState.heartbeatEnabled,
 		retry: 1,
-		onError: (error) => {
-			onInitFail(error)
-		},
-		onSuccess: (data) => {
-			if (!data) {
-				setCreatorState({...creatorState, invalid: true, heartbeatEnabled: false})
-				setAlertDialog({ enabled: true, title: 'Invalid Login', message:'You are no longer logged in, please login again to continue.', fatal: true, enableLoginButton: true })
-			}
-		}
 	})
+	
+	useEffect(() => {
+		if (heartbeatData === false) {
+			setCreatorState({ ...creatorState, invalid: true, heartbeatEnabled: false })
+			setAlertDialog({ enabled: true, title: 'Invalid Login', message: 'You are no longer logged in, please login again to continue.', fatal: true, enableLoginButton: true })
+		}
+	}, [heartbeatData])
 
 	// if this is an existing instance, check lock status
 	// requires: instance.id state value is set
-	useQuery({
+	const { error: widgetLockError} = useQuery({
 		queryKey: ['widget-lock', instance.id],
 		queryFn: () => apiGetWidgetLock(instance.id),
 		enabled: !!instance.id,
@@ -187,11 +178,15 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth='', isEmbedded=
 					message: 'locked',
 				});
 			}
-		},
-		onError: (error) => {
-			onInitFail(error)
 		}
 	})
+
+	useEffect(() => {
+		[widgetInfoError, instanceError, qsetQuery.error, canPublishError, heartbeatError, widgetLockError].some(someError => {
+			if (!someError) return false
+			onInitFail(someError)
+		})
+	}, [widgetInfoError, instanceError, qsetQuery.error, canPublishError, heartbeatError, widgetLockError])
 
 	/* =========== hooks =========== */
 
