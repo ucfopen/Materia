@@ -13,7 +13,7 @@ jmespath==1.0.1
 mimetypes-magic==0.4.30
 mysqlclient==2.2.6
 openai==1.65.2
-pillow==11.1.0
+pillow==12.2.0
 python-dateutil==2.9.0
 pytz==2024.1
 PyYAML==6.0.1
