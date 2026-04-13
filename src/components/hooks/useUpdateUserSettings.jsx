@@ -6,8 +6,8 @@ export default function useUpdateUserSettings() {
 	const queryClient = useQueryClient()
 
 	return useMutation(
-		apiUpdateUserSettings,
 		{
+			mutationFn: apiUpdateUserSettings,
 			onMutate: async settings => {
 				await queryClient.cancelQueries('user')
 				const val = {...queryClient.getQueryData('user')}

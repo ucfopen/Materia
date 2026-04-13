@@ -6,8 +6,8 @@ export default function useUpdateUserRoles() {
 	const queryClient = useQueryClient()
 
 	return useMutation(
-		apiUpdateUserRoles,
 		{
+			mutationFn: apiUpdateUserRoles,
 			onMutate: async roles => {
 				await queryClient.cancelQueries('search-users')
 				const val = {...queryClient.getQueryData('search-users')}

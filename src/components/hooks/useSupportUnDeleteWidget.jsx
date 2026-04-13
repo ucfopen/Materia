@@ -5,8 +5,8 @@ export default function useSupportUnDeleteWidget() {
 	const queryClient = useQueryClient()
 
 	return useMutation(
-		apiUnDeleteWidget,
 		{
+			mutationFn: apiUnDeleteWidget,
 			onSuccess: (data, variables) => {
 				variables.successFunc()
 				queryClient.removeQueries('search-widgets', {

@@ -151,7 +151,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0, showFooter=t
 	})
 
 	useEffect(() => {
-		if (!heartbeat) {
+		if (heartbeat === false) {
 			_onLoadFail("Your play session is no longer valid.  You'll need to reload the page and start over.")
 		}
 	}, [heartbeat])

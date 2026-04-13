@@ -35,7 +35,7 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 	const deleteExtraAttempts = useDeleteExtraAttempts()
 	const updateExtraAttempts = useUpdateExtraAttempts()
 	const { data: attempts, isLoading: attemptsLoading, isFetching, remove: removeAttempts, error: attemptsError } = useQuery({
-		queryKey: 'extra-attempts',
+		queryKey: ['extra-attempts'],
 		queryFn: () => apiGetExtraAttempts(inst.id),
 		placeholderData: [],
 		staleTime: Infinity

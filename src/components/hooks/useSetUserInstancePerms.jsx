@@ -3,8 +3,8 @@ import { apiSetUserInstancePerms } from '../../util/api'
 
 export default function setUserInstancePerms() {
 	return useMutation(
-		apiSetUserInstancePerms,
 		{
+			mutationFn: apiSetUserInstancePerms,
 			onSuccess: (data, variables) =>
 			{
 				variables.successFunc(data)

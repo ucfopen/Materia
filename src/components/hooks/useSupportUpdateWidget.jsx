@@ -6,8 +6,8 @@ export default function useSupportUpdateWidget() {
 
 	// Optimistically updates the cache value on mutate
 	return useMutation(
-		apiUpdateWidgetInstance,
 		{
+			mutationFn: apiUpdateWidgetInstance,
 			onSuccess: (data, variables) => {
 				// Refresh widgets
 				queryClient.invalidateQueries('widgets')

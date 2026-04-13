@@ -8,8 +8,8 @@ export default function useUpdateWidget(user) {
 
 	// Optimistically updates the cache value on mutate
 	return useMutation(
-		apiUpdateWidgetInstance,
 		{
+			mutationFn: apiUpdateWidgetInstance,
 			onMutate: async formData => {
 				// cancel any in-progress queries and grab the current query cache for widgets
 				await queryClient.cancelQueries(['instances', user])

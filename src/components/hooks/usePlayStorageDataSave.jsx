@@ -3,8 +3,8 @@ import { apiSavePlayStorage } from '../../util/api'
 
 export default function usePlayStorageDataSave() {
 	return useMutation(
-		apiSavePlayStorage,
 		{
+			mutationFn: apiSavePlayStorage,
 			onSuccess: (data, variables) => {
 				variables.successFunc(data)
 			},

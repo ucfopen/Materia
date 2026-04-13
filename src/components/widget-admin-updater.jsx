@@ -9,7 +9,8 @@ const WidgetUpdater = ({ widgets = [], isLoading = true }) => {
   const queryClient = useQueryClient()
   const widgetRefetchDebounceTimer = useRef()
 
-  const updateMutation = useMutation(apiCheckAllWidgetsForUpdates, {
+  const updateMutation = useMutation({
+    mutationFn: apiCheckAllWidgetsForUpdates,
     onSuccess: (data) => {
       // Reset update tracker with new data
       const newUpdateTracker = {}
@@ -27,7 +28,8 @@ const WidgetUpdater = ({ widgets = [], isLoading = true }) => {
     }
   })
 
-  const updateIndividualWidgetMutation = useMutation((widgetId) => apiInstallWidgetUpdate(widgetId), {
+  const updateIndividualWidgetMutation = useMutation({
+    mutationFn: (widgetId) => apiInstallWidgetUpdate(widgetId),
     onMutate: ((widgetId) => {
       setUpdateTracker((oldUpdateTracker) => {
         const newUpdateTracker = {...oldUpdateTracker}

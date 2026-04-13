@@ -3,8 +3,8 @@ import { apiSavePlayLogs } from '../../util/api'
 
 export default function usePlayLogSave() {
 	return useMutation(
-		apiSavePlayLogs,
 		{
+			mutationFn: apiSavePlayLogs,
 			onSuccess: (data, variables) => {
 				variables.successFunc(data)
 			},

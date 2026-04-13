@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import { useQuery } from '@react-query'
+import { useQuery } from '@tanstack/react-query'
 import LoadingIcon from './loading-icon';
 import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiUserVerify, apiIsGenerable, apiWidgetPromptGenerate} from '../util/api'
 import NoPermission from './no-permission'
@@ -153,7 +153,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth='', isEmbedded=
 	})
 
 	useQuery({
-		queryKey: 'heartbeat',
+		queryKey: ['heartbeat'],
 		queryFn: () => apiUserVerify(),
 		staleTime: 30000,
 		refetchInterval: 30000,

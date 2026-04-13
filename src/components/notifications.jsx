@@ -18,7 +18,7 @@ const Notifications = ({user}) => {
 	let modalRef = useRef()
 
 	const { data: notifications, dataUpdatedAt: updatedAt, status, error} = useQuery({
-		queryKey: 'notifications',
+		queryKey: ['notifications'],
 		enabled: !!user.username,
 		refetchInterval: 60000,
 		refetchOnMount: false,

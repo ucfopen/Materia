@@ -6,8 +6,8 @@ export default function useDeleteWidget(user) {
 	const queryClient = useQueryClient()
 
 	return useMutation(
-		apiDeleteWidget,
 		{
+			mutationFn: apiDeleteWidget,
 			onSuccess: (data, variables) => {
 				// Optimistic update for deleting a widget
 				queryClient.setQueryData(['instances', user], previous => {

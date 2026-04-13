@@ -5,8 +5,8 @@ export default function useSupportDeleteWidget() {
 	const queryClient = useQueryClient()
 
 	return useMutation(
-		apiDeleteWidget,
 		{
+			mutationFn: apiDeleteWidget,
 			onSuccess: (data, variables) => {
 				variables.successFunc()
 				queryClient.invalidateQueries('widgets')

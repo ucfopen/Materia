@@ -10,8 +10,8 @@ export default function useCopyWidget(user) {
 
 	// Optimistically updates the cache value on mutate
 	return useMutation(
-		apiCopyWidget,
 		{
+			mutationFn: apiCopyWidget,
 			onSuccess: (data, variables) => {
 				if (queryClient.getQueryData(['instances', user]))
 				{

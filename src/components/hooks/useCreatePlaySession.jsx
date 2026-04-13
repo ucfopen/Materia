@@ -4,8 +4,8 @@ import { apiCreatePlaySession } from '../../util/api'
 
 export default function useCreatePlaySession() {
 	return useMutation(
-		apiCreatePlaySession,
 		{
+			mutationFn: apiCreatePlaySession,
 			onSuccess: (data, variables) => {
 				variables.successFunc(data)
 			},

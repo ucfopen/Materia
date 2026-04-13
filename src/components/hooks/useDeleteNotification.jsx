@@ -5,8 +5,8 @@ export default function useDeleteNotification() {
 	const queryClient = useQueryClient()
 
 	return useMutation(
-		apiDeleteNotification,
 		{
+			mutationFn: apiDeleteNotification,
 			// Handles the optomistic update for deleting a Notification
 			onMutate: async data => {
 				await queryClient.cancelQueries('notifications')

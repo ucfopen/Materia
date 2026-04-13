@@ -1,10 +1,10 @@
-import { useMutation } from 'react-query'
+import { useMutation } from '@tanstack/react-query'
 import { apiSetAttempts } from '../../util/api'
 
 export default function useSetAttempts() {
 	return useMutation(
-		apiSetAttempts,
 		{
+			mutationFn: apiSetAttempts,
 			onSuccess: (data, variables) => {
 				variables.successFunc(data)
 			},
