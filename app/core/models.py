@@ -633,6 +633,7 @@ class LtiPlayState(models.Model):
     )
     submission_attempts = models.PositiveIntegerField(default=0)
     last_submitted = models.DateTimeField(default=None, null=True)
+    score_submitted = models.FloatField(null=True)
 
 
 # this sucks

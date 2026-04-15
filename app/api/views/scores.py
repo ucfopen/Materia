@@ -230,6 +230,7 @@ class ScoresDetailView(APIView):
                                 timezone.now() - play.created_at
                             ).total_seconds()
                             <= 86400,
+                            "max_score": play_state.score_submitted,
                         }
 
                 return Response(response)

@@ -1,17 +1,16 @@
-import logging
 import json
+import logging
 import re
 import traceback
-
-from dateutil import parser, tz
-from django.conf import settings
-from django.contrib.auth.models import Group
-from django.core.management import base
 
 from core.management.commands.widget import Command as WidgetCommand
 from core.message_exception import MsgException
 from core.models import Widget
 from core.services.widget_installer_service import WidgetInstallerService
+from dateutil import parser, tz
+from django.conf import settings
+from django.contrib.auth.models import Group
+from django.core.management import base
 
 logger = logging.getLogger(__name__)
 
@@ -154,11 +153,7 @@ class Command(base.BaseCommand):
             print("Using default sync file")
 
             target_widgets = {
-                # TODO - update this list to match all widgets we are bringing into the django world
-                #      - also, some of these widgets are in private repos (ucfcdl)
                 "adventure": "ucfopen/adventure-materia-widget",
-                # "associations": "ucfcdl/associations-materia-widget",
-                # "category-climb": "ucfcdl/category-climb-materia-widget",
                 "crossword": "ucfopen/crossword-materia-widget",
                 "enigma": "ucfopen/enigma-materia-widget",
                 "equation-sandbox": "ucfopen/equation-sandbox-materia-widget",
@@ -167,11 +162,7 @@ class Command(base.BaseCommand):
                 "labeling": "ucfopen/labeling-materia-widget",
                 "last-chance-cadet": "ucfopen/last-chance-cadet-materia-widget",
                 "matching": "ucfopen/matching-materia-widget",
-                # "node-graph": "ucfcdl/node-graph-widget",
                 "normal-distribution-calculator": "ucfopen/normal-distribution-calculator-materia-widget",
-                "nursing-simulation-builder": "ucfopen/nursing-space-simulator-materia-widget",
-                "privilege-walk": "ucfopen/privilege-walk-materia-widget",
-                "proof-reading-symbols": "ucfopen/proof-reading-symbols-materia-widget",
                 "radar-grapher": "ucfopen/radar-grapher-materia-widget",
                 "secret-spreadsheet": "ucfopen/secret-spreadsheet-materia-widget",
                 "sequencer": "ucfopen/sequencer-materia-widget",
@@ -182,9 +173,6 @@ class Command(base.BaseCommand):
                 "this-or-that": "ucfopen/this-or-that-materia-widget",
                 "word-search": "ucfopen/word-search-materia-widget",
                 "be-finder": "ucfopen/be-finder-materia-widget",
-                "concentration": "ucfopen/active-voice-verb-concentration-materia-widget",
-                "dodgeball": "ucfopen/infinity-dodgeball-materia-widget",
-                "roulette": "ucfopen/adverbial-clause-roulette-materia-widget",
                 "word-guess": "ucfopen/word-guess-materia-widget",
             }
 

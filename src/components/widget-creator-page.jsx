@@ -5,18 +5,17 @@ import WidgetCreator from './widget-creator'
 import './widget-creator-page.scss'
 
 const EMBED = 'embed'
-const PREVIEW_EMBED = 'preview-embed'
 
-const getWidgetType = path => {
+const getWidgetType = () => {
+	const urlParams = new URLSearchParams(window.location.search)
 	switch(true) {
-		case path.includes('/embed/'): return EMBED
-		case path.includes('/preview-embed/'): return PREVIEW_EMBED
+		case !! urlParams.get('is_embedded'): return EMBED
 		default: return null
 	}
 }
 
 const WidgetCreatorPage = () => {
-	const type = getWidgetType(window.location.pathname)
+	const type = getWidgetType()
 	const pathParams = window.location.pathname.split('/')
 	const widgetID = pathParams[pathParams.length - 3].split('-')[0]
 	const instanceID = pathParams[pathParams.length - 1]
@@ -29,7 +28,7 @@ const WidgetCreatorPage = () => {
 
 	// Waits for window values to load from server then sets them
 	useEffect(() => {
-		if (type == EMBED || type == PREVIEW_EMBED) document.body.classList.add('embedded')
+		if (type == EMBED) document.body.classList.add('embedded')
 		waitForWindow()
 		.then(() => {
 			setState({
@@ -49,14 +48,15 @@ const WidgetCreatorPage = () => {
 
 	let headerRender = <Header />
 	// No header for embedded widgets
-	if ( type == EMBED || type == PREVIEW_EMBED ) headerRender = null
+	if (type == EMBED) headerRender = null
 
 	let bodyRender = (
 		<WidgetCreator
 			widgetId={state.widgetID}
 			instId={state.instanceID}
 			minHeight={state.widgetHeight}
-			minWidth={state.widgetWidth} />
+			minWidth={state.widgetWidth}
+			isEmbedded={type == EMBED} />
 	)
 
 	return (

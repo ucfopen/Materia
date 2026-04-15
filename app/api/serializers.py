@@ -512,8 +512,8 @@ class PlaySessionSerializer(serializers.ModelSerializer):
 
     def get_submission_status(self, play):
         # Return the submission_status from the related LtiPlayState
-        if hasattr(play, "play") and play.play.exists():
-            return play.play.first().submission_status
+        if hasattr(play, "lti_play_state"):
+            return play.lti_play_state.submission_status
         return None
 
     def __init__(self, *args, **kwargs):
