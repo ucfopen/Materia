@@ -7,27 +7,29 @@ export default function useDeleteNotification() {
 	return useMutation(
 		{
 			mutationFn: apiDeleteNotification,
-			// Handles the optomistic update for deleting a Notification
+			// Handles the optimistic update for deleting a Notification
 			onMutate: async data => {
+				// Cancel queries that update notification data
 				await queryClient.cancelQueries({ queryKey: ['notifications'] })
 
+				// Hold the current notification data
 				const previousValue = queryClient.getQueryData(['notifications'])
 
-				if (data.deleteAll)
-				{
+				// Set it to the expected value
+				if (data.deleteAll) {
 					queryClient.setQueryData(['notifications'], [])
 				}
-				else
-				{
+				else {
 					queryClient.setQueryData(['notifications'], old => old.filter(notif => notif.id != data.notifId))
 				}
 
-				// Stores the old value for use if there is an error
+				// Return the data if there is an update
 				return { previousValue }
 			},
 			onSuccess: (data, variables) => {
-				// queryClient.invalidateQueries({ queryKey: ['notifications']})
-				if (data) variables.successFunc(data);
+				// Invalidate the queries. What if we didn't correctly predict output?
+				queryClient.invalidateQueries({ queryKey: ['notifications'] })
+				variables.successFunc(data);
 			},
 			onError: (err, variables, context) => {
 				variables.errorFunc(err)

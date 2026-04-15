@@ -5,11 +5,11 @@ export default function useQuestionGeneration() {
     return useMutation(
         {
             mutationFn: apiGenerateQset,
-            onSuccess: (qset, variables) => {
-                variables.successFunc(qset)
+            onSuccess: (data, variables) => {
+                variables.successFunc(data)
             },
-            onError: (error, variables, context) => {
-                variables.errorFunc(error)
+            onError: (err, variables, context) => {
+                variables.errorFunc(err)
             }
         }
     )

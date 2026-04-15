@@ -89,7 +89,7 @@ const Notifications = ({user}) => {
 		deleteNotification.mutate({
 			notifId: id,
 			deleteAll: false,
-			successFunc: () => {
+			successFunc: (_data) => {
 				Object.keys(notifications).forEach((key, index) => {
 					if (notifications[key].id == id)
 					{
@@ -99,7 +99,7 @@ const Notifications = ({user}) => {
 					}
 				})
 			},
-			errorFunc: (err) => {
+			errorFunc: (_err) => {
 				setErrorMsg({notif_id: id, msg: 'Action failed.'})
 			}
 		})

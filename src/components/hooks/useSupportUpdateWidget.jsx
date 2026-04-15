@@ -4,12 +4,11 @@ import { apiUpdateWidgetInstance } from '../../util/api'
 export default function useSupportUpdateWidget() {
 	const queryClient = useQueryClient()
 
-	// Optimistically updates the cache value on mutate
+	// TODO: Optimistically updates the cache value on mutate?
 	return useMutation(
 		{
 			mutationFn: apiUpdateWidgetInstance,
 			onSuccess: (data, variables) => {
-				// Refresh widgets
 				queryClient.invalidateQueries({
 					queryKey: ['widgets']
 				})
@@ -19,11 +18,10 @@ export default function useSupportUpdateWidget() {
 					exact: false
 				})
 
-				variables.successFunc()
+				variables.successFunc(data)
 			},
-			onError: (error, variables, context) => {
-				queryClient.setQueryData(['widgets'], context.previousValue)
-				variables.errorFunc()
+			onError: (err, variables, context) => {
+				variables.errorFunc(err)
 			}
 		}
 	)

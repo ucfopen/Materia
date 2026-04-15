@@ -8,26 +8,32 @@ export default function useDeleteWidget(user) {
 	return useMutation(
 		{
 			mutationFn: apiDeleteWidget,
-			onSuccess: (data, variables) => {
-				// Optimistic update for deleting a widget
+			onMutate: async data => {
+				await queryClient.cancelQueries({ queryKey: ['instances', user] })
+
+				const previousValue = queryClient.getQueriesData(['instances', user])
+
 				queryClient.setQueryData(['instances', user], previous => {
 					if (!previous || !previous.pages) return previous
 					return {
 						...previous,
 						pages: previous.pages.map((page) => ({
 							...page,
-							results: page.results.filter(widget => widget.id !== variables['instId'])
+							results: page.results.filter(widget => widget.id !== data['instId'])
 						})),
 						modified: Math.floor(Date.now() / 1000)
 					}
 				})
+
+				return { previousValue }
+			},
+			onSuccess: (data, variables) => {
+				queryClient.invalidateQueries({ queryKey: ['instances', user] })
 				variables.successFunc(data)
 			},
 			onError: (err, variables, context) => {
 				variables.errorFunc(err)
-				queryClient.setQueryData(['instances', user], (previous) => {
-					return context.previousValue
-				})
+				queryClient.setQueryData(['instances', user], context.previousValue)
 			}
 		}
 	)

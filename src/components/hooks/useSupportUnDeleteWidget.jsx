@@ -8,8 +8,8 @@ export default function useSupportUnDeleteWidget() {
 		{
 			mutationFn: apiUnDeleteWidget,
 			onSuccess: (data, variables) => {
-				variables.successFunc()
-				queryClient.removeQueries({
+				variables.successFunc(data)
+				queryClient.invalidateQueries({
 					queryKey: ['search-widgets'],
 					exact: false
 				})
