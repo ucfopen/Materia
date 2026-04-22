@@ -23,7 +23,7 @@ const CommunityLibraryCard = ({ entry, onCopy, onLike, onReport, copySuccess = f
 	} = entry
 
 	return (
-		<div className={`library-card ${featured ? 'featured' : ''}`}>
+		<a href={`/community-library/${entry.id}/`} className={`library-card ${featured ? 'featured' : ''}`}>
 			<div className="card-header">
 				<div className="img-holder">
 					<img src={iconUrl('/widget/', widget?.dir, 275)} alt={widget?.name} />
@@ -83,7 +83,7 @@ const CommunityLibraryCard = ({ entry, onCopy, onLike, onReport, copySuccess = f
 					</svg>
 				</button>
 			</div>
-		</div>
+		</a>
 	)
 }
 

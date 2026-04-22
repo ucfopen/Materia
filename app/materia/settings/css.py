@@ -10,6 +10,7 @@ CSS_GROUPS = {
     "help": [CSS_BASEURL + "help.css"],
     "catalog": [CSS_BASEURL + "catalog.css"],
     "community-library": [CSS_BASEURL + "community-library.css"],
+    "cl-detail": [CSS_BASEURL + "cl-detail.css"],
     "detail": [CSS_BASEURL + "detail.css"],
     "player": [CSS_BASEURL + "player-page.css"],
     "creator": [CSS_BASEURL + "creator-page.css"],

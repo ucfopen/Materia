@@ -810,6 +810,10 @@ export const apiGetCommunityLibrary = ({ pageParam = 1, search = '', widgetId = 
 	return handleRequest(methods.GET, url)
 }
 
+export const apiGetLibraryEntry = (entryId) => {
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/get/`)
+}
+
 export const apiCopyFromLibrary = (entryId) => {
 	return handleRequest(methods.POST, `/api/community-library/${entryId}/copy/`)
 }

@@ -10,6 +10,7 @@ JS_GROUPS = {
     "help": [JS_BASEURL + "help.js"],
     "catalog": [JS_BASEURL + "catalog.js"],
     "community-library": [JS_BASEURL + "community-library.js"],
+    "cl-detail": [JS_BASEURL + "cl-detail.js"],
     "detail": [JS_BASEURL + "detail.js"],
     "player": [JS_BASEURL + "player-page.js"],
     "creator": [JS_BASEURL + "creator-page.js"],

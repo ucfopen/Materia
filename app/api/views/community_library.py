@@ -144,6 +144,12 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             permission_classes = [IsAuthenticated]
 
         return [permission() for permission in permission_classes]
+    
+    @action(detail=True, methods=["get"])
+    def get(self, request, pk=None):
+        return Response(
+            CommunityLibraryEntrySerializer(
+                self.get_object(), context={"request": request}).data)
 
     @action(detail=True, methods=["post"])
     def copy(self, request, pk=None):
