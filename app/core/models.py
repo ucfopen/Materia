@@ -501,8 +501,11 @@ class LogPlay(models.Model):
         db_table = "log_play"
         indexes = [
             models.Index(fields=["created_at"], name="log_play_created_at"),
-            models.Index(fields=["is_complete"], name="log_play_is_complete"),
             models.Index(fields=["percent"], name="log_play_percent"),
+            models.Index(
+                fields=["instance", "is_complete", "-created_at", "semester_id"],
+                name="log_play_perf_lookup",
+            ),
         ]
 
 
@@ -630,6 +633,7 @@ class LtiPlayState(models.Model):
     )
     submission_attempts = models.PositiveIntegerField(default=0)
     last_submitted = models.DateTimeField(default=None, null=True)
+    score_submitted = models.FloatField(null=True)
 
 
 # this sucks

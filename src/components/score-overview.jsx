@@ -68,7 +68,7 @@ const ScoreOverview = ({instId, playId, isSingle, overview, attemptNum, isPrevie
 
 	let overviewLtiStatus = null
 	if (overview.lti) {
-		overviewLtiStatus = <ScoreOverviewLtiStatus lti={overview.lti} single={isSingle} playId={playId} />
+		overviewLtiStatus = <ScoreOverviewLtiStatus lti={overview.lti} single={isSingle} playId={playId} score={overview.score} />
 	}
 
 	let classRankBtn = null

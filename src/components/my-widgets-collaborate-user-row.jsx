@@ -179,7 +179,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 			</button>
 
 			<div className='about'>
-				<img className='avatar' src={user.avatar} />
+				<img className='avatar' src={user.avatar} alt=""/>
 
 				<span className={`name ${user.is_owner ? 'user-match-owner' : user.is_student ? 'user-match-student' : ''}`}>
 					{`${user.first_name} ${user.last_name}`}
