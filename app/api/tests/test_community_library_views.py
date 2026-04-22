@@ -306,7 +306,7 @@ class TestCommunityLibraryList(CommunityLibraryViewSetTestCase):
             for r in response.data["results"]
             if r["instance_id"] == self.shared_instance.id
         )
-        self.assertEqual(entry["owner_display_name"], "Jane D.")
+        self.assertEqual(entry["owner_display_name"], "Jane Doe")
 
     def test_user_has_liked_false_by_default(self):
         self.client.force_authenticate(user=self.regular_user)
@@ -422,6 +422,163 @@ class TestCommunityLibraryCopy(CommunityLibraryViewSetTestCase):
         new_instance = WidgetInstance.objects.get(pk=response.data["id"])
         qset = new_instance.get_latest_qset()
         self.assertIsNotNone(qset)
+
+    def test_copy_sets_copied_from_entry(self):
+        """Copied instance should have copied_from_entry pointing to the source entry."""
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.post(
+            f"/api/community-library/{self.library_entry.id}/copy/"
+        )
+        new_instance = WidgetInstance.objects.get(pk=response.data["id"])
+        self.assertEqual(new_instance.copied_from_entry, self.library_entry)
+
+    def test_copy_returns_copied_from_entry_id(self):
+        """Serialized response should include copied_from_entry_id."""
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.post(
+            f"/api/community-library/{self.library_entry.id}/copy/"
+        )
+        self.assertEqual(response.data["copied_from_entry_id"], self.library_entry.id)
+
+    def test_copy_of_copy_does_not_inherit_copied_from_entry(self):
+        """Duplicating a copy via the instance copy action should not inherit copied_from_entry."""
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.post(
+            f"/api/community-library/{self.library_entry.id}/copy/"
+        )
+        copied_instance = WidgetInstance.objects.get(pk=response.data["id"])
+        ObjectPermission.objects.create(
+            user=self.regular_user,
+            content_object=copied_instance,
+            permission=ObjectPermission.PERMISSION_FULL,
+        )
+        dupe = copied_instance.duplicate(owner=self.regular_user, new_name="Dupe of Copy")
+        self.assertIsNone(dupe.copied_from_entry)
+
+
+class TestPullFromLibrary(CommunityLibraryViewSetTestCase):
+    """Tests for PUT /api/instances/{id}/pull_from_library/"""
+
+    def setUp(self):
+        super().setUp()
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.post(
+            f"/api/community-library/{self.library_entry.id}/copy/"
+        )
+        self.copied_instance = WidgetInstance.objects.get(pk=response.data["id"])
+
+    def test_unauthenticated_returns_403(self):
+        self.client.logout()
+        response = self.client.put(
+            f"/api/instances/{self.copied_instance.id}/pull_from_library/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_pull_updates_name_and_qset(self):
+        """Pull should overwrite name and qset from the latest snapshot."""
+        self.copied_instance.name = "My Custom Name"
+        self.copied_instance.save(update_fields=["name"])
+
+        response = self.client.put(
+            f"/api/instances/{self.copied_instance.id}/pull_from_library/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.copied_instance.refresh_from_db()
+        snapshot = self.library_entry.snapshots.order_by("-created_at").first()
+        self.assertEqual(self.copied_instance.name, snapshot.name)
+
+    def test_pull_uses_latest_snapshot(self):
+        """If a newer snapshot exists, pull should use it."""
+        new_snapshot = LibrarySnapshot.objects.create(
+            entry=self.library_entry,
+            name="Updated Snapshot Name",
+            qset_data="eyJ1cGRhdGVkIjogdHJ1ZX0=",
+            qset_version="2",
+        )
+        response = self.client.put(
+            f"/api/instances/{self.copied_instance.id}/pull_from_library/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.copied_instance.refresh_from_db()
+        self.assertEqual(self.copied_instance.name, "Updated Snapshot Name")
+        qset = self.copied_instance.get_latest_qset()
+        self.assertEqual(qset.data, new_snapshot.qset_data)
+        self.assertEqual(qset.version, "2")
+
+        new_snapshot.delete()
+
+    def test_pull_on_non_library_copy_returns_400(self):
+        """Pulling from a widget that was not copied from the library should fail."""
+        self.client.force_authenticate(user=self.author_user)
+        response = self.client.put(
+            f"/api/instances/{self.unshared_instance.id}/pull_from_library/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_pull_on_unpublished_entry_returns_400(self):
+        """Pulling from an unpublished entry should fail."""
+        self.shared_instance.is_shared = False
+        self.shared_instance.save(update_fields=["is_shared"])
+
+        response = self.client.put(
+            f"/api/instances/{self.copied_instance.id}/pull_from_library/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.shared_instance.is_shared = True
+        self.shared_instance.save(update_fields=["is_shared"])
+
+    def test_copied_from_entry_id_null_when_unpublished(self):
+        """Serializer should return null for copied_from_entry_id when entry is unpublished."""
+        self.shared_instance.is_shared = False
+        self.shared_instance.save(update_fields=["is_shared"])
+
+        response = self.client.get(
+            f"/api/instances/{self.copied_instance.id}/"
+        )
+        self.assertIsNone(response.data["copied_from_entry_id"])
+
+        self.shared_instance.is_shared = True
+        self.shared_instance.save(update_fields=["is_shared"])
+
+    def test_copied_from_entry_id_null_when_entry_deleted(self):
+        """If the library entry is deleted, copied_from_entry_id should be null."""
+        temp_instance = WidgetInstance.objects.create(
+            widget=self.widget,
+            user=self.author_user,
+            name="Temp Instance",
+            is_draft=False,
+            is_shared=True,
+        )
+        ObjectPermission.objects.create(
+            user=self.author_user,
+            content_object=temp_instance,
+            permission=ObjectPermission.PERMISSION_FULL,
+        )
+        WidgetQset.objects.create(
+            instance=temp_instance,
+            data="eyJ0ZXN0IjogImRhdGEifQ==",
+            version="1",
+        )
+        temp_entry = CommunityLibraryEntry.objects.create(
+            instance=temp_instance,
+            category="math",
+        )
+        LibrarySnapshot.objects.create(
+            entry=temp_entry,
+            name="Temp Instance",
+            qset_data="eyJ0ZXN0IjogImRhdGEifQ==",
+            qset_version="1",
+        )
+        response = self.client.post(
+            f"/api/community-library/{temp_entry.id}/copy/"
+        )
+        temp_copy = WidgetInstance.objects.get(pk=response.data["id"])
+        self.assertEqual(temp_copy.copied_from_entry, temp_entry)
+
+        temp_entry.delete()
+        temp_copy.refresh_from_db()
+        self.assertIsNone(temp_copy.copied_from_entry_id)
 
 
 class TestCommunityLibraryLike(CommunityLibraryViewSetTestCase):
