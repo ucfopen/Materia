@@ -15,3 +15,8 @@ class CommunityLibraryView(TemplateView):
         )
 
         return render(request, "react.html", context)
+
+class CommunityLibraryDetailView(TemplateView):
+    template_name = "react.html"
+    
+    pass
