@@ -30,7 +30,7 @@ class CommunityLibraryDetailView(TemplateView):
             raise Http404
 
         return ContextUtil.create(
-            title="Widget Details",
+            title="Community Library",
             js_resources=settings.JS_GROUPS["cl-detail"],
             css_resources=settings.CSS_GROUPS["cl-detail"],
             js_globals={
