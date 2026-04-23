@@ -58,11 +58,11 @@ const CommunityLibraryDetail = ({entry}) => {
 
 	console.log(entry)
 
-	if(!entry) return (
-		<div>Loading</div>
-	)
+	// if(!entry) return (
+	// 	<div>Loading</div>
+	// )
 
-	const dateCreated = new Date(entry.created_at)
+	// const dateCreated = new Date(entry.created_at)
 	const dateOptions = {
 		year: "numeric",
 		month: "long",
@@ -77,15 +77,15 @@ const CommunityLibraryDetail = ({entry}) => {
 					<path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path>
 					<path fill="none" d="M0 0h24v24H0V0z"></path>
 				</svg>
-				{entry.instance_name}
+				{!entry ? "Loading..." : entry.instance_name}
 			</div>
 			<section className='entry'>
 				<div className='card shadow'>
 					<div className='header'>
 						<div className='row between'>
-							<h1>{entry.instance_name}</h1>
+							<h1>{!entry ? "Loading..." : entry.instance_name}</h1>
 							<div className='row fit' style={{gap:"4px"}}>
-								<div className='tag category'>{entry.category_display}</div>
+								<div className='tag category'>{!entry ? "" : entry.category_display}</div>
 								{/* <div className='tag course-level'>{entry.course_level_display}</div> */}
 							</div>
 						</div>
@@ -96,13 +96,17 @@ const CommunityLibraryDetail = ({entry}) => {
 						<h3>WIDGET ENGINE</h3>
 						<div className='card'>
 							<div className='content row small'>
-								{/* <div style={{width: "80px", height: "80px", borderRadius: "4px", backgroundColor: "#aaa", flexShrink: 0}}></div> */}
-								<img src={`/widget/${entry.widget.dir}img/icon-92.png`}/>
+								{
+									entry ?
+									<img src={`/widget/${entry.widget.dir}img/icon-92.png`}/>
+									:
+									<div style={{width: "92px", height: "92px", borderRadius: "4px", backgroundColor: "#aaa", flexShrink: 0}}></div>
+								}
 								<div className='col'>
-									<h2>{entry.widget.name}</h2>
-									{entry.widget.meta_data.excerpt}
+									<h2>{!entry ? "" : entry.widget.name}</h2>
+									{!entry ? "" : entry.widget.meta_data.excerpt}
 								</div>
-								<a target="_blank" href={`/widgets/${entry.widget.dir}`} aria-label={`Link to ${entry.widget.name} Widget`}>
+								<a target="_blank" href={`/widgets/${!entry ? "" : entry.widget.dir}`} aria-label={`Link to Widget Catalog`}>
 									<img className='ext-link' src='/img/external_link.svg' alt='External Link Icon'/>
 								</a>
 							</div>
@@ -115,7 +119,7 @@ const CommunityLibraryDetail = ({entry}) => {
 						</div>
 						<br/>
 						<h3>METADATA</h3>
-						<div>{`Created ${dateCreated.toLocaleDateString(undefined, dateOptions)}`}</div>
+						<div>{!entry ? "Loading" : `Created ${(new Date(entry.created_at)).toLocaleDateString(undefined, dateOptions)}`}</div>
 					</div>
 				</div>
 				<div className='col' style={{gap:"16px"}}>
@@ -125,7 +129,7 @@ const CommunityLibraryDetail = ({entry}) => {
 								<img className='' src={`/img/${copySuccess ? "check" : "copy"}-white.svg`} alt='Copy Icon'/>
 								{copySuccess ? 'Copied!' : 'Copy to My Widgets'}
 							</button>
-							<a target='_blank' className='no-under' href={`/preview/snapshot/${entry.id}`}>
+							<a target='_blank' className='no-under' href={`/preview/snapshot/${!entry ? 0 : entry.id}`}>
 								<button className='yellow h-sm space row center' style={{gap:"8px"}}>
 									<img className='' src='/img/external_link.svg' alt='External Link Icon'/>
 									Preview Widget
@@ -138,19 +142,19 @@ const CommunityLibraryDetail = ({entry}) => {
 						<div className='content'>
 							<div className='row'>
 								<button className='col' onClick={() => handleCopy(entry.id)}>
-									<div className='big'>{entry.copy_count}</div>
+									<div className='big'>{!entry ? 0 : entry.copy_count}</div>
 									<div className='row center' style={{gap:"4px"}}>
 										<img className='' src={`/img/${copySuccess ? "check" : "copy"}.svg`} style={{width: "16px", height: "16px"}} alt='Copy Icon'/>
-										{`Cop${entry.copy_count == 1 ? 'y' : 'ies'}`}
+										{`Cop${(!entry ? 0 : entry.copy_count) == 1 ? 'y' : 'ies'}`}
 									</div>
 								</button>
 								<button className='col like' onClick={() => handleLike(entry.id)}>
-									<div className='big'>{entry.like_count}</div>
+									<div className='big'>{!entry ? 0 : entry.like_count}</div>
 									<div className='row center' style={{gap:"4px"}}>
 										<svg viewBox="0 0 24 24" width="16" height="16" className='like'>
-											<path d={entry.user_has_liked ? HEART_FILLED : HEART_OUTLINE} />
+											<path d={!entry ? HEART_OUTLINE : entry.user_has_liked ? HEART_FILLED : HEART_OUTLINE} />
 										</svg>
-										{`Recommendation${entry.like_count != 1 ? 's' : ''}`}
+										{`Recommendation${(!entry ? 0 :entry.like_count) != 1 ? 's' : ''}`}
 									</div>
 								</button>
 							</div>
