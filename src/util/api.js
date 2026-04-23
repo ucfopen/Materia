@@ -725,6 +725,76 @@ export const apiWidgetPromptGenerate = (prompt) => {
 }
 
 /**
+ * Sends a conversation to the backend and streams the response back to the caller,
+ * invoking a callback with each received chunk of text as it arrives.
+ * Unlike other API methods in this file, this function does not use the `handleRequest`
+ * helper and instead directly interfaces with the Fetch API to handle a
+ * Server-Sent Events (SSE) stream.
+ * @param {Object} params - The parameters for the streaming request.
+ * @param {Object[]} params.request.conversation - The conversation history to send to the backend.
+ *  * @param {Object[]} params.request.systemPrompt - The system prompt to send to the backend.
+ * @param {Function} [params.onChunk] - Optional callback invoked with each received text chunk.
+ *  Receives two arguments: the latest chunk of text, and the full accumulated text so far.
+ * @returns {Promise<{response: string}>} - Resolves with an object containing the full
+ *  accumulated response text once the stream is complete.
+ * @throws {Error} - Throws an HTTP error if the response status is not OK.
+ */
+export const apiStreamingResponseGenerate = async (params) => {
+	const conversation = params.request.conversation
+	const system_prompt = params.request.systemPrompt
+	const onChunk = params.onChunk // Extract the onChunk callback
+	
+	const response = await fetch('/api/generate/streaming/', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': getCSRFToken(),
+		},
+		body: JSON.stringify({conversation, system_prompt}),
+	})
+
+	if (!response.ok) {
+		throw new Error(`HTTP error ${response.status}`)
+	}
+
+	const reader = response.body.getReader()
+	const decoder = new TextDecoder()
+	let buffer = ''
+	let fullText = ''
+
+	while (true) {
+		const { done, value } = await reader.read()
+		if (done) break
+
+		buffer += decoder.decode(value, { stream: true })
+		const lines = buffer.split('\n')
+		buffer = lines.pop() // Keep incomplete line in buffer
+
+		for (const line of lines) {
+			if (line.startsWith('data: ')) {
+				const eventData = line.slice(6)
+				if (eventData === '[DONE]') {
+					return { response: fullText }
+				}
+				try {
+					const parsed = JSON.parse(eventData)
+					if (parsed.text) {
+						fullText += parsed.text
+						if (onChunk) {
+							onChunk(parsed.text, fullText)
+						}
+					}
+				} catch (e) {
+					// Ignore parse errors for non-JSON lines
+				}
+			}
+		}
+	}
+
+	return { response: fullText }
+}
+
+/**
  * Takes a widget ID, returns whether an update is available and what version
  *  is new when applicable
  * @param {int} widgetId

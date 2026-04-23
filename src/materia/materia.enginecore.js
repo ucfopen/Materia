@@ -15,6 +15,11 @@ Namespace('Materia').Engine = (() => {
 				_mediaUrl = msg.data[3]
 				_initWidget(msg.data[0], msg.data[1])
 				break
+			case 'promptResponse':
+				_promptResponse(msg.data[0], msg.data[1])
+				break
+			case 'promptRejection':
+				_promptRejection()
 			default:
 				throw new Error(`Error: Engine Core received unknown post message: ${msg.type}`)
 				break
@@ -29,6 +34,14 @@ Namespace('Materia').Engine = (() => {
 	const _initWidget = (qset, instance) => {
 		_widgetClass.start(instance, qset.data, qset.version)
 		_instance = instance
+	}
+
+	const _promptResponse = (response, complete=false) => {
+		_widgetClass.promptStreamingResponse(response, complete)
+	}
+
+	const _promptRejection = () => {
+		_widgetClass.promptStreamingRejection()
 	}
 
 	const start = (widgetClass) => {
@@ -100,6 +113,10 @@ Namespace('Materia').Engine = (() => {
 
 	const escapeScriptTags = (text) => text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
+	const submitGenerationRequest = (conversation, systemPrompt) => {
+		_sendPostMessage('generationStreamingRequest', [conversation, systemPrompt])
+	}
+
 	return {
 		start,
 		addLog,
@@ -113,5 +130,6 @@ Namespace('Materia').Engine = (() => {
 		setHeight, // allows the widget to resize its iframe container to fit the height of its contents
 		setVerticalScroll, // allows the widget to scroll the page to a specific location
 		escapeScriptTags,
+		submitGenerationRequest,
 	}
 })()
