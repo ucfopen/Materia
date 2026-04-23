@@ -137,10 +137,6 @@ section.page {
 
             transition: box-shadow 300ms ease;
 
-            &:hover {
-                box-shadow: 0px 1px 2px 2px #0000001A;
-            }
-            
             &.space {
                 margin-bottom: 12px;
             }
@@ -179,6 +175,10 @@ section.page {
                 background-color: #FFF1F2;
                 border-color: #e7b2b6;
                 color: #EC003F;
+            }
+
+            &:hover {
+                box-shadow: 0px 1px 2px 2px #0000001A;
             }
         }
 
