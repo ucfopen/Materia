@@ -468,7 +468,7 @@ const MyWidgetSelectedInstance = ({
 								Delete
 							</div>
 						</li>
-						{!inst.is_shared && !inst.is_draft && (
+						{/* {!inst.is_shared && !inst.is_draft && (
 							<li>
 								<div className='link'
 									role='menuitem'
@@ -518,7 +518,7 @@ const MyWidgetSelectedInstance = ({
 									{pullLabel}
 								</div>
 							</li>
-						)}
+						)} */}
 					</ul>
 
 					{ deleteDialogRender }
@@ -572,6 +572,78 @@ const MyWidgetSelectedInstance = ({
 				<Warning>All '{inst.widget.name}' widgets are currently not editable.</Warning> : null }
 
 			{provisionalAccessRender}
+
+			<div className={`community-library-container closed ${inst.is_draft ? 'draft' : ''}`}>
+				<h3>
+					{/* {inst.is_draft ? 'Publish to share' : 'Share'} with your students */}
+					Community Library
+				</h3>
+				<div className="cl-options">
+				{!inst.is_shared && !inst.is_draft && !inst.copied_from_entry_id && (
+					<div className='row'>
+						<p><h4>Make Your Widget Public!</h4>Allow other instructors to discover, copy, and adapt this widget for their own courses.</p>
+						<div className='col'>
+							<button
+								role='menuitem'
+								tabIndex="0"
+								onClick={() => setShowPublishDialog(true)}>
+								Share to Library
+							</button>
+						</div>
+					</div>
+					
+				)}
+				{inst.copied_from_entry_id ? (
+					<div className='row'>
+						<p><h4>Change Widget Version</h4>Pull changes to replace this widget's content with the latest version from the Community Library. <span>This cannot be reversed.</span></p>
+						<div className='col'>
+							<button
+								role='menuitem'
+								tabIndex="0"
+								onClick={() => setShowPullDialog(true)}>
+								{pullLabel}
+							</button>
+						</div>
+					</div>
+					
+				) :
+				inst.is_shared && (
+					<div className='row'>
+						<p><h4>Your Widget Is Public</h4>
+							<p>Press <span>Update in Library</span> to sync any changes to this widget to the Community Library.</p>
+							Press <span>Remove from Library</span> to remove this widget from the Community Library. This will prevent new copies of this widget from being made.
+						</p>
+						<div className='col'>
+							<button
+								className='alt'
+								role='menuitem'
+								tabIndex="0"
+								onClick={() => {
+									updateInLibrary.mutate(inst.id, {
+										onSuccess: () => {
+											setUpdateLibraryLabel('Updated!')
+											setTimeout(() => setUpdateLibraryLabel('Update in Library'), 3000)
+										}
+									})
+								}}>
+								{updateLibraryLabel}
+							</button>
+							<button
+								role='menuitem'
+								tabIndex="0"
+								onClick={() => {
+									apiUnpublishFromLibrary(inst.id).then(() => {
+										onEdit({...inst, is_shared: false})
+									})
+								}}>
+								Remove from Library
+							</button>
+						</div>
+					</div>
+				)}
+				
+				</div>
+			</div>
 
 			<div className={`share-widget-container closed ${inst.is_draft ? 'draft' : ''}`}>
 				<h3>
