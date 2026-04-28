@@ -14,27 +14,132 @@
 		box-shadow: 1px 3px 10px #dcdcdc;
 		width: 96%;
 		max-width: 1500px;
-		padding-bottom: 20px;
+		// padding-bottom: 20px;
 	}
 
 	.top {
 		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		align-items: center;
+		flex-direction: column;
+		// justify-content: space-between;
+		align-items: left;
 		padding: 10px 15px;
 		background: #eee;
 		color: #333;
 		font-weight: bold;
+		gap: 6px;
 
 		h1 {
 			margin: 0;
 			display: inline-block;
 		}
+
+		h3 {
+			margin: 0;
+			font-weight: 400;
+			font-size: 14px;
+			margin-bottom: 4px;
+		}
+	}
+
+	.row {
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+	}
+
+	.col {
+		// width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.small-labels {
+		margin-top: 8px;
+		.row {
+			gap: 4px;
+		}
+
+		label {
+			width: fit-content;
+			font-size: 14px;
+			cursor: pointer;
+		}
+
+		input[type='checkbox'], input[type='radio'] {
+			width: fit-content;
+			cursor: pointer;
+		}
+	}
+
+	details {
+		user-select: none;
+
+		summary {
+			cursor: pointer;
+			position: relative;
+
+			text-transform: uppercase;
+			font-weight: bold;
+			color: #333;
+			font-size: 12px;
+
+			&::marker {
+				content: "";
+			}
+			&::after {
+				font-family: Arial, sans-serif;
+				content: "⌃";
+				scale: 0.75 0.9;
+				right: -2px;
+				top: 1px;
+				// margin-top: -5px;
+				position: absolute;
+			}
+		}
+
+		&:open {
+			summary {
+				&::after {
+					content: "⌄";
+					scale: 1;
+					right: 0;
+					top: 0;
+					margin-top: -3px;
+					position: absolute;
+				}
+			}
+		}
+	}
+
+	.sidebar {
+		width: 230px;
+		flex-shrink: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+
+		border-right: 1px solid #e4e4e4;
+		font-weight: 400;
+		padding: 15px 24px;
+		box-sizing: border-box;
+		padding-bottom: 32px;
+
+		h3 {
+			margin: 0;
+			color: #333;
+			font-size: 14px;
+			border-bottom: 1px solid #e4e4e4;
+			padding-bottom: 8px;
+		}
+	}
+
+	.content {
+		width: 100%;
 	}
 
 	.controls {
-		padding: 15px;
+		padding: 15px 24px;
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
@@ -44,17 +149,35 @@
 			position: relative;
 			display: flex;
 			align-items: center;
+			
+			.search-icon {
+				position: absolute;
+				top: -4px;
+				bottom: 0px;
+				left: 9px;
+				margin: auto 0px;
+				height: 12px;
+				width: 16px;
+				fill: #aaa;
+			}
 
 			input {
 				width: 100%;
-				padding: 8px 12px;
+				padding: 10px 16px;
 				border: 1px solid #ccc;
 				border-radius: 4px;
 				font-size: 14px;
+				padding-left: 32px;
+
+				font-family: "Lato", Arial, sans-serif;
 
 				&:focus {
 					outline: none;
 					border-color: #3690e6;
+				}
+
+				&::placeholder {
+					color: #aaa;
 				}
 			}
 
@@ -79,7 +202,15 @@
 		.filters {
 			display: flex;
 			flex-wrap: wrap;
+			justify-content: space-between;
+			align-items: center;
 			gap: 8px;
+
+			.sublabel {
+				font-weight: 400;
+				font-size: 14px;
+				margin-right: 2px;
+			}
 
 			select {
 				padding: 6px 10px;
@@ -88,6 +219,8 @@
 				font-size: 13px;
 				background: #fff;
 				cursor: pointer;
+
+				font-family: "Lato", Arial, sans-serif;
 
 				&:focus {
 					outline: none;
@@ -112,7 +245,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 15px;
-		padding: 15px;
+		padding: 15px 24px;
 
 		&.featured {
 			padding: 0;
@@ -127,6 +260,8 @@
 		span {
 			display: block;
 			font-size: 16px;
+			color: #333;
+			font-weight: 400;
 		}
 
 		.clear-filters {
@@ -137,6 +272,7 @@
 			background: none;
 			color: #3690e6;
 			cursor: pointer;
+			font-family: "Lato", Arial, sans-serif;
 
 			&:hover {
 				background: #3690e6;
@@ -146,11 +282,13 @@
 	}
 
 	.library-card {
-		width: 280px;
+		width: 335px;
 		border: 1px solid #e4e4e4;
 		border-radius: 6px;
 		overflow: hidden;
 		transition: box-shadow 0.2s;
+
+		padding: 20px 16px;
 
 		&:hover {
 			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
@@ -160,14 +298,42 @@
 			border-color: #f0c040;
 		}
 
+		&.animate {
+			opacity: 1;
+			transform: scale(1);
+
+			animation: grow 250ms ease;
+			@keyframes grow {
+				from {
+					opacity: 0;
+					transform: scale(0.1);
+				}
+				to {
+					opacity: 1;
+					transform: scale(1);
+				}
+			}
+		}
+
+		hr {
+			opacity: 0.25;
+		}
+
+		a {
+			&:hover, &:focus, &:focus-visible {
+				text-decoration: none;
+			}
+			
+		}
+
 		.card-header {
 			display: flex;
 			gap: 10px;
-			padding: 12px;
+			// padding: 12px;
 
 			.img-holder {
-				width: 60px;
-				height: 60px;
+				width: 75px;
+				height: 75px;
 				flex-shrink: 0;
 
 				img {
@@ -181,40 +347,60 @@
 				display: flex;
 				flex-direction: column;
 				min-width: 0;
+				gap: 3px;
 
 				h3 {
 					margin: 0;
-					font-size: 14px;
+					font-size: 16px;
 					font-weight: 600;
 					white-space: nowrap;
 					overflow: hidden;
 					text-overflow: ellipsis;
+					color: #333;
+
+					&:hover {
+						text-decoration: underline;
+					}
 				}
 
 				.widget-type {
-					font-size: 12px;
+					font-size: 13px;
 					color: #666;
+					font-weight: 400;
 				}
 
 				.owner {
-					font-size: 11px;
-					color: #999;
+					font-size: 13px;
+					color: #666;
+					font-weight: 400;
 				}
 			}
 		}
 
 		.card-meta {
-			padding: 0 12px 8px;
+			// padding: 0 12px 8px;
 			display: flex;
 			flex-wrap: wrap;
 			gap: 4px;
 
+			margin-top: 8px;
+
+			justify-content: space-between;
+
+			.badges {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 4px;
+			}
+
 			.badge {
 				display: inline-block;
-				padding: 2px 8px;
-				border-radius: 12px;
-				font-size: 11px;
+				padding: 4px 8px;
+				border-radius: 4px;
+				font-size: 12px;
 				font-weight: 500;
+				background-color: #eee;
+				color: #333;
 
 				&.category {
 					background: #e8f0fe;
@@ -236,32 +422,46 @@
 			font-size: 12px;
 			color: #666;
 
-			.like-btn {
-				display: flex;
-				align-items: center;
-				gap: 4px;
-				border: none;
-				background: none;
-				cursor: pointer;
-				padding: 4px;
-				border-radius: 4px;
-				color: #666;
+		}
 
-				svg {
-					fill: currentColor;
-				}
+		.like-btn {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			border: 1px solid #F1F5F9;
+			background: #F8FAFC;
+			cursor: pointer;
+			padding: 4px;
+			border-radius: 4px;
+			color: #666;
+			font-family: "Lato", Arial, sans-serif;
 
-				&.liked {
-					color: #e53935;
-				}
-
-				&:hover {
-					background: #f5f5f5;
-				}
+			svg {
+				fill: currentColor;
 			}
 
-			.copy-count {
-				color: #888;
+			&.liked {
+				color: #EC003F;
+			}
+
+			&:hover {
+				background: #F1F5F9;
+			}
+		}
+
+		.copy-count {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			padding: 4px;
+			border-radius: 4px;
+			color: #666;
+			font-family: "Lato", Arial, sans-serif;
+			font-weight: 400;
+			font-size: 13px;
+
+			svg {
+				stroke: currentColor;
 			}
 		}
 
@@ -324,6 +524,15 @@
 			}
 		}
 	}
+}
+
+.not-found-img {
+	height: 340px;
+	width: 210px;
+	margin: 32px auto;
+	
+	background: #fff url('/static/img/kogneato_with_a_broom.svg') no-repeat;
+
 }
 
 .load-more-sentinel {
@@ -446,6 +655,125 @@
 					opacity: 0.7;
 					cursor: default;
 				}
+			}
+		}
+	}
+}
+
+.darkMode {
+	section.page {
+		background: #21232a;
+		border: #181920 1px solid;
+		box-shadow: 1px 3px 10px #08090c;
+	}
+
+	.top {
+		background: hsl(233, 14%, 11%);
+		color: #c7c7c7;
+	}
+
+	details {
+		summary {
+			color: #ccc;
+		}
+	}
+
+	.sidebar {
+		border-right-color: #444;
+		h3 {
+			color: #ccc;
+			border-bottom-color: #444;
+		}
+	}
+
+	.controls {
+		border-bottom-color: #444;
+	}
+
+	.small-labels {
+		label {
+			color: #eee;
+		}
+	}
+
+	.library-card {
+		border-color: #444;
+
+		hr {
+			opacity: 0.15;
+		}
+
+		.card-header {
+			.card-title {
+				h3 {
+					color: #eee;
+				}
+
+				.widget-type {
+					color: #ccc;
+				}
+
+				.owner {
+					color: #ccc;
+				}
+			}
+		}
+
+		.card-meta {
+			.badge {
+				color: #ccc;
+				background-color: #30323b;
+			}
+		}
+
+		.like-btn {
+			background-color: #30323b;
+			border-color: #444;
+			color: #ccc;
+
+			&:hover {
+				background-color: #3f414c;
+			}
+		}
+
+		.copy-count {
+			color: #ccc;
+		}
+	}
+	
+	.not-found-img {
+		height: 340px;
+		width: 210px;
+		margin: 32px auto;
+		
+		background: #21232a url('/static/img/kogneato_with_a_broom_dark.svg') no-repeat;
+
+	}
+
+	.status-message {
+		span {
+			color: #ccc;
+		}
+	}
+
+	.controls {
+		.search-bar {
+			input {
+				background: #30323b;
+				border-color: #444;
+				color: #eee;
+			}
+		}
+
+		.filters {
+			.sublabel {
+				color: #eee;
+			}
+
+			select {
+				background: #30323b;
+				color: #fff;
+				border-color: #444;
 			}
 		}
 	}

@@ -224,6 +224,8 @@ section.page {
         border-radius: 4px;
         font-weight: 400;
         height: fit-content;
+        width: fit-content;
+        text-align: center;
 
         &.category {
             background-color: #E0F2FE;
@@ -259,6 +261,116 @@ section.page {
     svg {
         &.like {
             fill: #EC003F;
+        }
+    }
+
+    .icon-16 {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.darkMode {
+    section.page {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+
+        .ext-link {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            fill: #ccc;
+        }
+
+        .cl-nav {
+            background: #1d1f25;
+            border: 1px solid #181920;
+    
+            svg {
+                fill: #fff;
+            }
+    
+            color: #eee;
+    
+            a {
+                color: #91c8fc;
+            }
+        }
+
+        .card {
+            background: #21232a;
+            border: #181920 1px solid;
+
+            &.alt-border {
+                border-color: #444;
+            }
+
+            &.shadow {
+                box-shadow: 1px 3px 10px #08090c;
+            }
+
+            .header {
+                background-color: hsl(233, 14%, 11%);
+                color: #c7c7c7;
+                border-bottom-color: #444;
+
+                .author {
+                    color: #c7c7c7;
+                    b {
+                        color: #eee;
+                    }
+                }
+            }
+
+            h2 {
+                color: #c7c7c7;
+            }
+
+            &.blue {
+                color: #55baf1;
+                background-color: #1f2d37;
+                border-color: #3d5463;
+            }
+
+            button {
+                background-color: #30323b;
+                border-color: #444;
+                color: #eee;
+
+                &.blue {
+                    background-color: #0d7aa8;
+                    color: #fff;
+                    border: none;
+                    box-shadow: 0px 1px 2px -1px #0000001A;
+                    font-weight: bold;
+                }
+    
+                &.yellow {
+                    background-color: #d0b14f;
+                    color: #000;
+                    border: none;
+                    box-shadow: 0px 1px 2px -1px #0000001A;
+                    font-weight: bold;
+                }
+
+                &.like {
+                    background-color: #542e31;
+                    border-color: #543f40;
+                    color: #EC003F;
+                }
+            }
+        }
+
+        .tag {
+            background-color: #30323b;
+            border-color: #444;
+
+            &.category {
+                background-color: #1f2d37;
+                border-color: #3d5463;
+                color: #eee;
+            }
         }
     }
 }
