@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import fetchWriteOptions from './fetch-options'
-import { useQueryClient } from 'react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const getCSRFToken = () => {
 	const cookies = document.cookie.split(';')
-	for(let cookie of cookies) {
-		if(cookie.trim().startsWith('csrftoken=')) {
+	for (let cookie of cookies) {
+		if (cookie.trim().startsWith('csrftoken=')) {
 			return cookie.split('=')[1]
 		}
 	}
@@ -37,24 +37,25 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 		}
 		else {
 			const add_options = {
-				...fetchWriteOptions(method, {body: data}),
+				...fetchWriteOptions(method, { body: data }),
 				...options
 			}
 			response = await fetch(url, add_options)
 		}
 
 		if (!response.ok) {
-			// Try to parse error response
-			let errorData
+			// We want to try to parse the response, but if it fails there
+			// isn't an issue, since we are just saying message OR title OR
+			// some default value string.
+			let errorData = null
 			try {
 				errorData = await response.json();
-			} catch (e) {
-				throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
-			}
+			} catch (_e) { }
 
 			// Create a rich error object with all available info
 			const error = new Error(
-				errorData.msg || errorData.title || `HTTP error ${response.status}`
+				// For some reason, Django uses msg.detail="", while we use msg=""
+				errorData?.msg?.detail ?? errorData?.msg ?? errorData?.title ?? `HTTP error ${response.status}: ${response.statusText}`
 			)
 
 			// Add extra properties to the error
@@ -66,10 +67,10 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 		}
 
 		try {
-			if (response.status === 204){
+			if (response.status === 204) {
 				return null
 			}
-  
+
 			if (
 				response.headers.get('Content-Type') === 'application/download' ||
 				response.headers.get('Content-Type') === 'text/csv' ||
@@ -792,7 +793,7 @@ export const readFromStorage = () => {
 				const data = queriesWithData[queryKey];
 
 				queryClient.setQueryData(queryKey, data);
-				queryClient.invalidateQueries(queryKey)
+				queryClient.invalidateQueries({ queryKey: queryKey })
 			}
 		}
 	}, [])

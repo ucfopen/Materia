@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetUser, apiUserVerify } from '../util/api'
 import Notifications from './notifications'
 
@@ -14,7 +14,7 @@ const Header = ({
 	const [permLevel, setPermLevel] = useState('anonymous')
 
 	const { data: userPerms } = useQuery({
-		queryKey: 'isLoggedIn',
+		queryKey: ['isLoggedIn'],
 		queryFn: apiUserVerify,
 		staleTime: Infinity,
 		retry: false

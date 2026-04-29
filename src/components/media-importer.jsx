@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useRef, useCallback} from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import DragAndDrop from './drag-and-drop'
 import LoadingIcon from './loading-icon'
 import { apiDeleteAsset, apiGetAssets, apiRestoreAsset, getCSRFToken } from '../util/api'
@@ -60,7 +60,6 @@ const MediaImporter = () => {
 		sortAsc: false, // Sorted list in asc or desc
 		sortOrder: 0, // List sorting options
 	})
-	const [assetList, setAssetList] = useState({})
 	const [showDeletedAssets, setShowDeletedAssets] = useState(false)
 	const [filterSearch, setFilterSearch] = useState('') // Search bar filter
 
@@ -85,41 +84,46 @@ const MediaImporter = () => {
 		return () => window.removeEventListener('message', postMessageHandler)
 	})
 
-	const { data: listOfAssets } = useQuery({
+	const { data: listOfAssets, error: assetsError } = useQuery({
 		queryKey: ['media-assets', selectedAsset],
 		queryFn: () => apiGetAssets(),
 		staleTime: Infinity,
-		onSuccess: (data) => {
-			if (data) {
-				const list = data.map(asset => {
-					const creationDate = new Date(asset.created_at)
-					return {
-						id: asset.id,
-						type: asset.file_type,
-						name: asset.title.split('.').shift(),
-						timestamp: creationDate,
-						thumb: _thumbnailUrl(asset.id, asset.file_type),
-						created: [creationDate.getMonth(), creationDate.getDate(), creationDate.getFullYear()].join('/'),
-						is_deleted: parseInt(asset.is_deleted) || asset.is_deleted === true
-					}
-				})
-
-				list.forEach((asset) => {
-					if (asset.id == selectedAsset) _loadPickedAsset(asset)
-				})
-
-				setAssetList(list)
-			}
-		},
-		onError: (err) => {
-			console.error(`Asset request failed with error: ${err.cause}`)
-			if (err.title == "Invalid Login") {
-				window.location.href = '/login'
-			} else {
-				setErrorState(err.cause)
-			}
-		}
 	})
+
+	useEffect(() => {
+		if (!assetsError) return
+
+		switch (error.status) {
+			case 401:
+				window.location.href = '/login'
+				break;
+			default:
+				setErrorState(err.cause)
+		}
+	}, [assetsError])
+
+	const assetList = useMemo(() => {
+		if (!listOfAssets) return {}
+
+		const list = listOfAssets.map(asset => {
+			const creationDate = new Date(asset.created_at)
+			return {
+				id: asset.id,
+				type: asset.file_type,
+				name: asset.title.split('.').shift(),
+				timestamp: creationDate,
+				thumb: _thumbnailUrl(asset.id, asset.file_type),
+				created: [creationDate.getMonth(), creationDate.getDate(), creationDate.getFullYear()].join('/'),
+				is_deleted: parseInt(asset.is_deleted) || asset.is_deleted === true
+			}
+		})
+
+		for (const asset of list) {
+			if (asset.id == selectedAsset) _loadPickedAsset(asset);
+		}
+
+		return list
+	}, [listOfAssets])
 
 	/****** hooks ******/
 
@@ -185,7 +189,9 @@ const MediaImporter = () => {
 		if (!asset.is_deleted) {
 			asset.is_deleted = 1
 			apiDeleteAsset(asset.id).then(() => {
-				queryClient.invalidateQueries('media-assets')
+				queryClient.invalidateQueries({
+					queryKey: ['media-assets']
+				})
 			})
 			.catch((err) => {
 				setErrorState(err.message)
@@ -193,7 +199,9 @@ const MediaImporter = () => {
 		} else {
 			asset.is_deleted = 0
 			apiRestoreAsset(asset.id).then(() => {
-				queryClient.invalidateQueries('media-assets')
+				queryClient.invalidateQueries({
+					queryKey: ['media-assets']
+				})
 			})
 			.catch((err) => {
 				setErrorState(err.message)

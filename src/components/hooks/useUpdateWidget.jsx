@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiUpdateWidgetInstance } from '../../util/api'
 
 export default function useUpdateWidget(user) {
@@ -8,11 +8,11 @@ export default function useUpdateWidget(user) {
 
 	// Optimistically updates the cache value on mutate
 	return useMutation(
-		apiUpdateWidgetInstance,
 		{
+			mutationFn: apiUpdateWidgetInstance,
 			onMutate: async formData => {
 				// cancel any in-progress queries and grab the current query cache for widgets
-				await queryClient.cancelQueries(['instances', user])
+				await queryClient.cancelQueries({ queryKey: ['instances', user]})
 				widgetList = queryClient.getQueryData(['instances', user])
 
 				// widgetList is passed to onSuccess or onError depending on resolution of mutation function
@@ -40,7 +40,9 @@ export default function useUpdateWidget(user) {
 					}
 				})
 
-				queryClient.invalidateQueries(['user-perms', variables.args[0]])
+				queryClient.invalidateQueries({
+					queryKey: ['user-perms', variables.args[0]]
+				})
 
 				variables.successFunc(updatedInst)
 			},

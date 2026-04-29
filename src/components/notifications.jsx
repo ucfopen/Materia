@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiGetNotifications } from '../util/api'
 import useDeleteNotification from './hooks/useDeleteNotification'
 import setUserInstancePerms from './hooks/useSetUserInstancePerms'
@@ -18,7 +18,7 @@ const Notifications = ({user}) => {
 	let modalRef = useRef()
 
 	const { data: notifications, dataUpdatedAt: updatedAt, status, error} = useQuery({
-		queryKey: 'notifications',
+		queryKey: ['notifications'],
 		enabled: !!user.username,
 		refetchInterval: 60000,
 		refetchOnMount: false,
@@ -89,7 +89,7 @@ const Notifications = ({user}) => {
 		deleteNotification.mutate({
 			notifId: id,
 			deleteAll: false,
-			successFunc: () => {
+			successFunc: (_data) => {
 				Object.keys(notifications).forEach((key, index) => {
 					if (notifications[key].id == id)
 					{
@@ -99,7 +99,7 @@ const Notifications = ({user}) => {
 					}
 				})
 			},
-			errorFunc: (err) => {
+			errorFunc: (_err) => {
 				setErrorMsg({notif_id: id, msg: 'Action failed.'})
 			}
 		})
@@ -152,7 +152,9 @@ const Notifications = ({user}) => {
 				}
 				else
 				{
-					queryClient.invalidateQueries(['user-perms', notif.item_id])
+					queryClient.invalidateQueries({
+						queryKey: ['user-perms', notif.item_id]
+					})
 					window.location.hash = notif.item_id + '-collab'
 				}
 

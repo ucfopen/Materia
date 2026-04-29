@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useInfiniteQuery } from 'react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { apiGetWidgetInstances } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 

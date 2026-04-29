@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import React, { useEffect, useState, useRef } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiGetUsers } from '../util/api'
 import setUserInstancePerms from './hooks/useSetUserInstancePerms'
 import Modal from './modal'
@@ -30,32 +30,41 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const userList = useUserList(debouncedSearchTerm)
 	const [collabUsers, setCollabUsers] = useState({})
 
-	const { data, remove: clearUsers, isFetching} = useQuery({
-		queryKey: ['collab-users', inst.id, (otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)], // check for changes in otherUserPerms
+	const collabUsersQueryKey = [
+		'collab-users',
+		inst.id,
+		(otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)
+	] // check for changes in otherUserPerms
+	const { data, isFetching, error: usersError } = useQuery({
+		queryKey: collabUsersQueryKey,
 		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys()).length > 0,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		staleTime: Infinity,
 		placeholderData: {},
-		retry: false,
-		onSuccess: (data) => {
-			setCollabUsers({...collabUsers, ...data})
-		},
-		onError: (err) => {
-			if (err.message == "Invalid Login")
-			{
+		retry: false
+	})
+
+	useEffect(() => {
+		if (!usersError) return
+		switch (usersError.status) {
+			case 401:
 				setInvalidLogin(true)
 				customClose()
-			} else {
-				setError("Failed to load users")
-			}
+				break
+			default:
+				setError("Failed to load users.")
 		}
-	})
+	}, [usersError])
+
+	useEffect(() => {
+		if (!data) return
+		setCollabUsers(prev => ({ ...prev, ...data }))
+	}, [data])
 
 	useEffect(() => {
 		if (userList.error) {
 			setError(`User search failed with error: ${data.msg}`);
-			if (userList.error.title == "Invalid Login")
-			{
+			if (userList.error.title == "Invalid Login") {
 				setInvalidLogin(true)
 			}
 		}
@@ -177,12 +186,14 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			successFunc: (data) => {
 				if (mounted.current) {
 					if (delCurrUser) {
-						queryClient.invalidateQueries(['instances', currentUser])
+						queryClient.invalidateQueries({
+							queryKey: ['instances', currentUser]
+						})
 					}
-					queryClient.invalidateQueries('search-widgets')
-					queryClient.invalidateQueries(['user-perms', inst.id])
-					queryClient.invalidateQueries(['user-search', inst.id])
-					queryClient.removeQueries(['collab-users', inst.id])
+					queryClient.invalidateQueries({ queryKey: ['search-widgets'] })
+					queryClient.invalidateQueries({ queryKey: ['user-perms', inst.id] })
+					queryClient.invalidateQueries({ queryKey: ['user-search', inst.id] })
+					queryClient.removeQueries({ queryKey: ['collab-users', inst.id] })
 
 					setOtherUserPerms(state.updatedAllUserPerms)
 					customClose()
@@ -213,7 +224,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	}
 
 	const customClose = () => {
-		clearUsers()
+		queryClient.removeQueries({ queryKey: collabUsersQueryKey })
 		onClose()
 	}
 

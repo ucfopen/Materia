@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import LoadingIcon from './loading-icon'
 import {apiGetUser} from '../util/api'
 import useUpdateUserSettings from './hooks/useUpdateUserSettings'
@@ -24,15 +24,18 @@ const SettingsPage = () => {
 		theme: 'light'
 	})
 
-	const { data: currentUser, isFetching} = useQuery({
+	const { data: currentUser, isFetching, isError: currentUserError } = useQuery({
 		queryKey: ['user', 'me'],
 		queryFn: ({ queryKey }) => {
 			const [_key, user] = queryKey
 			return apiGetUser(user)
 		},
 		staleTime: Infinity,
-		retry: false,
-		onError: (err) => {
+		retry: false
+	})
+
+	useEffect(() => {
+		if (currentUserError) {
 			setAlertDialog({
 				enabled: true,
 				message: 'You must be logged in to view your settings.',
@@ -41,7 +44,7 @@ const SettingsPage = () => {
 				enableLoginButton: true
 			})
 		}
-	})
+	}, [currentUserError])
 
 	useEffect(() => {
 		if (mounted && ! isFetching && currentUser) {

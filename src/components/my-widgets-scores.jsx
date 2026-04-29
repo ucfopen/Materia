@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetScoreSummary } from '../util/api'
 import MyWidgetScoreSemester from './my-widgets-score-semester'
 import MyWidgetsExport from './my-widgets-export'
 import LoadingIcon from './loading-icon'
-import NoScoreContent from'./no-score-content'
+import NoScoreContent from './no-score-content'
 import './my-widgets-scores.scss'
 
 const MyWidgetsScores = ({inst, contexts, beardMode, setInvalidLogin}) => {
@@ -14,21 +14,25 @@ const MyWidgetsScores = ({inst, contexts, beardMode, setInvalidLogin}) => {
 		showExport: false
 	})
 	const [error, setError] = useState('')
-	const { data: currScores, isFetched } = useQuery({
+	const { data: currScores, isFetched, error: currScoresError } = useQuery({
 		queryKey: ['score-summary', inst.id],
 		queryFn: () => apiGetScoreSummary(inst.id),
 		enabled: !!inst && !!inst.id,
 		staleTime: Infinity,
 		placeholderData: [],
-		retry: false,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setInvalidLogin(true);
-			} else {
-				setError((err.message || "Error") + ": Failed to retrieve scores.")
-			}
-		}
+		retry: false
 	})
+
+	useEffect(() => {
+		if (!currScoresError) return
+		switch (currScoresError.status) {
+			case 401:
+				setInvalidLogin(true)
+				break
+			default:
+				setError((err.message || "Error") + ": Failed to retrieve scores.")
+		}
+	}, [currScoresError])
 
 	// Initializes the data when widget changes
 	useEffect(() => {

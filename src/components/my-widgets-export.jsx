@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Modal from './modal'
 import './my-widgets-export.scss'
-import {useMutation, useQuery} from "react-query";
+import {useMutation} from "@tanstack/react-query";
 
 const DEFAULT_OPTIONS = ['Questions and Answers']
 

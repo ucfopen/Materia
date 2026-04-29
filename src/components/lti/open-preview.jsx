@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetWidgetInstance } from '../../util/api'
 import LoadingIcon from '../loading-icon'
 import { iconUrl as getIconUrl } from '../../util/icon-url'
@@ -15,7 +15,7 @@ const SelectItem = () => {
 	})
 
 	const { data: instance } = useQuery({
-		queryKey: 'instance',
+		queryKey: ['instance'],
 		queryFn: () => apiGetWidgetInstance(state.instID),
 		placeholderData: {},
 		enabled: !!state.instID,

@@ -1,47 +1,48 @@
 import { apiGetWidget } from '../util/api'
-import React, { useState } from 'react'
-import { useQuery } from 'react-query'
+import React, { useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 
 import Header from './header'
 import WidgetInstall from './widget-admin-install'
 import WidgetList from './widget-admin-list'
 import { iconUrl } from '../util/icon-url'
-import WidgetUpdater from "@/components/widget-admin-updater";
+import WidgetUpdater from "@/components/widget-admin-updater"
 
 const WidgetAdminPage = () => {
-	const [widgets, setWidgets] = useState([])
-
-	const { data, isLoading, refetch: refetchWidgets} = useQuery({
+	const { data: widgets, error: widgetError, isLoading, refetch: refetchWidgets } = useQuery({
 		queryKey: ['widgets'],
 		queryFn: () => apiGetWidget([], 'admin'),
 		staleTime: Infinity,
-		retry: false,
-		onSuccess: (widgetData) => {
-			widgetData.forEach((w) => {
-				w.icon = iconUrl('/widget/', w.dir, 60)
-				// Convert "0" and "1" to false and true
-				w.in_catalog = !!+w.in_catalog
-				w.is_editable = !!+w.is_editable
-				w.restrict_publish = !!+w.restrict_publish
-				w.is_scorable = !!+w.is_scorable
-				w.is_playable = !!+w.is_playable
-				w.is_answer_encrypted = !!+w.is_answer_encrypted
-				w.is_qset_encrypted = !!+w.is_qset_encrypted
-				w.is_storage_enabled = !!+w.is_storage_enabled
-				w.is_scalable = !!+w.is_scalable
-			})
-			setWidgets(widgetData)
-		},
-		onError: (error) => {
-			console.error('Error fetching widgets:', error)
-		}
+		retry: false
 	})
+
+	if (widgetError) {
+		console.error('Error fetching widgets:', widgetError)
+	}
+
+	const normalWidgets = useMemo(() => {
+		if (!widgets) return []
+
+		return widgets.map((w) => ({
+			...w,
+			icon: iconUrl('/widget/', w.dir, 60),
+			in_catalog: !!+w.in_catalog,
+			is_editable: !!+w.is_editable,
+			restrict_publish: !!+w.restrict_publish,
+			is_scorable: !!+w.is_scorable,
+			is_playable: !!+w.is_playable,
+			is_answer_encrypted: !!+w.is_answer_encrypted,
+			is_qset_encrypted: !!+w.is_qset_encrypted,
+			is_storage_enabled: !!+w.is_storage_enabled,
+			is_scalable: !!+w.is_scalable
+		}))
+	}, [widgets])
 
 	let pageRenderContent = (
         <>
             <WidgetInstall refetchWidgets={refetchWidgets} />
-            <WidgetUpdater widgets={widgets} isLoading={isLoading} />
-            <WidgetList widgets={widgets} isLoading={isLoading} />
+            <WidgetUpdater widgets={normalWidgets} isLoading={isLoading} />
+            <WidgetList widgets={normalWidgets} isLoading={isLoading} />
         </>
     )
 

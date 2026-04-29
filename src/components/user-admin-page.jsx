@@ -1,5 +1,5 @@
-import { useQuery } from 'react-query'
-import { apiGetUser, apiGetUsers, apiGetUserRoles} from '../util/api'
+import { useQuery } from '@tanstack/react-query'
+import { apiGetUser, apiGetUsers, apiGetUserRoles } from '../util/api'
 import React, { useState, useRef, useEffect } from 'react'
 import Header from './header'
 import UserAdminSearch from './user-admin-search'
@@ -10,18 +10,19 @@ const UserAdminPage = () => {
 	const [selectedUser, setSelectedUser] = useState(null)
 	const [error, setError] = useState('')
 	const [userHash, setUserHash] = useState(window.location.href.split('#')[1])
-	const { data: currentUser} = useQuery({
+	const { data: currentUser, error: currentUserError } = useQuery({
 		queryKey: ['user', 'me'],
 		queryFn: ({ queryKey }) => {
 			const [_key, user] = queryKey
 			return apiGetUser(user)
 		},
 		staleTime: Infinity,
-		retry: false,
-		onError: (err) => {
-			window.location.href = '/login'
-		}
+		retry: false
 	})
+
+	useEffect(() => {
+		if (currentUserError) window.location.href = '/login'
+	}, [currentUserError])
 
 	const { data: userFromHash, refetch: refetchFromHash } = useQuery({
 		queryKey: ['user', userHash],

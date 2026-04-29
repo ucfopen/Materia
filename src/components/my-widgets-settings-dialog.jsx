@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiUserVerify } from '../util/api'
 import useUpdateWidget from './hooks/useUpdateWidget'
 import Modal from './modal'
