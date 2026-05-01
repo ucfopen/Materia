@@ -1,10 +1,10 @@
 import os
 
+from core.utils.context_util import ContextUtil
+from core.utils.validator_util import ValidatorUtil
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
-from core.utils.context_util import ContextUtil
-from core.utils.validator_util import ValidatorUtil
 
 
 @login_required
@@ -45,6 +45,19 @@ def user(request):
         title="Widget Admin",
         js_resources=settings.JS_GROUPS["user_admin"],
         css_resources=settings.CSS_GROUPS["user_admin"],
+        request=request,
+    )
+
+    return render(request, "react.html", context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser or u.groups.filter(name="support_user"))
+def site(request):
+    context = ContextUtil.create(
+        title="Site Admin",
+        js_resources=settings.JS_GROUPS["site_admin"],
+        css_resources=settings.CSS_GROUPS["site_admin"],
         request=request,
     )
 

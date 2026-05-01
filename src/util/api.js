@@ -797,3 +797,27 @@ export const readFromStorage = () => {
 		}
 	}, [])
 }
+
+export const apiGetSiteImages = (type) => {
+
+	switch (type) {
+		case 'profile':
+			type = 'PROFILE_IMAGE'
+			break
+		default:
+			break
+	}
+
+	return handleRequest(methods.GET, `/api/site-images/?type=${type}`)
+}
+
+export const apiDeleteSiteImage = (id) => {
+	return handleRequest(methods.DELETE, `/api/site-images/${id}`)
+}
+
+export const apiUploadSiteImage = (type, file) => {
+	const formData = new FormData()
+	formData.append('image', file)
+	formData.append('image_type', type)
+	return handleRequest(methods.POST, `/api/site-images/`, {}, { headers: { 'X-CSRFToken': getCSRFToken(), }, body: formData })
+}

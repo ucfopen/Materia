@@ -885,6 +885,25 @@ class Question(models.Model):
         db_table = "question"
 
 
+class SiteImage(models.Model):
+
+    class ImageType(models.TextChoices):
+        NO_TYPE = "NO_TYPE", gettext_lazy("No Type")
+        PROFILE_IMAGE = "PROFILE_IMAGE", gettext_lazy("Profile Image")
+        # LIBRARY_BANNER = "LIBRARY_BANNER", gettext_lazy("Library Banner")
+        CATALOG_BANNER = "CATALOG_BANNER", gettext_lazy("Catalog Banner")
+
+    image_type = models.CharField(
+        max_length=26,
+        blank=True,
+        null=True,
+        choices=ImageType.choices,
+        default=ImageType.NO_TYPE,
+    )
+
+    image_path = models.CharField(max_length=255)
+
+
 class UserExtraAttempts(models.Model):
     @staticmethod
     def get_cur_semester():
