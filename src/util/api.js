@@ -603,8 +603,9 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 
 /** Controller_Api_User */
 
-export const apiGetUserPlaySessions = (user, pageParam = 1) => {
-	return handleRequest('GET', `/api/play-sessions/?user=${user}&include_activity=true&page=${pageParam}`)
+export const apiGetUserPlaySessions = (user, pageParam = 1, admin_activity = false) => {
+	const activityParam = admin_activity ? 'admin_activity=true' : 'include_activity=true'
+	return handleRequest('GET', `/api/play-sessions/?user=${user}&${activityParam}&page=${pageParam}`)
 }
 
 export const apiUpdateUserSettings = (settings) => {

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import React, { useState, useEffect, useRef } from 'react'
+import { useQueryClient } from 'react-query'
 import UserAdminInstanceAvailable from './user-admin-instance-available'
 import UserAdminInstancePlayed from './user-admin-instance-played'
 import useInstanceList from './hooks/useInstanceList'
@@ -11,8 +11,17 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 	const queryClient = useQueryClient()
 	const [updatedUser, setUpdatedUser] = useState({...selectedUser})
 	const instancesOwned = useInstanceList(updatedUser.id)
-	const userLogs = useGetPlaySessions(updatedUser.id, true)
+	const userLogs = useGetPlaySessions(updatedUser.id, false, true)
 	const [isSuper, setIsSuper] = useState(false)
+	const scrollAnchorRef = useRef(null)
+	const scrollToIndex = useRef(null)
+
+	useEffect(() => {
+		if (scrollToIndex.current !== null) {
+			scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+			scrollToIndex.current = null
+		}
+	}, [userLogs.plays?.length])
 
 	const [errorText, setErrorText] = useState('')
 	const [successText, setSuccessText] = useState('')
@@ -70,14 +79,28 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 	}
 
 	let instancesPlayed = <span>Play history loading...</span>
-	if (!userLogs.isFetching) {
-		if (!!userLogs.plays && userLogs.plays.length > 0) {
-			instancesPlayed = userLogs.plays?.map((play, index) => {
-				return (<UserAdminInstancePlayed play={play} key={index} />)
-			})
-		} else {
-			instancesPlayed = <span>This user has not played any widgets.</span>
+	let loadMoreButton = null
+	if (!!userLogs.plays && userLogs.plays.length > 0) {
+		instancesPlayed = userLogs.plays?.map((play, index) => {
+			return (
+				<React.Fragment key={index}>
+					{index === scrollToIndex.current && <li ref={scrollAnchorRef} />}
+					<UserAdminInstancePlayed play={play} />
+				</React.Fragment>
+			)
+		})
+		if (userLogs.hasNextPage) {
+			loadMoreButton = (
+				<button className="action_button show_more_activity" onClick={() => {
+					scrollToIndex.current = userLogs.plays.length
+					userLogs.fetchNextPage()
+				}}>
+					{userLogs.isFetching ? <span>Loading...</span> : <span>Show more</span>}
+				</button>
+			)
 		}
+	} else if (!userLogs.isFetching) {
+		instancesPlayed = <span>This user has not played any widgets.</span>
 	}
 
 	let suRender = null
@@ -157,6 +180,7 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 					<ul>
 						{ instancesPlayed }
 					</ul>
+					{ loadMoreButton }
 				</div>
 			</div>
 		</section>

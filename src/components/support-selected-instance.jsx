@@ -321,7 +321,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 				{ breadcrumbContainer }
 				<div className='instance-management'>
 					<div className='header'>
-					<img src={iconUrl('/widget/', updatedInst.widget.dir, 60)} />
+					<img src={iconUrl('/widget/', updatedInst.widget.dir, 60)} alt=""/>
 					<input type='text' value={updatedInst.name}
 						onChange={event => handleChange('name', event.target.value)}
 					/>

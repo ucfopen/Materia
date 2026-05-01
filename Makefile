@@ -1,11 +1,7 @@
 PYTHON_VERSION="3.12.1"
 COMPOSE_FILE=docker/docker-compose.yml
 DOCKER_COMPOSE=docker compose -f $(COMPOSE_FILE)
-
-# finds the path in which this makefile is running, for subsequent use in generating a docker container name
-APP_PATH := $(notdir $(abspath $(dir $(lastword $(MAKEFILE_LIST)))))
-# this is a bit presumptive, there may be a smarter way of confirming this via docker compose
-DOCKER_CONTAINER=${APP_PATH}-python-1
+DOCKER_CONTAINER=materia-django-python-1
 
 BLACK        := $(shell tput -Txterm setaf 0)
 RED          := $(shell tput -Txterm setaf 1)

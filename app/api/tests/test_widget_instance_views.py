@@ -1540,6 +1540,19 @@ class TestInstanceExportPlaydata(WidgetInstanceViewSetTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_export_with_empty_semesters_param(self):
+        """Export should handle empty semesters param without error"""
+        self.client.force_authenticate(user=self.author_user)
+        response = self.client.get(
+            f"/api/instances/{self.author_instance.id}/export_playdata/",
+            {
+                "type": "Questions and Answers",
+                "semesters": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_export_requires_type_param(self):
         self.client.force_authenticate(user=self.author_user)
         response = self.client.get(

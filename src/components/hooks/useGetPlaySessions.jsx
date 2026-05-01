@@ -4,7 +4,7 @@ import { apiGetUserPlaySessions } from '../../util/api'
 
 // facilitates paginated requests for widget instances. Returns a flat list with some handlers associated with the query.
 // will default to the current user ("me"), but allows requests for another user id if passed as a param on init or via the exposed setUser method.
-export default function useGetPlaySessions(user, autofetch) {
+export default function useGetPlaySessions(user, autofetch, admin_activity) {
 
 	const [errorState, setErrorState] = useState(false)
 
@@ -27,7 +27,7 @@ export default function useGetPlaySessions(user, autofetch) {
 	}
 
 	const getPlaySessions = ({pageParam = 1}) => {
-		return apiGetUserPlaySessions(user, pageParam)
+		return apiGetUserPlaySessions(user, pageParam, admin_activity)
 	}
 
 	const {

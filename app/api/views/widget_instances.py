@@ -577,7 +577,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         is_student = PermService.user_is_student(request.user)
 
         queryset = LogPlay.objects.none()
-        semesters = semester_ids.split(",")
+        semesters = [s for s in semester_ids.split(",") if s]
 
         # preconstruct the queryset to pass to the export service
         if export_type != "storage":

@@ -311,13 +311,13 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 	screenshotData.screenshots.forEach((screenshot, index) => {
 		screenshotElements.push(
 			<div key={index}>
-				<img src={screenshot.full} />
+				<img src={screenshot.full} alt=""/>
 				<div className='screenshot-drag-cover'></div>
 				<h3>Screenshot {index + 1} of {screenshotData.numScreenshots}</h3>
 			</div>
 		)
 		screenshotDotElements.push(
-			<button key={index}
+			<button key={index} title={`show screenshot ${index + 1}`}
 				className={`pic-dot ${selectionData.selectedImage.num === index + 1 ? 'selected' : ''}`}
 				onClick={() => setSelectionData({...selectionData, selectedImage: {num: index + 1, reset: true}})}>
 			</button>
@@ -350,7 +350,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 			}
 			else demoRender = (
 				<>
-					<img style={{minHeight: demoData.demoHeight}} src={screenshotData.screenshots[0]?.full}/>
+					<img style={{minHeight: demoData.demoHeight}} src={screenshotData.screenshots[0]?.full} alt=""/>
 					<div id='demo-cover'
 						className={`${demoData.demoLoading ? 'loading' : ''}`}
 						style={{backgroundImage: `url(${screenshotData.screenshots[0]?.full})`}} >

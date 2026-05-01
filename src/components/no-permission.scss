@@ -1,0 +1,12 @@
+@import './include.scss';
+
+.container {
+	width: 80%;
+	margin: 2em auto;
+
+	text-align: center;
+	
+	p {
+		font-weight: 400;
+	}
+}

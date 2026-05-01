@@ -32,7 +32,7 @@ const UserAdminInstanceAvailable = ({instance, index, onCopySuccess, currentUser
 			<div className={`clickable widget-title ${instanceState.manager ? 'hidden' : ''}`}
 		onClick={() => setInstanceState(instanceState => ({...instanceState, expanded: !instanceState.expanded, manager: false}))}>
 				<span className='img-holder'>
-					<img src={iconUrl('/widget/', instance.widget.dir, 275)} />
+					<img src={iconUrl('/widget/', instance.widget.dir, 275)} alt=""/>
 				</span>
 				<span className='title-holder'>
 					<div className='title'>

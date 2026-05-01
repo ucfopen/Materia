@@ -79,6 +79,7 @@ const ErrorGeneral = () => {
                 <p>Materia couldn't complete this operation because of a session caching issue.</p>
                 <p>This almost certainly isn't because of anything you did. If possible, please report the issue to support.</p>
             </section>
+            break;
         default:
             content =
                 <section id="error-container">
