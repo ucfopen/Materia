@@ -519,7 +519,9 @@ class PlaySessionSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         is_student_view = kwargs.pop("is_student_view", False)
         include_user_info = kwargs.pop("include_user_info", False)
-        include_activity = kwargs.pop("include_activity", False)
+        include_activity = kwargs.pop(
+            "include_activity", kwargs.pop("admin_activity", False)
+        )
 
         super().__init__(*args, **kwargs)
 

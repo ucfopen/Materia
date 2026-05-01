@@ -107,8 +107,14 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         include_user_info = ValidatorUtil.validate_bool(
             self.request.query_params.get("include_user_info"), default=False
         )
-        include_activity = ValidatorUtil.validate_bool(
-            self.request.query_params.get("include_activity"), default=False
+        admin_activity = ValidatorUtil.validate_bool(
+            self.request.query_params.get("admin_activity"), default=False
+        )
+        include_activity = (
+            ValidatorUtil.validate_bool(
+                self.request.query_params.get("include_activity"), default=False
+            )
+            or admin_activity
         )
 
         kwargs["is_student_view"] = inst_id and PermService.user_is_student(
