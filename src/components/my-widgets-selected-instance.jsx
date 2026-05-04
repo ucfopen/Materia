@@ -7,10 +7,14 @@ import parseObjectToDateString from '../util/object-to-date-string'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
+import MyWidgetsPullDialog from './my-widgets-pull-dialog'
 import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
+import CommunityLibraryPublishDialog from './community-library-publish-dialog'
 import Modal from './modal'
 import LoadingIcon from './loading-icon'
 import Warning from "@/components/warning";
+import { useUpdateInLibrary, usePullFromLibrary } from './hooks/useCommunityLibrary'
+import { apiUnpublishFromLibrary } from '../util/api'
 
 const convertAvailabilityDates = (startDateStr, endDateStr) => {
 	let endDate, endTime, open_at, startTime
@@ -69,6 +73,12 @@ const MyWidgetSelectedInstance = ({
 	const [showSettings, setShowSettings] = useState(false)
 	const [error, setError] = useState('')
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
+	const [showPublishDialog, setShowPublishDialog] = useState(false)
+	const [showPullDialog, setShowPullDialog] = useState(false)
+	const [updateLibraryLabel, setUpdateLibraryLabel] = useState('Update in Library')
+	const [pullLabel, setPullLabel] = useState('Pull Latest from Library')
+	const updateInLibrary = useUpdateInLibrary()
+	const pullFromLibrary = usePullFromLibrary()
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
 
@@ -314,6 +324,40 @@ const MyWidgetSelectedInstance = ({
 	}
 
 	const lockedDialogOnClose = () => setShowLocked(false)
+	let publishDialogRender = null
+	if (showPublishDialog) {
+		publishDialogRender = (
+			<CommunityLibraryPublishDialog
+				inst={inst}
+				onClose={() => setShowPublishDialog(false)}
+				onSuccess={() => {
+					setShowPublishDialog(false)
+					onEdit({...inst, is_shared: true})
+				}}
+			/>
+		)
+	}
+
+	let pullDialogRender = null
+	if (showPullDialog) {
+		pullDialogRender = (
+			<MyWidgetsPullDialog
+				onClose={() => setShowPullDialog(false)}
+				onConfirm={(callbacks) => {
+					pullFromLibrary.mutate(inst.id, {
+						onSuccess: (data) => {
+							setShowPullDialog(false)
+							onEdit(data)
+							setPullLabel('Pulled!')
+							setTimeout(() => setPullLabel('Pull Latest from Library'), 3000)
+						},
+						onError: callbacks.onError,
+					})
+				}}
+			/>
+		)
+	}
+
 	let lockedDialogRender = null
 	if (showLocked) {
 		lockedDialogRender = (
@@ -424,6 +468,57 @@ const MyWidgetSelectedInstance = ({
 								Delete
 							</div>
 						</li>
+						{!inst.is_shared && !inst.is_draft && (
+							<li>
+								<div className='link'
+									role='menuitem'
+									tabIndex="0"
+									onClick={() => setShowPublishDialog(true)}>
+									Share to Library
+								</div>
+							</li>
+						)}
+						{inst.is_shared && (
+							<li>
+								<div className='link'
+									role='menuitem'
+									tabIndex="0"
+									onClick={() => {
+										updateInLibrary.mutate(inst.id, {
+											onSuccess: () => {
+												setUpdateLibraryLabel('Updated!')
+												setTimeout(() => setUpdateLibraryLabel('Update in Library'), 3000)
+											}
+										})
+									}}>
+									{updateLibraryLabel}
+								</div>
+							</li>
+						)}
+						{inst.is_shared && (
+							<li>
+								<div className='link'
+									role='menuitem'
+									tabIndex="0"
+									onClick={() => {
+										apiUnpublishFromLibrary(inst.id).then(() => {
+											onEdit({...inst, is_shared: false})
+										})
+									}}>
+									Remove from Library
+								</div>
+							</li>
+						)}
+						{inst.copied_from_entry_id && (
+							<li>
+								<div className='link'
+									role='menuitem'
+									tabIndex="0"
+									onClick={() => setShowPullDialog(true)}>
+									{pullLabel}
+								</div>
+							</li>
+						)}
 					</ul>
 
 					{ deleteDialogRender }
@@ -531,6 +626,8 @@ const MyWidgetSelectedInstance = ({
 		{ warningDialogRender }
 		{ settingsDialogRender }
 		{ lockedDialogRender }
+		{ pullDialogRender }
+		{ publishDialogRender }
 		<MyWidgetsScores inst={inst} contexts={myPerms?.contexts} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
 		</>
 	}

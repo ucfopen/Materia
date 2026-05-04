@@ -6,7 +6,15 @@ from core.mixins import (
     MateriaLoginNeeded,
     MateriaWidgetPlayProcessor,
 )
-from core.models import LogPlay, Lti, LtiPlayState, User, Widget, WidgetInstance
+from core.models import (
+    LibrarySnapshot,
+    LogPlay,
+    Lti,
+    LtiPlayState,
+    User,
+    Widget,
+    WidgetInstance,
+)
 from core.services.perm_service import PermService
 from core.services.widget_play_services import (
     WidgetPlayInitService,
@@ -365,6 +373,37 @@ class WidgetPreviewView(MateriaLoginMixin, MateriaWidgetPlayProcessor, TemplateV
     def before_play_init(self, instance):
         preview = WidgetPlayInitService.init_preview(self.request)
         return {"play_id": preview, "lti_token": None}
+
+
+@method_decorator(never_cache, name="dispatch")
+class SnapshotPreviewView(MateriaLoginMixin, TemplateView):
+    template_name = "react.html"
+    login_title = "Login to preview this widget"
+    login_message = "Login to preview this widget"
+
+    def get_context_data(self, snapshot_id):
+        try:
+            snapshot = LibrarySnapshot.objects.select_related(
+                "entry", "entry__instance", "entry__instance__widget"
+            ).get(pk=snapshot_id)
+        except LibrarySnapshot.DoesNotExist:
+            raise Http404
+
+        widget = snapshot.entry.instance.widget
+        return ContextUtil.create(
+            title="Community Library Preview",
+            js_resources=settings.JS_GROUPS["player"],
+            css_resources=settings.CSS_GROUPS["player"],
+            page_type="widget",
+            js_globals={
+                "SNAPSHOT_ID": snapshot.id,
+                "SNAPSHOT_ENTRY_ID": snapshot.entry.id,
+                "WIDGET_WIDTH": widget.width,
+                "WIDGET_HEIGHT": widget.height,
+                "MEDIA_URL": settings.URLS["MEDIA_URL"],
+            },
+            request=self.request,
+        )
 
 
 @method_decorator(never_cache, name="dispatch")

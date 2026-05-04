@@ -600,6 +600,7 @@
 .search_match {
 	box-sizing: border-box;
 	display: inline-block;
+    vertical-align: top;
 	width: 48%;
 	margin: 5px;
 	padding: 10px;
@@ -694,5 +695,92 @@
 
 	.cancel_button {
 		cursor: pointer;
+	}
+}
+
+.admin-tabs {
+	display: flex;
+	gap: 0;
+	margin-bottom: 20px;
+	border-bottom: 2px solid #ddd;
+
+	.tab {
+		padding: 10px 20px;
+		border: none;
+		background: none;
+		cursor: pointer;
+		font-size: 14px;
+		color: #666;
+		border-bottom: 2px solid transparent;
+		margin-bottom: -2px;
+
+		&.active {
+			color: #333;
+			border-bottom-color: #0093e7;
+			font-weight: 600;
+		}
+
+		&:hover:not(.active) {
+			color: #333;
+		}
+	}
+}
+
+.moderation-filters {
+	margin-bottom: 15px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+
+	label {
+		font-weight: 600;
+	}
+
+	select {
+		padding: 5px 10px;
+	}
+}
+
+.search_match {
+	&.banned {
+		border-left: 3px solid #dc3545;
+	}
+
+	.badge {
+		display: inline-block;
+		padding: 2px 8px;
+		border-radius: 3px;
+		font-size: 11px;
+		margin-right: 5px;
+
+		&.badge-banned {
+			background: #dc3545;
+			color: white;
+		}
+
+		&.badge-reported {
+			background: #ffc107;
+			color: #333;
+		}
+	}
+
+	.owner {
+		color: #666;
+		font-size: 12px;
+	}
+
+	.date {
+		color: #999;
+		font-size: 11px;
+	}
+}
+
+.library-moderation {
+	margin-top: 20px;
+	padding-top: 15px;
+	border-top: 1px solid #ddd;
+
+	h3 {
+		margin-bottom: 10px;
 	}
 }

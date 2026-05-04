@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { apiGetUsers, apiGetUserPermsForInstance } from '../util/api'
+import { apiGetUsers, apiGetUserPermsForInstance, apiModerateEntry } from '../util/api'
 import { useQuery } from 'react-query'
 import { iconUrl } from '../util/icon-url'
 import rawPermsToObj from '../util/raw-perms-to-object'
@@ -508,6 +508,59 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 							{updatedInst.preview_url}
 						</a>
 					</div>
+					{updatedInst.library_entry && (
+						<div className='library-moderation'>
+							<h3>Community Library</h3>
+							<div>
+								<label>Status:</label>
+								{updatedInst.library_entry.is_banned ? 'Banned' : 'Shared'}
+							</div>
+							<div>
+								<label>Reports:</label>
+								{updatedInst.library_entry.report_count}
+							</div>
+							<div>
+								<label>Copies:</label>
+								{updatedInst.library_entry.copy_count}
+							</div>
+							<div>
+								<label>Likes:</label>
+								{updatedInst.library_entry.like_count}
+							</div>
+							<div>
+								<label htmlFor="featured">Featured:</label>
+								<input type='checkbox'
+									id="featured"
+									checked={updatedInst.library_entry.featured}
+									onChange={(e) => {
+										apiModerateEntry(updatedInst.library_entry.id, { featured: e.target.checked })
+											.then((data) => {
+												setUpdatedInst({...updatedInst, library_entry: {...updatedInst.library_entry, featured: data.featured}})
+												setSuccessText('Featured status updated')
+												setErrorText('')
+											})
+											.catch(() => setErrorText('Failed to update featured status'))
+									}}
+								/>
+							</div>
+							<div>
+								<label>Ban:</label>
+								<button className={`action_button ${updatedInst.library_entry.is_banned ? '' : 'delete'}`}
+									onClick={() => {
+										const newBanned = !updatedInst.library_entry.is_banned
+										apiModerateEntry(updatedInst.library_entry.id, { is_banned: newBanned })
+											.then((data) => {
+												setUpdatedInst({...updatedInst, library_entry: {...updatedInst.library_entry, is_banned: data.is_banned}})
+												setSuccessText(newBanned ? 'Entry banned from library' : 'Entry unbanned')
+												setErrorText('')
+											})
+											.catch(() => setErrorText('Failed to update ban status'))
+									}}>
+									{updatedInst.library_entry.is_banned ? 'Unban' : 'Ban'}
+								</button>
+							</div>
+						</div>
+					)}
 					<div className='bottom-buttons'>
 						<button className='action_button' onClick={() => setShowScoreDetails(!showScoreDetails)}>Scores</button>
 						<div className='apply-changes'>
