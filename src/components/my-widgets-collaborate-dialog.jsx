@@ -257,7 +257,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					onChange={(e) => setState({...state, searchText: e.target.value})}
 					className='user-add'
 					type='text'
-					placeholder="Enter a Materia user's name or e-mail"/>
+					placeholder="Enter a user's name or e-mail"/>
+				<span className="collab-input-disclaimer">Only individuals who have previously used Materia will show up in search.</span>
 				{ searchResultsRender }
 			</div>
 		)
@@ -273,7 +274,11 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		mainContentRender = <NoContentIcon />
 
 		if (containsUser) {
-			const mainContentElements = Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
+
+			const mainContentElements = []
+			let userContentElement = null
+			
+			Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
 				if (userPerms.remove === true) return
 
 				let user = collabUsers[userId]
@@ -284,22 +289,44 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 				user.is_owner = user.id === inst.user_id;
 
-				return <CollaborateUserRow
-					key={user.id}
-					user={user}
-					perms={userPerms}
-					myPerms={myPerms}
-					isCurrentUser={currentUser.id === user.id}
-					onlyOneFullPermHolder={onlyOneFullPermHolder}
-					removedCurrentUser={removedCurrentUser}
-					onChange={(userId, perms) => updatePerms(userId, perms)}
-					readOnly={myPerms?.can?.share === false}
-				/>
+				if (currentUser.id === user.id) {
+					userContentElement = (
+						<CollaborateUserRow
+							key={user.id}
+							user={user}
+							perms={userPerms}
+							myPerms={myPerms}
+							isCurrentUser={currentUser.id === user.id}
+							onlyOneFullPermHolder={onlyOneFullPermHolder}
+							removedCurrentUser={removedCurrentUser}
+							onChange={(userId, perms) => updatePerms(userId, perms)}
+							readOnly={myPerms?.can?.share === false}
+						/>
+					)
+				}
+				else {
+					mainContentElements.push(
+						<CollaborateUserRow
+							key={user.id}
+							user={user}
+							perms={userPerms}
+							myPerms={myPerms}
+							isCurrentUser={currentUser.id === user.id}
+							onlyOneFullPermHolder={onlyOneFullPermHolder}
+							removedCurrentUser={removedCurrentUser}
+							onChange={(userId, perms) => updatePerms(userId, perms)}
+							readOnly={myPerms?.can?.share === false}
+						/>
+					)
+				}
 			})
 
 			mainContentRender = (
 				<>
-					{ mainContentElements }
+					<header className='access-list-header'>You</header>
+					{ userContentElement }
+					<header className='access-list-header'>Users With Access</header>
+					{ mainContentElements.length > 0 ? mainContentElements : <span className='not-shared'>No other users have access to your widget.</span> }
 				</>
 			)
 		}
@@ -342,12 +369,14 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					{/* Calendar portal used to bring calendar popup out of access-list to avoid cutting off the overflow */}
 					<div id='calendar-portal' />
 					<p className='disclaimer'>
-						Users with full access can edit or copy this widget and can
+						Users with full access can edit this widget and can
 						add or remove people in this list. 
 						{onlyOneFullPermHolder && myPerms.accessLevel == access.FULL && (
-							<em>
-								{'\u00A0'}Note: There must be at least one user with full access.
-							</em>
+							<span>
+								<em>
+								{	'\u00A0'}Note: There must be at least one user with full access.
+								</em>
+							</span>
 						)}
 					</p>
 					<div className='btn-box'>
