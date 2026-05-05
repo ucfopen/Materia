@@ -1,10 +1,12 @@
 import logging
+import json
 
 from api.permissions import IsSuperOrSupportUser
 from api.serializers import (
     CommunityLibraryEntrySerializer,
     LibraryReportSerializer,
     WidgetInstanceSerializer,
+    TagSerializer
 )
 from core.models import (
     CommunityLibraryEntry,
@@ -12,6 +14,7 @@ from core.models import (
     Notification,
     UserLike,
     WidgetInstance,
+    Tag
 )
 from core.services.user_service import UserService
 from core.utils.b64_util import Base64Util
@@ -108,6 +111,10 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if featured:
             qs = qs.filter(featured=True)
 
+        tags = self.request.query_params.getlist("tags")
+        if tags:
+            qs = qs.filter(tags__name__in=tags).distinct()
+
         # Sorting
         sort = self.request.query_params.get("sort", "newest")
         if sort == "most_copied":
@@ -150,6 +157,27 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         return Response(
             CommunityLibraryEntrySerializer(
                 self.get_object(), context={"request": request}).data)
+    
+    @action(detail=False, methods=["get"])
+    def tags(self, request):
+        qs = Tag.objects.all().order_by("-used_count", "name")
+
+        search = request.query_params.get("search", '')
+        if search != '':
+            qs = qs.filter(name__icontains=search)
+
+        exclude = request.query_params.getlist("exclude")
+        if exclude:
+            qs = qs.exclude(name__in=exclude)
+
+        count = request.query_params.get("count", -1)
+        if count != -1:
+            qs = qs[:int(count)]
+
+        res = []
+        for t in qs:
+            res.append(TagSerializer(t).data)
+        return Response(json.dumps(res))
 
     @action(detail=True, methods=["post"])
     def copy(self, request, pk=None):

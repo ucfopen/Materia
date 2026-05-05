@@ -29,6 +29,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 	const [category, setCategory] = useState('')
 	const [courseLevel, setCourseLevel] = useState('')
 	const [errorText, setErrorText] = useState('')
+	const [tagList, setTagList] = useState([])
 
 	const publishMutation = usePublishToLibrary()
 
@@ -43,7 +44,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 		publishMutation.mutate(
 			{
 				instId: inst.id,
-				data: { category, course_level: courseLevel },
+				data: { category, course_level: courseLevel, tags: tagList },
 			},
 			{
 				onSuccess: () => {
@@ -85,6 +86,37 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 							</option>
 						))}
 					</select>
+				</label>
+
+				<label>
+					Tags
+					<form onSubmit={(v)=>{
+						v.preventDefault()
+						const tag = v.target.elements["tag-input"].value.toLowerCase().trim().replaceAll(" ", "-")
+						setTagList([...tagList, tag])
+						v.target.reset()
+					}}>
+						<input id="tag-input" type='text' placeholder='Press Enter to create a tag...'/>
+					</form>
+					
+					<div className='tag-cont'>
+						{
+							tagList.length == 0 ? (
+								<p className='empty'>Your tags will appear here.</p>
+							) : 
+							tagList.map((t, i) => (
+								<div className='tag' key={`tag_${i}`}>
+									<button onClick={()=>{setTagList(tagList.filter((_, j)=>j!=i))}}>
+										<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" >
+											<path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+										</svg>
+									</button>
+									#{t}
+								</div>
+							))
+						}
+						
+					</div>
 				</label>
 
 				{errorText && <p className="error-text">{errorText}</p>}

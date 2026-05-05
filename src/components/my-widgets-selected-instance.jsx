@@ -468,57 +468,6 @@ const MyWidgetSelectedInstance = ({
 								Delete
 							</div>
 						</li>
-						{/* {!inst.is_shared && !inst.is_draft && (
-							<li>
-								<div className='link'
-									role='menuitem'
-									tabIndex="0"
-									onClick={() => setShowPublishDialog(true)}>
-									Share to Library
-								</div>
-							</li>
-						)}
-						{inst.is_shared && (
-							<li>
-								<div className='link'
-									role='menuitem'
-									tabIndex="0"
-									onClick={() => {
-										updateInLibrary.mutate(inst.id, {
-											onSuccess: () => {
-												setUpdateLibraryLabel('Updated!')
-												setTimeout(() => setUpdateLibraryLabel('Update in Library'), 3000)
-											}
-										})
-									}}>
-									{updateLibraryLabel}
-								</div>
-							</li>
-						)}
-						{inst.is_shared && (
-							<li>
-								<div className='link'
-									role='menuitem'
-									tabIndex="0"
-									onClick={() => {
-										apiUnpublishFromLibrary(inst.id).then(() => {
-											onEdit({...inst, is_shared: false})
-										})
-									}}>
-									Remove from Library
-								</div>
-							</li>
-						)}
-						{inst.copied_from_entry_id && (
-							<li>
-								<div className='link'
-									role='menuitem'
-									tabIndex="0"
-									onClick={() => setShowPullDialog(true)}>
-									{pullLabel}
-								</div>
-							</li>
-						)} */}
 					</ul>
 
 					{ deleteDialogRender }
@@ -595,7 +544,10 @@ const MyWidgetSelectedInstance = ({
 				)}
 				{inst.copied_from_entry_id ? (
 					<div className='row'>
-						<p><h4>Change Widget Version</h4>Pull changes to replace this widget's content with the latest version from the Community Library. <span>This cannot be reversed.</span></p>
+						<p>
+						<h4><span className='state'>COPIED</span><a target="_blank" href={`/community-library/${inst.copied_from_entry_id}`}>{'➜ '}Library Entry</a></h4>
+							Pull changes to replace this widget's content with the latest version from the Community Library. <span>This cannot be reversed.</span>
+						</p>
 						<div className='col'>
 							<button
 								role='menuitem'
@@ -609,7 +561,8 @@ const MyWidgetSelectedInstance = ({
 				) :
 				inst.is_shared && (
 					<div className='row'>
-						<p><h4>Your Widget Is Public</h4>
+						<p>
+							<h4><span className='state'>SHARED</span><a target="_blank" href={`/community-library/${inst.library_entry.id}`}>{'➜ '}Library Entry</a></h4>
 							<p>Press <span>Update in Library</span> to sync any changes to this widget to the Community Library.</p>
 							Press <span>Remove from Library</span> to remove this widget from the Community Library. This will prevent new copies of this widget from being made.
 						</p>

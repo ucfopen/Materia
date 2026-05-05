@@ -6,6 +6,15 @@
 		position: relative;
 	}
 
+	.live {
+		top:0;
+		left:-2px;
+		width:1px;
+		height:1px;
+		position:absolute;
+		overflow:hidden;
+	}
+
 	section.page {
 		margin: 0 auto;
 		background: #fff;
@@ -149,6 +158,8 @@
 			position: relative;
 			display: flex;
 			align-items: center;
+			box-sizing: border-box;
+			height: 43px;
 			
 			.search-icon {
 				position: absolute;
@@ -161,14 +172,76 @@
 				fill: #aaa;
 			}
 
+			.search-tags {
+				display: flex;
+				gap: 4px;
+				width: fit-content;
+				flex-shrink: 0;
+				position: relative;
+				height: 100%;
+
+				.tag {
+					position: relative;
+					cursor: pointer;
+					
+					background-color: #eee;
+					border: 1px solid #e4e4e4;
+					color: #333;
+
+					&.blue {
+						background-color: #EBF7FF;
+						color: #0369A1;
+						border: 1px solid #D0ECFF;
+
+						cursor: default;
+					}
+					
+					border-radius: 4px;
+					padding: 1px 2px;
+
+					&:nth-last-child(-n + 1) {
+						margin-right: 8px;
+					}
+					
+
+					font-size: 12px;
+					font-weight: 400;
+
+					flex-shrink: 0;
+
+					// &:hover {
+					// 	color: transparent;
+					// 	background-color: #ffebeb;
+					// 	border: 1px solid #ffd0d0;
+
+					// 	&::after {
+					// 		position: absolute;
+					// 		top: 0;
+					// 		left: 0;
+					// 		bottom: 0;
+					// 		right: 0;
+					// 		color: #000;
+					// 		margin:  -2px auto;
+					// 		width: fit-content;
+					// 		font-size: 14px;
+					// 		content: "x";
+					// 	}
+					// }
+				}
+			}
+
+			padding: 10px 16px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			padding-left: 32px;
+			padding-right: 8px;
+
 			input {
 				width: 100%;
-				padding: 10px 16px;
-				border: 1px solid #ccc;
-				border-radius: 4px;
+				padding: 1px 0px;
+				border: none;
 				font-size: 14px;
-				padding-left: 32px;
-
+				
 				font-family: "Lato", Arial, sans-serif;
 
 				&:focus {
@@ -196,6 +269,23 @@
 					font-size: 20px;
 					color: #999;
 				}
+			}
+
+			.add-tag {
+				border-radius: 4px;
+				background-color: #EBF7FF;
+				color: #0369A1;
+				border: 1px solid #D0ECFF;
+				width: fit-content;
+				padding: 2px 4px;
+
+				box-sizing: border-box;
+
+				white-space: nowrap;
+
+				cursor: pointer;
+				font-family: "Lato", Arial, sans-serif;
+				font-size: 12px;
 			}
 		}
 
@@ -225,6 +315,77 @@
 				&:focus {
 					outline: none;
 					border-color: #3690e6;
+				}
+			}
+		}
+
+		.tag-dropdown {
+			position: absolute;
+			z-index: 200;
+			top: 32px;
+			left: 20px;
+
+			white-space: nowrap;
+
+			display: flex;
+			flex-direction: column;
+			flex-shrink: 0;
+			// gap: 4px;
+
+			width: fit-content;
+			height: fit-content;
+			padding: 4px;
+
+			border-radius: 4px;
+			
+			// background-color: #EBF7FF;
+			// color: #0369A1;
+			// border: 1px solid #D0ECFF;
+
+			background-color: #fff;
+			color: #333;
+			border: 1px solid #ccc;
+
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+
+			font-size: 12px;
+			font-weight: 400;
+
+			.notice {
+				padding: 4px;
+			}
+
+			.drop-entry {
+				font-family: "Lato", Arial, sans-serif;
+				border: none;
+				background: none;
+				color: #333;
+				font-size: 12px;
+
+				cursor: pointer;
+				display: flex;
+				// width: 120px;
+				gap: 4px;
+				justify-content: space-between;
+				align-items: center;
+
+				padding-bottom: 2px;
+				border-bottom: 1px solid #e4e4e4;
+				&:nth-last-child(-n+1) {
+					border-bottom: none;
+					padding-bottom: 0;
+				}
+
+				.used-count {
+					font-weight: 700;
+
+					border-radius: 2px;
+					padding: 3px 6px;
+				}
+
+				&.selected, &:hover {
+					background-color: #EBF7FF;
+					color: #0369A1;
 				}
 			}
 		}
@@ -463,6 +624,14 @@
 			svg {
 				stroke: currentColor;
 			}
+		}
+
+		.tiny-text {
+			color: #666;
+			font-family: "Lato", Arial, sans-serif;
+			font-weight: 400;
+			font-size: 12px;
+			margin: auto 0;
 		}
 
 		.card-actions {
@@ -758,11 +927,11 @@
 
 	.controls {
 		.search-bar {
-			input {
+			// input {
 				background: #30323b;
 				border-color: #444;
 				color: #eee;
-			}
+			// }
 		}
 
 		.filters {

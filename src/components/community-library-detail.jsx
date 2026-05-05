@@ -86,7 +86,7 @@ const CommunityLibraryDetail = ({entry}) => {
 							</div>
 						</div>
 						
-						<div rel='author' className='author'>Created by <b>John Doe</b></div>
+						<div rel='author' className='author'>Created by <b>{!entry ? "Loading" : entry.owner_display_name}</b></div>
 					</div>
 					<div className='content'>
 						<h3>WIDGET ENGINE</h3>
@@ -112,8 +112,11 @@ const CommunityLibraryDetail = ({entry}) => {
 						<br/>
 						<h3>TAGS</h3>
 						<div className='row' style={{gap: "8px"}}>
-							<div className='tag'>#test-a</div>
-							<div className='tag'>#testingb</div>
+						{
+							entry && entry.tags.length != 0 ? entry.tags.map((t)=>(
+								<div className='tag'>#{t}</div>
+							)) : <div>This entry has no tags.</div>
+						}
 						</div>
 						<br/>
 						<h3>METADATA</h3>

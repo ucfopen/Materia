@@ -30,7 +30,6 @@ const CommunityLibraryCard = ({ entry, onCopy, onLike, onReport, copySuccess = f
 					<img src={iconUrl('/widget/', widget?.dir, 275)} alt={widget?.name} />
 				</div>
 				<div className="card-title">
-					{/* <a href={`/community-library/${entry.id}/`}><h3>{instance_name}</h3></a> */}
 					<h3>{instance_name}</h3>
 					<span className="widget-type">{widget?.name}</span>
 					<span className="owner">by {owner_display_name != "" ? owner_display_name : "Unknown"}</span>
@@ -41,6 +40,10 @@ const CommunityLibraryCard = ({ entry, onCopy, onLike, onReport, copySuccess = f
 				<div className='badges'>
 					{category_display && <span className="badge">{category_display}</span>}
 					{course_level_display && <span className="badge">{course_level_display}</span>}
+					{entry.tags.length >= 1 && <>
+					<span className="badge">#{entry.tags[0]}</span>
+					<span className='tiny-text'>{entry.tags.length > 1 ? `+${entry.tags.length-1}` : ""}</span>
+					</>}
 				</div>
 				<div className='badges'>
 					

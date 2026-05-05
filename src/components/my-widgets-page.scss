@@ -941,12 +941,33 @@
 					&.alt {
 						color: #fff;
 						background-color: rgba(93, 163, 203, 1);
+						// background-color: rgba(117, 191, 91, 1);
+						// background-color: #ffd439;
+						// color: #000;
 					}
 				}
 
 				h4 {
 					margin-top: 2px;
+					margin-bottom: 7px;
+				}
+
+				a {
+					// display: block;
+					font-weight: 700;
+					margin-top: 2px;
 					margin-bottom: 5px;
+
+					// color: rgba(185,68,204, 1);
+				}
+
+				.state {
+					background-color: rgba(185,68,204, 1);
+					border-radius: 4px;
+					font-weight: 700;
+					color: #fff;
+					padding: 2px 4px;
+					margin-right: 4px;
 				}
 
 				.row {

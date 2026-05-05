@@ -25,6 +25,8 @@ from core.message_exception import MsgFailure, MsgInvalidInput, MsgNoPerm
 from core.models import (
     CommunityLibraryEntry,
     LibrarySnapshot,
+    TagEntry,
+    Tag,
     LogActivity,
     LogPlay,
     Notification,
@@ -588,6 +590,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         category = serializer.validated_data["category"]
         course_level = serializer.validated_data.get("course_level", "")
+        tags = serializer.validated_data.get("tags", [])
 
         latest_qset = instance.get_latest_qset()
         qset_data = latest_qset.data
@@ -606,6 +609,19 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 qset_data=qset_data,
                 qset_version=qset_version,
             )
+
+            for tag in tags:
+                tag_obj = Tag.objects.filter(name=tag).first()
+                if tag_obj is None:
+                    tag_obj = Tag.objects.create(name=tag)
+
+                TagEntry.objects.create(
+                    tag = tag_obj,
+                    entry = existing_entry
+                )
+
+                tag_obj.used_count += 1
+                tag_obj.save()
         else:
             # New publish: create entry and snapshot
             entry = CommunityLibraryEntry.objects.create(
@@ -619,6 +635,19 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 qset_data=qset_data,
                 qset_version=qset_version,
             )
+
+            for tag in tags:
+                tag_obj = Tag.objects.filter(name=tag).first()
+                if tag_obj is None:
+                    tag_obj = Tag.objects.create(name=tag)
+
+                TagEntry.objects.create(
+                    tag = tag_obj,
+                    entry = entry
+                )
+
+                tag_obj.used_count += 1
+                tag_obj.save()
 
         instance.is_shared = True
         instance.save(update_fields=["is_shared"])

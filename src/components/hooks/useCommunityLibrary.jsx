@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useInfiniteQuery, useMutation, useQueryClient } from 'react-query'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
 import {
 	apiGetCommunityLibrary,
 	apiCopyFromLibrary,
@@ -9,10 +9,11 @@ import {
 	apiUnpublishFromLibrary,
 	apiUpdateInLibrary,
 	apiPullFromLibrary,
+	apiGetLibraryTags,
 } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
-export function useCommunityLibraryList(search, widgetId, category, courseLevel, sort) {
+export function useCommunityLibraryList(search, widgetId, category, courseLevel, sort, tags) {
 	const formatData = (list) => {
 		if (list?.pages) {
 			return list.pages.flatMap((page) =>
@@ -27,7 +28,7 @@ export function useCommunityLibraryList(search, widgetId, category, courseLevel,
 
 	const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
 		useInfiniteQuery({
-			queryKey: ['community-library', search, widgetId, category, courseLevel, sort],
+			queryKey: ['community-library', search, widgetId, category, courseLevel, sort, tags],
 			queryFn: ({ pageParam = 1 }) =>
 				apiGetCommunityLibrary({
 					pageParam,
@@ -36,6 +37,7 @@ export function useCommunityLibraryList(search, widgetId, category, courseLevel,
 					category,
 					courseLevel,
 					sort,
+					tags
 				}),
 			getNextPageParam: (lastPage) =>
 				lastPage.next != null ? lastPage.next.match(/page=([0-9]+)/)[1] : undefined,
@@ -51,6 +53,18 @@ export function useCommunityLibraryList(search, widgetId, category, courseLevel,
 		hasNextPage,
 		fetchNextPage,
 	}
+}
+
+export function useTagList(count, search, exclude) {
+	return useQuery({
+		queryKey: ["tags", count, search, exclude],
+		queryFn: async () => {
+			const tags = JSON.parse(await apiGetLibraryTags({count, search, exclude}))
+			tags.sort((a, b) => a.used_count < b.used_count)
+			return tags
+		},
+		enabled: true
+	})
 }
 
 export function useCopyFromLibrary() {

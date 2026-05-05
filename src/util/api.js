@@ -800,13 +800,29 @@ export const readFromStorage = () => {
 	}, [])
 }
 
-export const apiGetCommunityLibrary = ({ pageParam = 1, search = '', widgetId = '', category = '', courseLevel = '', sort = 'newest' }) => {
+export const apiGetCommunityLibrary = ({ pageParam = 1, search = '', widgetId = '', category = '', courseLevel = '', sort = 'newest', tags = [] }) => {
 	let url = `/api/community-library/?page=${pageParam}`
-	if (search) url += `&search=${search}`
+	if (search) url += `&search=${encodeURIComponent(search)}`
 	if (widgetId) url += `&widget_id=${widgetId}`
 	if (category) url += `&category=${category}`
 	if (courseLevel) url += `&course_level=${courseLevel}`
 	if (sort) url += `&sort=${sort}`
+	if (tags && tags.length > 0) {
+		tags.forEach((t)=>{
+			url += `&tags=${t}`
+		})
+	}
+	return handleRequest(methods.GET, url)
+}
+
+export const apiGetLibraryTags = ({count = -1, search = '', exclude = []}) => {
+	let url = `/api/community-library/tags/?count=${count}`
+	if (search) url += `&search=${search}`
+	if (exclude && exclude.length > 0) {
+		exclude.forEach((t)=>{
+			url += `&exclude=${t}`
+		})
+	}
 	return handleRequest(methods.GET, url)
 }
 

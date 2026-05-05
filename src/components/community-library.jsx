@@ -1,9 +1,10 @@
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useMemo, useCallback, useEffect, useRef, useDeferredValue } from 'react'
 import CommunityLibraryCard from './community-library-card'
 import CommunityLibraryReportDialog from './community-library-report-dialog'
 import {
 	useCommunityLibraryList,
 	useCopyFromLibrary,
+	useTagList,
 	useToggleLike,
 } from './hooks/useCommunityLibrary'
 import useDebounce from './hooks/useDebounce'
@@ -43,6 +44,7 @@ const GLASS_PATH = "m244.19 214.6l-54.379-54.378c-0.289-0.289-0.628-0.491-0.93-0
 
 const CommunityLibrary = ({ widgets = [] }) => {
 	const [searchInput, setSearchInput] = useState('')
+	const [finallInput, setFinalInput] = useState('')
 	const [selectedWidgetType, setSelectedWidgetType] = useState('')
 	const [selectedCategory, setSelectedCategory] = useState('')
 	const [selectedCourseLevel, setSelectedCourseLevel] = useState('')
@@ -50,7 +52,26 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	const [reportingEntry, setReportingEntry] = useState(null)
 	const [copySuccess, setCopySuccess] = useState(null)
 
-	const searchText = useDebounce(searchInput, 500)
+	// list of tags currently being searched
+	const [tagList, setTagList] = useState([])
+
+	// current in-progress tag being typed
+	const [tempTag, setTempTag] = useState("")
+
+	// determines whether tag detection is active
+	const [breakTempTag, setBreakTempTag] = useState(false)
+
+	const [focusedTag, setFocusedTag] = useState(-1)
+
+	const searchText = useDebounce(finallInput, 500)
+	const searchTags = useDebounce(tagList, 500)
+	const inputElement = document.getElementById("searchinput")
+	const assertiveRegion = document.getElementById("searchinput")
+
+	useEffect(()=>{
+		if(tempTag == "")
+			setFinalInput(searchInput)
+	},[searchInput, tempTag])
 
 	const clearSearch = () => {
 		setSearchInput('')
@@ -63,7 +84,10 @@ const CommunityLibrary = ({ widgets = [] }) => {
 			selectedCategory,
 			selectedCourseLevel,
 			sortBy,
+			searchTags
 		)
+
+	const defEntries = useDeferredValue(entries)
 
 	const loadMoreRef = useRef(null)
 
@@ -84,6 +108,10 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	const copyMutation = useCopyFromLibrary()
 	const likeMutation = useToggleLike()
 
+	// list of 5 most relevant tags from database
+	const {data: tags, status} = useTagList(5, tempTag.replace("#", ""), tagList)
+	const defTags = useDeferredValue(tags)
+	
 	const handleCopy = useCallback(
 		(entryId) => {
 			copyMutation.mutate(entryId, {
@@ -166,7 +194,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 			</div>
 		)
 	} else {
-		const displayEntries = isFiltered ? entries : entries.filter((e) => !e.featured)
+		const displayEntries = isFiltered ? defEntries : defEntries.filter((e) => !e.featured)
 		contentRender = (
 			<>
 				<div className="entries-grid">
@@ -188,8 +216,100 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		)
 	}
 
+	const handleSearch = (e) => {
+		setSearchInput(e.target.value)
+
+		if(breakTempTag) return
+
+		const tagStart = e.target.value.lastIndexOf("#")
+		if(tagStart != -1) {
+			const tagStr = e.target.value.slice(tagStart)
+			setTempTag(tagStr.toLowerCase().replaceAll(" ","-").trim())
+			setFocusedTag(0)
+		} else {
+			setTempTag("")
+			setFocusedTag(-1)
+		}
+	}
+
+	const handleSearchEnter = (e) => {
+		if(e.key == "Enter" && tempTag != "" && tags && tags.length > 0) {
+			e.preventDefault()
+			enterTag(tags.at(focusedTag).name)
+		}
+
+		if(e.key == "Backspace" && searchInput == "") {
+			let newList = tagList
+			newList.splice(newList.length-1, 1)
+
+			setTagList([...newList])
+		}
+
+		if(tags && tags.length > 1 && tempTag != "") {
+			if(e.key == "ArrowDown") {
+				e.preventDefault()
+				let newInd = focusedTag + 1 < tags.length ? focusedTag + 1 : 0
+				setFocusedTag(newInd)
+			} else if(e.key == "ArrowUp") {
+				e.preventDefault()
+				let newInd = focusedTag - 1 >= 0 ? focusedTag - 1 : tags.length - 1
+				setFocusedTag(newInd)
+			}
+		}
+
+		if(e.key == "#") {
+			// resets tag detection
+			setBreakTempTag(false)
+		}
+
+		if(e.key == " ") {
+			if(tempTag.length == 1) {
+				// breaks tag detection if first tag char is space
+				e.preventDefault()
+				setBreakTempTag(true)
+				setTempTag("")
+				setFocusedTag(-1)
+			}
+		}
+
+		if(e.key == "Escape") {
+			// breaks tag detection via escape
+			setBreakTempTag(true)
+			setTempTag("")
+			setFocusedTag(-1)
+		}
+	}
+
+	const enterTag = (t) => {
+		const tagStart = inputElement.value.lastIndexOf("#")
+
+		let newVal = [...inputElement.value]
+		newVal.splice(tagStart, tempTag.length)
+
+		setSearchInput(newVal.join(""))
+
+		setFocusedTag(-1)
+		setTagList([...tagList, t])
+		setTempTag("")
+
+		inputElement.focus()
+	}
+
+	const triggerTagMenu = () => {
+		setTempTag("#")
+		setFocusedTag(0)
+		setTimeout(()=>{
+			inputElement.focus()
+			inputElement.value += "#"
+		}, 50)
+	}
+
 	return (
 		<div className="community-library">
+			<div aria-live='assertive' className='live'>
+				{tags && tags.length > 0 && focusedTag > -1 && 
+				`Tag selection menu: Selected "${tags.at(focusedTag).name}", used in ${tags.at(focusedTag).used_count} entries.`}
+			</div>
 			<link rel="preload" href="/img/chevron-down.svg" />
 			<div className="container">
 				<section className="page">
@@ -243,13 +363,49 @@ const CommunityLibrary = ({ widgets = [] }) => {
 							<div className="controls">
 								<div className="search-bar">
 									<div className="search-icon"><svg viewBox="0 0 250.313 250.313"><path d={`${GLASS_PATH}`} clipRule="evenodd" fillRule="evenodd"></path></svg></div>
+									<div className='search-tags'>
+										{tagList.map((v,i)=>(
+											<div role='button' key={`tag_${i}`} tabIndex={0} className='tag'>#{v}</div>
+										))}
+									</div>
+									{tempTag != "" && 
+											
+										<div className='tag-dropdown'>
+										{
+											!defTags ? <div className='notice'>Loading...</div>
+											: 
+											defTags.length == 0 && status == "success" ?
+											<div className='notice'>No tags found.</div>
+											:
+											defTags.map((t,i)=>{
+												return <button 
+												className={`drop-entry ${i == focusedTag ? 'selected' : ''}`}
+												key={`dropdown_tag_${i}`}
+												onClick={()=>(enterTag(t.name))}>
+													<div>#{t.name}</div>
+													<div className='used-count'>{t.used_count}</div>
+												</button>
+											})
+										}
+										</div>	
+									}
 									<input
 										type="text"
-										placeholder="Search widgets by title, keyword, or author..."
+										id='searchinput'
+										autoComplete='off'
+										placeholder="Search widgets by title, author, or #tag..."
 										value={searchInput}
-										onChange={(e) => setSearchInput(e.target.value)}
+										onChange={handleSearch}
+										onKeyDown={handleSearchEnter}
 									/>
 									{searchInput && <button className="search-close" onClick={clearSearch} />}
+									{
+										tempTag == "" &&
+										<button className='add-tag'
+										onClick={triggerTagMenu}>
+											<b>+</b> add new tag
+										</button>
+									}
 								</div>
 
 								<div className="filters">

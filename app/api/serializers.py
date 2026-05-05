@@ -20,6 +20,8 @@ from core.models import (
     UserExtraAttempts,
     UserLike,
     UserSettings,
+    Tag,
+    TagEntry,
     Widget,
     WidgetInstance,
     WidgetQset,
@@ -906,6 +908,10 @@ class PlayStorageSaveSerializer(serializers.Serializer):
     )
     logs = serializers.JSONField()
 
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ["name", "used_count"]
 
 class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
     instance_id = serializers.CharField(source="instance.id", read_only=True)
@@ -921,7 +927,8 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
     latest_snapshot_id = serializers.SerializerMethodField()
     user_has_liked = serializers.SerializerMethodField()
     last_reported_at = serializers.SerializerMethodField()
-
+    tags = serializers.SerializerMethodField()
+    
     class Meta:
         model = CommunityLibraryEntry
         fields = [
@@ -943,6 +950,7 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
             "user_has_liked",
             "created_at",
             "last_reported_at",
+            "tags"
         ]
 
     def get_instance_name(self, entry):
@@ -966,6 +974,15 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
     def get_user_has_liked(self, entry):
         request = self.context.get("request")
         return UserLike.objects.filter(user=request.user, entry=entry).exists()
+    
+    def get_tags(self, entry):
+        tag_strs = []
+        tag_entries = entry.tags.all()
+        
+        for te in tag_entries:
+            tag_strs.append(te.name)
+
+        return tag_strs
 
 
 class LibraryReportSerializer(serializers.ModelSerializer):
@@ -980,4 +997,7 @@ class PublishToLibrarySerializer(serializers.Serializer):
         choices=[("", "")] + CommunityLibraryEntry.COURSE_LEVEL_CHOICES,
         required=False,
         default="",
+    )
+    tags = serializers.ListField(
+        child = serializers.CharField(min_length=1, max_length=50)
     )

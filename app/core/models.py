@@ -1550,6 +1550,9 @@ class UserSettings(models.Model):
         self.profile_fields = {**self.DEFAULT_PROFILE_FIELDS}
         self.save()
 
+class Tag(models.Model):
+    name = models.CharField(max_length=50)
+    used_count = models.IntegerField(default=0)
 
 class CommunityLibraryEntry(models.Model):
     CATEGORY_CHOICES = [
@@ -1573,6 +1576,9 @@ class CommunityLibraryEntry(models.Model):
         ("advanced", "Advanced"),
     ]
 
+    tags = models.ManyToManyField(
+        Tag, through="TagEntry"
+    )
     instance = models.OneToOneField(
         WidgetInstance,
         on_delete=models.CASCADE,
@@ -1616,6 +1622,16 @@ class UserLike(models.Model):
     class Meta:
         unique_together = ("user", "entry")
 
+class TagEntry(models.Model):
+    tag = models.ForeignKey(
+        Tag, on_delete=models.CASCADE, related_name="library_tagged"
+    )
+    entry = models.ForeignKey(
+        CommunityLibraryEntry, on_delete=models.CASCADE, related_name="tagged"
+    )
+
+    class Meta:
+        unique_together = ("tag", "entry")
 
 class LibraryReport(models.Model):
     REASON_CHOICES = [
