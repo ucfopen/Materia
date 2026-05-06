@@ -553,25 +553,34 @@
 				flex-wrap: wrap;
 				gap: 4px;
 			}
+		}
 
-			.badge {
-				display: inline-block;
-				padding: 4px 8px;
-				border-radius: 4px;
-				font-size: 12px;
-				font-weight: 500;
-				background-color: #eee;
+		.badge {
+			display: inline-block;
+			padding: 4px 8px;
+			border-radius: 4px;
+			font-size: 12px;
+			font-weight: 500;
+			background-color: #eee;
+			color: #333;
+
+			&.category {
+				background: rgba(93, 163, 203, 0.35);
 				color: #333;
+				padding: 0px 4px;
+			}
 
-				&.category {
-					background: #e8f0fe;
-					color: #1a73e8;
-				}
+			&.level {
+				background: rgba(117, 191, 91, 0.35);
+				color: #333;
+				padding: 0px 4px;
+			}
 
-				&.level {
-					background: #e6f4ea;
-					color: #137333;
-				}
+			&.highlighted {
+				background-color: #EBF7FF;
+				color: #0369A1;
+				outline: 1px solid #D0ECFF;
+				outline-offset: -1px;
 			}
 		}
 
@@ -888,10 +897,24 @@
 			}
 		}
 
-		.card-meta {
-			.badge {
-				color: #ccc;
-				background-color: #30323b;
+		.badge {
+			color: #ccc;
+			background-color: #30323b;
+
+			&.category {
+				background: rgba(93, 163, 203, 0.65);
+				color: #eee;
+			}
+
+			&.level {
+				background: rgba(117, 191, 91, 0.65);
+				color: #eee;
+			}
+
+			&.highlighted {
+				color: #55baf1;
+				background-color: #1f2d37;
+				outline-color: #3d5463;
 			}
 		}
 
@@ -927,11 +950,28 @@
 
 	.controls {
 		.search-bar {
-			// input {
+			background: #30323b;
+			border-color: #444;
+			color: #eee;
+
+			input {
 				background: #30323b;
-				border-color: #444;
 				color: #eee;
-			// }
+			}
+
+			.add-tag {
+				color: #55baf1;
+				background-color: #1f2d37;
+				border-color: #3d5463;
+			}
+
+			.search-tags {
+				.tag {
+					color: #ccc;
+    				background-color: #333;
+					border-color: #444;
+				}
+			}
 		}
 
 		.filters {
@@ -943,6 +983,23 @@
 				background: #30323b;
 				color: #fff;
 				border-color: #444;
+			}
+		}
+
+		.tag-dropdown {
+			background: #30323b;
+			border-color: #444;
+			color: #ddd;
+
+			.drop-entry {
+				color: #ddd;
+				border-bottom-color: #444;
+
+				&.selected {
+					color: #55baf1;
+					background-color: #1f2d37;
+					// border-color: #3d5463;
+				}
 			}
 		}
 	}

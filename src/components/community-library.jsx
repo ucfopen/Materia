@@ -61,10 +61,10 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	// determines whether tag detection is active
 	const [breakTempTag, setBreakTempTag] = useState(false)
 
+	// stores which tag in the dropdown is "focused"
 	const [focusedTag, setFocusedTag] = useState(-1)
 
 	const searchText = useDebounce(finallInput, 500)
-	const searchTags = useDebounce(tagList, 500)
 	const inputElement = document.getElementById("searchinput")
 	const assertiveRegion = document.getElementById("searchinput")
 
@@ -84,7 +84,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 			selectedCategory,
 			selectedCourseLevel,
 			sortBy,
-			searchTags
+			tagList
 		)
 
 	const defEntries = useDeferredValue(entries)
@@ -206,6 +206,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 							onLike={handleLike}
 							onReport={handleReport}
 							copySuccess={copySuccess === entry.id}
+							highlightedTags={tagList}
 						/>
 					))}
 				</div>
@@ -308,7 +309,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		<div className="community-library">
 			<div aria-live='assertive' className='live'>
 				{tags && tags.length > 0 && focusedTag > -1 && 
-				`Tag selection menu: Selected "${tags.at(focusedTag).name}", used in ${tags.at(focusedTag).used_count} entries.`}
+				`Tag selection menu: Selected "${tags.at(focusedTag).name}", used in ${tags.at(focusedTag).used_count} widget${tags.at(focusedTag).used_count > 1 ? "s" : ""}.`}
 			</div>
 			<link rel="preload" href="/img/chevron-down.svg" />
 			<div className="container">
