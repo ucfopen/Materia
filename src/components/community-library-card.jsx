@@ -46,7 +46,8 @@ const CommunityLibraryCard = ({ entry, onCopy, onLike, onReport, copySuccess = f
 					{entry.tags.length >= 1 && <>
 					{entry.tags.map((t, i)=>{
 						if(i >= 2) return
-						else return (<span className={`badge ${highlightedTags.includes(t) ? "highlighted" : ""}`}>#{t}</span>)
+						const highlighted = highlightedTags.includes(t)
+						return (<span className={`badge ${highlighted ? "highlighted" : ""}`}>#{t}</span>)
 					})}
 					<span className='tiny-text'>{entry.tags.length > 2 ? `+${entry.tags.length-2}` : ""}</span>
 					</>}

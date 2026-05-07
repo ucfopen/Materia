@@ -513,7 +513,8 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 							<h3>Community Library</h3>
 							<div>
 								<label>Status:</label>
-								{updatedInst.library_entry.is_banned ? 'Banned' : 'Shared'}
+								{updatedInst.library_entry.is_banned ? 'Banned' : 
+								updatedInst.library_entry.is_shared ? 'Shared' : 'Unpublished'}
 							</div>
 							<div>
 								<label>Reports:</label>

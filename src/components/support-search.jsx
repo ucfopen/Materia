@@ -11,7 +11,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
 	const [error, setError] = useState('')
 	const [showDeleted, setShowDeleted] = useState(false)
-	const [moderationFilter, setModerationFilter] = useState('banned')
+	const [moderationFilter, setModerationFilter] = useState('')
 	const debouncedSearchTerm = useDebounce(searchText, 500)
 	const instanceList = useSearchInstances(debouncedSearchTerm, showDeleted)
 
@@ -122,9 +122,10 @@ const SupportSearch = ({onClick = () => {}}) => {
 				<div className='moderation-filters'>
 					<label>Show:</label>
 					<select value={moderationFilter} onChange={(e) => setModerationFilter(e.target.value)}>
+						<option value="">All</option>
 						<option value="banned">Banned</option>
 						<option value="reported">Reported</option>
-						<option value="">All</option>
+						<option value="unpublished">Unpublished</option>
 					</select>
 				</div>
 				{moderationLoading && (
@@ -141,7 +142,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 						{entries.map((entry) => (
 							<div
 								key={entry.id}
-								className={`search_match clickable ${entry.is_banned ? 'banned' : ''}`}
+								className={`search_match clickable ${entry.is_banned ? 'banned' : ''} ${entry.report_count > 0 ? 'reported' : ''} ${!entry.is_shared ? 'unpublished' : ''}`}
 								onClick={() => {
 									const instanceData = {
 										id: entry.instance_id,
@@ -159,6 +160,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 											report_count: entry.report_count,
 											copy_count: entry.copy_count,
 											like_count: entry.like_count,
+											is_shared: entry.is_shared
 										},
 										preview_url: entry.preview_url,
 									}
@@ -172,9 +174,11 @@ const SupportSearch = ({onClick = () => {}}) => {
 										<li className='title'>{entry.instance_name}</li>
 										<li className='type'>{entry.widget.name}</li>
 										<li className='owner'>{entry.owner_display_name}</li>
-										{entry.last_reported_at && <li className='date'>Last reported {new Date(entry.last_reported_at).toLocaleDateString()}</li>}
-										{entry.is_banned && <li className='badge badge-banned'>Banned</li>}
-										{entry.report_count > 0 && <li className='badge badge-reported'>{entry.report_count} report{entry.report_count !== 1 ? 's' : ''}</li>}
+										<li className='row'>
+											{!entry.is_shared && <div className='badge badge-unpublished'>Unpublished</div>}
+											{entry.is_banned && <div className='badge badge-banned'>Banned</div>}
+											{entry.report_count > 0 && <div title={`Last reported ${new Date(entry.last_reported_at).toLocaleDateString()}`} className='badge badge-reported'>{entry.report_count} report{entry.report_count !== 1 ? 's' : ''}</div>}
+										</li>
 									</ul>
 								</div>
 							</div>

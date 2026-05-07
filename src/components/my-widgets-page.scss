@@ -243,7 +243,21 @@
 
 						text-align: center;
 						font-size: 12px;
-						font-weight: 900;
+						font-weight: 700;
+						color: #ffffff !important;
+
+						background: #777;
+					}
+
+					&.is_library ul li.score {
+						border-radius: 3px;
+
+						width: 54px;
+						height: 15px;
+
+						text-align: center;
+						font-size: 12px;
+						font-weight: 700;
 						color: #ffffff !important;
 
 						background: #b944cc;
@@ -911,6 +925,12 @@
 			position: relative;
 			box-sizing: border-box;
 
+			&.draft {
+				cursor: default;
+				opacity: 0.75;
+				user-select: none;
+			}
+
 			.cl-options {
 				border-left: 8px solid rgba(185,68,204, 0.5);
 				background-color: rgba(185,68,204, 0.05);
@@ -944,6 +964,14 @@
 						// background-color: rgba(117, 191, 91, 1);
 						// background-color: #ffd439;
 						// color: #000;
+					}
+
+					&:disabled {
+						background: #777;
+						cursor: default;
+						&:hover {
+							box-shadow: none;
+						}
 					}
 				}
 

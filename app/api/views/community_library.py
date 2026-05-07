@@ -66,6 +66,8 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
                 qs = qs.filter(report_count__gt=0).order_by(
                     "-report_count", "-created_at"
                 )
+            elif status == "unpublished":
+                qs = qs.filter(instance__is_shared=False)
             else:
                 qs = qs.order_by("-report_count", "-created_at")
         else:

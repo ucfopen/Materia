@@ -179,6 +179,10 @@
 		}
 
 		.search_list {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 8px;
+
 			.search_match.deleted {
 				background-color: rgba(0, 0, 0, 0.2);
 			}
@@ -198,9 +202,12 @@
 				margin-right: 5px;
 			}
 
-			div {
-				display: inline-block;
-				padding: 4px;
+			div.img-holder {
+				padding: 0;
+				width: fit-content;
+				height: fit-content;
+				margin: auto 0;
+				margin-right: 8px;
 			}
 
 			.info-holder {
@@ -599,16 +606,11 @@
 
 .search_match {
 	box-sizing: border-box;
-	display: inline-block;
-    vertical-align: top;
-	width: 48%;
-	margin: 5px;
+	display: flex;
+	flex-direction: row;
+	width: 100%;
 	padding: 10px;
 	border: 1px solid #d3d3d3;
-
-	> div {
-		display: inline-block;
-	}
 }
 
 .searching {
@@ -744,6 +746,23 @@
 .search_match {
 	&.banned {
 		border-left: 3px solid #dc3545;
+		background-color: #dc354510;
+	}
+
+	&.reported {
+		border-left: 3px solid #ffc107;
+		background: #ffc10710;
+	}
+
+	&.unpublished {
+		background: repeating-linear-gradient(
+		45deg,
+		#f0f0f0,
+		#f0f0f0 10px,
+		#f9f9f9 10px,
+		#f9f9f9 20px
+		);
+		border-left: 3px solid #444;
 	}
 
 	.badge {
@@ -762,6 +781,11 @@
 			background: #ffc107;
 			color: #333;
 		}
+
+		&.badge-unpublished {
+			background-color: #444;
+			color: white;
+		}
 	}
 
 	.owner {
@@ -772,6 +796,12 @@
 	.date {
 		color: #999;
 		font-size: 11px;
+	}
+
+	.row {
+		display: flex;
+		flex-direction: row;
+		gap: 2px
 	}
 }
 

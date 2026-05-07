@@ -928,6 +928,7 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
     user_has_liked = serializers.SerializerMethodField()
     last_reported_at = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
+    is_shared = serializers.SerializerMethodField()
     
     class Meta:
         model = CommunityLibraryEntry
@@ -950,7 +951,8 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
             "user_has_liked",
             "created_at",
             "last_reported_at",
-            "tags"
+            "tags",
+            "is_shared"
         ]
 
     def get_instance_name(self, entry):
@@ -983,6 +985,9 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
             tag_strs.append(te.name)
 
         return tag_strs
+    
+    def get_is_shared(self, entry):
+        return entry.instance.is_shared
 
 
 class LibraryReportSerializer(serializers.ModelSerializer):

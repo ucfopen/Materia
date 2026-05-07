@@ -8,7 +8,10 @@ const MyWidgetsInstanceCard = ({inst, indexVal, hidden = false, selected = false
 	const library = inst.copied_from_entry_id || inst.is_shared
 
 	if (hidden) classes.push('hidden')
-	if (is_draft || library) classes.push('is_draft')
+	
+	if (is_draft) classes.push('is_draft')
+	else if (library) classes.push('is_library')
+	
 	if (beard) classes.push('bearded', `small_${beard}`)
 	if (selected) classes.push('selected')
 

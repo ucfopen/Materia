@@ -524,17 +524,18 @@ const MyWidgetSelectedInstance = ({
 
 			<div className={`community-library-container closed ${inst.is_draft ? 'draft' : ''}`}>
 				<h3>
-					{/* {inst.is_draft ? 'Publish to share' : 'Share'} with your students */}
-					Community Library
+					{/* {inst.is_draft ? 'Publish to share' : 'Share'} */}
+					{`${inst.is_draft ? `Publish to share to the ` : ``}Community Library`}
 				</h3>
 				<div className="cl-options">
-				{!inst.is_shared && !inst.is_draft && !inst.copied_from_entry_id && (
+				{!inst.is_shared && !inst.copied_from_entry_id && (
 					<div className='row'>
 						<p><h4>Make Your Widget Public!</h4>Allow other instructors to discover, copy, and adapt this widget for their own courses.</p>
 						<div className='col'>
 							<button
 								role='menuitem'
 								tabIndex="0"
+								disabled={inst.is_draft}
 								onClick={() => setShowPublishDialog(true)}>
 								Share to Library
 							</button>
