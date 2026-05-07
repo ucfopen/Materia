@@ -366,7 +366,12 @@ const CommunityLibrary = ({ widgets = [] }) => {
 									<div className="search-icon"><svg viewBox="0 0 250.313 250.313"><path d={`${GLASS_PATH}`} clipRule="evenodd" fillRule="evenodd"></path></svg></div>
 									<div className='search-tags'>
 										{tagList.map((v,i)=>(
-											<div role='button' key={`tag_${i}`} tabIndex={0} className='tag'>#{v}</div>
+											<div role='button' key={`tag_${i}`} tabIndex={0} className='tag' 
+											onClick={()=>{
+												tagList.splice(i, 1)
+												setTagList([...tagList])
+												inputElement.focus()
+											}}>{v}</div>
 										))}
 									</div>
 									{tempTag != "" && 
