@@ -765,6 +765,17 @@
 		border-left: 3px solid #444;
 	}
 
+	&.deleted {
+		background: repeating-linear-gradient(
+		45deg,
+		#f5cbcb,
+		#f5cbcb 10px,
+		#f6c1c1 10px,
+		#f6c1c1 20px
+		);
+		border: 1px solid #d3d3d3
+	}
+
 	.badge {
 		display: inline-block;
 		padding: 2px 8px;
@@ -798,11 +809,6 @@
 		font-size: 11px;
 	}
 
-	.row {
-		display: flex;
-		flex-direction: row;
-		gap: 2px
-	}
 }
 
 .library-moderation {
@@ -813,4 +819,10 @@
 	h3 {
 		margin-bottom: 10px;
 	}
+}
+
+.row {
+	display: flex;
+	flex-direction: row;
+	gap: 2px
 }

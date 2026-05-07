@@ -862,8 +862,8 @@ export const apiModerateEntry = (entryId, data) => {
 	return handleRequest(methods.PATCH, `/api/community-library/${entryId}/moderate/`, data)
 }
 
-export const apiGetLibraryModeration = (status = 'banned') => {
-	return handleRequest(methods.GET, `/api/community-library/?moderation=true&status=${status}`)
+export const apiGetLibraryModeration = (status = 'banned', showDeleted = 'false') => {
+	return handleRequest(methods.GET, `/api/community-library/?moderation=true&status=${status}&deleted=${showDeleted}`)
 }
 
 export const apiGetSnapshotInstance = (entryId, snapshotId) => {

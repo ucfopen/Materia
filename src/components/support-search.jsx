@@ -16,8 +16,8 @@ const SupportSearch = ({onClick = () => {}}) => {
 	const instanceList = useSearchInstances(debouncedSearchTerm, showDeleted)
 
 	const { data: moderationData, isFetching: moderationLoading, refetch: refetchModeration } = useQuery({
-		queryKey: ['library-moderation', moderationFilter],
-		queryFn: () => apiGetLibraryModeration(moderationFilter),
+		queryKey: ['library-moderation', moderationFilter, showDeleted],
+		queryFn: () => apiGetLibraryModeration(moderationFilter, showDeleted),
 		enabled: activeTab === 'library',
 		staleTime: 30000,
 	})
@@ -31,6 +31,10 @@ const SupportSearch = ({onClick = () => {}}) => {
 			}
 		}
 	}, [instanceList.instances])
+
+	useEffect(()=>{
+		console.log(showDeleted)
+	}, [showDeleted])
 
 	const handleSearchChange = e => setSearchText(e.target.value)
 	const handleShowDeletedClick = () => setShowDeleted(!showDeleted)
@@ -127,6 +131,10 @@ const SupportSearch = ({onClick = () => {}}) => {
 						<option value="reported">Reported</option>
 						<option value="unpublished">Unpublished</option>
 					</select>
+					<div>
+						<input id='showDeletedCL' type='checkbox' value={showDeleted} onChange={handleShowDeletedClick}/>
+						<label htmlFor='showDeletedCL'>Show Deleted Instances?</label>
+					</div>
 				</div>
 				{moderationLoading && (
 					<div className='loading'>
@@ -142,13 +150,14 @@ const SupportSearch = ({onClick = () => {}}) => {
 						{entries.map((entry) => (
 							<div
 								key={entry.id}
-								className={`search_match clickable ${entry.is_banned ? 'banned' : ''} ${entry.report_count > 0 ? 'reported' : ''} ${!entry.is_shared ? 'unpublished' : ''}`}
+								className={`search_match clickable ${entry.is_banned ? 'banned' : ''} ${entry.report_count > 0 ? 'reported' : ''} ${!entry.is_shared ? 'unpublished' : ''} ${entry.is_deleted ? 'deleted' : ''}`}
 								onClick={() => {
 									const instanceData = {
 										id: entry.instance_id,
 										name: entry.instance_name,
 										widget: entry.widget,
 										is_shared: true,
+										is_deleted: entry.is_deleted,
 										library_entry: {
 											id: entry.id,
 											category: entry.category,
@@ -160,7 +169,8 @@ const SupportSearch = ({onClick = () => {}}) => {
 											report_count: entry.report_count,
 											copy_count: entry.copy_count,
 											like_count: entry.like_count,
-											is_shared: entry.is_shared
+											is_shared: entry.is_shared,
+											is_deleted: entry.is_deleted
 										},
 										preview_url: entry.preview_url,
 									}
@@ -178,6 +188,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 											{!entry.is_shared && <div className='badge badge-unpublished'>Unpublished</div>}
 											{entry.is_banned && <div className='badge badge-banned'>Banned</div>}
 											{entry.report_count > 0 && <div title={`Last reported ${new Date(entry.last_reported_at).toLocaleDateString()}`} className='badge badge-reported'>{entry.report_count} report{entry.report_count !== 1 ? 's' : ''}</div>}
+											{entry.is_deleted && <div className='badge badge-banned'>Deleted</div>}
 										</li>
 									</ul>
 								</div>

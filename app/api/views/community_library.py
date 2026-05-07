@@ -70,6 +70,10 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
                 qs = qs.filter(instance__is_shared=False)
             else:
                 qs = qs.order_by("-report_count", "-created_at")
+
+            show_deleted = self.request.query_params.get('deleted')
+            if show_deleted == 'false':
+                qs = qs.filter(instance__is_deleted=False)
         else:
             qs = (
                 CommunityLibraryEntry.objects.filter(
