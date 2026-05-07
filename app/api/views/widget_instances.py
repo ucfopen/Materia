@@ -678,10 +678,26 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["put"])
     def unpublish_from_library(self, request, pk=None):
+
         instance = self.get_object()
+        entry = getattr(instance, "library_entry", None)
+        if not entry:
+            return Response(
+                {"error": "You cannot unpublish a widget that is not in the library."},
+                status=400,
+            )
 
         instance.is_shared = False
         instance.save(update_fields=["is_shared"])
+
+        # remove old tags
+        for te in TagEntry.objects.filter(entry=entry):
+            te.tag.used_count -= 1
+            if te.tag.used_count <= 0:
+                te.tag.delete()
+            else:
+                te.tag.save()
+            te.delete()
         return Response({"success": True})
 
     @action(detail=True, methods=["put"])
