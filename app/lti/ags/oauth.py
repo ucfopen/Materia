@@ -24,8 +24,8 @@ class AGSOauth:
 
     def create_jwt_assertion(self):
 
-        # TODO this just grabs the first (only?) public/private keypair. Make this more robust.
-        key = Key.objects.first()
+        # Grab the most recent active key
+        key = Key.objects.filter(is_active=True).order_by("-id").first()
 
         # JWT payload for client credentials grant
         payload = {
