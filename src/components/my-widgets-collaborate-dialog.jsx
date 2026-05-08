@@ -278,7 +278,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			const mainContentElements = []
 			let userContentElement = null
 			
-			Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
+			Array.from(state.updatedAllUserPerms).forEach(([userId, userPerms]) => {
 				if (userPerms.remove === true) return
 
 				let user = collabUsers[userId]
@@ -287,38 +287,23 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					return <div key={userId}></div>
 				}
 
-				user.is_owner = user.id === inst.user_id;
+				user.is_owner = user.id === inst.user_id
+				const rowElement = (
+					<CollaborateUserRow
+						key={user.id}
+						user={user}
+						perms={userPerms}
+						myPerms={myPerms}
+						isCurrentUser={currentUser.id === user.id}
+						onlyOneFullPermHolder={onlyOneFullPermHolder}
+						removedCurrentUser={removedCurrentUser}
+						onChange={(userId, perms) => updatePerms(userId, perms)}
+						readOnly={myPerms?.can?.share === false}
+					/>
+				)
 
-				if (currentUser.id === user.id) {
-					userContentElement = (
-						<CollaborateUserRow
-							key={user.id}
-							user={user}
-							perms={userPerms}
-							myPerms={myPerms}
-							isCurrentUser={currentUser.id === user.id}
-							onlyOneFullPermHolder={onlyOneFullPermHolder}
-							removedCurrentUser={removedCurrentUser}
-							onChange={(userId, perms) => updatePerms(userId, perms)}
-							readOnly={myPerms?.can?.share === false}
-						/>
-					)
-				}
-				else {
-					mainContentElements.push(
-						<CollaborateUserRow
-							key={user.id}
-							user={user}
-							perms={userPerms}
-							myPerms={myPerms}
-							isCurrentUser={currentUser.id === user.id}
-							onlyOneFullPermHolder={onlyOneFullPermHolder}
-							removedCurrentUser={removedCurrentUser}
-							onChange={(userId, perms) => updatePerms(userId, perms)}
-							readOnly={myPerms?.can?.share === false}
-						/>
-					)
-				}
+				if (currentUser.id === user.id) userContentElement = rowElement
+				else mainContentElements.push(rowElement)
 			})
 
 			mainContentRender = (
