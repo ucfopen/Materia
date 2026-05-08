@@ -104,7 +104,7 @@ class WidgetPlayValidationService:
             return WidgetPlayValidationService.INVALID_NOT_PLAYABLE
 
         instance_availability = instance.availability_status()
-        if not instance_availability["is_open"]:
+        if not is_preview and not instance_availability["is_open"]:
             return WidgetPlayValidationService.INVALID_NOT_YET_OPEN
 
         if not has_guest_access:
