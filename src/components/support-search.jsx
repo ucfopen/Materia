@@ -32,10 +32,6 @@ const SupportSearch = ({onClick = () => {}}) => {
 		}
 	}, [instanceList.instances])
 
-	useEffect(()=>{
-		console.log(showDeleted)
-	}, [showDeleted])
-
 	const handleSearchChange = e => setSearchText(e.target.value)
 	const handleShowDeletedClick = () => setShowDeleted(!showDeleted)
 
@@ -130,6 +126,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 						<option value="banned">Banned</option>
 						<option value="reported">Reported</option>
 						<option value="unpublished">Unpublished</option>
+						<option value="featured">Featured</option>
 					</select>
 					<div>
 						<input id='showDeletedCL' type='checkbox' value={showDeleted} onChange={handleShowDeletedClick}/>
@@ -150,7 +147,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 						{entries.map((entry) => (
 							<div
 								key={entry.id}
-								className={`search_match clickable ${entry.is_banned ? 'banned' : ''} ${entry.report_count > 0 ? 'reported' : ''} ${!entry.is_shared ? 'unpublished' : ''} ${entry.is_deleted ? 'deleted' : ''}`}
+								className={`search_match clickable ${entry.featured ? 'featured' : ''} ${entry.is_banned ? 'banned' : ''} ${entry.report_count > 0 ? 'reported' : ''} ${!entry.is_shared ? 'unpublished' : ''} ${entry.is_deleted ? 'deleted' : ''}`}
 								onClick={() => {
 									const instanceData = {
 										id: entry.instance_id,
@@ -185,6 +182,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 										<li className='type'>{entry.widget.name}</li>
 										<li className='owner'>{entry.owner_display_name}</li>
 										<li className='row'>
+											{entry.featured && <div className='badge badge-featured'>Featured</div>}
 											{!entry.is_shared && <div className='badge badge-unpublished'>Unpublished</div>}
 											{entry.is_banned && <div className='badge badge-banned'>Banned</div>}
 											{entry.report_count > 0 && <div title={`Last reported ${new Date(entry.last_reported_at).toLocaleDateString()}`} className='badge badge-reported'>{entry.report_count} report{entry.report_count !== 1 ? 's' : ''}</div>}

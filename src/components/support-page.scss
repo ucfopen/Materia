@@ -754,6 +754,11 @@
 		background: #ffc10710;
 	}
 
+	&.featured {
+		border-left: 3px solid rgb(93, 163, 203);
+		background: rgba(93, 163, 203, 0.1);
+	}
+
 	&.unpublished {
 		background: repeating-linear-gradient(
 		45deg,
@@ -797,6 +802,11 @@
 			background-color: #444;
 			color: white;
 		}
+
+		&.badge-featured {
+			background: rgb(93, 163, 203);
+			color: white;
+		}
 	}
 
 	.owner {
@@ -825,4 +835,11 @@
 	display: flex;
 	flex-direction: row;
 	gap: 2px
+}
+
+.report-pill {
+	background-color: #ffc10780;
+	padding: 1px 2px;
+	border-radius: 4px;
+	margin-right: 4px;
 }

@@ -842,6 +842,10 @@ export const apiReportEntry = (entryId, data) => {
 	return handleRequest(methods.POST, `/api/community-library/${entryId}/report/`, data)
 }
 
+export const apiGetEntryReports = (entryId) => {
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/get_reports/`)
+}
+
 export const apiPublishToLibrary = (instId, data) => {
 	return handleRequest(methods.PUT, `/api/instances/${instId}/publish_to_library/`, data)
 }

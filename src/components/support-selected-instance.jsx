@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { apiGetUsers, apiGetUserPermsForInstance, apiModerateEntry } from '../util/api'
+import { apiGetUsers, apiGetUserPermsForInstance, apiModerateEntry, apiGetEntryReports } from '../util/api'
 import { useQuery } from 'react-query'
 import { iconUrl } from '../util/icon-url'
 import rawPermsToObj from '../util/raw-perms-to-object'
@@ -57,9 +57,18 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 	})
 
 	const { data: instOwner, isFetching: loadingInstOwner } = useQuery({
-		queryKey: ['instance-owner', inst.id],
+		queryKey: ['instance-owner', updatedInst.id],
 		queryFn: () => apiGetUsers([updatedInst.user_id]),
 		enabled: !!updatedInst && !!updatedInst.user_id,
+		staleTime: Infinity
+	})
+
+	const { data: reports, isFetching: loadingReports} = useQuery({
+		queryKey: ['entry-reports', updatedInst.library_entry.id],
+		queryFn: async () => {
+			return JSON.parse(await apiGetEntryReports(updatedInst.library_entry.id))
+		},
+		// enabled: !!updatedInst && !!updatedInst.user_id,
 		staleTime: Infinity
 	})
 
@@ -314,6 +323,27 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 		)
 	}
 
+	const compileReports = (rep) => {
+		const dict = {"inappropriate": 0, "incorrect": 0, "spam": 0, "other": 0}
+		if(!rep) return dict
+
+		rep.forEach((r)=>dict[r.reason]++)
+		return dict
+	}
+
+	let reportRender = 0
+	if (reports && reports.length > 0) {
+		const compiled = compileReports(reports)
+		reportRender = (
+			<>
+			{compiled.inappropriate > 0 && <span className="report-pill">Inappropriate: {compiled.inappropriate}</span>}
+			{compiled.incorrect > 0 && <span className="report-pill">Incorrect: {compiled.incorrect}</span>}
+			{compiled.spam > 0 && <span className="report-pill">Spam: {compiled.spam}</span>}
+			{compiled.other > 0 && <span className="report-pill">Other: {compiled.other}</span>}
+			</>
+		)
+	}
+
 	return (
 		<>
 			{ alertDialogRender }
@@ -518,7 +548,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 							</div>
 							<div>
 								<label>Reports:</label>
-								{updatedInst.library_entry.report_count}
+								{reportRender}
 							</div>
 							<div>
 								<label>Copies:</label>

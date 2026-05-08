@@ -1553,6 +1553,7 @@ class UserSettings(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=50)
     used_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class CommunityLibraryEntry(models.Model):
     CATEGORY_CHOICES = [
@@ -1629,6 +1630,7 @@ class TagEntry(models.Model):
     entry = models.ForeignKey(
         CommunityLibraryEntry, on_delete=models.CASCADE, related_name="tagged"
     )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ("tag", "entry")

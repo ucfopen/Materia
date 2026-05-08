@@ -68,6 +68,8 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
                 )
             elif status == "unpublished":
                 qs = qs.filter(instance__is_shared=False)
+            elif status == "featured":
+                qs = qs.filter(featured=True)
             else:
                 qs = qs.order_by("-report_count", "-created_at")
 
@@ -151,7 +153,7 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             "snapshot_qset",
         ):
             permission_classes = [IsAuthenticated]
-        elif self.action == "moderate":
+        elif self.action in ("moderate", "show_reports"):
             permission_classes = [IsSuperOrSupportUser]
         else:
             permission_classes = [IsAuthenticated]
@@ -271,6 +273,16 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             entry, context={"request": request}
         )
         return Response(serializer.data)
+    
+    @action(detail=True, methods=["get"])
+    def get_reports(self, request, pk=None):
+        entry = CommunityLibraryEntry.objects.get(pk=pk)
+        reports = LibraryReport.objects.filter(entry=entry).all()
+
+        res = []
+        for r in reports:
+             res.append(LibraryReportSerializer(r).data)
+        return Response(json.dumps(res))
 
     @action(
         detail=True,

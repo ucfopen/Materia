@@ -62,11 +62,10 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 			<div className="publish-dialog">
 				<h2>Share to Community Library</h2>
 				<p className="dialog-subtitle">
-					Share "<b>{inst.name}</b>" so other teachers can discover and use it.
+					Share "<b>{inst.name}</b>" with the Materia community! Other instructors will be able to find, copy, and adapt this widget for their own courses. Your original widget will remain unchanged.
 				</p>
-
 				<label>
-					Category <span className="required">*</span>
+					Discipline <span className="required">*</span>
 					<select value={category} onChange={(e) => setCategory(e.target.value)}>
 						<option value="">Select a category...</option>
 						{CATEGORIES.map((c) => (
@@ -93,7 +92,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 					<form onSubmit={(v)=>{
 						v.preventDefault()
 						const tag = v.target.elements["tag-input"].value.toLowerCase().trim().replaceAll(" ", "-")
-						setTagList([...tagList, tag])
+						if(!tagList.includes(tag)) setTagList([...tagList, tag])
 						v.target.reset()
 					}}>
 						<input id="tag-input" type='text' placeholder='Press Enter to create a tag...'/>
@@ -105,13 +104,8 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 								<p className='empty'>Your tags will appear here.</p>
 							) : 
 							tagList.map((t, i) => (
-								<div className='tag' key={`tag_${i}`}>
-									<button onClick={()=>{setTagList(tagList.filter((_, j)=>j!=i))}}>
-										<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" >
-											<path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-										</svg>
-									</button>
-									#{t}
+								<div onClick={()=>{setTagList(tagList.filter((_, j)=>j!=i))}} className='tag' key={`tag_${i}`}>
+									{t}
 								</div>
 							))
 						}
@@ -120,7 +114,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 				</label>
 
 				{errorText && <p className="error-text">{errorText}</p>}
-
+				
 				<div className="dialog-actions">
 					<button className="btn cancel" onClick={onClose}>
 						Cancel
