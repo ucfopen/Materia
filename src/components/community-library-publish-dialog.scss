@@ -3,11 +3,12 @@
 .publish-dialog {
 	background: #fff;
 	border-radius: 8px;
-	padding: 24px;
-	max-width: 480px;
-	width: 90%;
+	padding: 16px 8px;
+	// max-width: 480px;
+	width: 100%;
 	max-height: 90vh;
 	overflow-y: auto;
+	box-sizing: border-box;
 
 	h2 {
 		margin: 0 0 8px;
