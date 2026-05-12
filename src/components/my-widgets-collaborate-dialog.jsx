@@ -282,10 +282,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 				if (userPerms.remove === true) return
 
 				let user = collabUsers[userId]
-				if (!user)
-				{
-					return <div key={userId}></div>
-				}
+				if (!user) return
 
 				user.is_owner = user.id === inst.user_id
 				const rowElement = (
