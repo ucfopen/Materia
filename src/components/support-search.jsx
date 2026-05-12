@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useQuery } from 'react-query'
 import { iconUrl } from '../util/icon-url'
 import { apiGetLibraryModeration } from '../util/api'
@@ -6,14 +6,25 @@ import useSearchInstances from './hooks/useSearchInstances'
 import useDebounce from './hooks/useDebounce'
 import LoadingIcon from './loading-icon'
 
+import {
+	useTagList,
+	useDeleteTag,
+	useRenameTag
+} from './hooks/useCommunityLibrary'
+
 const SupportSearch = ({onClick = () => {}}) => {
 	const [activeTab, setActiveTab] = useState('instances')
 	const [searchText, setSearchText] = useState('')
+	const [tagSearchText, setTagSearchText] = useState('')
 	const [error, setError] = useState('')
 	const [showDeleted, setShowDeleted] = useState(false)
 	const [moderationFilter, setModerationFilter] = useState('')
 	const debouncedSearchTerm = useDebounce(searchText, 500)
 	const instanceList = useSearchInstances(debouncedSearchTerm, showDeleted)
+
+	const [renamingTag, setRenamingTag] = useState('')
+	const [newTagName, setNewTagName] = useState('')
+	const [deleteConfirm, setDeleteConfirm] = useState('')
 
 	const { data: moderationData, isFetching: moderationLoading, refetch: refetchModeration } = useQuery({
 		queryKey: ['library-moderation', moderationFilter, showDeleted],
@@ -21,6 +32,8 @@ const SupportSearch = ({onClick = () => {}}) => {
 		enabled: activeTab === 'library',
 		staleTime: 30000,
 	})
+
+	const {data: tags, status: status, refetch: refetchTags} = useTagList(-1, tagSearchText, [])
 
 	useEffect(() => {
 		if (instanceList.error) {
@@ -34,6 +47,31 @@ const SupportSearch = ({onClick = () => {}}) => {
 
 	const handleSearchChange = e => setSearchText(e.target.value)
 	const handleShowDeletedClick = () => setShowDeleted(!showDeleted)
+
+	const renameTagMutation = useRenameTag()
+	const deleteTagMutation = useDeleteTag()
+
+	const handleRename = useCallback(
+		(name, to) => {
+			renameTagMutation.mutate({name, to}, {
+				onSuccess: () => {
+					refetchTags()
+				}
+			})
+		},
+		[renameTagMutation],
+	)
+
+	const handleDelete = useCallback(
+		(name) => {
+			deleteTagMutation.mutate(name, {
+				onSuccess: () => {
+					refetchTags()
+				}
+			})
+		},
+		[deleteTagMutation],
+	)
 
 	const renderInstanceSearch = () => {
 		let loadingRender = null
@@ -198,6 +236,71 @@ const SupportSearch = ({onClick = () => {}}) => {
 		)
 	}
 
+	const nameInputEnter = (e) => {
+		if(e.key == "Enter")
+			submitNewName()
+	}
+
+	const submitNewName = () => {
+		const finalName = newTagName.toLowerCase().replaceAll(" ","-").trim()
+
+		if(finalName != "")
+			handleRename(renamingTag, finalName)
+
+		setRenamingTag('')
+	}
+
+	const tryDelete = (name) => {
+		if(deleteConfirm != name)
+			setDeleteConfirm(name)
+		else
+			handleDelete(name)
+	}
+
+	const renderTagModeration = () => {
+		return (
+			<div className="tag-moderation">
+				<input type="text" placeholder="Search for a tag..." value={tagSearchText} onChange={(e)=>setTagSearchText(e.target.value)}/>
+				<div className="tag-grid">
+				{tags ? 
+				tags.length == 0 ? <div>No tags found.</div>
+				: tags.map((v)=>(
+					<div className={`tag-item ${renamingTag == v.name ? "renaming":""}`}>
+						<div className="row">
+							<div className="tag-name">
+								#{renamingTag != v.name ? v.name : 
+								<input type="text" value={newTagName} onKeyDown={nameInputEnter} onChange={(e)=>{setNewTagName(e.target.value)}}/>}
+							</div>
+							<div className="used-count">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag-icon lucide-tag"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+								<b>{v.used_count}</b>
+							</div>
+						</div>
+						<div className="row">
+							{
+								renamingTag == v.name ?
+								<>
+									<button type="button" onClick={submitNewName} className="confirm">Confirm</button>
+									<button type="button" onClick={()=>{setRenamingTag("")}} className="cancel">Cancel</button>
+								</>
+								:
+								<>
+									<button type="button" onClick={()=>{setRenamingTag(v.name); setNewTagName(v.name)}} className="rename">Rename</button>
+									<button type="button" onClick={()=>{tryDelete(v.name)}} 
+									className="delete">{deleteConfirm == v.name ? "Confirm?" : "Delete"}</button>
+								</>
+							}
+							
+						</div>
+					</div>
+				))
+				: <div>Loading...</div>
+				}
+				</div>
+			</div>
+		)
+	}
+
 	return (
 		<section className='page'>
 			<div className='top'>
@@ -214,8 +317,13 @@ const SupportSearch = ({onClick = () => {}}) => {
 					onClick={() => setActiveTab('library')}>
 					Community Library
 				</button>
+				<button
+					className={`tab ${activeTab === 'tags' ? 'active' : ''}`}
+					onClick={() => setActiveTab('tags')}>
+					Tags
+				</button>
 			</div>
-			{ activeTab === 'instances' ? renderInstanceSearch() : renderLibraryModeration() }
+			{ activeTab === 'instances' ? renderInstanceSearch() : activeTab === 'library' ? renderLibraryModeration() : renderTagModeration() }
 		</section>
 	)
 }

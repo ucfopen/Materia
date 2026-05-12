@@ -10,6 +10,8 @@ import {
 	apiUpdateInLibrary,
 	apiPullFromLibrary,
 	apiGetLibraryTags,
+	apiDeleteLibraryTag,
+	apiRenameLibraryTag
 } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
@@ -64,6 +66,24 @@ export function useTagList(count, search, exclude) {
 			return tags
 		},
 		enabled: true
+	})
+}
+
+export function useDeleteTag() {
+	const queryClient = useQueryClient()
+	return useMutation(apiDeleteLibraryTag, {
+		onSuccess: () => {
+			queryClient.invalidateQueries(['community-library'])
+		}
+	})
+}
+
+export function useRenameTag() {
+	const queryClient = useQueryClient()
+	return useMutation(({ name, to }) => apiRenameLibraryTag(name, to), {
+		onSuccess: () => {
+			queryClient.invalidateQueries(['community-library'])
+		}
 	})
 }
 

@@ -178,14 +178,32 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if exclude:
             qs = qs.exclude(name__in=exclude)
 
-        count = request.query_params.get("count", -1)
+        count = int(request.query_params.get("count", -1))
         if count != -1:
-            qs = qs[:int(count)]
+            qs = qs[:count]
 
         res = []
         for t in qs:
             res.append(TagSerializer(t).data)
         return Response(json.dumps(res))
+    
+    @action(detail=False, methods=["patch", "delete"])
+    def tag(self, request):
+        name = request.query_params.get("name", '')
+        tag = Tag.objects.filter(name=name).first()
+
+        if not Tag:
+            return Response({'error': 'Cannot delete a tag that does not exist.'}, status=400)
+
+        if request.method == "DELETE":
+            tag.delete()
+            return Response(status=200)
+        elif request.method == "PATCH":
+            to = request.query_params.get("to", '')
+
+            tag.name = to
+            tag.save()
+            return Response(status=200)
 
     @action(detail=True, methods=["post"])
     def copy(self, request, pk=None):
