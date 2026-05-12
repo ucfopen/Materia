@@ -563,7 +563,7 @@ const MyWidgetSelectedInstance = ({
 				inst.is_shared && (
 					<div className='row'>
 						<p>
-							<h4><span className='state'>SHARED</span><a target="_blank" href={`/community-library/${inst.library_entry.id}`}>{'➜ '}Library Entry</a></h4>
+							<h4><span className='state'>SHARED</span><a target="_blank" href={`/community-library/${inst.library_entry ? inst.library_entry.id : 1}`}>{'➜ '}Library Entry</a></h4>
 							<p>Press <span>Update in Library</span> to sync any changes to this widget to the Community Library.</p>
 							Press <span>Remove from Library</span> to remove this widget from the Community Library. This will prevent new copies of this widget from being made.
 						</p>
