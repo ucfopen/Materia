@@ -129,7 +129,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 								!tags ? <div className='notice'>Loading...</div>
 								: 
 								tags.length == 0 && status == "success" ?
-								<div className='notice'>Create a new tag <b>#{newTag}</b></div>
+								<div className='notice'>Create a new tag <b>#{newTag.toLowerCase().trim().replaceAll(" ", "-")}</b></div>
 								:
 								tags.map((t,i)=>{
 									return <button 
