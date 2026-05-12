@@ -30,7 +30,7 @@
     "react-datepicker": "^5.0.0",
     "react-overlays": "^5.2.1",
     "react-query": "^3.39.3",
-    "uuid": "^9.0.1"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",
