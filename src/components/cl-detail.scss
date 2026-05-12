@@ -374,3 +374,18 @@ section.page {
         }
     }
 }
+
+@media (max-width: 900px) {
+    section.page {
+        margin-bottom: 32px;
+        .entry {
+            flex-direction: column;
+        }
+
+        .card {
+            &.side {
+                width: 100%;
+            }
+        }
+    }
+}
