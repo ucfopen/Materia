@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Modal from './modal'
-import { usePublishToLibrary } from './hooks/useCommunityLibrary'
+import { usePublishToLibrary, useTagList } from './hooks/useCommunityLibrary'
 import './community-library-publish-dialog.scss'
 
 const CATEGORIES = [
@@ -30,8 +30,12 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 	const [courseLevel, setCourseLevel] = useState('')
 	const [errorText, setErrorText] = useState('')
 	const [tagList, setTagList] = useState([])
+	const [newTag, setNewTag] = useState("")
+	const [focusedTag, setFocusedTag] = useState(0)
 
 	const publishMutation = usePublishToLibrary()
+
+	const {data: tags, status} = useTagList(5, newTag.replace("#", ""), tagList)
 
 	const handlePublish = () => {
 		if (!category) {
@@ -55,6 +59,34 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 				},
 			},
 		)
+	}
+
+	const enterTag = (tag) => {
+		tag = tag.toLowerCase().trim().replaceAll(" ", "-")
+		if(!tagList.includes(tag)) setTagList([...tagList, tag])
+		setNewTag("")
+	}
+
+	const handleSearchKey = (e) => {
+		if(e.key == "Enter" && newTag != "") {
+			e.preventDefault()
+			if(tags && tags.length > 0)
+				enterTag(tags.at(focusedTag).name)
+			else
+				enterTag(newTag)
+		}
+
+		if(tags && tags.length > 1 && newTag != "") {
+			if(e.key == "ArrowDown") {
+				e.preventDefault()
+				let newInd = focusedTag + 1 < tags.length ? focusedTag + 1 : 0
+				setFocusedTag(newInd)
+			} else if(e.key == "ArrowUp") {
+				e.preventDefault()
+				let newInd = focusedTag - 1 >= 0 ? focusedTag - 1 : tags.length - 1
+				setFocusedTag(newInd)
+			}
+		}
 	}
 
 	return (
@@ -87,16 +119,32 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 					</select>
 				</label>
 
-				<label>
+				<div className='label'>
 					Tags
-					<form onSubmit={(v)=>{
-						v.preventDefault()
-						const tag = v.target.elements["tag-input"].value.toLowerCase().trim().replaceAll(" ", "-")
-						if(!tagList.includes(tag)) setTagList([...tagList, tag])
-						v.target.reset()
-					}}>
-						<input id="tag-input" type='text' placeholder='Press Enter to create a tag...'/>
-					</form>
+					<div className='input-cont'>
+						{
+							newTag != "" &&
+							<div className='tag-dropdown'>
+							{
+								!tags ? <div className='notice'>Loading...</div>
+								: 
+								tags.length == 0 && status == "success" ?
+								<div className='notice'>Create a new tag <b>#{newTag}</b></div>
+								:
+								tags.map((t,i)=>{
+									return <button 
+									className={`drop-entry ${i == focusedTag ? 'selected' : ''}`}
+									key={`dropdown_tag_${i}`}
+									onClick={()=>(enterTag(t.name))}>
+										<div>#{t.name}</div>
+										<div className='used-count'>{t.used_count}</div>
+									</button>
+								})
+							}
+							</div>
+						}
+						<input id="tag-input" type='text' autoComplete='off' value={newTag} onChange={(e)=>setNewTag(e.target.value)} onKeyDown={handleSearchKey} placeholder='Press Enter to create a tag...'/>
+					</div>
 					
 					<div className='tag-cont'>
 						{
@@ -111,7 +159,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 						}
 						
 					</div>
-				</label>
+				</div>
 
 				{errorText && <p className="error-text">{errorText}</p>}
 				
