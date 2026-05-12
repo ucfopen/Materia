@@ -24,12 +24,12 @@ const MyWidgetsPullDialog = ({onClose, onConfirm}) => {
 					}
 				</div>
 				<span className='buttons'>
-					<a className='cancel_button'
+					<a className='btn cancel'
 						onClick={onClose}>
 						{error ? 'Close' : 'Cancel'}
 					</a>
 					{!error && (
-						<a className='action_button red'
+						<a className='btn pull'
 							onClick={handleConfirm}>
 							Pull Latest
 						</a>
