@@ -200,6 +200,9 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             return Response(status=200)
         elif request.method == "PATCH":
             to = request.query_params.get("to", '')
+            dupe = Tag.objects.filter(name=to).first()
+            if dupe:
+                return Response({"error: There already exists a tag with this name."}, status=409)
 
             tag.name = to
             tag.save()

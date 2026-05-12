@@ -610,7 +610,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 qset_version=qset_version,
             )
 
-            for tag in tags:
+            for tag in list(set(tags)):
                 tag_obj = Tag.objects.filter(name=tag).first()
                 if tag_obj is None:
                     tag_obj = Tag.objects.create(name=tag)
@@ -636,7 +636,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 qset_version=qset_version,
             )
 
-            for tag in tags:
+            for tag in list(set(tags)):
                 tag_obj = Tag.objects.filter(name=tag).first()
                 if tag_obj is None:
                     tag_obj = Tag.objects.create(name=tag)
