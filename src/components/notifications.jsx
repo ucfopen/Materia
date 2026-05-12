@@ -201,7 +201,7 @@ const Notifications = ({user}) => {
 				onMouseEnter={() => showDeleteButton(index)}
 				onMouseLeave={hideDeleteButton}
 				>
-				<img className='senderAvatar' src={notification.avatar} />
+				<img className='senderAvatar' src={notification.avatar} alt=""/>
 				<div className='notice_right_side'>
 					<div dangerouslySetInnerHTML={{__html: `<p class='subject'>${notification.subject}</p>`}}></div>
 					{ grantAccessDropdown }
@@ -211,6 +211,7 @@ const Notifications = ({user}) => {
 				<img src="/static/img/icon-cancel.svg"
 					className={`noticeClose ${showDeleteBtn == index ? 'show' : ''}`}
 					onClick={() => {removeNotification(index)}}
+					alt=""
 				/>
 				<p className='notif-error'>{errorMsg.notif_id == notification.id ? errorMsg.msg : ''}</p>
 			</div>

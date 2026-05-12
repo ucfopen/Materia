@@ -119,7 +119,7 @@ const WidgetListCard = ({widget = null}) => {
         <li key={state.widget.id}>
             <div className="clickable widget-title" onClick={handleWidgetClick}>
                 <span className="img-holder">
-                    <img src={state.widget.icon}/>
+                    <img src={state.widget.icon} alt=""/>
                 </span>
                 <span className="title">{state.widget.name}</span>
             </div>

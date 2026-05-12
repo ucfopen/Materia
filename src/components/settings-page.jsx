@@ -147,7 +147,7 @@ const SettingsPage = () => {
 			<section className="page settings">
 				<ul className="main_navigation" role="menu">
 					<div className="avatar_big">
-						<img src={currentUser.avatar} />
+						<img src={currentUser.avatar} alt=""/>
 					</div>
 					<ul>
 						<li className="profile">

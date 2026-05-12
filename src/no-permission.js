@@ -1,7 +1,7 @@
 import React from 'react'
 import {createRoot} from 'react-dom/client'
 import { QueryClient, QueryClientProvider, QueryCache } from 'react-query'
-import NoPermission from './components/no-permission'
+import NoPermissionPage from './components/no-permission-page'
 
 const queryCache = new QueryCache()
 export const queryClient = new QueryClient({ queryCache })
@@ -9,5 +9,5 @@ export const queryClient = new QueryClient({ queryCache })
 const root = createRoot(document.getElementById('app'));
 root.render(
 	<QueryClientProvider client={queryClient} contextSharing={true}>
-		<NoPermission />
+		<NoPermissionPage />
 	</QueryClientProvider>)
