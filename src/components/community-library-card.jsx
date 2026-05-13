@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { iconUrl } from '../util/icon-url'
 
 const HEART_FILLED =
@@ -44,10 +44,16 @@ const CommunityLibraryCard = ({ entry, onCopy, onLike, onReport, copySuccess = f
 				<div className='badges'>
 					
 					{entry.tags.length >= 1 && <>
-					{entry.tags.map((t, i)=>{
+					{highlightedTags.map((ht, i) => {
 						if(i >= 2) return
+						return (<span className={`badge highlighted`}>#{ht}</span>)
+					})}
+					{entry.tags.map((t, i)=>{
+						if(i >= 2 - highlightedTags.length) return
 						const highlighted = highlightedTags.includes(t)
-						return (<span className={`badge ${highlighted ? "highlighted" : ""}`}>#{t}</span>)
+						if(!highlighted) {
+							return (<span className={`badge`}>#{t}</span>)
+						}
 					})}
 					<span className='tiny-text'>{entry.tags.length > 2 ? `+${entry.tags.length-2}` : ""}</span>
 					</>}
@@ -73,50 +79,6 @@ const CommunityLibraryCard = ({ entry, onCopy, onLike, onReport, copySuccess = f
 					</button>
 				</div>
 			</div>
-
-			{/* <div className="card-stats">
-				<button
-					className={`like-btn ${user_has_liked ? 'liked' : ''}`}
-					onClick={() => onLike(entry.id)}
-					aria-label={user_has_liked ? 'Unlike this widget' : 'Like this widget'}
-				>
-					<svg viewBox="0 0 24 24" width="16" height="16">
-						<path d={user_has_liked ? HEART_FILLED : HEART_OUTLINE} />
-					</svg>
-					<span>{like_count}</span>
-				</button>
-				<span className="copy-count">
-					{copy_count} {copy_count === 1 ? 'copy' : 'copies'}
-				</span>
-			</div> */}
-
-			{/* <div className="card-actions">
-				<a
-					href={`/preview/snapshot/${latest_snapshot_id}/`}
-					target="_blank"
-					rel="noopener noreferrer"
-					className="btn preview"
-				>
-					Preview
-				</a>
-				<button
-					className={`btn use-this ${copySuccess ? 'success' : ''}`}
-					onClick={() => onCopy(entry.id)}
-					disabled={copySuccess}
-				>
-					{copySuccess ? 'Copied!' : 'Use This'}
-				</button>
-				<button
-					className="btn report"
-					onClick={() => onReport(entry)}
-					aria-label="Report this widget"
-					title="Report"
-				>
-					<svg viewBox="0 0 24 24" width="14" height="14">
-						<path d={FLAG_ICON} />
-					</svg>
-				</button>
-			</div> */}
 		</div>
 	)
 }

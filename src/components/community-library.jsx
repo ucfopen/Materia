@@ -206,7 +206,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 							onLike={handleLike}
 							onReport={handleReport}
 							copySuccess={copySuccess === entry.id}
-							highlightedTags={tagList}
+							highlightedTags={tagList.filter((v, i)=>(entry.tags ?? []).includes(v))}
 						/>
 					))}
 				</div>
