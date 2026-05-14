@@ -49,6 +49,7 @@ const CommunityLibraryReportDialog = ({ entry, onClose, onSuccess }) => {
 				</p>
 
 				<div className="reason-options">
+					<label style={{marginBottom: 4}}>Reason</label>
 					{REASONS.map((r) => (
 						<label key={r.value} className="reason-option">
 							<input

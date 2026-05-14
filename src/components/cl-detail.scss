@@ -240,6 +240,9 @@ section.page {
             background-color: #e7fee0;
             border-color: #b0f09d;
             border-width: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 12px;
         }
     }
 
@@ -369,6 +372,12 @@ section.page {
             &.category {
                 background-color: #1f2d37;
                 border-color: #3d5463;
+                color: #eee;
+            }
+
+            &.course-level {
+                background-color: #273922;
+                border-color: #496041;
                 color: #eee;
             }
         }

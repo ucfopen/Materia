@@ -720,10 +720,11 @@
 	background: #fff;
 	border-radius: 8px;
 	padding: 24px;
-	max-width: 480px;
-	width: 90%;
+	width: 100%;
+	box-sizing: border-box;
 	max-height: 90vh;
 	overflow-y: auto;
+	margin-top: 1px;
 
 	h2 {
 		margin: 0 0 8px;
@@ -758,6 +759,7 @@
 			border-radius: 4px;
 			font-size: 14px;
 			box-sizing: border-box;
+			font-family: "Lato", Arial, sans-serif;
 
 			&:focus {
 				outline: none;
@@ -794,6 +796,10 @@
 		margin: 8px 0;
 	}
 
+	button {
+		font-family: "Lato", Arial, sans-serif;
+	}
+
 	.dialog-actions {
 		display: flex;
 		justify-content: flex-end;
@@ -812,17 +818,17 @@
 				color: #333;
 
 				&:hover {
-					background: #e8eaed;
+					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 				}
 			}
 
 			&.publish,
 			&.report-submit {
-				background: #1a73e8;
+				background: #dc3545;
 				color: #fff;
 
 				&:hover {
-					background: #1557b0;
+					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 				}
 
 				&:disabled {
@@ -995,6 +1001,33 @@
 					color: #55baf1;
 					background-color: #1f2d37;
 					// border-color: #3d5463;
+				}
+			}
+		}
+	}
+
+	.report-dialog {
+		background-color: #21232a;
+
+		.dialog-subtitle {
+			color: #eee;
+		}
+
+		label, .label {
+			color: #eee;
+		}
+
+		input[type=text], select, textarea {
+			background: #30323b;
+			color: #eee;
+			border-color: #444;
+		}
+
+		.dialog-actions {
+			.btn {
+				&.cancel {
+					background: #30323b;
+					color: #eee;
 				}
 			}
 		}

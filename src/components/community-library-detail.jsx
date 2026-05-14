@@ -82,7 +82,9 @@ const CommunityLibraryDetail = ({entry}) => {
 							<h1>{!entry ? "Loading..." : entry.instance_name}</h1>
 							<div className='row fit' style={{gap:"4px"}}>
 								<div className='tag category'>{!entry ? "" : entry.category_display}</div>
-								{/* <div className='tag course-level'>{entry.course_level_display}</div> */}
+								{entry && entry.course_level_display != "" &&
+								<div className='tag course-level'>{entry.course_level_display}</div>
+								}
 							</div>
 						</div>
 						
