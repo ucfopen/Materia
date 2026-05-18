@@ -47,6 +47,7 @@ services:
       - ../app:/var/www/html
       - uploaded_media:/var/www/html/media/
       - ../public/widget:/var/www/html/staticfiles/widget/:rw
+      - ${HOME}/.aws:/home/www-data/.aws:ro
     command: /wait_for_it.sh mysql:3306 -t 15 -- gunicorn materia.wsgi:application --bind 0.0.0.0:8001 --reload --workers 4 --threads 2 --timeout 150 --log-level info --access-logfile - --error-logfile -
 
   mysql:
