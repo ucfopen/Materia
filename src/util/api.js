@@ -609,7 +609,7 @@ export const apiGetUserPlaySessions = (user, pageParam = 1, admin_activity = fal
 }
 
 export const apiUpdateUserSettings = (settings) => {
-	return handleRequest(methods.PUT, `/api/users/${settings.user_id}/profile_fields/`, settings)
+	return handleRequest(methods.PATCH, `/api/users/${settings.user_id}/profile_fields/`, settings)
 }
 
 export const apiGetUserRoles = (id) => {

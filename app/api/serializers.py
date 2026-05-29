@@ -113,12 +113,16 @@ class UserMetadataSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError("User ID invalid.")
 
-        valid_keys = ["useGravatar", "notify", "theme", "beardMode"]
+        valid_keys = ["useGravatar", "profileImage", "notify", "theme", "beardMode"]
 
         for key, value in data["profile_fields"].items():
             if key not in valid_keys:
                 raise serializers.ValidationError(
                     f"Invalid profile field provided: {key}"
+                )
+            if key == "profileImage" and not isinstance(value, int):
+                raise serializers.ValidationError(
+                    f"Invalid value for {key}, must be integer."
                 )
             if key == "theme" and value not in ["dark", "light", "os"]:
                 raise serializers.ValidationError(

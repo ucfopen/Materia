@@ -1556,10 +1556,33 @@ class UserSettings(models.Model):
             self.profile_fields = updated_fields
             self.save()
 
+        profile_images = SiteImage.objects.filter(
+            image_type=SiteImage.ImageType.PROFILE_IMAGE
+        )
+
+        if "profileImage" not in self.profile_fields or self.profile_fields[
+            "profileImage"
+        ] not in profile_images.values_list("id", flat=True):
+            random_profile_image = profile_images.order_by("?").first()
+            self.profile_fields["profileImage"] = random_profile_image.id
+            self.save()
+
         return self.profile_fields
 
     def initialize_profile_fields(self):
-        self.profile_fields = {**self.DEFAULT_PROFILE_FIELDS}
+
+        random_profile_image_id = (
+            SiteImage.objects.filter(image_type=SiteImage.ImageType.PROFILE_IMAGE)
+            .order_by("?")
+            .values_list("id", flat=True)
+            .first()
+        )
+
+        self.profile_fields = {
+            **self.DEFAULT_PROFILE_FIELDS,
+            "profileImage": random_profile_image_id,
+        }
+
         self.save()
 
 
