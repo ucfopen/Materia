@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0027_ltiplaystate_score_submitted"),
+        ("core", "0028_remove_logplay_log_play_is_complete_and_more"),
     ]
 
     operations = [
