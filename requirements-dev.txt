@@ -2,7 +2,7 @@ black==26.3.1
 cfgv==3.4.0
 click==8.1.7
 distlib==0.3.8
-filelock==3.15.4
+filelock==3.29.0
 flake8==7.1.0
 identify==2.6.0
 mccabe==0.7.0
