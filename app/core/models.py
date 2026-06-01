@@ -1563,8 +1563,11 @@ class UserSettings(models.Model):
         if "profileImage" not in self.profile_fields or self.profile_fields[
             "profileImage"
         ] not in profile_images.values_list("id", flat=True):
+
             random_profile_image = profile_images.order_by("?").first()
-            self.profile_fields["profileImage"] = random_profile_image.id
+            self.profile_fields["profileImage"] = (
+                random_profile_image.id if random_profile_image else -1
+            )
             self.save()
 
         return self.profile_fields
@@ -1577,6 +1580,9 @@ class UserSettings(models.Model):
             .values_list("id", flat=True)
             .first()
         )
+
+        if random_profile_image_id is None:
+            random_profile_image_id = -1
 
         self.profile_fields = {
             **self.DEFAULT_PROFILE_FIELDS,

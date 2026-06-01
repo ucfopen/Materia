@@ -12,7 +12,7 @@ class UserService:
         use_gravatar = profile_settings.get_profile_fields().get("useGravatar", False)
         if not use_gravatar:
             profile_id = profile_settings.get_profile_fields().get("profileImage")
-            if not profile_id:
+            if not profile_id or profile_id == -1:
                 return f"{settings.STATIC_URL}img/default-avatar.jpg"
 
             from core.models import SiteImage
