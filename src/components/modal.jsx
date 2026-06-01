@@ -33,7 +33,7 @@ const Modal = (props) => {
 				<span className='close-button'
 					id='close-button'
 					aria-label={`close${props.testId ? `-${props.testId}-` : '-'}modal`}
-					onClick={props.onClose}>X</span>
+					onClick={props.onClose}>&#10005;</span>
 				<div className={`modal-guts ${props.noGutter ? 'no-gutter' : ''}`}>
 					{props.children}
 				</div>
