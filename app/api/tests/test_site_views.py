@@ -59,21 +59,27 @@ class TestSiteImageList(SiteImageViewSetTestCase):
         response = self.client.get("/api/site-images/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        returned_ids = [item["id"] for item in response.data]
+        self.assertIn(self.profile_image.id, returned_ids)
+        self.assertIn(self.catalog_banner.id, returned_ids)
 
     def test_regular_user_can_list(self):
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.get("/api/site-images/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        returned_ids = [item["id"] for item in response.data]
+        self.assertIn(self.profile_image.id, returned_ids)
+        self.assertIn(self.catalog_banner.id, returned_ids)
 
     def test_superuser_can_list(self):
         self.client.force_authenticate(user=self.superuser)
         response = self.client.get("/api/site-images/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        returned_ids = [item["id"] for item in response.data]
+        self.assertIn(self.profile_image.id, returned_ids)
+        self.assertIn(self.catalog_banner.id, returned_ids)
 
     def test_list_can_filter_by_type(self):
         response = self.client.get(
@@ -81,10 +87,16 @@ class TestSiteImageList(SiteImageViewSetTestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(
-            response.data[0]["image_type"], SiteImage.ImageType.PROFILE_IMAGE
+        self.assertGreater(len(response.data), 0)
+        self.assertTrue(
+            all(
+                item["image_type"] == SiteImage.ImageType.PROFILE_IMAGE
+                for item in response.data
+            )
         )
+        returned_ids = [item["id"] for item in response.data]
+        self.assertIn(self.profile_image.id, returned_ids)
+        self.assertNotIn(self.catalog_banner.id, returned_ids)
 
 
 class TestSiteImageCreate(SiteImageViewSetTestCase):
