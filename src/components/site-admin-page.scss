@@ -104,6 +104,18 @@
 					flex-wrap: wrap;
 					gap: 1em;
 				}
+
+				.notice {
+					display: block;
+					margin: 1em 0 0.25em 0;
+					font-size: 1.1em;
+					font-weight: 400;
+
+					&.error {
+						font-weight: 700;
+						color: $color-red;
+					}
+				}
 			}
 		}
 	}

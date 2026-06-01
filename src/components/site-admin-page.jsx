@@ -18,16 +18,26 @@ const SiteAdminPage = () => {
 		event.preventDefault()
 		const file = event.target[1].files[0]
 		const imgType = event.target[0].value
-		if (!file) setState(state => ({...state, imageUploadError: true}))
-		else setState(state => ({...state, isUploadingImage: true}))
-		apiUploadSiteImage(imgType, file)
-		.then(res => {
-			refetchProfileImages()
-			setState((state) => ({
-				...state,
-				imageUploadNotice: 'Image uploaded successfully.'
-			}))
-		})
+		if (!file) setState(state => ({...state, imageUploadError: true, imageUploadNotice: 'You must select a file first.'}))
+		else  {
+			setState(state => ({...state, isUploadingImage: true}))
+			apiUploadSiteImage(imgType, file)
+			.then(res => {
+				refetchProfileImages()
+				setState((state) => ({
+					...state,
+					imageUploadNotice: 'Image uploaded successfully.'
+				}))
+			})
+			.catch(err => {
+				setState((state) => ({
+					...state,
+					isUploadingImage: false,
+					imageUploadError: true,
+					imageUploadNotice: 'An error occurred while uploading the image.'
+				}))
+			})
+		}
 	}
 
 	const handleImageRemoveRequest = async (event) => {
@@ -49,9 +59,10 @@ const SiteAdminPage = () => {
 	useEffect(() => {
 		if (profileImages != undefined) {
 			setState((state) => ({
+				...state,
 				isUploadingImage: false,
 				imageUploadError: false,
-				profileImages: profileImages
+				profileImages: profileImages,
 			}))
 		}
 	},[profileImages])
@@ -112,7 +123,7 @@ const SiteAdminPage = () => {
 										Upload
 									</button>
 							</form>
-							{state.imageUploadNotice}
+							<span className={`notice ${state.imageUploadError ? 'error' : ''}`}>{state.imageUploadNotice}</span>
 						</section>
 						<section className="management-subsection">
 							<h3>Catalog Banner</h3>
