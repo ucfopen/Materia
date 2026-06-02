@@ -78,7 +78,6 @@ const SettingsPage = () => {
 	const _selectProfilePicture = (e) => {
 		const imageId = parseInt(e.target.getAttribute('data-image-id'))
 		_patchSubmitSettings('profileImage',imageId)
-		console.log('calling setState to update profileImage to', imageId)
 	}
 
 	const _updateThemePref = (e) => {

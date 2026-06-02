@@ -540,6 +540,10 @@
 							
 							&:hover {
 								cursor: default;
+
+								&:before {
+									background: none;
+								}
 							}
 
 							&.selected {
