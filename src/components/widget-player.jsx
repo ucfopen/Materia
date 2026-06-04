@@ -10,6 +10,7 @@ import LoadingIcon from './loading-icon'
 import './widget-player.scss'
 
 const HEARTBEAT_INTERVAL = 15000 // 15 seconds for each heartbeat
+const MIN_WIDGET_HEIGHT = 640
 
 const initLogs = () => ({ play: [], storage: [] })
 
@@ -121,6 +122,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 	const frameRef = useRef(null)
 	const scoreScreenUrlRef = useRef(null)
 	const darkModeRef = useRef(false)
+
+	const urlParams = new URLSearchParams(window.location.search)
+	const hasLti = urlParams.has('token')
 
 	/*********************** queries ***********************/
 
@@ -381,6 +385,12 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 			setStartTime(new Date().getTime())
 			_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
 			setPlayState('playing')
+
+			// if embedded in an LTI context, preemptively set the height of the player frame
+			if (hasLti) {
+				const initHeight = inst.widget.height != 0 ? inst.widget.height : MIN_WIDGET_HEIGHT
+				_setHeight(initHeight)
+			}
 		}
 	}
 
@@ -545,10 +555,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 		let desiredHeight = Math.max(h, min_h)
 		setAttributes((oldData) => ({...oldData, height: `${desiredHeight}px`}))
 
-		
-		const params = new URLSearchParams(window.location.search)
 		// The presence of the token param indicates an LTI play. Send the frameResize postMessage to the parent frame (the LMS)
-		if (params.get('token')) {
+		if (hasLti) {
 			window.parent.postMessage(
 			{
 				subject: 'lti.frameResize',
