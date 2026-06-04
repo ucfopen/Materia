@@ -80,6 +80,14 @@ const ErrorGeneral = () => {
                 <p>This almost certainly isn't because of anything you did. If possible, please report the issue to support.</p>
             </section>
             break;
+        case 'error_registration_disabled':
+            content =
+            <section id="error-container">
+                <h4>Error type: Registration Disabled</h4>
+                <p>LTI launches from this tool are disabled.</p>
+                <p>Your institution may have provided guidance as to why you cannot launch Materia from this tool. Contact support for more information.</p>
+            </section>
+            break;
         default:
             content =
                 <section id="error-container">
