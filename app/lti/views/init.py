@@ -10,6 +10,10 @@ logger = logging.getLogger(__name__)
 class MateriaOIDCLoginInitView(OIDCLoginInitView):
 
     def get(self, request, *args, **kwargs):
+        """
+        Overrides OIDCLoginInitView's `get` method to intercept and handle OIDCExceptions.
+        The intended behavior is to handle situations where a LTI registration has been disabled.
+        """
         registration_uuid = kwargs.get("registration_uuid")
         try:
             return self.get_oidc_response(request, registration_uuid, request.GET)
