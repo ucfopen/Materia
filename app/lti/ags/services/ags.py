@@ -66,6 +66,7 @@ class AGSService:
             # If no exception is caught, indicates a 200
             play_state.submission_status = LtiPlayState.SubmissionStatus.SUCCESS
             play_state.last_submitted = timezone.now()
+            play_state.score_submitted = max_score
 
             logger.info(
                 "LTI-AGS: successfully transmitted %s score for play %s",

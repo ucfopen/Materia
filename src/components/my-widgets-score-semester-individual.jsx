@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useRef, useId } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { apiGetPlayLogs } from '../util/api'
 import ScoreAuthIndicator from './score-auth-indicator'
 import useDebounce from './hooks/useDebounce'
@@ -31,17 +31,14 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, contexts, setInvali
 		data,
 		refetch,
 		error: playLogsError
-	} = useQuery(
-		['play-logs', instId, semester],
-		() => apiGetPlayLogs(instId, semester.term, semester.year, contexts, page),
-		{
-			keepPreviousData: true,
-			enabled: !!instId && !!semester && !!semester.term && !!semester.year,
-			placeholderData: [],
-			refetchOnWindowFocus: false,
-			retry: false
-		}
-	)
+	} = useQuery({
+		queryKey: ['play-logs', instId, semester],
+		queryFn: () => apiGetPlayLogs(instId, semester.term, semester.year, contexts, page),
+		placeholderData: keepPreviousData,
+		enabled: !!instId && !!semester && !!semester.term && !!semester.year,
+		refetchOnWindowFocus: false,
+		retry: false
+	})
 
 	useEffect(() => {
 		if (!data) return
@@ -59,7 +56,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, contexts, setInvali
 		} else if (data.length == 0) {
 			setState({ ...state, logs: [], isLoading: false })
 		}
-	}, data)
+	}, [data])
 
 	useEffect(() => {
 		if (!playLogsError) return
@@ -68,7 +65,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, contexts, setInvali
 				setInvalidLogin(true)
 				break
 			default:
-				setError((err.message || "Error") + ": Failed to retrieve individual scores.")
+				setError((playLogsError.message || "Error") + ": Failed to retrieve individual scores.")
 		}
 		setState({ ...state, isLoading: false })
 	}, [playLogsError])

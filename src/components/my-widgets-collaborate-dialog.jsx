@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiGetUsers } from '../util/api'
-import setUserInstancePerms from './hooks/useSetUserInstancePerms'
+import useSetUserInstancePerms from './hooks/useSetUserInstancePerms'
 import Modal from './modal'
 import useDebounce from './hooks/useDebounce'
 import LoadingIcon from './loading-icon'
@@ -23,7 +23,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const [state, setState] = useState(initDialogState())
 	const debouncedSearchTerm = useDebounce(state.searchText, 250)
 	const queryClient = useQueryClient()
-	const setUserPerms = setUserInstancePerms()
+	const setUserPerms = useSetUserInstancePerms()
 	const [error, setError] = useState('')
 	const mounted = useRef(false)
 	const popperRef = useRef(null)

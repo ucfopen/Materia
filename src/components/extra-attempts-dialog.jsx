@@ -38,6 +38,7 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 		queryKey: ['extra-attempts'],
 		queryFn: () => apiGetExtraAttempts(inst.id),
 		placeholderData: [],
+		retry: false,
 		staleTime: Infinity
 	})
 	const { data: queryUsers, remove: removeUsers, error: usersError } = useQuery({
@@ -50,15 +51,17 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 
 	useEffect(() => {
 		[usersError, attemptsError].some((someErr) => {
+			// this effect triggers immediately regardless, don't assume an error exists or things break
+			if ( ! someErr ) return false
 			switch (someErr.status) {
 				case 401:
 					window.location.href = '/login'
 					break
 				default:
 					if (someErr == usersError)
-						setError((err.message || "Error") + ": Failed to retrieve user(s).")
+						setError((someErr.message || "Error") + ": Failed to retrieve user(s).")
 					else if (someErr == attemptsError)
-						setError((err.message || "Error") + ": Failed to retrieve extra attempts.")
+						setError((someErr.message || "Error") + ": Failed to retrieve extra attempts.")
 			}
 		})
 	}, [usersError, attemptsError])
@@ -70,7 +73,8 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 
 	// Sets the users and attempts on load
 	useEffect(() => {
-		if (attempts !== null && mounted.current) {
+		// dodge both null and undefined
+		if (attempts != null && mounted.current) {
 			const idArr = []
 			attempts.forEach(user => {idArr.push(user.user) })
 			setState({...state, userIDs: idArr, extraAttempts: attempts })

@@ -159,7 +159,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0, showFooter=t
 	useEffect(() => {
 		[instError, heartbeatError, qsetError].some(someErr => {
 			if (!someErr) return false
-			switch (err.status) {
+			switch (someErr.status) {
 				case 401: {
 					setAlert({
 						msg: "You are no longer logged in.",
@@ -173,7 +173,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0, showFooter=t
 					setAlert({
 						msg: "You do not have permission to view this widget.",
 						title: 'Failure',
-						fatal: err.halt,
+						fatal: someErr.halt,
 						showLoginButton: false
 					})
 					break
@@ -183,7 +183,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0, showFooter=t
 						_onLoadFail("There was a problem loading the widget's question set.")
 					else if (someErr == instError)
 						_onLoadFail("There was a problem loading the widget instance.")
-					else if (someErr == heartbeatErr)
+					else if (someErr == heartbeatError)
 						_onLoadFail("Your play session is no longer valid. You'll need to reload the page and start over.")
 					else
 						_onLoadFail("An unknown error has occurred.")
@@ -372,7 +372,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0, showFooter=t
 		} else {
 			const convertedInstance = _translateForApiVersion(inst, qset)
 			setStartTime(new Date().getTime())
-			_sendToWidget('initWidget',[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
+			_sendToWidget('initWidget', [qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
 			setPlayState('playing')
 		}
 	}

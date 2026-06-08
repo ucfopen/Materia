@@ -4,8 +4,6 @@ import { apiUpdateWidgetInstance } from '../../util/api'
 export default function useUpdateWidget(user) {
 	const queryClient = useQueryClient()
 
-	let widgetList = null
-
 	// Optimistically updates the cache value on mutate
 	return useMutation(
 		{
@@ -13,12 +11,12 @@ export default function useUpdateWidget(user) {
 			onMutate: async formData => {
 				// cancel any in-progress queries and grab the current query cache for widgets
 				await queryClient.cancelQueries({ queryKey: ['instances', user]})
-				widgetList = queryClient.getQueryData(['instances', user])
+				const widgetList = queryClient.getQueryData(['instances', user])
 
 				// widgetList is passed to onSuccess or onError depending on resolution of mutation function
 				return { ...widgetList }
 			},
-			onSuccess: (updatedInst, variables) => {
+			onSuccess: (updatedInst, variables, widgetList) => {
 				// update successful - insert new values into our local copy of widgetList
 				for (const page of widgetList?.pages) {
 					for (const inst of page?.results) {

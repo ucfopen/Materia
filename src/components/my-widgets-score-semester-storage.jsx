@@ -46,7 +46,7 @@ const MyWidgetScoreSemesterStorage = ({semester, instId, setInvalidLogin}) => {
 				setInvalidLogin(true);
 				break
 			default:
-				setError((err.message || "Error") + ": Failed to retrieve storage data.")
+				setError((scoreStorageError.message || "Error") + ": Failed to retrieve storage data.")
 		}
 		setState({...state, isLoading: false})
 	}, [scoreStorageError])

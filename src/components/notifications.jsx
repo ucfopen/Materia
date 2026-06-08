@@ -2,14 +2,14 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiGetNotifications } from '../util/api'
 import useDeleteNotification from './hooks/useDeleteNotification'
-import setUserInstancePerms from './hooks/useSetUserInstancePerms'
+import useSetUserInstancePerms from './hooks/useSetUserInstancePerms'
 
 const Notifications = ({user}) => {
 	const [navOpen, setNavOpen] = useState(false)
 	const [showDeleteBtn, setShowDeleteBtn] = useState(-1)
 	const deleteNotification = useDeleteNotification()
 	const queryClient = useQueryClient()
-	const setUserPerms = setUserInstancePerms()
+	const setUserPerms = useSetUserInstancePerms()
 	const [numNotifications, setNumNotifications] = useState(0)
 	const [errorMsg, setErrorMsg] = useState({
 		notif_id: '',
@@ -203,7 +203,7 @@ const Notifications = ({user}) => {
 				onMouseEnter={() => showDeleteButton(index)}
 				onMouseLeave={hideDeleteButton}
 				>
-				<img className='senderAvatar' src={notification.avatar} />
+				<img className='senderAvatar' src={notification.avatar} alt=""/>
 				<div className='notice_right_side'>
 					<div dangerouslySetInnerHTML={{__html: `<p class='subject'>${notification.subject}</p>`}}></div>
 					{ grantAccessDropdown }
@@ -213,6 +213,7 @@ const Notifications = ({user}) => {
 				<img src="/static/img/icon-cancel.svg"
 					className={`noticeClose ${showDeleteBtn == index ? 'show' : ''}`}
 					onClick={() => {removeNotification(index)}}
+					alt=""
 				/>
 				<p className='notif-error'>{errorMsg.notif_id == notification.id ? errorMsg.msg : ''}</p>
 			</div>

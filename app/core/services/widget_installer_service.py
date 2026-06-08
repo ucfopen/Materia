@@ -9,13 +9,12 @@ from json import JSONDecodeError
 from pathlib import Path
 
 import urllib3
-from django.utils import timezone
-
+from core.message_exception import MsgFailure, MsgNotFound
 from core.models import Widget, WidgetInstance, WidgetQset
 from django.conf import settings
 from django.core.management import color_style
+from django.utils import timezone
 from urllib3.exceptions import MaxRetryError
-from core.message_exception import MsgNotFound, MsgFailure
 
 logger = logging.getLogger(__name__)
 
@@ -193,7 +192,9 @@ class WidgetInstallerService:
                     "Play data exporter script missing top level 'mappings' dict"
                 )
 
-            manifest_data["meta_data"]["playdata_exporters"] = exporter_mappings.keys()
+            manifest_data["meta_data"]["playdata_exporters"] = list(
+                exporter_mappings.keys()
+            )
         else:
             manifest_data["meta_data"][
                 "playdata_exporters"

@@ -35,7 +35,7 @@ const MyWidgetsInstanceCard = ({inst, indexVal, hidden = false, selected = false
 			className={classes.join(' ')}
 			onClick={clickHandler}
 			onKeyDown={keyInputHandler}>
-			<img className='icon' src={img} />
+			<img className='icon' src={img} alt=""/>
 			<ul>
 				<li className='title searchable'
 					dangerouslySetInnerHTML={{ __html: nameTextRender }}>

@@ -22,10 +22,6 @@ const QuestionHistory = () => {
 		retry: false
 	})
 
-	if (qsetHistoryError) {
-		console.error(qsetHistoryError.cause)
-	}
-
 	useEffect(() => {
 		if (qsetHistory) {
 			qsetHistory.map((qset) => {

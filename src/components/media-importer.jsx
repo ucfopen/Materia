@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import DragAndDrop from './drag-and-drop'
 import LoadingIcon from './loading-icon'
@@ -62,104 +62,6 @@ const MediaImporter = () => {
 	})
 	const [showDeletedAssets, setShowDeletedAssets] = useState(false)
 	const [filterSearch, setFilterSearch] = useState('') // Search bar filter
-
-	// Tell the creator that the media importer is ready to receive a direct upload file, if there is one
-	useEffect(() => {
-		parent.postMessage(JSON.stringify({ type: 'readyForDirectUpload', source: 'media-importer', data: '' }), '*')
-	}, [])
-
-	const postMessageHandler = useCallback((e) => {
-		const origin = `${e.origin}/`
-		if (origin !== window.STATIC_CROSSDOMAIN && origin !== window.BASE_URL) return
-		const file = new File(
-			[e.data.buffer],
-			e.data.name,
-			{ type: e.data.type, lastModified: e.data.lastModified }
-		)
-		_upload(file)
-	}, [])
-
-	useEffect(() => {
-		window.addEventListener('message', postMessageHandler)
-		return () => window.removeEventListener('message', postMessageHandler)
-	})
-
-	const { data: listOfAssets, error: assetsError } = useQuery({
-		queryKey: ['media-assets', selectedAsset],
-		queryFn: () => apiGetAssets(),
-		staleTime: Infinity,
-	})
-
-	useEffect(() => {
-		if (!assetsError) return
-
-		switch (error.status) {
-			case 401:
-				window.location.href = '/login'
-				break;
-			default:
-				setErrorState(err.cause)
-		}
-	}, [assetsError])
-
-	const assetList = useMemo(() => {
-		if (!listOfAssets) return {}
-
-		const list = listOfAssets.map(asset => {
-			const creationDate = new Date(asset.created_at)
-			return {
-				id: asset.id,
-				type: asset.file_type,
-				name: asset.title.split('.').shift(),
-				timestamp: creationDate,
-				thumb: _thumbnailUrl(asset.id, asset.file_type),
-				created: [creationDate.getMonth(), creationDate.getDate(), creationDate.getFullYear()].join('/'),
-				is_deleted: parseInt(asset.is_deleted) || asset.is_deleted === true
-			}
-		})
-
-		for (const asset of list) {
-			if (asset.id == selectedAsset) _loadPickedAsset(asset);
-		}
-
-		return list
-	}, [listOfAssets])
-
-	/****** hooks ******/
-
-	// Asset list, sorting, search filter, or show delete flag is updated
-	// Processes the list sequentially based on the state of each
-	useEffect(() => {
-		if (!assetList || !assetList.length) return
-
-		const allowed = _getAllowedFileTypes().map((type) => type.split('/')[1])
-
-		// first pass: filter out by allowed media types as well as deleted assets, if we're not displaying them
-		let listStageOne = assetList.filter((asset) => ((!showDeletedAssets && !asset.is_deleted) || showDeletedAssets) && allowed.indexOf(asset.type) != -1)
-
-		// second pass: filter assets based on search string, if present
-		let listStageTwo = filterSearch.length ? listStageOne.filter((asset) => asset.name.toLowerCase().match( filterSearch.toLowerCase() )) : listStageOne
-
-		// third and final pass: sort assets based on the currently selected sort method and direction
-		let listStageThree = sortState.sortAsc ?
-			listStageTwo.sort(SORT_OPTIONS[sortState.sortOrder].sortMethod) :
-			listStageTwo.sort(SORT_OPTIONS[sortState.sortOrder].sortMethod).reverse()
-
-		setSortAssets(
-			listStageThree.map((asset, index) => {
-				return (<AssetCard
-					name={asset.name}
-					thumb={asset.thumb}
-					created={asset.created_at}
-					type={asset.type}
-					asset={asset}
-					is_deleted={asset.is_deleted}
-					key={index}
-				/>)
-			})
-		)
-
-	}, [assetList, showDeletedAssets, filterSearch, sortState])
 
 	/****** internal helper functions ******/
 
@@ -302,6 +204,105 @@ const MediaImporter = () => {
 	if (assetLoadingProgress > 0 && assetLoadingProgress < 100) {
 		uploadingRender = <div className='loading-icon-holder'><LoadingIcon size='med'/><span className='progress'>{assetLoadingProgress}%</span></div>
 	}
+
+	// Tell the creator that the media importer is ready to receive a direct upload file, if there is one
+	useEffect(() => {
+		parent.postMessage(JSON.stringify({ type: 'readyForDirectUpload', source: 'media-importer', data: '' }), '*')
+	}, [])
+
+	const postMessageHandler = useCallback((e) => {
+		const origin = `${e.origin}/`
+		if (origin !== window.STATIC_CROSSDOMAIN && origin !== window.BASE_URL) return
+		const file = new File(
+			[e.data.buffer],
+			e.data.name,
+			{ type: e.data.type, lastModified: e.data.lastModified }
+		)
+		_upload(file)
+	}, [])
+
+	useEffect(() => {
+		window.addEventListener('message', postMessageHandler)
+		return () => window.removeEventListener('message', postMessageHandler)
+	})
+
+	const { data: listOfAssets, error: assetsError } = useQuery({
+		queryKey: ['media-assets', selectedAsset],
+		queryFn: () => apiGetAssets(),
+		retry: false,
+		staleTime: Infinity,
+	})
+
+	useEffect(() => {
+		if (!assetsError) return
+
+		switch (assetsError.status) {
+			case 401:
+				window.location.href = '/login'
+				break;
+			default:
+				setErrorState(assetsError.message)
+		}
+	}, [assetsError])
+
+	const assetList = useMemo(() => {
+		if (!listOfAssets) return {}
+
+		const list = listOfAssets.map(asset => {
+			const creationDate = new Date(asset.created_at)
+			return {
+				id: asset.id,
+				type: asset.file_type,
+				name: asset.title.split('.').shift(),
+				timestamp: creationDate,
+				thumb: _thumbnailUrl(asset.id, asset.file_type),
+				created: [creationDate.getMonth(), creationDate.getDate(), creationDate.getFullYear()].join('/'),
+				is_deleted: parseInt(asset.is_deleted) || asset.is_deleted === true
+			}
+		})
+
+		for (const asset of list) {
+			if (asset.id == selectedAsset) _loadPickedAsset(asset);
+		}
+
+		return list
+	}, [listOfAssets])
+
+	/****** hooks ******/
+
+	// Asset list, sorting, search filter, or show delete flag is updated
+	// Processes the list sequentially based on the state of each
+	useEffect(() => {
+		if (!assetList || !assetList.length) return
+
+		const allowed = _getAllowedFileTypes().map((type) => type.split('/')[1])
+
+		// first pass: filter out by allowed media types as well as deleted assets, if we're not displaying them
+		let listStageOne = assetList.filter((asset) => ((!showDeletedAssets && !asset.is_deleted) || showDeletedAssets) && allowed.indexOf(asset.type) != -1)
+
+		// second pass: filter assets based on search string, if present
+		let listStageTwo = filterSearch.length ? listStageOne.filter((asset) => asset.name.toLowerCase().match( filterSearch.toLowerCase() )) : listStageOne
+
+		// third and final pass: sort assets based on the currently selected sort method and direction
+		let listStageThree = sortState.sortAsc ?
+			listStageTwo.sort(SORT_OPTIONS[sortState.sortOrder].sortMethod) :
+			listStageTwo.sort(SORT_OPTIONS[sortState.sortOrder].sortMethod).reverse()
+
+		setSortAssets(
+			listStageThree.map((asset, index) => {
+				return (<AssetCard
+					name={asset.name}
+					thumb={asset.thumb}
+					created={asset.created_at}
+					type={asset.type}
+					asset={asset}
+					is_deleted={asset.is_deleted}
+					key={index}
+				/>)
+			})
+		)
+
+	}, [assetList, showDeletedAssets, filterSearch, sortState])
 
 	/****** internally defined components ******/
 

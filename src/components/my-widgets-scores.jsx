@@ -30,7 +30,7 @@ const MyWidgetsScores = ({inst, contexts, beardMode, setInvalidLogin}) => {
 				setInvalidLogin(true)
 				break
 			default:
-				setError((err.message || "Error") + ": Failed to retrieve scores.")
+				setError((currScoresError) + ": Failed to retrieve scores.")
 		}
 	}, [currScoresError])
 

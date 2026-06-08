@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { apiSetUserInstancePerms } from '../../util/api'
 
-export default function setUserInstancePerms() {
+export default function useSetUserInstancePerms() {
 	return useMutation(
 		{
 			mutationFn: apiSetUserInstancePerms,
