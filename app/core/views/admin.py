@@ -52,7 +52,7 @@ def user(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser or u.groups.filter(name="support_user"))
+@user_passes_test(lambda u: u.is_superuser)
 def site(request):
     context = ContextUtil.create(
         title="Site Admin",

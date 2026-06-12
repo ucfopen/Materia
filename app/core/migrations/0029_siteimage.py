@@ -3,6 +3,7 @@
 import os
 import shutil
 
+from django.conf import settings
 from django.db import migrations, models
 
 
@@ -12,9 +13,9 @@ def populate_default_profile_images(apps, schema_editor):
     """
     SiteImage = apps.get_model("core", "SiteImage")
 
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = settings.APP_PATH
     source_dir = os.path.join(
-        base_dir, "..", "..", "public", "img", "default", "profile_images"
+        base_dir, "staticfiles", "img", "default", "profile_images"
     )
     dest_dir = os.path.join(base_dir, "staticfiles", "site_img")
 
@@ -59,7 +60,7 @@ def remove_default_profile_images(apps, schema_editor):
     """
     Removes default images from the staticfiles/site_img directory.
     """
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = settings.APP_PATH
     dest_dir = os.path.join(base_dir, "staticfiles", "site_img")
 
     default_images = [
