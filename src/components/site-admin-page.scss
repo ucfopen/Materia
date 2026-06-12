@@ -49,6 +49,33 @@
 			}
 		}
 
+		nav {
+			display: flex;
+			flex-direction: row;
+			gap: 0.5em;
+
+			padding: 0.5em 0.5em 0 0.5em;
+			background: $light-gray;
+
+			a.nav_button {
+				display: inline-block;
+				padding: 0.5em 1em;
+
+				background: #fff;
+
+				color: #000;
+				font-weight: 400;
+				font-size: 0.9em;
+
+				border-top-left-radius: 0.5em;
+				border-top-right-radius: 0.5em;
+
+				&.selected {
+					border-bottom: solid 2px $color-features;
+				}
+			}
+		}
+
 		h2 {
 			margin: 15px;
 		}
@@ -69,7 +96,7 @@
 					border-bottom: none;
 				}
 
-				ul {
+				ul.profile-images {
 					display: flex;
 					flex-direction: row;
 					flex-wrap: wrap;
@@ -96,6 +123,61 @@
 					}
 				}
 
+				ul.site-messages {
+					display: flex;
+					flex-direction: column;
+					gap: 0.5em;
+					list-style-type: none;
+					margin: 0;
+					padding: 0;
+
+					li {
+						position: relative;
+						margin: 1.5em 0 1em 0;
+						padding: 0.5em 0.5em 0.5em 1em;
+						background: $very-light-gray;
+						border-radius: 0.5em;
+						border-top-left-radius: 0;
+
+						header {
+							position: absolute;
+							top: -2em;
+							left: 0;
+							height: 1em;
+							margin: 0;
+							padding: 0.5em 1em;
+
+							font-size: 0.8em;
+							font-weight: 700;
+
+							background: $very-light-gray;
+							border-top-left-radius: 0.5em;
+							border-top-right-radius: 0.5em;
+						}
+
+						h5 {
+							font-size: 1.1em;
+							font-weight: 400;
+							margin: 0.5em 0;
+							padding: 0;
+						}
+
+						span, dt {
+							font-size: 0.75em;
+							font-weight: 700;
+							margin-bottom: 0.5em;
+						}
+
+						dd {
+							margin: 0 0 0.5em 0;
+						}
+
+						button {
+							margin-top: 1em;
+						}
+					}
+				}
+
 				form {
 					display: flex;
 					justify-content: flex-start;
@@ -114,6 +196,42 @@
 					&.error {
 						font-weight: 700;
 						color: $color-red;
+					}
+				}
+
+				label {
+					font-size: 0.9em;
+					font-weight: 700;
+				}
+
+				// select.message_uploader_select {
+
+				// }
+
+				textarea.message_uploader_input {
+					display: block;
+					width: 90%;
+					min-height: 5em;
+					margin: 1em 10% 1em 0;
+					padding: 0.5em;
+
+					border: solid 1px $gray;
+					border-radius: 0.5em;
+
+					font-family: 'Lato', arial, sans-serif;
+				}
+
+				section.form-subsection {
+					display: flex;
+					flex-direction: column;
+					justify-content: flex-start;
+					align-items: flex-start;
+					gap: 0.5em;
+					width: 100%;
+					margin-bottom: 0.5em;
+
+					input.message_datetime {
+						display: block;
 					}
 				}
 			}

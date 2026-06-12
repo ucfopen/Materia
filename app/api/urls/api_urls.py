@@ -28,6 +28,7 @@ router.register(
 router.register(r"notifications", notifications.NotificationsViewSet)
 router.register(r"extra-attempts", extra_attempts.UserExtraAttemptsViewSet)
 router.register(r"site-images", site.SiteImageViewSet)
+router.register(r"site-messages", site.SiteMessageViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

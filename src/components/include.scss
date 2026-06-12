@@ -2,6 +2,7 @@
 $color-features: #0093e7;
 $color-features-active: #0357a5;
 $color-red: #ca3b3b;
+$color-red-bg: #eb5858;
 $color-yellow: #ffd439;
 $color-yellow-hover: #ffc904;
 $color-yellow-bg: #ffeca8;
@@ -47,6 +48,15 @@ body {
 body.darkMode {
 	color: #fff;
 	background-color: $color-background-dark;
+}
+
+section,
+header,
+nav,
+article,
+aside,
+footer {
+	display: block;
 }
 
 .action_button {
@@ -146,14 +156,18 @@ a {
 }
 
 header {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: flex-end;
 	position: relative;
 	z-index: 1000;
 
-	padding: 35px 0 0 136px;
+	// padding: 35px 0 0 136px;
 	margin: 0 0 25px 0;
-	display: block;
 
-	height: 49px;
+	// height: 49px;
 
 	&.logged_in {
 		background: #fff url(/static/img/header_border_alt.png) 0% 100% repeat-x;
@@ -166,11 +180,9 @@ header {
 	}
 
 	h1.logo {
-		position: absolute;
-		left: 0;
-		top: 0;
+		display: inline-block;
 		margin: 0;
-		overflow: hidden;
+		padding: 0;
 
 		a {
 			display: block;
@@ -183,19 +195,44 @@ header {
 		}
 	}
 
+	section.site-notification, section.site-alert {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 0.5em;
+		width: calc(100vw - 3em);
+		padding: 1em 1em 1em 2em;
+
+		font-weight: 400;
+	}
+
+	section.site-notification {
+		background: $color-yellow-bg;
+	}
+
+	section.site-alert {
+		color: #fff;
+		background: $color-red-bg;
+
+		img {
+			filter: invert(1);
+		}
+	}
+
+
 	&#loginLink {
 		top: auto;
 	}
 
 	.profile-bar
 	{
-		position: absolute;
-		top: 40px;
-		right: 30px;
 		display: flex;
 		flex-direction: row;
 		gap: 10px;
-		font-size: 14px;
+
+		margin-left: auto;
+		margin-right: 1em;
+		font-size: 1em;
 
 		.profile-bar-options
 		{
@@ -304,7 +341,7 @@ header {
 
 	nav {
 		display: block;
-		margin-top: 16px;
+		margin-right: auto;
 
 		ul {
 			li {
@@ -361,18 +398,41 @@ header {
 			background-color: #ffffff;
 			padding: 15px 15px;
 			position: absolute;
-			top: 100%;
-			left: 0;
+			top: calc(100% + 1px);
+			left: calc(-0.5em - 1px);
 			border: 1px solid #d3d3d3;
 			border-radius: 5px;
+			border-top-left-radius: 0;
 			margin-top: 5px;
 			gap: 15px;
 			box-shadow: 0 0 5px rgba(0,0,0,0.1);
+
+			&:before {
+				content: '';
+				position: absolute;
+				height: calc(1em + 10px);
+				top: calc(-1em - 11px - 0.5em);
+				left: -1px;
+				padding: 0.5em 0.5em 0 0.5em;
+				color: #ffa52b;
+				background-color: #fff;
+				border: 1px solid #d3d3d3;
+				border-top-left-radius: 5px;
+				border-top-right-radius: 5px;
+				border-bottom: none;
+			}
+		}
+
+		&.support ul:before {
+			content: 'Support';
+		}
+
+		&.admin ul:before {
+			content: 'Admin';
 		}
 
 		&:hover > span {
 			display: inline-block;
-			height: 27px;
 
 			&.admin {
 				padding-right: 165px;
@@ -391,7 +451,6 @@ header {
 				display: flex;
 				padding: 0;
 				align-items: center;
-				height: 20px;
 
 				a {
 					text-wrap: nowrap;
@@ -765,24 +824,23 @@ header {
 	header {
 		min-height: 49px;
 		height: auto;
-		// overflow: hidden;
 		padding: 0;
-		margin-bottom: 8px;
+		margin-bottom: 1em;
 
 		h1.logo {
 			display: inline-block;
 			position: static;
+			align-self: flex-start;
 		}
 
 		// mobile hamburger menu
 		#mobile-menu-toggle {
 			display: block;
-			position: absolute;
-			right: 15px;
-			top: 30px;
 			height: 35px;
 			width: 37px;
 			border: none;
+			margin-bottom: 3px;
+			margin-right: 0.5em;
 			padding: 2px 5px;
 			border-radius: 3px;
 			text-align: left;
@@ -792,14 +850,6 @@ header {
 			cursor: pointer;
 
 			&.expanded {
-				~ nav {
-					visibility: visible;
-					max-height: 175px;
-					margin-bottom: 25px;
-					opacity: 1;
-					width: 100%;
-					box-sizing: border-box;
-				}
 
 				div {
 					transform: rotate(50deg) translate(6px, -8px);
@@ -844,9 +894,9 @@ header {
 		}
 
 		.profile-bar {
-			gap: 20px;
-			right: 75px;
-			top: 30px;
+			height: 40px;
+			align-items: center;
+			margin: 0 0.5em 0 0;
 
 			.desktop-notifications {
 				display: none;
@@ -870,12 +920,16 @@ header {
 		}
 
 		nav {
-			visibility: hidden;
+			position: relative;
+			left: 80px;
+			display: grid;
+			grid-template-rows: 0fr;
+			overflow: hidden;
 			opacity: 0;
-			max-height: 0;
+			margin: 1em 0 45px auto;
 			padding: 0 20px;
 			text-align: right;
-			transition: all ease 500ms;
+			transition: grid-template-rows 500ms ease, opacity 250ms ease;
 
 			ul {
 				li {
@@ -883,10 +937,16 @@ header {
 					padding: 5px;
 
 					&.nav_expandable {
-						&:hover ul li {
-							display: inline-block;
-							padding: 0 10px 5px;
-							height: auto;
+
+						&:hover {
+							ul {
+								display: block;
+
+								li {
+									display: block;
+									padding: 5px;
+								}
+							}
 						}
 
 						&:hover > span {
@@ -900,19 +960,37 @@ header {
 						}
 
 						ul {
-							top: 0;
-							bottom: 0;
-							right: 75px;
-							left: auto;
-							border-bottom: none;
-							border-left: none;
-							padding: 5px;
+							position: static;
+							display: block;
+							padding: 0 0 0 15px;
+							box-shadow: none;
+							border: none;
+
+							&:before {
+								display: none;
+							}
+
+							&:hover {
+								position: static;
+								display: block;
+
+								li {
+									display: block;
+									padding: 5px;
+								}
+							}
+							// top: 0;
+							// bottom: 0;
+							// right: 75px;
+							// left: auto;
+							// border-bottom: none;
+							// border-left: none;
+							// padding: 5px;
 						}
 					}
 
 					.logout a {
 						display: inline;
-						font-size: 17px;
 						position: static;
 					}
 
@@ -924,7 +1002,21 @@ header {
 					}
 				}
 			}
+
 		}
+
+		nav > ul {
+			min-height: 0;
+			overflow: hidden;
+		}
+
+		nav:has(~ .expanded) {
+			grid-template-rows: 1fr;
+			opacity: 1;
+			padding-bottom: 10px;
+			// margin-bottom: 40px;
+		}
+
 		.notifContainer
 		{
 			position: static;
@@ -949,9 +1041,6 @@ header {
 		}
 
 		#loginLink {
-			top: 7.5px;
-			position: absolute;
-			right: 0;
 		}
 	}
 }
@@ -1007,23 +1096,23 @@ nav {
 	}
 }
 
-h1.logo {
-	position: absolute;
-	left: 0;
-	top: 0;
-	margin: 0;
-	overflow: hidden;
+// h1.logo {
+// 	position: absolute;
+// 	left: 0;
+// 	top: 0;
+// 	margin: 0;
+// 	overflow: hidden;
 
-	a {
-		display: block;
-		width: 100px;
-		height: 0;
-		padding: 60px 0 0 10px;
-		margin: 10px 0 0 10px;
-		background: url('/static/img/materia-logo-default-lightmode.svg') 50% 100% no-repeat;
-		background-size: 80px auto;
-	}
-}
+// 	a {
+// 		display: block;
+// 		width: 100px;
+// 		height: 0;
+// 		padding: 60px 0 0 10px;
+// 		margin: 10px 0 0 10px;
+// 		background: url('/static/img/materia-logo-default-lightmode.svg') 50% 100% no-repeat;
+// 		background-size: 80px auto;
+// 	}
+// }
 
 .darkMode h1.logo {
 	a {
@@ -1104,15 +1193,6 @@ h1.logo {
 			background: #21232a;
 		}
 	}
-}
-
-section,
-header,
-nav,
-article,
-aside,
-footer {
-	display: block;
 }
 
 .cancel_button {
