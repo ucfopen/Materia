@@ -3,9 +3,11 @@ $color-features: #0093e7;
 $color-features-active: #0357a5;
 $color-red: #ca3b3b;
 $color-red-bg: #eb5858;
+$color-red-bg-dark: #8d0808;
 $color-yellow: #ffd439;
 $color-yellow-hover: #ffc904;
 $color-yellow-bg: #ffeca8;
+$color-yellow-bg-dark: #8c6e04;
 $color-orange: #ffba5d;
 $color-green: #c5dd60;
 $color-purple: #b944cc;
@@ -421,6 +423,10 @@ header {
 				border-top-right-radius: 5px;
 				border-bottom: none;
 			}
+
+			li a {
+				border-bottom: solid 2px rgba(0,0,0,0);
+			}
 		}
 
 		&.support ul:before {
@@ -449,11 +455,11 @@ header {
 
 			li {
 				display: flex;
-				padding: 0;
 				align-items: center;
 
 				a {
 					text-wrap: nowrap;
+					padding: 0;
 				}
 			}
 		}
@@ -817,6 +823,19 @@ header {
 			color: red;
 		}
 	}
+
+	section.site-notification {
+		color: #fff;
+		background: $color-yellow-bg-dark;
+
+		img {
+			filter: invert(1);
+		}
+	}
+
+	section.site-alert {
+		background: $color-red-bg-dark;
+	}
 }
 
 // mobile header
@@ -1040,8 +1059,6 @@ header {
 			display: none;
 		}
 
-		#loginLink {
-		}
 	}
 }
 
