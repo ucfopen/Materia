@@ -1601,4 +1601,8 @@ def create_user_settings(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_settings(sender, instance, **kwargs):
-    instance.profile_settings.save()
+    try:
+        instance.profile_settings.save()
+    except UserSettings.DoesNotExist:
+        settings = UserSettings.objects.create(user=instance)
+        settings.initialize_profile_fields()
