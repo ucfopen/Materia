@@ -707,7 +707,12 @@ class Notification(models.Model):
         )
 
         # Send email, if not sent already
-        self.send_email()
+        try:
+            self.send_email()
+        except Exception:
+            logger.error(
+                "Failed to send email for user %s:", self.to_id.id, exc_info=True
+            )
 
     @classmethod
     def create_instance_notification(
