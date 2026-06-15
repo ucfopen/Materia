@@ -152,7 +152,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["put"])
+    @action(detail=True, methods=["patch"])
     def profile_fields(self, request, pk=None):
         user = self.get_object()
         serializer = UserMetadataSerializer(data=request.data)
@@ -164,11 +164,6 @@ class UserViewSet(viewsets.ModelViewSet):
             profile_fields = user_profile.get_profile_fields()
             for key, value in validated.items():
                 profile_fields[key] = value
-
-                # if key == "darkMode":
-                #     cache_key = f'user_dark_mode_{request.user.id}'
-                #     logger.error(f"located darkMode key for user {request.user.id} and deleting cache !!!")
-                #     cache.delete(cache_key)
 
             user_profile.profile_fields = profile_fields
             user_profile.save()

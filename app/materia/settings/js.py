@@ -22,6 +22,7 @@ JS_GROUPS = {
     "media": [JS_BASEURL + "media.js"],
     "widget_admin": [JS_BASEURL + "widget-admin.js"],
     "user_admin": [JS_BASEURL + "user-admin.js"],
+    "site_admin": [JS_BASEURL + "site-admin.js"],
     "instance_admin": [JS_BASEURL + "support.js"],
     "no-permission": [JS_BASEURL + "no-permission.js"],
     "no-attempts": [JS_BASEURL + "no-attempts.js"],

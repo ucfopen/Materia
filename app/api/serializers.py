@@ -15,6 +15,7 @@ from core.models import (
     Lti,
     Notification,
     ObjectPermission,
+    SiteImage,
     UserExtraAttempts,
     UserSettings,
     Widget,
@@ -112,12 +113,16 @@ class UserMetadataSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError("User ID invalid.")
 
-        valid_keys = ["useGravatar", "notify", "theme", "beardMode"]
+        valid_keys = ["useGravatar", "profileImage", "notify", "theme", "beardMode"]
 
         for key, value in data["profile_fields"].items():
             if key not in valid_keys:
                 raise serializers.ValidationError(
                     f"Invalid profile field provided: {key}"
+                )
+            if key == "profileImage" and not isinstance(value, int):
+                raise serializers.ValidationError(
+                    f"Invalid value for {key}, must be integer."
                 )
             if key == "theme" and value not in ["dark", "light", "os"]:
                 raise serializers.ValidationError(
@@ -875,3 +880,71 @@ class PlayStorageSaveSerializer(serializers.Serializer):
         queryset=LogPlay.objects.all(), required=True
     )
     logs = serializers.JSONField()
+
+
+class SiteImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(write_only=True, required=True)
+    image_type = serializers.ChoiceField(
+        choices=SiteImage.ImageType.choices, required=True
+    )
+
+    class Meta:
+        model = SiteImage
+        fields = ["id", "image_type", "image_path", "image"]
+        read_only_fields = ["id", "image_path"]
+
+    def create(self, validated_data):
+        import os
+        import uuid
+
+        from django.conf import settings
+        from PIL import Image
+
+        image_file = validated_data.pop("image")
+        image_type = validated_data.get("image_type")
+
+        ext = os.path.splitext(image_file.name)[1]
+        filename = f"{image_type.lower()}_{uuid.uuid4()}{ext}"
+
+        site_images_dir = settings.DIRS.get(
+            "site_images", os.path.join(settings.BASE_DIR, "staticfiles", "site_img")
+        )
+        os.makedirs(site_images_dir, exist_ok=True)
+
+        file_path = os.path.join(site_images_dir, filename)
+
+        # Resize profile images to max 960px on any side
+        if image_type == SiteImage.ImageType.PROFILE_IMAGE:
+            img = Image.open(image_file)
+
+            # Convert RGBA to RGB if necessary (for JPEG compatibility)
+            if img.mode in ("RGBA", "LA", "P"):
+                background = Image.new("RGB", img.size, (255, 255, 255))
+                background.paste(
+                    img, mask=img.split()[-1] if img.mode == "RGBA" else None
+                )
+                img = background
+
+            max_dimension = 640
+            width, height = img.size
+
+            if width > max_dimension or height > max_dimension:
+                if width > height:
+                    new_width = max_dimension
+                    new_height = int((max_dimension / width) * height)
+                else:
+                    new_height = max_dimension
+                    new_width = int((max_dimension / height) * width)
+
+                img = img.resize((new_width, new_height), Image.LANCZOS)
+
+            img.save(file_path, quality=90, optimize=True)
+        else:
+            # Save the file as-is for non-profile images
+            with open(file_path, "wb+") as destination:
+                for chunk in image_file.chunks():
+                    destination.write(chunk)
+
+        validated_data["image_path"] = f"/site_img/{filename}"
+
+        return super().create(validated_data)
