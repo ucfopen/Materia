@@ -925,7 +925,7 @@ class SiteImageSerializer(serializers.ModelSerializer):
                 )
                 img = background
 
-            max_dimension = 960
+            max_dimension = 640
             width, height = img.size
 
             if width > max_dimension or height > max_dimension:
