@@ -635,4 +635,12 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         instance.is_deleted = False
         instance.save()
 
+        for shared_user_perm in instance.permissions.all():
+            Notification.create_instance_notification(
+                from_user=self.request.user,
+                to_user=shared_user_perm.user,
+                instance=instance,
+                mode="restored",
+            )
+
         return Response({"success": True})

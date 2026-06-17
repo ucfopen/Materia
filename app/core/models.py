@@ -762,6 +762,8 @@ class Notification(models.Model):
                     f"The widget is currently being used within a course in your LMS."
                 )
                 action = "access_request"
+            case "restored":
+                content = f"{user_link} restored {widget_type} widget '{widget_name}'."
             case _:
                 return None
 
