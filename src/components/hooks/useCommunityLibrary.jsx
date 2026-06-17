@@ -15,7 +15,8 @@ import {
 } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
-export function useCommunityLibraryList(search, widgetId, category, courseLevel, sort, tags) {
+export function useCommunityLibraryList(search, widgetId, categories, courseLevel, sort, tags) {
+	
 	const formatData = (list) => {
 		if (list?.pages) {
 			return list.pages.flatMap((page) =>
@@ -30,13 +31,13 @@ export function useCommunityLibraryList(search, widgetId, category, courseLevel,
 
 	const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
 		useInfiniteQuery({
-			queryKey: ['community-library', search, widgetId, category, courseLevel, sort, tags],
+			queryKey: ['community-library', search, widgetId, categories, courseLevel, sort, tags],
 			queryFn: ({ pageParam = 1 }) =>
 				apiGetCommunityLibrary({
 					pageParam,
 					search,
 					widgetId,
-					category,
+					categories,
 					courseLevel,
 					sort,
 					tags

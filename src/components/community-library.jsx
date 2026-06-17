@@ -11,7 +11,7 @@ import useDebounce from './hooks/useDebounce'
 import './community-library.scss'
 
 const CATEGORIES = [
-	{ value: '', label: 'All Categories' },
+	// { value: '', label: 'All Categories' },
 	{ value: 'math', label: 'Math' },
 	{ value: 'science', label: 'Science' },
 	{ value: 'english', label: 'English' },
@@ -46,7 +46,9 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	const [searchInput, setSearchInput] = useState('')
 	const [finallInput, setFinalInput] = useState('')
 	const [selectedWidgetType, setSelectedWidgetType] = useState('')
-	const [selectedCategory, setSelectedCategory] = useState('')
+
+	const [selectedCategories, setSelectedCategories] = useState(new Set([]))
+
 	const [selectedCourseLevel, setSelectedCourseLevel] = useState('')
 	const [sortBy, setSortBy] = useState('newest')
 	const [reportingEntry, setReportingEntry] = useState(null)
@@ -81,7 +83,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		useCommunityLibraryList(
 			searchText,
 			selectedWidgetType,
-			selectedCategory,
+			[...selectedCategories],
 			selectedCourseLevel,
 			sortBy,
 			tagList
@@ -137,7 +139,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 
 	const featuredEntries = useMemo(() => entries.filter((e) => e.featured), [entries])
 
-	const isFiltered = searchText || selectedWidgetType || selectedCategory || selectedCourseLevel
+	const isFiltered = searchText || selectedWidgetType || selectedCategories.size > 0 || selectedCourseLevel
 
 	const widgetTypeOptions = useMemo(() => {
 		if (!widgets.length) return []
@@ -182,7 +184,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 						onClick={() => {
 							clearSearch()
 							setSelectedWidgetType('')
-							setSelectedCategory('')
+							setSelectedCategories(new Set([]))
 							setSelectedCourseLevel('')
 							document.getElementById("filter-form").reset();
 						}}
@@ -316,7 +318,6 @@ const CommunityLibrary = ({ widgets = [] }) => {
 				<section className="page">
 					<div className="top">
 						<h1>Community Library</h1>
-						<h3>This is a somewhat detailed description of the Community Library.</h3>
 					</div>
 
 					<div className='row'>
@@ -338,7 +339,15 @@ const CommunityLibrary = ({ widgets = [] }) => {
 								<div className='col small-labels'>
 									{CATEGORIES.map((v,i)=> {
 										return(<div className='row' key={`cat${i}`}>
-											<input defaultChecked={v.value == ""} type='radio' name='discipline' value={v.value} id={`${v.value == "" ? "all" : v.value}-cat-check`} onChange={(e) => setSelectedCategory(e.target.value)}/>
+											<input defaultChecked={v.value == ""} type='checkbox' name='discipline' value={v.value} id={`${v.value == "" ? "all" : v.value}-cat-check`} 
+											onChange={(e) => {
+												if(e.target.checked)
+													selectedCategories.add(e.target.value)
+												else selectedCategories.delete(e.target.value)
+
+												setSelectedCategories(new Set([...selectedCategories]))
+											}}
+											/>
 											<label htmlFor={`${v.value == "" ? "all" : v.value}-cat-check`}>{v.label}</label>										
 										</div>)
 									})}

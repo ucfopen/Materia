@@ -103,9 +103,9 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             qs = qs.filter(instance__widget_id=widget_id)
 
         # Filter by category
-        category = self.request.query_params.get("category")
-        if category:
-            qs = qs.filter(category=category)
+        categories = self.request.query_params.getlist("category")
+        if categories:
+            qs = qs.filter(category__in=categories)
 
         # Filter by course level
         course_level = self.request.query_params.get("course_level")
