@@ -9,6 +9,7 @@ import {
 } from './hooks/useCommunityLibrary'
 import useDebounce from './hooks/useDebounce'
 import './community-library.scss'
+import CommunityLibraryDashboard from './community-library-dashboard'
 
 const CATEGORIES = [
 	// { value: '', label: 'All Categories' },
@@ -81,12 +82,14 @@ const CommunityLibrary = ({ widgets = [] }) => {
 
 	const { entries, isFetching, isFetchingNextPage, hasNextPage, fetchNextPage } =
 		useCommunityLibraryList(
+			null,
 			searchText,
 			selectedWidgetType,
 			[...selectedCategories],
 			selectedCourseLevel,
 			sortBy,
-			tagList
+			tagList,
+			false
 		)
 
 	const defEntries = useDeferredValue(entries)
@@ -146,27 +149,6 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		return widgets.filter((w) => w.in_catalog).sort((a, b) => a.name.localeCompare(b.name))
 	}, [widgets])
 
-	let featuredRender = null
-	if (!isFiltered && featuredEntries.length > 0) {
-		featuredRender = (
-			<div className="featured-section">
-				<h2 className="section-label">Featured</h2>
-				<div className="entries-grid featured">
-					{featuredEntries.map((entry) => (
-						<CommunityLibraryCard
-							key={entry.id}
-							entry={entry}
-							onCopy={handleCopy}
-							onLike={handleLike}
-							onReport={handleReport}
-							copySuccess={copySuccess === entry.id}
-						/>
-					))}
-				</div>
-			</div>
-		)
-	}
-
 	let contentRender = null
 	if (isFetching && entries.length === 0) {
 		contentRender = (
@@ -204,10 +186,6 @@ const CommunityLibrary = ({ widgets = [] }) => {
 						<CommunityLibraryCard
 							key={entry.id}
 							entry={entry}
-							onCopy={handleCopy}
-							onLike={handleLike}
-							onReport={handleReport}
-							copySuccess={copySuccess === entry.id}
 							highlightedTags={tagList.filter((v, i)=>(entry.tags ?? []).includes(v))}
 						/>
 					))}
@@ -339,7 +317,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 								<div className='col small-labels'>
 									{CATEGORIES.map((v,i)=> {
 										return(<div className='row' key={`cat${i}`}>
-											<input defaultChecked={v.value == ""} type='checkbox' name='discipline' value={v.value} id={`${v.value == "" ? "all" : v.value}-cat-check`} 
+											<input defaultChecked={v.value == ""} checked={selectedCategories.has(v.value)} type='checkbox' name='discipline' value={v.value} id={`${v.value == "" ? "all" : v.value}-cat-check`} 
 											onChange={(e) => {
 												if(e.target.checked)
 													selectedCategories.add(e.target.value)
@@ -422,7 +400,8 @@ const CommunityLibrary = ({ widgets = [] }) => {
 										</button>
 									}
 								</div>
-
+								
+								{ isFiltered && 
 								<div className="filters">
 									<div className='sublabel'>Showing <b>{entries.length}</b> widgets</div>
 									<div>
@@ -436,10 +415,16 @@ const CommunityLibrary = ({ widgets = [] }) => {
 										</select>
 									</div>
 								</div>
+								}
 							</div>
-
-							{featuredRender}
-							{contentRender}
+							{
+								!isFiltered ?
+								<CommunityLibraryDashboard setCategories={setSelectedCategories}/>
+								:
+								<>
+								{contentRender}
+								</>
+							}
 						</div>
 					</div>
 				</section>

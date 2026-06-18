@@ -134,6 +134,10 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         else:
             qs = qs.order_by("-created_at")
 
+        limit = self.request.query_params.get("limit")
+        if limit:
+            qs = qs.all()[:int(limit)]
+
         return qs
 
     def get_permissions(self):

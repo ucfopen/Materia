@@ -8,7 +8,7 @@ const HEART_OUTLINE =
 const FLAG_ICON = 'M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z'
 const COPY_PATH = "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
 
-const CommunityLibraryCard = ({ entry, onCopy, onLike, onReport, copySuccess = false, highlightedTags = [] }) => {
+const CommunityLibraryCard = ({ entry, highlightedTags = [], skinFeatured = false }) => {
 	const {
 		instance_id,
 		instance_name,
@@ -23,8 +23,43 @@ const CommunityLibraryCard = ({ entry, onCopy, onLike, onReport, copySuccess = f
 		latest_snapshot_id,
 	} = entry
 
+	if(skinFeatured)
 	return (
-		<div className={`library-card ${featured ? 'featured' : 'animate'}`}>
+		<div className={`featured-card`}>
+			<a href={`/community-library/${entry.id}/`} className="card-header">
+				<div className='banner'></div>
+				<div className="img-holder">
+					<img src={iconUrl('/widget/', widget?.dir, 92)} alt={widget?.name} />
+				</div>
+				<div className="card-content">
+					
+					<h3>{instance_name}</h3>
+					<p className="owner">by {owner_display_name != "" ? owner_display_name : "Unknown"}</p>
+					{category_display && <div className="badge category">{category_display}</div>}
+					
+					<div className='badges'>
+						{entry.tags.length >= 1 && <>
+						{highlightedTags.map((ht, i) => {
+							if(i >= 2) return
+							return (<span className={`badge highlighted`}>#{ht}</span>)
+						})}
+						{entry.tags.map((t, i)=>{
+							if(i >= 2 - highlightedTags.length) return
+							const highlighted = highlightedTags.includes(t)
+							if(!highlighted) {
+								return (<span className={`badge`}>#{t}</span>)
+							}
+						})}
+						<span className='tiny-text'>{entry.tags.length > 2 ? `+${entry.tags.length-2}` : ""}</span>
+						</>}
+					</div>
+				</div>
+			</a>
+		</div>
+	)
+
+	return (
+		<div className={`library-card animate`}>
 			<a href={`/community-library/${entry.id}/`} className="card-header">
 				<div className="img-holder">
 					<img src={iconUrl('/widget/', widget?.dir, 275)} alt={widget?.name} />
@@ -60,7 +95,7 @@ const CommunityLibraryCard = ({ entry, onCopy, onLike, onReport, copySuccess = f
 				</div>
 				<div className='badges'>
 					
-					<span className="copy-count">
+					<span className="copy-count" aria-label={`${copy_count} copies`}>
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 							<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
 							<path d={COPY_PATH} />
@@ -68,12 +103,11 @@ const CommunityLibraryCard = ({ entry, onCopy, onLike, onReport, copySuccess = f
 						{copy_count}
 					</span>
 					<button
-						className={`like-btn ${user_has_liked ? 'liked' : ''}`}
-						onClick={() => onLike(entry.id)}
-						aria-label={user_has_liked ? 'Unlike this widget' : 'Like this widget'}
+						className={`like-btn`}
+						aria-label={`${like_count} likes`}
 					>
 						<svg viewBox="0 0 24 24" width="16" height="16">
-							<path d={user_has_liked ? HEART_FILLED : HEART_OUTLINE} />
+							<path d={HEART_FILLED} />
 						</svg>
 						<span>{like_count}</span>
 					</button>

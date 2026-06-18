@@ -800,9 +800,11 @@ export const readFromStorage = () => {
 	}, [])
 }
 
-export const apiGetCommunityLibrary = ({ pageParam = 1, search = '', widgetId = '', categories = [], courseLevel = '', sort = 'newest', tags = [] }) => {
+export const apiGetCommunityLibrary = ({ pageParam = 1, limit = null, search = '', widgetId = '', categories = [], courseLevel = '', sort = 'newest', tags = [], featuredOnly = false }) => {
 	let url = `/api/community-library/?page=${pageParam}`
+	if (limit) url += `&limit=${limit}`
 	if (search) url += `&search=${encodeURIComponent(search)}`
+	if (featuredOnly) url += `&featured=true`
 	if (widgetId) url += `&widget_id=${widgetId}`
 	// if (category) url += `&category=${category}`
 	if (categories && categories.length > 0) {
