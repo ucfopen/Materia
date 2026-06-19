@@ -67,6 +67,9 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	// stores which tag in the dropdown is "focused"
 	const [focusedTag, setFocusedTag] = useState(-1)
 
+	// only works on mobile screen sizes
+	const [showSidebar, setShowSidebar] = useState(false)
+
 	const searchText = useDebounce(finallInput, 500)
 	const inputElement = document.getElementById("searchinput")
 	const assertiveRegion = document.getElementById("searchinput")
@@ -302,8 +305,11 @@ const CommunityLibrary = ({ widgets = [] }) => {
 					</div>
 
 					<div className='row'>
-						<form id="filter-form" className='sidebar'>
+						<form id="filter-form" className={`sidebar ${showSidebar ? 'show' : ''}`}>
 							<div className='row filter-cont'>
+								<button type="button" className='filter-button' onClick={()=>setShowSidebar(!showSidebar)}>
+									<div className='close-icon'></div>
+								</button>
 								<h3>FILTERS</h3>
 								<button aria-label='Reset Filters' type='button' onClick={()=>clearFilters()}>
 									<div className='rotate-icon'></div>
@@ -339,7 +345,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 									})}
 								</div>
 							</details>
-							<details open>
+							<details>
 								<summary>Widget Engine</summary>
 								<div className='col small-labels'>
 									<div className='row'>
@@ -357,64 +363,69 @@ const CommunityLibrary = ({ widgets = [] }) => {
 						</form>
 						<div className='content'>
 							<div className="controls">
-								<div className="search-bar">
-									<div className="search-icon"><svg viewBox="0 0 250.313 250.313"><path d={`${GLASS_PATH}`} clipRule="evenodd" fillRule="evenodd"></path></svg></div>
-									<div className='search-tags'>
-										{tagList.map((v,i)=>(
-											<div role='button' key={`tag_${i}`} tabIndex={0} 
-											aria-label={`#${v}: tag in search list. Press Enter to remove.`} className='tag'
-											onKeyDown={(e)=>{
-												if(e.key === "Enter") {
+								<div className='row'>
+									<button type="button" className='filter-button' onClick={()=>setShowSidebar(!showSidebar)}>
+										<div className='filter-icon'></div>
+									</button>
+									<div className="search-bar">
+										<div className="search-icon"><svg viewBox="0 0 250.313 250.313"><path d={`${GLASS_PATH}`} clipRule="evenodd" fillRule="evenodd"></path></svg></div>
+										<div className='search-tags'>
+											{tagList.map((v,i)=>(
+												<div role='button' key={`tag_${i}`} tabIndex={0} 
+												aria-label={`#${v}: tag in search list. Press Enter to remove.`} className='tag'
+												onKeyDown={(e)=>{
+													if(e.key === "Enter") {
+														tagList.splice(i, 1)
+														inputElement.focus()
+														setTagList([...tagList])
+													}
+												}}
+												onClick={()=>{
 													tagList.splice(i, 1)
-													inputElement.focus()
 													setTagList([...tagList])
-												}
-											}}
-											onClick={()=>{
-												tagList.splice(i, 1)
-												setTagList([...tagList])
-												inputElement.focus()
-											}}>{v}</div>
-										))}
-									</div>
-									{tempTag != "" && 
-											
-										<div className='tag-dropdown'>
-										{
-											!defTags ? <div className='notice'>Loading...</div>
-											: 
-											defTags.length == 0 && status == "success" ?
-											<div className='notice'>No tags found.</div>
-											:
-											defTags.map((t,i)=>{
-												return <button 
-												className={`drop-entry ${i == focusedTag ? 'selected' : ''}`}
-												key={`dropdown_tag_${i}`}
-												onClick={()=>(enterTag(t.name))}>
-													<div>#{t.name}</div>
-													<div className='used-count'>{t.used_count}</div>
-												</button>
-											})
+													inputElement.focus()
+												}}>{v}</div>
+											))}
+										</div>
+										{tempTag != "" && 
+												
+											<div className='tag-dropdown'>
+											{
+												!defTags ? <div className='notice'>Loading...</div>
+												: 
+												defTags.length == 0 && status == "success" ?
+												<div className='notice'>No tags found.</div>
+												:
+												defTags.map((t,i)=>{
+													return <button 
+													className={`drop-entry ${i == focusedTag ? 'selected' : ''}`}
+													key={`dropdown_tag_${i}`}
+													onClick={()=>(enterTag(t.name))}>
+														<div>#{t.name}</div>
+														<div className='used-count'>{t.used_count}</div>
+													</button>
+												})
+											}
+											</div>	
 										}
-										</div>	
-									}
-									<input
-										type="text"
-										id='searchinput'
-										autoComplete='off'
-										placeholder="Search widgets by title, author, or #tag..."
-										value={searchInput}
-										onChange={handleSearch}
-										onKeyDown={handleSearchEnter}
-									/>
-									{searchInput && <button className="search-close" onClick={clearSearch} />}
-									{
-										tempTag == "" &&
-										<button className='add-tag'
-										onClick={triggerTagMenu}>
-											<b>+</b> add new tag
-										</button>
-									}
+										<input
+											type="text"
+											id='searchinput'
+											autoComplete='off'
+											placeholder="Search widgets by title, author, or #tag..."
+											value={searchInput}
+											onChange={handleSearch}
+											onKeyDown={handleSearchEnter}
+										/>
+										{searchInput && <button className="search-close" onClick={clearSearch} />}
+										{
+											tempTag == "" &&
+											<button className='add-tag'
+											onClick={triggerTagMenu}>
+												<b>+</b> add new tag
+											</button>
+										}
+									</div>
 								</div>
 								
 								{ isFiltered && 
