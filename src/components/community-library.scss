@@ -139,8 +139,41 @@
 			margin: 0;
 			color: #333;
 			font-size: 14px;
+			height: fit-content;
+		}
+
+		.row.filter-cont {
+			justify-content: space-between;
 			border-bottom: 1px solid #e4e4e4;
 			padding-bottom: 8px;
+			align-items: center;
+
+			button {
+				background-color: transparent;
+				border: none;
+				cursor: pointer;
+				padding: 0;
+				margin: auto 0;
+				height: fit-content;
+				width: 20px;
+				height: 20px;
+
+				transition: scale 300ms ease;
+				&:hover, &:focus-visible {
+					scale: 0.95;
+				}
+
+				&:active {
+					scale: 0.85;
+				}
+				
+				div.rotate-icon {
+					width: 100%;
+					height: 100%;
+					mask: url("/img/rotate-cw.svg") no-repeat center / 20px;
+					background-color: #333;
+				}
+			}
 		}
 	}
 
@@ -403,8 +436,9 @@
 	}
 
 	.entries-grid {
-		display: flex;
-		flex-wrap: wrap;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+		// flex-wrap: wrap;
 		gap: 15px;
 		padding: 15px 24px;
 
@@ -443,12 +477,16 @@
 	}
 
 	.library-card {
-		width: 335px;
+		min-width: 370px;
+		// max-width: 600px;
+		box-sizing: border-box;
 		border: 1px solid #e4e4e4;
 		border-radius: 6px;
 		overflow: hidden;
 		transition: box-shadow 0.2s;
 		background-color: #fff;
+		flex-shrink: 0;
+		flex-grow: 1;
 
 		padding: 20px 16px;
 
@@ -605,6 +643,8 @@
 			border-radius: 4px;
 			color: #EC003F;
 			font-family: "Lato", Arial, sans-serif;
+			font-size: 13px;
+			font-weight: 400;
 
 			svg {
 				fill: currentColor;
@@ -846,6 +886,14 @@
 			gap: 32px;
 			margin-bottom: 8px;
 
+			.none-found {
+				color: #666;
+				text-align: center;
+				font-weight: 400;
+				margin: 16px 0 48px 0;
+				font-style: italic;
+			}
+
 			.see-all {
 				font-size: 14px;
 				font-weight: 400;
@@ -873,12 +921,12 @@
 			}
 
 			.content {
-				display: flex;
-				flex-direction: row;
-				// grid-template-columns: repeat(2, minmax(1fr, 0));
-				gap: 24px;
-
-				overflow-x: hidden;
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+				// grid-auto-rows: 160px;
+				// grid-auto-flow: column;
+				gap: 15px;
+				
 			}
 
 			.content-container {
@@ -889,7 +937,16 @@
 				}
 
 				.content {
+					display: flex;
+					flex-direction: row;
+					gap: 24px;
+					
+					flex-wrap: wrap;
+
+					overflow-x: hidden;
+
 					padding: 8px;
+					flex-wrap: nowrap;
 				}
 
 				.carousel {

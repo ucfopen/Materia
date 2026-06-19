@@ -72,7 +72,8 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                 <p>Explore a curated collection of widgets selected by our LS&T staff. Browse available options to find tools and resources that can enhance your course and support your teaching goals.</p>
             </div>
             <div className='content-container'>
-                <button className='carousel left' disabled={carouselShift <= 0} onClick={()=>shiftCarousel(-1)}>{'<'}</button>
+                <button className='carousel left' aria-label='Move carousel to the left.'
+                disabled={carouselShift <= 0} onClick={()=>shiftCarousel(-1)}>{'<'}</button>
                 <div id="carousel-content" className='content' ref={carouselContent}>
                     {biggerFeatured.map((entry, i) => (
                         <div className='carousel-card'
@@ -86,16 +87,21 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                         </div>
                     ))}
                 </div>
-                <button className='carousel right' disabled={carouselShift >= maxShift()} onClick={()=>shiftCarousel(1)}>{'>'}</button>
+                <button className='carousel right'  aria-label='Move carousel to the right.'
+                disabled={carouselShift >= maxShift()} onClick={()=>shiftCarousel(1)}>{'>'}</button>
             </div>
         </div>
         <h3>Community Widgets</h3>
         <div className='category-box stem'>
             <div className='row'>
                 <h4>STEM</h4>
-                <button className='see-all' onClick={()=>setCategories(new Set([...stemCategories]))}>
+                <button className='see-all' 
+                aria-label='See all STEM widgets'
+                onClick={()=>setCategories(new Set([...stemCategories]))}>
                     {">"} See all</button>
             </div>
+            {
+            stem && stem.length > 0 ?
             <div className='content'>
                 {stem.map((entry, i) => (
                     <CommunityLibraryCard
@@ -105,38 +111,55 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                     />
                 ))}
             </div>
+            :
+            <div className='none-found'>No widgets in this category were found.</div>
+            }
         </div>
         <div className='category-box business'>
             <div className='row'>
                 <h4>Business & Administration</h4>
-                <button className='see-all' onClick={()=>setCategories(new Set([...businessCategories]))}>
+                <button className='see-all' 
+                aria-label='See all Business & Administration widgets'
+                onClick={()=>setCategories(new Set([...businessCategories]))}>
                     {">"} See all</button>
             </div>
+            {
+            business && business.length > 0 ?
             <div className='content'>
                 {business.map((entry, i) => (
                     <CommunityLibraryCard
-                        key={entry.id + `_stem_${i}`}
-                        entry={entry}
-                        highlightedTags={[]}
+                    key={entry.id + `_stem_${i}`}
+                    entry={entry}
+                    highlightedTags={[]}
                     />
                 ))}
             </div>
+            :
+            <div className='none-found'>No widgets in this category were found.</div>
+            }
         </div>
         <div className='category-box liberal'>
             <div className='row'>
                 <h4>Liberal Arts & Humanities</h4>
-                <button className='see-all' onClick={()=>setCategories(new Set([...liberalCategories]))}>
+                <button className='see-all' 
+                aria-label='See all Liberal Arts & Humanities widgets'
+                onClick={()=>setCategories(new Set([...liberalCategories]))}>
                     {">"} See all</button>
             </div>
+            {
+            liberal && liberal.length > 0 ?
             <div className='content'>
                 {liberal.map((entry, i) => (
                     <CommunityLibraryCard
-                        key={entry.id + `_stem_${i}`}
-                        entry={entry}
-                        highlightedTags={[]}
+                    key={entry.id + `_stem_${i}`}
+                    entry={entry}
+                    highlightedTags={[]}
                     />
                 ))}
             </div>
+            :
+            <div className='none-found'>No widgets in this category were found.</div>
+            }
         </div>
     </div>
     )

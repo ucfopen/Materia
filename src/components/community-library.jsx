@@ -140,9 +140,18 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		setReportingEntry(entry)
 	}, [])
 
+	const clearFilters = () => {
+		clearSearch()
+		setSelectedWidgetType('')
+		setSelectedCategories(new Set([]))
+		setSelectedCourseLevel('')
+		setTagList([])
+		document.getElementById("filter-form").reset();
+	}
+
 	const featuredEntries = useMemo(() => entries.filter((e) => e.featured), [entries])
 
-	const isFiltered = searchText || selectedWidgetType || selectedCategories.size > 0 || selectedCourseLevel
+	const isFiltered = searchText || selectedWidgetType || selectedCategories.size > 0 || selectedCourseLevel || tagList.length > 0
 
 	const widgetTypeOptions = useMemo(() => {
 		if (!widgets.length) return []
@@ -163,13 +172,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 				{isFiltered && (
 					<button
 						className="clear-filters"
-						onClick={() => {
-							clearSearch()
-							setSelectedWidgetType('')
-							setSelectedCategories(new Set([]))
-							setSelectedCourseLevel('')
-							document.getElementById("filter-form").reset();
-						}}
+						onClick={()=>clearFilters()}
 					>
 						Clear Filters
 					</button>
@@ -300,7 +303,12 @@ const CommunityLibrary = ({ widgets = [] }) => {
 
 					<div className='row'>
 						<form id="filter-form" className='sidebar'>
-							<h3>FILTERS</h3>
+							<div className='row filter-cont'>
+								<h3>FILTERS</h3>
+								<button aria-label='Reset Filters' type='button' onClick={()=>clearFilters()}>
+									<div className='rotate-icon'></div>
+								</button>
+							</div>
 							<details open>
 								<summary>Level of Study</summary>
 								<div className='col small-labels'>
@@ -353,7 +361,15 @@ const CommunityLibrary = ({ widgets = [] }) => {
 									<div className="search-icon"><svg viewBox="0 0 250.313 250.313"><path d={`${GLASS_PATH}`} clipRule="evenodd" fillRule="evenodd"></path></svg></div>
 									<div className='search-tags'>
 										{tagList.map((v,i)=>(
-											<div role='button' key={`tag_${i}`} tabIndex={0} className='tag' 
+											<div role='button' key={`tag_${i}`} tabIndex={0} 
+											aria-label={`#${v}: tag in search list. Press Enter to remove.`} className='tag'
+											onKeyDown={(e)=>{
+												if(e.key === "Enter") {
+													tagList.splice(i, 1)
+													inputElement.focus()
+													setTagList([...tagList])
+												}
+											}}
 											onClick={()=>{
 												tagList.splice(i, 1)
 												setTagList([...tagList])
