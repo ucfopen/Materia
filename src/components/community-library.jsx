@@ -305,7 +305,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 					</div>
 
 					<div className='row'>
-						<form id="filter-form" className={`sidebar ${showSidebar ? 'show' : ''}`}>
+						<form id="filter-form" className={`sidebar ${showSidebar ? 'show' : ''}`} onFocus={()=>setShowSidebar(true)} onBlur={()=>setShowSidebar(false)}>
 							<div className='row filter-cont'>
 								<button type="button" className='filter-button' onClick={()=>setShowSidebar(!showSidebar)}>
 									<div className='close-icon'></div>
