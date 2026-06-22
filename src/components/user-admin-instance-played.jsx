@@ -18,7 +18,7 @@ const UserAdminInstancePlayed = ({play, index}) => {
 		<li key={index} className={`instance ${instanceState.expanded ? 'expanded' : ''}`} onClick={() => setInstanceState(instanceState => ({...instanceState, expanded: !instanceState.expanded}))}>
 			<div className='clickable widget-title'>
 				<span className='img-holder'>
-					<img src={iconUrl('/widget/', play.widget_icon, 275)} />
+					<img src={iconUrl('/widget/', play.widget_icon, 275)} alt=""/>
 				</span>
 				<span className='title-holder'>
 					<div className='title'>

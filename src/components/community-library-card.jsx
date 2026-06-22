@@ -29,8 +29,8 @@ const CommunityLibraryCard = ({ entry, highlightedTags = [], skinFeatured = fals
 			<a href={`/community-library/${entry.id}/`} className="card-header"
 			aria-label={`${instance_name}: a featured ${widget?.name} widget by ${owner_display_name != "" ? owner_display_name : "Unknown"}. 
 			${category_display ? category_display : "Unknown category"}. ${course_level_display ? `${course_level_display}. ` : ""}
-			${entry.tags && entry.tags.length > 0 ? `Tags: ${entry.tags.map((v,i) => `#${v}`)}` : `No tags.`}
-			`}>
+			${entry.tags && entry.tags.length > 0 ? `Tags: ${entry.tags.map((v,i) => `#${v}`)}` : `No tags`}.
+			 Likes: ${entry.like_count}. Copies: ${entry.copy_count}`}>
 				<div className='banner'></div>
 				<div className="img-holder">
 					<img src={iconUrl('/widget/', widget?.dir, 92)} alt={widget?.name} />
@@ -67,8 +67,8 @@ const CommunityLibraryCard = ({ entry, highlightedTags = [], skinFeatured = fals
 			<a href={`/community-library/${entry.id}/`} className="card-header"
 			aria-label={`${instance_name}: a ${widget?.name} widget by ${owner_display_name != "" ? owner_display_name : "Unknown"}. 
 			${category_display ? category_display : "Unknown category"}. ${course_level_display ? `${course_level_display}. ` : ""}
-			${entry.tags && entry.tags.length > 0 ? `Tags: ${entry.tags.map((v,i) => `#${v}`)}` : `No tags.`}
-			`}>
+			${entry.tags && entry.tags.length > 0 ? `Tags: ${entry.tags.map((v,i) => `#${v}`)}` : `No tags`}.
+			 Likes: ${entry.like_count}. Copies: ${entry.copy_count}`}>
 				<div className="img-holder">
 					<img src={iconUrl('/widget/', widget?.dir, 275)} alt={widget?.name} />
 				</div>
@@ -115,7 +115,7 @@ const CommunityLibraryCard = ({ entry, highlightedTags = [], skinFeatured = fals
 						aria-label={`${like_count} likes`}
 					>
 						<svg viewBox="0 0 24 24" width="16" height="16">
-							<path d={HEART_FILLED} />
+							<path d={user_has_liked ? HEART_FILLED : HEART_OUTLINE} />
 						</svg>
 						<span>{like_count}</span>
 					</span>

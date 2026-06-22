@@ -307,11 +307,11 @@ const CommunityLibrary = ({ widgets = [] }) => {
 					<div className='row'>
 						<form id="filter-form" className={`sidebar ${showSidebar ? 'show' : ''}`} onFocus={()=>setShowSidebar(true)} onBlur={()=>setShowSidebar(false)}>
 							<div className='row filter-cont'>
-								<button type="button" className='filter-button' onClick={()=>setShowSidebar(!showSidebar)}>
+								<button type="button" className='filter-button' title="Close Filter Sidebar" onClick={()=>setShowSidebar(!showSidebar)}>
 									<div className='close-icon'></div>
 								</button>
 								<h3>FILTERS</h3>
-								<button aria-label='Reset Filters' type='button' onClick={()=>clearFilters()}>
+								<button aria-label='Reset Filters' type='button' title='Reset Filters' onClick={()=>clearFilters()}>
 									<div className='rotate-icon'></div>
 								</button>
 							</div>
@@ -364,7 +364,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 						<div className='content'>
 							<div className="controls">
 								<div className='row'>
-									<button type="button" className='filter-button' onClick={()=>setShowSidebar(!showSidebar)}>
+									<button type="button" className='filter-button' title="Open Filter Sidebar" onClick={()=>setShowSidebar(!showSidebar)}>
 										<div className='filter-icon'></div>
 									</button>
 									<div className="search-bar">

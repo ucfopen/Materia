@@ -501,8 +501,11 @@ class LogPlay(models.Model):
         db_table = "log_play"
         indexes = [
             models.Index(fields=["created_at"], name="log_play_created_at"),
-            models.Index(fields=["is_complete"], name="log_play_is_complete"),
             models.Index(fields=["percent"], name="log_play_percent"),
+            models.Index(
+                fields=["instance", "is_complete", "-created_at", "semester_id"],
+                name="log_play_perf_lookup",
+            ),
         ]
 
 
@@ -630,6 +633,7 @@ class LtiPlayState(models.Model):
     )
     submission_attempts = models.PositiveIntegerField(default=0)
     last_submitted = models.DateTimeField(default=None, null=True)
+    score_submitted = models.FloatField(null=True)
 
 
 # this sucks
@@ -882,6 +886,25 @@ class Question(models.Model):
 
     class Meta:
         db_table = "question"
+
+
+class SiteImage(models.Model):
+
+    class ImageType(models.TextChoices):
+        NO_TYPE = "NO_TYPE", gettext_lazy("No Type")
+        PROFILE_IMAGE = "PROFILE_IMAGE", gettext_lazy("Profile Image")
+        # LIBRARY_BANNER = "LIBRARY_BANNER", gettext_lazy("Library Banner")
+        CATALOG_BANNER = "CATALOG_BANNER", gettext_lazy("Catalog Banner")
+
+    image_type = models.CharField(
+        max_length=26,
+        blank=True,
+        null=True,
+        choices=ImageType.choices,
+        default=ImageType.NO_TYPE,
+    )
+
+    image_path = models.CharField(max_length=255)
 
 
 class UserExtraAttempts(models.Model):
@@ -1544,10 +1567,39 @@ class UserSettings(models.Model):
             self.profile_fields = updated_fields
             self.save()
 
+        profile_images = SiteImage.objects.filter(
+            image_type=SiteImage.ImageType.PROFILE_IMAGE
+        )
+
+        if "profileImage" not in self.profile_fields or self.profile_fields[
+            "profileImage"
+        ] not in profile_images.values_list("id", flat=True):
+
+            random_profile_image = profile_images.order_by("?").first()
+            self.profile_fields["profileImage"] = (
+                random_profile_image.id if random_profile_image else -1
+            )
+            self.save()
+
         return self.profile_fields
 
     def initialize_profile_fields(self):
-        self.profile_fields = {**self.DEFAULT_PROFILE_FIELDS}
+
+        random_profile_image_id = (
+            SiteImage.objects.filter(image_type=SiteImage.ImageType.PROFILE_IMAGE)
+            .order_by("?")
+            .values_list("id", flat=True)
+            .first()
+        )
+
+        if random_profile_image_id is None:
+            random_profile_image_id = -1
+
+        self.profile_fields = {
+            **self.DEFAULT_PROFILE_FIELDS,
+            "profileImage": random_profile_image_id,
+        }
+
         self.save()
 
 class Tag(models.Model):
@@ -1685,4 +1737,8 @@ def create_user_settings(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_settings(sender, instance, **kwargs):
-    instance.profile_settings.save()
+    try:
+        instance.profile_settings.save()
+    except UserSettings.DoesNotExist:
+        settings = UserSettings.objects.create(user=instance)
+        settings.initialize_profile_fields()

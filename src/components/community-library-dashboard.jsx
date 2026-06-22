@@ -1,4 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef, useDeferredValue } from 'react'
+import { useQuery } from 'react-query'
+import { apiGetUser, apiGetSiteImages } from '../util/api'
 import './community-library.scss'
 import CommunityLibraryCard from './community-library-card'
 import {
@@ -59,6 +61,17 @@ const CommunityLibraryDashboard = ({setCategories}) => {
         const width = carouselContent.current ? carouselContent.current.clientWidth : 0
         return (biggerFeatured.length * featuredCardSize) - width
     }, [biggerFeatured, carouselContent.current])
+
+    // first in array order should be correct image to pull
+    const {data: catalogImages, refetch: refetchCatalogImages } = useQuery({
+        queryKey: ['catalog-images'],
+        queryFn: async () => {
+            const images = await apiGetSiteImages('catalog')
+            return images.sort((a,b)=>b.id-a.id)
+        },
+        staleTime: Infinity,
+        retry: false
+    })
     
     return (
     <div className='dashboard'>
@@ -68,7 +81,8 @@ const CommunityLibraryDashboard = ({setCategories}) => {
         <h3>Featured Widgets</h3>
         <div className='category-box featured'>
             <div className='row'>
-                <div style={{width: 180, height: 150, backgroundColor: "#ccc", flexShrink: 0, borderRadius: 8}}></div>
+                {/* <div style={{width: 180, height: 150, backgroundColor: "#ccc", flexShrink: 0, borderRadius: 8}}></div> */}
+                { catalogImages && catalogImages.length > 0 && <img className="catalog-image" src={catalogImages[0].image_path}/>}
                 <p>Explore a curated collection of widgets selected by our LS&T staff. Browse available options to find tools and resources that can enhance your course and support your teaching goals.</p>
             </div>
             <div className='content-container'>

@@ -69,6 +69,9 @@ const Header = ({
 						<a className='elevated' href='/admin/instance'>Instances</a>
 					</li>
 					<li>
+						<a className='elevated' href='/admin/site'>Site</a>
+					</li>
+					<li>
 						<a className='elevated' href='/admin/' target="_blank">Django Admin</a>
 					</li>
 				</ul>
@@ -120,7 +123,9 @@ const Header = ({
 						<a href='/profile' aria-label='Visit your profile page.'>{`${user.first_name} ${user.last_name}`}</a>
 						<a onClick={logoutUser}>Logout</a>
 					</div>
-					<a href='/profile' aria-label='User avatar. Click to visit your profile page.'><img src={user.avatar} onClick={showUserOptions}/></a>
+					<a href='/profile' aria-label='User avatar. Click to visit your profile page.'>
+						<img src={user.avatar} onClick={showUserOptions} alt=""/>
+					</a>
 				</>
 			)
 

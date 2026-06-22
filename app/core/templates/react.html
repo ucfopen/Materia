@@ -68,7 +68,7 @@
 					{% if value|get_type == "NoneType" %}
 						var {{key}} = null;
 					{% elif value|get_type == "str" %}
-						var {{key}} = '{{value}}';
+						var {{key}} = '{{value|escapejs}}';
 					{% elif value|get_type == "bool" and value %}
 						var {{key}} = true;
 					{% elif value|get_type == "bool" and not value %}

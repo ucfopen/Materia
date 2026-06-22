@@ -605,12 +605,13 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 
 /** Controller_Api_User */
 
-export const apiGetUserPlaySessions = (user, pageParam = 1) => {
-	return handleRequest('GET', `/api/play-sessions/?user=${user}&include_activity=true&page=${pageParam}`)
+export const apiGetUserPlaySessions = (user, pageParam = 1, admin_activity = false) => {
+	const activityParam = admin_activity ? 'admin_activity=true' : 'include_activity=true'
+	return handleRequest('GET', `/api/play-sessions/?user=${user}&${activityParam}&page=${pageParam}`)
 }
 
 export const apiUpdateUserSettings = (settings) => {
-	return handleRequest(methods.PUT, `/api/users/${settings.user_id}/profile_fields/`, settings)
+	return handleRequest(methods.PATCH, `/api/users/${settings.user_id}/profile_fields/`, settings)
 }
 
 export const apiGetUserRoles = (id) => {
@@ -891,4 +892,29 @@ export const apiGetSnapshotInstance = (entryId, snapshotId) => {
 
 export const apiGetSnapshotQset = (entryId, snapshotId) => {
 	return handleRequest(methods.GET, `/api/community-library/${entryId}/snapshot_qset/${snapshotId}/`)
+}
+
+export const apiGetSiteImages = (type) => {
+	switch (type) {
+		case 'profile':
+			type = 'PROFILE_IMAGE'
+			break
+		case 'catalog':
+			type = 'CATALOG_BANNER'
+		default:
+			break
+	}
+
+	return handleRequest(methods.GET, `/api/site-images/?type=${type}`)
+}
+
+export const apiDeleteSiteImage = (id) => {
+	return handleRequest(methods.DELETE, `/api/site-images/${id}`)
+}
+
+export const apiUploadSiteImage = (type, file) => {
+	const formData = new FormData()
+	formData.append('image', file)
+	formData.append('image_type', type)
+	return handleRequest(methods.POST, `/api/site-images/`, {}, { headers: { 'X-CSRFToken': getCSRFToken(), }, body: formData })
 }
