@@ -7,24 +7,12 @@ import {
 	useCommunityLibraryList,
 } from './hooks/useCommunityLibrary'
 
-const CATEGORIES = [
-    { value: 'math', label: 'Math' },
-    { value: 'science', label: 'Science' },
-    { value: 'english', label: 'English' },
-    { value: 'history', label: 'History' },
-    { value: 'art', label: 'Art' },
-    { value: 'music', label: 'Music' },
-    { value: 'language', label: 'World Languages' },
-    { value: 'cs', label: 'Computer Science' },
-    { value: 'health', label: 'Health & PE' },
-    { value: 'business', label: 'Business' },
-    { value: 'education', label: 'Education' },
-    { value: 'other', label: 'Other' },
-]
+import { CATEGORIES } from './community-library'
 
-const stemCategories = ["math", "science", "cs", "health"]
-const liberalCategories = ["music", "history", "art", "english", "language"]
-const businessCategories = ["business, education"]
+const stemCategories = ["math", "science", "engineering"]
+const liberalCategories = ["history", "art", "english", "language"]
+const businessCategories = ["business", "education", "hospitality"]
+const healthCategories = ["medicine", "health"]
 
 const CommunityLibraryDashboard = ({setCategories}) => {
 
@@ -35,6 +23,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
     const { entries: stem } = useCommunityLibraryList(4, "", "", stemCategories, "", "", [], false)
     const { entries: liberal } = useCommunityLibraryList(4, "", "", liberalCategories, "", "", [], false)
     const { entries: business } = useCommunityLibraryList(4, "", "", businessCategories, "", "", [], false)
+    const { entries: health } = useCommunityLibraryList(4, "", "", healthCategories, "", "", [], false)
 
     useEffect(() => {
         setBiggerFeatured([...featured, ...featured, ...featured])
@@ -154,9 +143,9 @@ const CommunityLibraryDashboard = ({setCategories}) => {
         </div>
         <div className='category-box liberal'>
             <div className='row'>
-                <h4>Liberal Arts & Humanities</h4>
+                <h4>Arts & Humanities</h4>
                 <button className='see-all' 
-                aria-label='See all Liberal Arts & Humanities widgets'
+                aria-label='See all Arts & Humanities widgets'
                 onClick={()=>setCategories(new Set([...liberalCategories]))}>
                     {">"} See all</button>
             </div>
@@ -164,6 +153,29 @@ const CommunityLibraryDashboard = ({setCategories}) => {
             liberal && liberal.length > 0 ?
             <div className='content'>
                 {liberal.map((entry, i) => (
+                    <CommunityLibraryCard
+                    key={entry.id + `_stem_${i}`}
+                    entry={entry}
+                    highlightedTags={[]}
+                    />
+                ))}
+            </div>
+            :
+            <div className='none-found'>No widgets in this category were found.</div>
+            }
+        </div>
+        <div className='category-box health'>
+            <div className='row'>
+                <h4>Healthcare</h4>
+                <button className='see-all' 
+                aria-label='See all Healthcare widgets'
+                onClick={()=>setCategories(new Set([...healthCategories]))}>
+                    {">"} See all</button>
+            </div>
+            {
+            health && health.length > 0 ?
+            <div className='content'>
+                {health.map((entry, i) => (
                     <CommunityLibraryCard
                     key={entry.id + `_stem_${i}`}
                     entry={entry}

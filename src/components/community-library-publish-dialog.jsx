@@ -3,20 +3,7 @@ import Modal from './modal'
 import { usePublishToLibrary, useTagList } from './hooks/useCommunityLibrary'
 import './community-library-publish-dialog.scss'
 
-const CATEGORIES = [
-	{ value: 'math', label: 'Math' },
-	{ value: 'science', label: 'Science' },
-	{ value: 'english', label: 'English' },
-	{ value: 'history', label: 'History' },
-	{ value: 'art', label: 'Art' },
-	{ value: 'music', label: 'Music' },
-	{ value: 'language', label: 'World Languages' },
-	{ value: 'cs', label: 'Computer Science' },
-	{ value: 'health', label: 'Health & PE' },
-	{ value: 'business', label: 'Business' },
-	{ value: 'education', label: 'Education' },
-	{ value: 'other', label: 'Other' },
-]
+import { CATEGORIES } from './community-library'
 
 const COURSE_LEVELS = [
 	{ value: '', label: 'Not specified' },

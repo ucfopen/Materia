@@ -11,19 +11,19 @@ import useDebounce from './hooks/useDebounce'
 import './community-library.scss'
 import CommunityLibraryDashboard from './community-library-dashboard'
 
-const CATEGORIES = [
-	// { value: '', label: 'All Categories' },
+export const CATEGORIES = [
 	{ value: 'math', label: 'Math' },
 	{ value: 'science', label: 'Science' },
 	{ value: 'english', label: 'English' },
 	{ value: 'history', label: 'History' },
-	{ value: 'art', label: 'Art' },
 	{ value: 'music', label: 'Music' },
 	{ value: 'language', label: 'World Languages' },
-	{ value: 'cs', label: 'Computer Science' },
-	{ value: 'health', label: 'Health & PE' },
+	{ value: 'engineering', label: 'Engineering' },
+	{ value: 'health', label: 'Health Sciences' },
+	{ value: 'medicine', label: 'Medicine'},
 	{ value: 'business', label: 'Business' },
 	{ value: 'education', label: 'Education' },
+	{ value: 'hospitality', label: 'Hospitality' },
 	{ value: 'other', label: 'Other' },
 ]
 
@@ -54,6 +54,8 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	const [sortBy, setSortBy] = useState('newest')
 	const [reportingEntry, setReportingEntry] = useState(null)
 	const [copySuccess, setCopySuccess] = useState(null)
+
+	const formRef = useRef(null)
 
 	// list of tags currently being searched
 	const [tagList, setTagList] = useState([])
@@ -304,8 +306,8 @@ const CommunityLibrary = ({ widgets = [] }) => {
 						<h1>Community Library</h1>
 					</div>
 
-					<div className='row'>
-						<form id="filter-form" className={`sidebar ${showSidebar ? 'show' : ''}`} onFocus={()=>setShowSidebar(true)} onBlur={()=>setShowSidebar(false)}>
+					<div className='row' onFocus={()=>{if(showSidebar && !formRef.current.contains(document.activeElement)) setShowSidebar(false)}}>
+						<form ref={formRef} id="filter-form" className={`sidebar ${showSidebar ? 'show' : ''}`} onFocus={()=>setShowSidebar(true)}>
 							<div className='row filter-cont'>
 								<button type="button" className='filter-button' title="Close Filter Sidebar" onClick={()=>setShowSidebar(!showSidebar)}>
 									<div className='close-icon'></div>
