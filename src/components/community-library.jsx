@@ -16,7 +16,7 @@ export const CATEGORIES = [
 	{ value: 'science', label: 'Science' },
 	{ value: 'english', label: 'English' },
 	{ value: 'history', label: 'History' },
-	{ value: 'music', label: 'Music' },
+	{ value: 'art', label: 'Art' },
 	{ value: 'language', label: 'World Languages' },
 	{ value: 'engineering', label: 'Engineering' },
 	{ value: 'health', label: 'Health Sciences' },
