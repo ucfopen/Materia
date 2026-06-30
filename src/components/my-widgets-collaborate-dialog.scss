@@ -9,11 +9,13 @@
 	font-weight: 400;
 
 	.title {
+		width: 100%;
+		left: -10px;
 		margin: 0;
-		padding: 0;
+		padding: 0 10px;
 		font-size: 1.3em;
-		color: #555;
-		border-bottom: #999 dotted 1px;
+		color: $extremely-dark-gray;
+		border-bottom: $light-gray solid 1px;
 		padding-bottom: 20px;
 		margin-bottom: 20px;
 		position: relative;
@@ -27,14 +29,23 @@
 		position: relative;
 		display: flex;
 		align-items: center;
-		justify-content: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
 		width: 100%;
 		margin-bottom: 20px;
 		text-align: left;
 
 		.collab-input-label {
-			font-size: 19px;
+			font-size: 1em;
+			font-weight: 400;
 			margin-right: auto;
+		}
+
+		.collab-input-disclaimer {
+			flex-basis: 100%;
+			margin: 0.5em 0.5em 0.5em 0;
+			font-size: 0.7em;
+			text-align: right;
 		}
 	}
 
@@ -43,9 +54,10 @@
 		flex-grow: 2;
 		height: 30px;
 		margin-left: 1em;
-		padding-left: 0.5em;
+		padding: 0.25em 0.5em;
 		border: solid 1px #c9c9c9;
-		font-size: 16px;
+		border-radius: 0.3em;
+		font-size: 0.9em;
 	}
 
 	.shareNotAllowed {
@@ -135,7 +147,7 @@
 		.access-list {
 			min-height: 250px;
 			max-height: 420px;
-			padding: 0;
+			padding: 1em 0 1em 0;
 			margin-top: 0px;
 
 			overflow: auto;
@@ -147,6 +159,20 @@
 				display: flex;
 				align-items: center;
 				justify-content: center;
+			}
+
+			span.not-shared {
+				display: block;
+				margin-top: 2em;
+				text-align: center;
+
+				font-size: 0.9em;
+				font-weight: 700;
+				color: $moderate-gray;
+			}
+
+			.deleted {
+				display: none;
 			}
 		}
 
@@ -167,50 +193,73 @@
 		color: #575757;
 		font-size: 14px;
 		margin-top: 10px;
+
+		span {
+			display: block;
+			margin-top: 0.5em;
+		}
 	}
 
 	.warning {
-		font-weight: bold;
+		font-weight: 400;
 	}
 
 	.access-list {
-		.deleted {
-			display: none !important;
+
+		header.access-list-header {
+			width: auto;
+			height: auto;
+			min-height: 0;
+			margin: 0 0 1em 0;
+			padding: 0 1rem;
+			font-weight: 700;
+			font-size: 0.7em;
+			color: $moderate-gray;
+			text-transform: uppercase;
+			background: none;
 		}
 
 		.user-perm {
 			display: flex;
 			align-items: center;
 			position: relative;
-			margin: 25px 10px;
+			margin: 1.5em 1em 1em 1em;
 
-			&::after {
-				content: ' ';
-				width: 70%;
-				margin-left: 15%; // (100% - 70%) / 2
-				display: block;
-				border-bottom: 1px solid #d2d2d2;
-				position: absolute;
-				bottom: -12.5px;
+			&.current-user {
+				padding: 0 1.25em 1em 0;
+				margin-bottom: 1.5em 1em 0 1em;
+				border-bottom: solid 1px $light-gray;
 			}
 
 			&.provisional {
 				flex-wrap: wrap;
 
 				div.provisional-access-container {
+					display: flex;
+					flex-direction: row;
+					justify-content: space-between;
+					align-items: center;
 					flex-grow: 4;
+					margin-top: 1em;
 					padding: 0.5em;
 
 					font-size: 0.8em;
+					background: #fff;
+					color: $color-dark-orange;
+					border: solid 1px $color-yellow-bg;
+					border-radius: 0.5em;
 
 					span {
 						display: block;
+						max-width: 60%;
 						margin-left: 0.5em;
 					}
 
 					button.action_button {
+						width: fit-content;
+						height: fit-content;
 						margin: 0.5em;
-						font-size: 16px;
+						font-size: 1em;
 					}
 				}
 			}
@@ -220,24 +269,22 @@
 			}
 
 			.demote-dialog {
+				position: absolute;
+				z-index: 10000;
+				margin-left: 25%;
+
 				border-radius: 4px;
 				box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
 				padding: 1em;
-				width: 310px;
 				font-family: 'Lucida Grande', sans-serif;
-				font-size: 9pt;
+				font-size: 0.75em;
 				color: black;
 				text-align: center;
 				background: #fcdbdb;
-				height: 40px;
-				z-index: 10000;
-				position: absolute;
-				margin-left: 125px;
 
 				.arrow {
 					background: url(/static/img/pink-arrow-left.png) no-repeat 0 center;
 					width: 13px;
-					//height: 23px;
 					display: inline-block;
 					top: 0;
 					left: -13px;
@@ -259,7 +306,7 @@
 				.no-button {
 					color: #555;
 					text-decoration: underline;
-					font-size: 12pt;
+					font-size: 1.1em;
 					cursor: pointer;
 				}
 
@@ -267,7 +314,8 @@
 					background: #e10000;
 					border-color: #747474;
 					color: #ffffff;
-					padding: 3px 15px;
+					padding: 0.5em 1.5em;
+					font-size: 1.1em;
 				}
 
 				.yes-button:hover {
@@ -277,14 +325,14 @@
 			}
 
 			.remove {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				margin-right: 0.25em;
-				padding: 0 0.25em;
-				color: #bfbfbf;
+				width: 1.25em;
+				height: 1.25em;
+				align-self: flex-start;
+				margin-left: 0.25em;
+				padding: 0;
+				color: $moderate-gray;
 				text-decoration: none;
-				font-size: 24px;
+				font-size: 1.25em;
 				user-select: none;
 				border: none;
 				background: transparent;
@@ -323,18 +371,14 @@
 
 					&.user-match-student:after {
 						content: 'Student';
-						position: absolute;
-						top: -12px;
-						left: 0;
+						display: block;
 						font-size: 11px;
 						color: gray;
 					}
 
 					&.user-match-owner:after {
 						content: 'Owner';
-						position: absolute;
-						top: -12px;
-						left: 0;
+						display: block;
 						font-size: 11px;
 						color: gray;
 					}
@@ -343,16 +387,23 @@
 
 			.options {
 				margin-left: auto;
-				margin-right: 10%;
+				margin-right: 0;
 				text-align: left;
 
 				select {
 					display: inline-block;
-					padding: 0.25em;
+					padding: 0.5em 1em;
 					margin-bottom: 5px;
 					cursor: pointer;
 
-					border-width: 1px;
+					border: solid 1px $gray;
+					border-radius: 0.5em;
+
+					background: #fff;
+
+					&:disabled {
+						cursor: auto;
+					}
 				}
 
 				.expires {
@@ -436,6 +487,42 @@
 					}
 				}
 			}
+
+			.options-for-self {
+				display: flex;
+				gap: 1em;
+				align-items: center;
+				justify-content: flex-end;
+				margin-left: auto;
+				margin-right: 0;
+
+				.self-status {
+					color: $gray;
+					font-size: 0.8em;
+					font-weight: 400;
+				}
+
+				.leave {
+					background: #fff;
+					color: $color-red;
+					border: solid 1px $color-light-red;
+					font-size: 0.9em;
+					padding: 0.5em 0.8em;
+					cursor: pointer;
+
+					&:disabled {
+						color: $gray;
+						background: $very-light-gray;
+						border-color: $gray;
+						cursor: auto;
+					}
+
+					&:hover &:not(:disabled) {
+						background: $color-light-red;
+						color: #fff;
+					}
+				}
+			}
 		}
 	}
 }
@@ -483,9 +570,23 @@
 	}
 
 	.access-list {
+
+		header.access-list-header {
+			color: $light-gray;
+		}
+
 		.user-perm {
 			&::after {
 				border-bottom: 1px solid #181920;
+			}
+
+			.self-status {
+				color: $light-gray;
+			}
+
+			button.leave {
+				color: #fff;
+				background-color: $color-red;
 			}
 
 			.demote-dialog {

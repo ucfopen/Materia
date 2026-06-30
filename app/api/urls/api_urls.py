@@ -7,6 +7,7 @@ from api.views import (
     playstorage,
     scores,
     sessions,
+    site,
     users,
     widget_instances,
     widgets,
@@ -26,6 +27,7 @@ router.register(
 )
 router.register(r"notifications", notifications.NotificationsViewSet)
 router.register(r"extra-attempts", extra_attempts.UserExtraAttemptsViewSet)
+router.register(r"site-images", site.SiteImageViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
