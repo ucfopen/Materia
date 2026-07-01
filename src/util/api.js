@@ -610,7 +610,7 @@ export const apiGetUserPlaySessions = (user, pageParam = 1, admin_activity = fal
 }
 
 export const apiUpdateUserSettings = (settings) => {
-	return handleRequest(methods.PUT, `/api/users/${settings.user_id}/profile_fields/`, settings)
+	return handleRequest(methods.PATCH, `/api/users/${settings.user_id}/profile_fields/`, settings)
 }
 
 export const apiGetUserRoles = (id) => {
@@ -798,4 +798,28 @@ export const readFromStorage = () => {
 			}
 		}
 	}, [])
+}
+
+export const apiGetSiteImages = (type) => {
+
+	switch (type) {
+		case 'profile':
+			type = 'PROFILE_IMAGE'
+			break
+		default:
+			break
+	}
+
+	return handleRequest(methods.GET, `/api/site-images/?type=${type}`)
+}
+
+export const apiDeleteSiteImage = (id) => {
+	return handleRequest(methods.DELETE, `/api/site-images/${id}`)
+}
+
+export const apiUploadSiteImage = (type, file) => {
+	const formData = new FormData()
+	formData.append('image', file)
+	formData.append('image_type', type)
+	return handleRequest(methods.POST, `/api/site-images/`, {}, { headers: { 'X-CSRFToken': getCSRFToken(), }, body: formData })
 }

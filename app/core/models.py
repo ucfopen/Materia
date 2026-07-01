@@ -888,6 +888,25 @@ class Question(models.Model):
         db_table = "question"
 
 
+class SiteImage(models.Model):
+
+    class ImageType(models.TextChoices):
+        NO_TYPE = "NO_TYPE", gettext_lazy("No Type")
+        PROFILE_IMAGE = "PROFILE_IMAGE", gettext_lazy("Profile Image")
+        # LIBRARY_BANNER = "LIBRARY_BANNER", gettext_lazy("Library Banner")
+        CATALOG_BANNER = "CATALOG_BANNER", gettext_lazy("Catalog Banner")
+
+    image_type = models.CharField(
+        max_length=26,
+        blank=True,
+        null=True,
+        choices=ImageType.choices,
+        default=ImageType.NO_TYPE,
+    )
+
+    image_path = models.CharField(max_length=255)
+
+
 class UserExtraAttempts(models.Model):
     @staticmethod
     def get_cur_semester():
@@ -1537,10 +1556,39 @@ class UserSettings(models.Model):
             self.profile_fields = updated_fields
             self.save()
 
+        profile_images = SiteImage.objects.filter(
+            image_type=SiteImage.ImageType.PROFILE_IMAGE
+        )
+
+        if "profileImage" not in self.profile_fields or self.profile_fields[
+            "profileImage"
+        ] not in profile_images.values_list("id", flat=True):
+
+            random_profile_image = profile_images.order_by("?").first()
+            self.profile_fields["profileImage"] = (
+                random_profile_image.id if random_profile_image else -1
+            )
+            self.save()
+
         return self.profile_fields
 
     def initialize_profile_fields(self):
-        self.profile_fields = {**self.DEFAULT_PROFILE_FIELDS}
+
+        random_profile_image_id = (
+            SiteImage.objects.filter(image_type=SiteImage.ImageType.PROFILE_IMAGE)
+            .order_by("?")
+            .values_list("id", flat=True)
+            .first()
+        )
+
+        if random_profile_image_id is None:
+            random_profile_image_id = -1
+
+        self.profile_fields = {
+            **self.DEFAULT_PROFILE_FIELDS,
+            "profileImage": random_profile_image_id,
+        }
+
         self.save()
 
 
@@ -1553,4 +1601,8 @@ def create_user_settings(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_settings(sender, instance, **kwargs):
-    instance.profile_settings.save()
+    try:
+        instance.profile_settings.save()
+    except UserSettings.DoesNotExist:
+        settings = UserSettings.objects.create(user=instance)
+        settings.initialize_profile_fields()

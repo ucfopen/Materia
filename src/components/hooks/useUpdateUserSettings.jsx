@@ -26,7 +26,10 @@ export default function useUpdateUserSettings() {
 				queryClient.invalidateQueries({
 					queryKey: ['user', 'me']
 				})
-				variables.successFunc(data)
+				// variables.successFunc(data)
+				// queryClient.invalidateQueries('user')
+				variables.successFunc({...data.profile_fields})
+
 			},
 			onError: (err, variables, context) => {
 				variables.errorFunc(err)
