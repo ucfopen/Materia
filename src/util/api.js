@@ -909,7 +909,7 @@ export const apiGetSiteImages = (type) => {
 }
 
 export const apiDeleteSiteImage = (id) => {
-	return handleRequest(methods.DELETE, `/api/site-images/${id}`)
+	return handleRequest(methods.DELETE, `/api/site-images/${id}/`)
 }
 
 export const apiUploadSiteImage = (type, file) => {
@@ -917,4 +917,39 @@ export const apiUploadSiteImage = (type, file) => {
 	formData.append('image', file)
 	formData.append('image_type', type)
 	return handleRequest(methods.POST, `/api/site-images/`, {}, { headers: { 'X-CSRFToken': getCSRFToken(), }, body: formData })
+}
+
+export const apiGetSiteMessages = (types, include_all=false) => {
+
+	let path = '/api/site-messages/'
+
+	if (types.length > 1) {
+		path = `${path}?types=${types.join(',')}`
+	}
+
+	if (types.length === 1) {
+		path = `/api/site-messages/?type=${types[0]}`
+	}
+
+	if (include_all) {
+		path = `${path}${path.includes('?') ? '&' : '?'}include_expired=true`
+	}
+
+	return handleRequest(methods.GET, path)
+
+}
+
+export const apiUploadSiteMessage = (type, content, start_time, end_time) => {
+	const formData = new FormData()
+	formData.append('message_type', type)
+	formData.append('message_text', content)
+	
+	if (start_time != null) formData.append('start_at', start_time)
+	if (end_time != null) formData.append('end_at', end_time)
+	
+	return handleRequest(methods.POST, `/api/site-messages/`, {}, { headers: { 'X-CSRFToken': getCSRFToken(), }, body: formData })
+}
+
+export const apiDeleteSiteMessage = (id) => {
+	return handleRequest(methods.DELETE, `/api/site-messages/${id}/`)
 }

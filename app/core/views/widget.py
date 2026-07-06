@@ -137,8 +137,11 @@ class WidgetPlayView(
                 )
 
         elif LTILaunchService.is_recovery_launch(request):
-            play = LogPlay.objects.get(pk=request.GET.get("token"))
-            context_id = play.context_id
+            play = LogPlay.objects.filter(pk=request.GET.get("token")).first()
+            if play:
+                context_id = play.context_id
+            else:
+                raise LtiException("Invalid token for context id recovery")
 
         # Check if this instance is a guest/demo instance
         has_guest_access = instance.guest_access
@@ -514,6 +517,9 @@ def _create_player_context(
     is_preview: bool = False,
     is_embedded: bool = False,
 ):
+    if validation == WidgetPlayValidationService.INVALID_RECOVERY_TOKEN:
+        return _create_lti_error_page(request, "error_recovery_token")
+
     # Check if embed only widget
     if validation == WidgetPlayValidationService.INVALID_EMBEDDED_ONLY:
         return _create_embedded_only_page(request, instance)
@@ -730,6 +736,20 @@ def _create_lti_success_page(
             "USER_ID": request.user.id,
         },
         js_resources=settings.JS_GROUPS["open-preview"],
+        css_resources=settings.CSS_GROUPS["lti"],
+        request=request,
+    )
+
+
+def _create_lti_error_page(request: HttpRequest, error_type: str):
+    return ContextUtil.create(
+        title="Widget Embed Error",
+        page_type="lti-error",
+        js_globals={
+            "TITLE": "There was a problem with this embedded content.",
+            "ERROR_TYPE": error_type,
+        },
+        js_resources=settings.JS_GROUPS["lti-error"],
         css_resources=settings.CSS_GROUPS["lti"],
         request=request,
     )
