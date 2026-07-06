@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Header from './header'
 import './guide-page.scss'
 import { waitForWindow } from '../util/wait-for-window'
@@ -11,6 +11,8 @@ const GuidePage = () => {
 	const [hasCreatorGuide, setHasCreatorGuide] = useState(null)
 	const [docPath, setDocPath] = useState(null)
 
+	const iframeRef = useRef(null)
+
 	useEffect(() => {
 		waitForWindow(['NAME', 'TYPE', 'HAS_PLAYER_GUIDE', 'HAS_CREATOR_GUIDE', 'DOC_PATH']).then(() => {
 			setName(window.NAME)
@@ -18,6 +20,12 @@ const GuidePage = () => {
 			setHasPlayerGuide(window.HAS_PLAYER_GUIDE)
 			setHasCreatorGuide(window.HAS_CREATOR_GUIDE)
 			setDocPath(window.DOC_PATH)
+
+			if (document.body.classList.contains('darkMode') && iframeRef.current) {
+				iframeRef.current.addEventListener('load', () => {
+					iframeRef.current.contentWindow.document.body.classList.add('darkMode')
+				})
+			}
 		})
 	})
 
@@ -35,7 +43,7 @@ const GuidePage = () => {
 					</div>
 				</div>
 				<div id="guide-container">
-					<iframe src={ docPath } className="guide"></iframe>
+					<iframe ref={iframeRef} src={ docPath } className="guide"></iframe>
 				</div>
 			</section>
 		)
