@@ -17,13 +17,20 @@ const healthCategories = ["medicine", "health"]
 const CommunityLibraryDashboard = ({setCategories}) => {
 
     const [carouselShift, setCarouselShift] = useState(0)
+    const [carouselDrag, setCarouselDrag] = useState(0)
+    const [carouselDragging, setCarouselDragging] = useState(false)
     const [biggerFeatured, setBiggerFeatured] = useState([])
+
+    const [lastTouchX, setLastTouchX] = useState(0)
 
     const { entries: featured } = useCommunityLibraryList(null, "", "", [], "", "", [], true)
     const { entries: stem } = useCommunityLibraryList(4, "", "", stemCategories, "", "", [], false)
     const { entries: liberal } = useCommunityLibraryList(4, "", "", liberalCategories, "", "", [], false)
     const { entries: business } = useCommunityLibraryList(4, "", "", businessCategories, "", "", [], false)
     const { entries: health } = useCommunityLibraryList(4, "", "", healthCategories, "", "", [], false)
+
+    const mappedCategories = {}
+	CATEGORIES.forEach((v)=>{mappedCategories[v.value] = {color: v.color, label: v.label}})
 
     useEffect(() => {
         setBiggerFeatured([...featured, ...featured, ...featured])
@@ -61,9 +68,20 @@ const CommunityLibraryDashboard = ({setCategories}) => {
         staleTime: Infinity,
         retry: false
     })
+
+    const mouseStopDrag = (e) => {
+        if(carouselDragging) {
+            setCarouselShift(Math.min(Math.max(carouselShift + Math.round(carouselDrag / featuredCardSize), 0), maxShift()))
+            setCarouselDrag(0)
+            carouselContent.current.classList.remove("dragging")
+
+            // use timeout so a drag doesnt cause a link click
+            setTimeout(()=>setCarouselDragging(false),50)
+        }
+    }
     
     return (
-    <div className='dashboard'>
+    <div className='dashboard' onMouseUp={mouseStopDrag} onMouseLeave={mouseStopDrag}>
         <div className='welcome-banner'>
             <h2>Welcome to the Community Library!</h2>
         </div>
@@ -77,14 +95,60 @@ const CommunityLibraryDashboard = ({setCategories}) => {
             <div className='content-container'>
                 <button className='carousel left' aria-label='Move carousel to the left.'
                 disabled={carouselShift <= 0} onClick={()=>shiftCarousel(-1)}>{'<'}</button>
-                <div id="carousel-content" className='content' ref={carouselContent}>
+                <div id="carousel-content" className='content' ref={carouselContent}
+                onMouseMove={(e) => {
+                    if(e.buttons > 0) {
+                        let delta = e.movementX
+
+                        let current = Math.min(carouselShift * featuredCardSize, maxTranslate()) + carouselDrag
+                        if(current >= maxTranslate() || current <= 0)
+                            delta /= 4
+
+                        setCarouselDrag(Math.min(carouselDrag - delta, maxTranslate()))
+                        setCarouselDragging(true)
+                        carouselContent.current.classList.add("dragging")
+                    } else if(carouselDragging) {
+                       
+                        setCarouselDragging(false)
+                    }
+                }}
+                onTouchStart={(e) => {
+                    setLastTouchX(e.changedTouches.item(0).clientX)
+                    setCarouselDragging(true)
+                    carouselContent.current.classList.add("dragging")
+                }}
+                onTouchMove={(e) => {
+                    e.preventDefault()
+                    
+                    let delta = e.changedTouches.item(0).clientX - lastTouchX
+                    let current = Math.min(carouselShift * featuredCardSize, maxTranslate()) + carouselDrag
+                    if(current >= maxTranslate() || current <= 0)
+                        delta /= 4
+                    setCarouselDrag(Math.min(carouselDrag - delta, maxTranslate()))
+                    setLastTouchX(e.changedTouches.item(0).clientX)
+                }}
+                onTouchEnd={(e) => {
+                    if(e.touches.length === 0 && carouselDragging) {
+                        setCarouselShift(Math.min(Math.max(carouselShift + Math.round(carouselDrag / featuredCardSize), 0), maxShift()))
+                        setCarouselDrag(0)
+                        carouselContent.current.classList.remove("dragging")
+                        setCarouselDragging(false)
+                    }
+                }}>
                     {biggerFeatured.map((entry, i) => (
                         <div className='carousel-card'
-                        style={{transform: `translateX(-${Math.min(carouselShift * featuredCardSize, maxTranslate())}px)`}}>
+                        onClick={(e)=>{
+                            if(carouselDragging) {
+                                e.preventDefault()
+                                e.stopPropagation()
+                            }
+                        }}
+                        style={{transform: `translateX(${-Math.min(carouselShift * featuredCardSize, maxTranslate()) - carouselDrag}px)`}}>
                             <CommunityLibraryCard
                                 key={entry.id + `_${i}`}
                                 entry={entry}
                                 highlightedTags={[]}
+                                color={mappedCategories[entry.category].color}
                                 skinFeatured
                             />
                         </div>
@@ -95,22 +159,23 @@ const CommunityLibraryDashboard = ({setCategories}) => {
             </div>
         </div>
         <h3>Community Widgets</h3>
-        <div className='category-box stem'>
+        <div className='category-box liberal'>
             <div className='row'>
-                <h4>STEM</h4>
+                <h4>Arts & Humanities</h4>
                 <button className='see-all' 
-                aria-label='See all STEM widgets'
-                onClick={()=>setCategories(new Set([...stemCategories]))}>
+                aria-label='See all Arts & Humanities widgets'
+                onClick={()=>setCategories(new Set([...liberalCategories]))}>
                     {">"} See all</button>
             </div>
             {
-            stem && stem.length > 0 ?
+            liberal && liberal.length > 0 ?
             <div className='content'>
-                {stem.map((entry, i) => (
+                {liberal.map((entry, i) => (
                     <CommunityLibraryCard
-                        key={entry.id + `_stem_${i}`}
-                        entry={entry}
-                        highlightedTags={[]}
+                    key={entry.id + `_stem_${i}`}
+                    entry={entry}
+                    highlightedTags={[]}
+                    color={mappedCategories[entry.category].color}
                     />
                 ))}
             </div>
@@ -134,6 +199,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                     key={entry.id + `_stem_${i}`}
                     entry={entry}
                     highlightedTags={[]}
+                    color={mappedCategories[entry.category].color}
                     />
                 ))}
             </div>
@@ -141,22 +207,23 @@ const CommunityLibraryDashboard = ({setCategories}) => {
             <div className='none-found'>No widgets in this category were found.</div>
             }
         </div>
-        <div className='category-box liberal'>
+        <div className='category-box stem'>
             <div className='row'>
-                <h4>Arts & Humanities</h4>
+                <h4>STEM</h4>
                 <button className='see-all' 
-                aria-label='See all Arts & Humanities widgets'
-                onClick={()=>setCategories(new Set([...liberalCategories]))}>
+                aria-label='See all STEM widgets'
+                onClick={()=>setCategories(new Set([...stemCategories]))}>
                     {">"} See all</button>
             </div>
             {
-            liberal && liberal.length > 0 ?
+            stem && stem.length > 0 ?
             <div className='content'>
-                {liberal.map((entry, i) => (
+                {stem.map((entry, i) => (
                     <CommunityLibraryCard
-                    key={entry.id + `_stem_${i}`}
-                    entry={entry}
-                    highlightedTags={[]}
+                        key={entry.id + `_stem_${i}`}
+                        entry={entry}
+                        highlightedTags={[]}
+                        color={mappedCategories[entry.category].color}
                     />
                 ))}
             </div>
@@ -180,6 +247,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                     key={entry.id + `_stem_${i}`}
                     entry={entry}
                     highlightedTags={[]}
+                    color={mappedCategories[entry.category].color}
                     />
                 ))}
             </div>

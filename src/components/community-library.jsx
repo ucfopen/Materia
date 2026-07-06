@@ -10,21 +10,22 @@ import {
 import useDebounce from './hooks/useDebounce'
 import './community-library.scss'
 import CommunityLibraryDashboard from './community-library-dashboard'
+import { color } from 'd3'
 
 export const CATEGORIES = [
-	{ value: 'math', label: 'Math' },
-	{ value: 'science', label: 'Science' },
-	{ value: 'english', label: 'English' },
-	{ value: 'history', label: 'History' },
-	{ value: 'art', label: 'Art' },
-	{ value: 'language', label: 'World Languages' },
-	{ value: 'engineering', label: 'Engineering' },
-	{ value: 'health', label: 'Health Sciences' },
-	{ value: 'medicine', label: 'Medicine'},
-	{ value: 'business', label: 'Business' },
-	{ value: 'education', label: 'Education' },
-	{ value: 'hospitality', label: 'Hospitality' },
-	{ value: 'other', label: 'Other' },
+	{ value: 'math', label: 'Math', color: "#75bf5b"},
+	{ value: 'science', label: 'Science', color: "#75bf5b"},
+	{ value: 'english', label: 'English', color: "#b944cc" },
+	{ value: 'history', label: 'History', color: "#b944cc" },
+	{ value: 'art', label: 'Art', color: "#b944cc" },
+	{ value: 'language', label: 'World Languages', color: "#b944cc" },
+	{ value: 'engineering', label: 'Engineering', color: "#75bf5b"},
+	{ value: 'health', label: 'Health Sciences' , color: "#ef8152"},
+	{ value: 'medicine', label: 'Medicine', color: "#ef8152"},
+	{ value: 'business', label: 'Business', color: "#5da3cb" },
+	{ value: 'education', label: 'Education', color: "#5da3cb" },
+	{ value: 'hospitality', label: 'Hospitality', color: "#5da3cb" },
+	{ value: 'other', label: 'Other', color: "#bbb"},
 ]
 
 const COURSE_LEVELS = [
@@ -54,6 +55,9 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	const [sortBy, setSortBy] = useState('newest')
 	const [reportingEntry, setReportingEntry] = useState(null)
 	const [copySuccess, setCopySuccess] = useState(null)
+
+	const mappedCategories = {}
+	CATEGORIES.forEach((v)=>{mappedCategories[v.value] = {color: v.color, label: v.label}})
 
 	const formRef = useRef(null)
 
@@ -195,6 +199,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 							key={entry.id}
 							entry={entry}
 							highlightedTags={tagList.filter((v, i)=>(entry.tags ?? []).includes(v))}
+							color={mappedCategories[entry.category].color}
 						/>
 					))}
 				</div>

@@ -1,5 +1,6 @@
 import React, {useState} from 'react'
 import { iconUrl } from '../util/icon-url'
+import { CATEGORIES } from './community-library'
 
 const HEART_FILLED =
 	'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'
@@ -8,12 +9,15 @@ const HEART_OUTLINE =
 const FLAG_ICON = 'M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z'
 const COPY_PATH = "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
 
-const CommunityLibraryCard = ({ entry, highlightedTags = [], skinFeatured = false }) => {
+
+
+const CommunityLibraryCard = ({ entry, highlightedTags = [], color = "#333", skinFeatured = false }) => {
 	const {
 		instance_id,
 		instance_name,
 		widget,
 		owner_display_name,
+		category,
 		category_display,
 		course_level_display,
 		copy_count,
@@ -26,14 +30,14 @@ const CommunityLibraryCard = ({ entry, highlightedTags = [], skinFeatured = fals
 	if(skinFeatured)
 	return (
 		<div className={`featured-card`} >
-			<a href={`/community-library/${entry.id}/`} className="card-header"
+			<a href={`/community-library/${entry.id}/`} className="card-header" draggable="false"
 			aria-label={`${instance_name}: a featured ${widget?.name} widget by ${owner_display_name != "" ? owner_display_name : "Unknown"}. 
 			${category_display ? category_display : "Unknown category"}. ${course_level_display ? `${course_level_display}. ` : ""}
 			${entry.tags && entry.tags.length > 0 ? `Tags: ${entry.tags.map((v,i) => `#${v}`)}` : `No tags`}.
 			 Likes: ${entry.like_count}. Copies: ${entry.copy_count}`}>
-				<div className='banner'></div>
+				<div className='banner' style={{backgroundColor: color}}></div>
 				<div className="img-holder">
-					<img src={iconUrl('/widget/', widget?.dir, 92)} alt={widget?.name} />
+					<img src={iconUrl('/widget/', widget?.dir, 92)} alt={widget?.name} draggable="false"/>
 				</div>
 				<div className="card-content">
 					
@@ -64,29 +68,30 @@ const CommunityLibraryCard = ({ entry, highlightedTags = [], skinFeatured = fals
 
 	return (
 		<div className={`library-card animate`}>
-			<a href={`/community-library/${entry.id}/`} className="card-header"
+			<div className='banner' style={{backgroundColor: color}}></div>
+
+			<a href={`/community-library/${entry.id}/`} className='card-content'
 			aria-label={`${instance_name}: a ${widget?.name} widget by ${owner_display_name != "" ? owner_display_name : "Unknown"}. 
 			${category_display ? category_display : "Unknown category"}. ${course_level_display ? `${course_level_display}. ` : ""}
 			${entry.tags && entry.tags.length > 0 ? `Tags: ${entry.tags.map((v,i) => `#${v}`)}` : `No tags`}.
 			 Likes: ${entry.like_count}. Copies: ${entry.copy_count}`}>
 				<div className="img-holder">
-					<img src={iconUrl('/widget/', widget?.dir, 275)} alt={widget?.name} />
+					<img alt={`${widget?.name} widget icon`} src={iconUrl('/widget/', widget?.dir, 92)} alt={widget?.name} />
 				</div>
-				<div className="card-title">
+				<div className="card-details">
+					<h3>{instance_name}</h3>
+					<span className="owner">by {owner_display_name != "" ? owner_display_name : "Unknown"}</span>
 					<div className='row' style={{gap:"4px"}}>
 						{course_level_display && <span className="badge level">{course_level_display}</span>}
 						{category_display && <span className="badge category">{category_display}</span>}
 					</div>
-					<h3>{instance_name}</h3>
-					<span className="widget-type">{widget?.name}</span>
-					<span className="owner">by {owner_display_name != "" ? owner_display_name : "Unknown"}</span>
 				</div>
 			</a>
 			<hr/>
-			<div className="card-meta">
+			<div className='row meta'>
 				<div className='badges'>
 					
-					{entry.tags.length >= 1 && <>
+					{entry.tags.length >= 1 ? <>
 					{highlightedTags.map((ht, i) => {
 						if(i >= 2) return
 						return (<span className={`badge highlighted`}>#{ht}</span>)
@@ -99,10 +104,10 @@ const CommunityLibraryCard = ({ entry, highlightedTags = [], skinFeatured = fals
 						}
 					})}
 					<span className='tiny-text'>{entry.tags.length > 2 ? `+${entry.tags.length-2}` : ""}</span>
-					</>}
+					</> : <p>No tags found.</p>}
 				</div>
+
 				<div className='badges'>
-					
 					<span className="copy-count" aria-label={`${copy_count} copies`}>
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 							<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
