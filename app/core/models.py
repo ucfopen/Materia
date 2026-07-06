@@ -907,6 +907,29 @@ class SiteImage(models.Model):
     image_path = models.CharField(max_length=255)
 
 
+class SiteMessage(models.Model):
+
+    class MessageType(models.TextChoices):
+        NO_TYPE = "NO_TYPE", gettext_lazy("No Type")
+        SITE_NOTIFICATION = "SITE_NOTIFICATION", gettext_lazy("Site Notification")
+        SITE_ALERT = "SITE_ALERT", gettext_lazy("Site Alert")
+        CATALOG_HEADER = "CATALOG_HEADER", gettext_lazy("Catalog Header")
+        CATALOG_TEXT = "CATALOG_TEXT", gettext_lazy("Catalog Text")
+
+    message_type = models.CharField(
+        max_length=26,
+        blank=True,
+        null=True,
+        choices=MessageType.choices,
+        default=MessageType.NO_TYPE,
+    )
+
+    message_text = models.TextField()
+
+    start_at = models.DateTimeField(default=None, null=True)
+    end_at = models.DateTimeField(default=None, null=True)
+
+
 class UserExtraAttempts(models.Model):
     @staticmethod
     def get_cur_semester():

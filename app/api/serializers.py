@@ -16,6 +16,7 @@ from core.models import (
     Notification,
     ObjectPermission,
     SiteImage,
+    SiteMessage,
     UserExtraAttempts,
     UserSettings,
     Widget,
@@ -948,3 +949,19 @@ class SiteImageSerializer(serializers.ModelSerializer):
         validated_data["image_path"] = f"/site_img/{filename}"
 
         return super().create(validated_data)
+
+
+class SiteMessageSerializer(serializers.ModelSerializer):
+
+    message_text = serializers.CharField(required=True)
+    message_type = serializers.ChoiceField(
+        choices=SiteMessage.MessageType.choices, required=True
+    )
+
+    start_at = serializers.DateTimeField(required=False, allow_null=True)
+    end_at = serializers.DateTimeField(required=False, allow_null=True)
+
+    class Meta:
+        model = SiteMessage
+        fields = ["id", "message_type", "message_text", "start_at", "end_at"]
+        read_only_fields = ["id"]
