@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef, useDeferredValue } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetUser, apiGetSiteImages } from '../util/api'
+import { apiGetUser, apiGetSiteImages, apiGetSiteMessages } from '../util/api'
 import './community-library.scss'
 import CommunityLibraryCard from './community-library-card'
 import {
@@ -69,6 +69,22 @@ const CommunityLibraryDashboard = ({setCategories}) => {
         retry: false
     })
 
+    const {data: catalogTexts} = useQuery({
+        queryKey: ['catalog-texts'],
+        queryFn: async () => {
+            const messages = await apiGetSiteMessages(["CATALOG_TEXT"])
+            return messages.sort((a,b)=>b.id-a.id)
+        }
+    })
+
+    const {data: catalogHeaders} = useQuery({
+        queryKey: ['catalog-headers'],
+        queryFn: async () => {
+            const messages = await apiGetSiteMessages(["CATALOG_HEADER"])
+            return messages.sort((a,b)=>b.id-a.id)
+        }
+    })
+
     const mouseStopDrag = (e) => {
         if(carouselDragging) {
             setCarouselShift(Math.min(Math.max(carouselShift + Math.round(carouselDrag / featuredCardSize), 0), maxShift()))
@@ -85,12 +101,18 @@ const CommunityLibraryDashboard = ({setCategories}) => {
         <div className='welcome-banner'>
             <h2>Welcome to the Community Library!</h2>
         </div>
-        <h3>Featured Widgets</h3>
+        <h3>
+            {catalogHeaders && catalogHeaders.length > 0 ? catalogHeaders[0].message_text : "Featured Widgets"}
+        </h3>
         <div className='category-box featured'>
             <div className='row'>
                 {/* <div style={{width: 180, height: 150, backgroundColor: "#ccc", flexShrink: 0, borderRadius: 8}}></div> */}
                 { catalogImages && catalogImages.length > 0 && <img className="catalog-image" src={catalogImages[0].image_path}/>}
-                <p>Explore a curated collection of widgets selected by our LS&T staff. Browse available options to find tools and resources that can enhance your course and support your teaching goals.</p>
+                {
+                    catalogTexts && catalogTexts.length > 0 ? <p>{catalogTexts[0].message_text}</p>
+                    :
+                    <p>Explore a curated collection of widgets selected by our LS&T staff. Browse available options to find tools and resources that can enhance your course and support your teaching goals.</p>
+                }
             </div>
             <div className='content-container'>
                 <button className='carousel left' aria-label='Move carousel to the left.'
