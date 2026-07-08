@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon'
-import {apiGetUser} from '../util/api'
+import { apiGetUser, apiGetSiteImages } from '../util/api'
 import useUpdateUserSettings from './hooks/useUpdateUserSettings'
 import Header from './header'
 import './profile-page.scss'
@@ -21,10 +21,11 @@ const SettingsPage = () => {
 	const [state, setState] = useState({
 		notify: false,
 		useGravatar: false,
-		theme: 'light'
+		theme: 'light',
+		profileImage: -1
 	})
 
-	const { data: currentUser, isFetching} = useQuery({
+	const { data: currentUser, isLoading} = useQuery({
 		queryKey: ['user', 'me'],
 		queryFn: ({ queryKey }) => {
 			const [_key, user] = queryKey
@@ -44,79 +45,96 @@ const SettingsPage = () => {
 	})
 
 	useEffect(() => {
-		if (mounted && ! isFetching && currentUser) {
+		if (mounted && ! isLoading && currentUser) {
 			mounted.current = true
 			setState({
 				notify: currentUser.profile_fields.notify,
 				useGravatar: currentUser.profile_fields.useGravatar,
-				theme: currentUser.profile_fields.theme
+				theme: currentUser.profile_fields.theme,
+				profileImage: currentUser.profile_fields.profileImage
 			})
 		}
 		return () => {
 			mounted.current = false
 		}
-	},[isFetching])
+	},[isLoading])
+
+	const { data: profileImages, isFetching: isFetchingProfileImages} = useQuery({
+		queryKey: ['profile-images'],
+		queryFn: () => apiGetSiteImages('profile'),
+		staleTime: Infinity,
+	})
 
 	const mutateUserSettings = useUpdateUserSettings()
 
 	const _updateEmailPref = event => {
-		setState({...state, notify: !state.notify})
-
+		_patchSubmitSettings('notify', !state.notify)
 	}
 
 	const _updateIconPref = pref => {
-		setState({...state, useGravatar: pref})
+		_patchSubmitSettings('useGravatar', pref)
+	}
+
+	const _selectProfilePicture = (e) => {
+		const imageId = parseInt(e.target.getAttribute('data-image-id'))
+		_patchSubmitSettings('profileImage',imageId)
 	}
 
 	const _updateThemePref = (e) => {
 		const newTheme = e.target.value
-		setState(prev => ({ ...prev, theme: newTheme }))
+		_patchSubmitSettings('theme', newTheme)
 		window.theme = newTheme
 	}
 
-	const _submitSettings = () => {
+	const _onUpdateSuccess = (data) => {
+		if (data) {
+			setState(prev => ({ ...data }))
+		}
+
+		// Immediately apply/revoke theme to body
+		if (data.theme === 'dark') {
+			document.body.classList.add('darkMode')
+		} else if (data.theme === 'light') {
+			document.body.classList.remove('darkMode')
+		} else if (data.theme === 'os') {
+			const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+			if (prefersDark) {
+				document.body.classList.add('darkMode')
+			} else {
+				document.body.classList.remove('darkMode')
+			}
+		}
+	}
+
+	const _onUpdateFailure = (err) => {
+		if (err.message == 'Invalid Login') {
+			setAlertDialog({
+				enabled: true,
+				message: 'You must be logged in to view your settings.',
+				title: 'Login Required',
+				fatal: true,
+				enableLoginButton: true
+			})
+		} else if (err.message == 'Unauthorized') {
+			setAlertDialog({
+				enabled: true,
+				message: 'You do not have permission to view this page.',
+				title: 'Action Failed',
+				fatal: err.halt,
+				enableLoginButton: false
+			})
+		}
+		setError((err.message || 'Error') + ': Failed to update settings.')
+	}
+
+	const _patchSubmitSettings = (key, value) => {
 		mutateUserSettings.mutate({
 			user_id: currentUser.id,
 			profile_fields: {
-				notify: state.notify,
-				useGravatar: state.useGravatar,
-				theme: state.theme
+				[key]: value
 			},
-			successFunc: () => {
-				// Immediately apply/revoke theme to body
-				if (state.theme === 'dark') {
-					document.body.classList.add('darkMode')
-				} else if (state.theme === 'light') {
-					document.body.classList.remove('darkMode')
-				} else if (state.theme === 'os') {
-					const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-					if (prefersDark) {
-						document.body.classList.add('darkMode')
-					} else {
-						document.body.classList.remove('darkMode')
-					}
-				}
-			},
-			errorFunc: (err) => {
-				if (err.message == 'Invalid Login') {
-					setAlertDialog({
-						enabled: true,
-						message: 'You must be logged in to view your settings.',
-						title: 'Login Required',
-						fatal: true,
-						enableLoginButton: true
-					})
-				} else if (err.message == 'Unauthorized') {
-					setAlertDialog({
-						enabled: true,
-						message: 'You do not have permission to view this page.',
-						title: 'Action Failed',
-						fatal: err.halt,
-						enableLoginButton: false
-					})
-				}
-				setError((err.message || 'Error') + ': Failed to update settings.')
-			}
+			successFunc: _onUpdateSuccess,
+			errorFunc: _onUpdateFailure
 		})
 	}
 
@@ -142,7 +160,25 @@ const SettingsPage = () => {
 	}
 
 	let mainContentRender = <section className='page loading'><div className='loading-icon-holder'><LoadingIcon /></div></section>
-	if ( !isFetching && currentUser ) {
+	if ( !isLoading && currentUser ) {
+
+		let profileImageList = []
+		if (profileImages && !isFetchingProfileImages) {
+			profileImageList = profileImages.map((image, index) => {
+				return (
+					<li key={index}>
+						<button 
+							className={ state.profileImage == image.id ? 'selected' : ''}
+							data-image-id={image.id}
+							disabled={state.useGravatar}
+							onClick={_selectProfilePicture}>
+							<img data-image-id={image.id} src={image.image_path} alt='kogneato profile picture' />
+						</button>
+					</li>
+				)
+			})
+		}
+
 		mainContentRender = (
 			<section className="page settings">
 				<ul className="main_navigation" role="menu">
@@ -186,7 +222,7 @@ const SettingsPage = () => {
 							</p>
 						</li>
 					</ul>
-					<span>User Icon</span>
+					<span>User Icon Selection</span>
 					<ul className='user-icon-select' role="radiogroup">
 						<li>
 							<label className="radio-wrapper">
@@ -198,7 +234,7 @@ const SettingsPage = () => {
 									onChange={() => _updateIconPref(true)}
 								/>
 								<span className="custom-radio" role="radio" aria-checked={state.useGravatar == true}></span>
-								Use Gravatar
+								Gravatar
 							</label>
 							<a className="external tiny" href="https://en.gravatar.com/" target="_blank">
 								{' '}
@@ -215,9 +251,12 @@ const SettingsPage = () => {
 									onChange={() => _updateIconPref(false)}
 								/>
 								<span className="custom-radio" role="radio" aria-checked={state.useGravatar == false}></span>
-								None
+								Default (Select a Kogneato portrait below)
 							</label>
 						</li>
+					</ul>
+					<ul className={`profile-image-gallery ${ !state.useGravatar ? 'active' : 'inactive' }`}>
+						{ profileImageList }
 					</ul>
 					<span>Theme</span>
 					<ul className="theme-select" role="radiogroup">
@@ -264,9 +303,6 @@ const SettingsPage = () => {
 							<p className="exp">Note: This does not influence widgets.</p>
 						</li>
 					</ul>
-					<button type="submit" className="action_button" onClick={_submitSettings}>
-					Save
-					</button>
 				</div>
 
 				{errorRender}
