@@ -502,7 +502,17 @@
 			height: 50px;
 			display: flex;
 			position: absolute;
-			
+			filter: brightness(80%) saturate(1.425);
+		}
+
+		.banner-img {
+			width: fit-content;
+			height: 50px;
+			right: -28px;
+			display: flex;
+			position: absolute;
+			mix-blend-mode: multiply;
+			opacity: 1;
 		}
 
 		&.animate {
@@ -574,6 +584,7 @@
 				overflow: hidden;
 				text-overflow: ellipsis;
 				color: #fff;
+				letter-spacing: 0.15px;
 
 				&:hover {
 					text-decoration: underline;
@@ -704,6 +715,7 @@
 			width: 100%;
 			height: 60px;
 			border-radius: 16px 16px 0 0;
+			filter: brightness(80%) saturate(1.425);
 		}
 
 		.img-holder {
@@ -1207,7 +1219,7 @@
 	}
 
 	.community-library .dashboard .category-box.featured {
-		background: linear-gradient(#21232a, #6bbded);
+		background: linear-gradient(#21232a, #6bbded80);
 
 		p {
 			color: #c9d7e7;
@@ -1246,7 +1258,7 @@
 
 	.library-card {
 		border-color: #444;
-		background-color: #21232a;
+		background-color: #2b2d35;
 
 		hr {
 			opacity: 0.25;
@@ -1282,12 +1294,12 @@
 
 			&.category {
 				background: rgba(93, 163, 203, 0.65);
-				color: #eee;
+				color: #fff;
 			}
 
 			&.level {
 				background: rgba(117, 191, 91, 0.65);
-				color: #eee;
+				color: #fff;
 			}
 
 			&.highlighted {
@@ -1298,7 +1310,7 @@
 		}
 
 		.like-btn {
-			color: #ff3a6e;
+			color: #ff6b92;
 			border-color: #444;
 		}
 
@@ -1311,16 +1323,16 @@
 		}
 
 		.banner {
-			opacity: 0.8;
+			filter: brightness(65%);
 		}
 	}
 
 	.featured-card {
-		background-color: #21232a;
+		background-color: #2b2d35;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 
 		.banner {
-			opacity: 0.8;
+			filter: brightness(65%);
 		}
 
 		.card-content {
@@ -1341,12 +1353,12 @@
 
 				&.category {
 					background: rgba(93, 163, 203, 0.65);
-					color: #eee;
+					color: #fff;
 				}
 
 				&.level {
 					background: rgba(117, 191, 91, 0.65);
-					color: #eee;
+					color: #fff;
 				}
 
 				&.highlighted {

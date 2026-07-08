@@ -30,7 +30,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
     const { entries: health } = useCommunityLibraryList(4, "", "", healthCategories, "", "", [], false)
 
     const mappedCategories = {}
-	CATEGORIES.forEach((v)=>{mappedCategories[v.value] = {color: v.color, label: v.label}})
+	CATEGORIES.forEach((v)=>{mappedCategories[v.value] = {color: v.color, label: v.label, banner: v.banner}})
 
     useEffect(() => {
         setBiggerFeatured([...featured, ...featured, ...featured])
@@ -176,7 +176,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                                 key={entry.id + `_${i}`}
                                 entry={entry}
                                 highlightedTags={[]}
-                                color={mappedCategories[entry.category].color}
+                                categoryObject={mappedCategories[entry.category]}
                                 skinFeatured
                             />
                         </div>
@@ -203,7 +203,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                     key={entry.id + `_stem_${i}`}
                     entry={entry}
                     highlightedTags={[]}
-                    color={mappedCategories[entry.category].color}
+                    categoryObject={mappedCategories[entry.category]}
                     />
                 ))}
             </div>
@@ -227,7 +227,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                     key={entry.id + `_stem_${i}`}
                     entry={entry}
                     highlightedTags={[]}
-                    color={mappedCategories[entry.category].color}
+                    categoryObject={mappedCategories[entry.category]}
                     />
                 ))}
             </div>
@@ -251,7 +251,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                         key={entry.id + `_stem_${i}`}
                         entry={entry}
                         highlightedTags={[]}
-                        color={mappedCategories[entry.category].color}
+                        categoryObject={mappedCategories[entry.category]}
                     />
                 ))}
             </div>
@@ -275,7 +275,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                     key={entry.id + `_stem_${i}`}
                     entry={entry}
                     highlightedTags={[]}
-                    color={mappedCategories[entry.category].color}
+                    categoryObject={mappedCategories[entry.category]}
                     />
                 ))}
             </div>

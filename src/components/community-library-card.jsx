@@ -11,7 +11,7 @@ const COPY_PATH = "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
 
 
 
-const CommunityLibraryCard = ({ entry, highlightedTags = [], color = "#333", skinFeatured = false }) => {
+const CommunityLibraryCard = ({ entry, categoryObject, highlightedTags = [], skinFeatured = false }) => {
 	const {
 		instance_id,
 		instance_name,
@@ -35,7 +35,7 @@ const CommunityLibraryCard = ({ entry, highlightedTags = [], color = "#333", ski
 			${category_display ? category_display : "Unknown category"}. ${course_level_display ? `${course_level_display}. ` : ""}
 			${entry.tags && entry.tags.length > 0 ? `Tags: ${entry.tags.map((v,i) => `#${v}`)}` : `No tags`}.
 			 Likes: ${entry.like_count}. Copies: ${entry.copy_count}`}>
-				<div className='banner' style={{backgroundColor: color}}></div>
+				<div className='banner' style={{backgroundColor: categoryObject.color}}></div>
 				<div className="img-holder">
 					<img src={iconUrl('/widget/', widget?.dir, 92)} alt={widget?.name} draggable="false"/>
 				</div>
@@ -68,7 +68,8 @@ const CommunityLibraryCard = ({ entry, highlightedTags = [], color = "#333", ski
 
 	return (
 		<div className={`library-card animate`}>
-			<div className='banner' style={{backgroundColor: color}}></div>
+			<div className='banner' style={{backgroundColor: categoryObject.color}}></div>
+			<img className='banner-img' src={categoryObject.banner}/>
 
 			<a href={`/community-library/${entry.id}/`} className='card-content'
 			aria-label={`${instance_name}: a ${widget?.name} widget by ${owner_display_name != "" ? owner_display_name : "Unknown"}. 

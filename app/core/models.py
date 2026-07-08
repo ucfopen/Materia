@@ -1642,12 +1642,13 @@ class CommunityLibraryEntry(models.Model):
         ("english", "English"),
         ("history", "History"),
         ("art", "Art"),
-        ("music", "Music"),
         ("language", "World Languages"),
-        ("cs", "Computer Science"),
-        ("health", "Health & PE"),
+        ("engineering", "Engineering"),
+        ("health", "Health Sciences"),
+        ("medicine", "Medicine"),
         ("business", "Business"),
         ("education", "Education"),
+        ("hospitality", "Education"),
         ("other", "Other"),
     ]
 

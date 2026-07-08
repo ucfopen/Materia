@@ -13,19 +13,19 @@ import CommunityLibraryDashboard from './community-library-dashboard'
 import { color } from 'd3'
 
 export const CATEGORIES = [
-	{ value: 'math', label: 'Math', color: "#75bf5b"},
-	{ value: 'science', label: 'Science', color: "#75bf5b"},
-	{ value: 'english', label: 'English', color: "#b944cc" },
-	{ value: 'history', label: 'History', color: "#b944cc" },
-	{ value: 'art', label: 'Art', color: "#b944cc" },
-	{ value: 'language', label: 'World Languages', color: "#b944cc" },
-	{ value: 'engineering', label: 'Engineering', color: "#75bf5b"},
-	{ value: 'health', label: 'Health Sciences' , color: "#ef8152"},
-	{ value: 'medicine', label: 'Medicine', color: "#ef8152"},
-	{ value: 'business', label: 'Business', color: "#5da3cb" },
-	{ value: 'education', label: 'Education', color: "#5da3cb" },
-	{ value: 'hospitality', label: 'Hospitality', color: "#5da3cb" },
-	{ value: 'other', label: 'Other', color: "#bbb"},
+	{ value: 'math', label: 'Math', color: "#75bf5b", banner: "/static/img/banners/banner_math.svg"},
+	{ value: 'science', label: 'Science', color: "#75bf5b", banner: "/static/img/banners/banner_math.svg"},
+	{ value: 'english', label: 'English', color: "#b944cc", banner: "/static/img/banners/banner_math.svg" },
+	{ value: 'history', label: 'History', color: "#b944cc", banner: "/static/img/banners/banner_math.svg" },
+	{ value: 'art', label: 'Art', color: "#b944cc", banner: "/static/img/banners/banner_math.svg"},
+	{ value: 'language', label: 'World Languages', color: "#b944cc", banner: "/static/img/banners/banner_math.svg"},
+	{ value: 'engineering', label: 'Engineering', color: "#75bf5b", banner: "/static/img/banners/banner_math.svg"},
+	{ value: 'health', label: 'Health Sciences' , color: "#ef8152", banner: "/static/img/banners/banner_math.svg"},
+	{ value: 'medicine', label: 'Medicine', color: "#ef8152", banner: "/static/img/banners/banner_math.svg"},
+	{ value: 'business', label: 'Business', color: "#5da3cb", banner: "/static/img/banners/banner_math.svg"},
+	{ value: 'education', label: 'Education', color: "#5da3cb", banner: "/static/img/banners/banner_math.svg"},
+	{ value: 'hospitality', label: 'Hospitality', color: "#5da3cb", banner: "/static/img/banners/banner_math.svg"},
+	{ value: 'other', label: 'Other', color: "#bbb", banner: "/static/img/banners/banner_math.svg"},
 ]
 
 const COURSE_LEVELS = [
@@ -57,7 +57,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	const [copySuccess, setCopySuccess] = useState(null)
 
 	const mappedCategories = {}
-	CATEGORIES.forEach((v)=>{mappedCategories[v.value] = {color: v.color, label: v.label}})
+	CATEGORIES.forEach((v)=>{mappedCategories[v.value] = {color: v.color, label: v.label, banner: v.banner}})
 
 	const formRef = useRef(null)
 
@@ -199,7 +199,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 							key={entry.id}
 							entry={entry}
 							highlightedTags={tagList.filter((v, i)=>(entry.tags ?? []).includes(v))}
-							color={mappedCategories[entry.category].color}
+							categoryObject={mappedCategories[entry.category]}
 						/>
 					))}
 				</div>
