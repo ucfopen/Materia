@@ -44,19 +44,19 @@ const CommunityLibraryDashboard = ({setCategories}) => {
         if(!carouselContent.current) return
 
         setCarouselShift(Math.max(Math.min(carouselShift + amount, maxShift()), 0))
-    }, [carouselContent.current, biggerFeatured, carouselShift])
+    }, [carouselContent.current, featured, carouselShift])
 
     const maxShift = useCallback(() => {
-        const cardSpace = featuredCardSize * biggerFeatured.length
+        const cardSpace = featuredCardSize * featured.length
         const width = carouselContent.current ? carouselContent.current.clientWidth : 0
         const excess = cardSpace - width
         return Math.ceil(excess / featuredCardSize)
-    }, [carouselContent.current, biggerFeatured])
+    }, [carouselContent.current, featured])
 
     const maxTranslate = useCallback(() => {
         const width = carouselContent.current ? carouselContent.current.clientWidth : 0
-        return (biggerFeatured.length * featuredCardSize) - width
-    }, [biggerFeatured, carouselContent.current])
+        return (featured.length * featuredCardSize) - width
+    }, [featured, carouselContent.current])
 
     // first in array order should be correct image to pull
     const {data: catalogImages, refetch: refetchCatalogImages } = useQuery({
@@ -99,20 +99,26 @@ const CommunityLibraryDashboard = ({setCategories}) => {
     return (
     <div className='dashboard' onMouseUp={mouseStopDrag} onMouseLeave={mouseStopDrag}>
         <div className='welcome-banner'>
-            <h2>Welcome to the Community Library!</h2>
+            <div className='column'>
+                <h2>Welcome to the Community Library!</h2>
+                <a href='/my-widgets'>My Widgets</a>
+            </div>
         </div>
-        <h3>
-            {catalogHeaders && catalogHeaders.length > 0 ? catalogHeaders[0].message_text : "Featured Widgets"}
-        </h3>
+        
         <div className='category-box featured'>
+            
             <div className='row'>
-                {/* <div style={{width: 180, height: 150, backgroundColor: "#ccc", flexShrink: 0, borderRadius: 8}}></div> */}
+                <div style={{margin: "auto"}}>
+                    <h3 className='featured-header'>
+                        {catalogHeaders && catalogHeaders.length > 0 ? catalogHeaders[0].message_text : "Featured Widgets"}
+                    </h3>
+                    {
+                        catalogTexts && catalogTexts.length > 0 ? <p>{catalogTexts[0].message_text}</p>
+                        :
+                        <p>Explore a curated collection of widgets selected by our LS&T staff. Browse available options to find tools and resources that can enhance your course and support your teaching goals.</p>
+                    }
+                </div>
                 { catalogImages && catalogImages.length > 0 && <img className="catalog-image" src={catalogImages[0].image_path}/>}
-                {
-                    catalogTexts && catalogTexts.length > 0 ? <p>{catalogTexts[0].message_text}</p>
-                    :
-                    <p>Explore a curated collection of widgets selected by our LS&T staff. Browse available options to find tools and resources that can enhance your course and support your teaching goals.</p>
-                }
             </div>
             <div className='content-container'>
                 <button className='carousel left' aria-label='Move carousel to the left.'
@@ -157,7 +163,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                         setCarouselDragging(false)
                     }
                 }}>
-                    {biggerFeatured.map((entry, i) => (
+                    {featured.map((entry, i) => (
                         <div className='carousel-card'
                         onClick={(e)=>{
                             if(carouselDragging) {
