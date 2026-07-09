@@ -60,6 +60,8 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	CATEGORIES.forEach((v)=>{mappedCategories[v.value] = {color: v.color, label: v.label, banner: v.banner}})
 
 	const formRef = useRef(null)
+	const tagListRef = useRef(null)
+	const searchRef = useRef(null)
 
 	// list of tags currently being searched
 	const [tagList, setTagList] = useState([])
@@ -242,11 +244,11 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		if(tags && tags.length > 1 && tempTag != "") {
 			if(e.key == "ArrowDown") {
 				e.preventDefault()
-				let newInd = focusedTag + 1 < tags.length ? focusedTag + 1 : 0
+				let newInd = focusedTag + 1 < tags.length ? focusedTag + 1 : -1
 				setFocusedTag(newInd)
 			} else if(e.key == "ArrowUp") {
 				e.preventDefault()
-				let newInd = focusedTag - 1 >= 0 ? focusedTag - 1 : tags.length - 1
+				let newInd = focusedTag - 1 >= -1 ? focusedTag - 1 : tags.length - 1
 				setFocusedTag(newInd)
 			}
 		}
@@ -298,12 +300,22 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		}, 50)
 	}
 
+	useEffect(() => {
+		if(!tagListRef.current) return
+
+		const tagEls = tagListRef.current.querySelectorAll(".drop-entry")
+		if(focusedTag >= 0) 
+			tagEls[focusedTag].focus()
+		else if(searchRef.current)
+			searchRef.current.focus()
+	}, [focusedTag])
+
 	return (
 		<div className="community-library">
-			<div aria-live='assertive' className='live'>
+			{/* <div aria-live='assertive' className='live'>
 				{tags && tags.length > 0 && focusedTag > -1 && 
 				`Tag selection menu: Selected "${tags.at(focusedTag).name}", used in ${tags.at(focusedTag).used_count} widget${tags.at(focusedTag).used_count > 1 ? "s" : ""}.`}
-			</div>
+			</div> */}
 			<link rel="preload" href="/img/chevron-down.svg" />
 			<div className="container">
 				<section className="page">
@@ -378,25 +390,18 @@ const CommunityLibrary = ({ widgets = [] }) => {
 										<div className="search-icon"><svg viewBox="0 0 250.313 250.313"><path d={`${GLASS_PATH}`} clipRule="evenodd" fillRule="evenodd"></path></svg></div>
 										<div className='search-tags'>
 											{tagList.map((v,i)=>(
-												<div role='button' key={`tag_${i}`} tabIndex={0} 
+												<button role='button' key={`tag_${i}`} tabIndex={0} 
 												aria-label={`#${v}: tag in search list. Press Enter to remove.`} className='tag'
-												onKeyDown={(e)=>{
-													if(e.key === "Enter") {
-														tagList.splice(i, 1)
-														inputElement.focus()
-														setTagList([...tagList])
-													}
-												}}
 												onClick={()=>{
 													tagList.splice(i, 1)
 													setTagList([...tagList])
 													inputElement.focus()
-												}}>{v}</div>
+												}}>{v}</button>
 											))}
 										</div>
 										{tempTag != "" && 
 												
-											<div className='tag-dropdown'>
+											<div className='tag-dropdown' ref={tagListRef} aria-label="Tag selection menu." onKeyDown={handleSearchEnter}>
 											{
 												!defTags ? <div className='notice'>Loading...</div>
 												: 
@@ -407,6 +412,8 @@ const CommunityLibrary = ({ widgets = [] }) => {
 													return <button 
 													className={`drop-entry ${i == focusedTag ? 'selected' : ''}`}
 													key={`dropdown_tag_${i}`}
+													tabIndex={-1}
+													aria-label={`#${t.name}: used in ${t.used_count} widget${t.used_count > 1 ? "s" : ""}.`}
 													onClick={()=>(enterTag(t.name))}>
 														<div>#{t.name}</div>
 														<div className='used-count'>{t.used_count}</div>
@@ -423,6 +430,8 @@ const CommunityLibrary = ({ widgets = [] }) => {
 											value={searchInput}
 											onChange={handleSearch}
 											onKeyDown={handleSearchEnter}
+											ref={searchRef}
+											aria-label='Widget search bar.'
 										/>
 										{searchInput && <button className="search-close" onClick={clearSearch} />}
 										{

@@ -116,7 +116,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 								!tags ? <div className='notice'>Loading...</div>
 								: 
 								tags.length == 0 && status == "success" ?
-								<div className='notice'>Create a new tag <b>#{newTag.toLowerCase().trim().replaceAll(" ", "-")}</b></div>
+								<div className='notice'>Create a new tag <b>#{newTag.toLowerCase().trim().replaceAll(" ", "-").replaceAll("#", "")}</b></div>
 								:
 								tags.map((t,i)=>{
 									return <button 
@@ -133,15 +133,16 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 						<input id="tag-input" type='text' autoComplete='off' value={newTag} onChange={(e)=>setNewTag(e.target.value)} onKeyDown={handleSearchKey} placeholder='Press Enter to create a tag...'/>
 					</div>
 					
-					<div className='tag-cont'>
+					<div className='tag-cont' aria-label='Currently applied tags:'>
 						{
 							tagList.length == 0 ? (
 								<p className='empty'>Your tags will appear here.</p>
 							) : 
 							tagList.map((t, i) => (
-								<div onClick={()=>{setTagList(tagList.filter((_, j)=>j!=i))}} className='tag' key={`tag_${i}`}>
+								<button onClick={()=>{setTagList(tagList.filter((_, j)=>j!=i))}}  
+								aria-label={`#${t}. Press Enter to remove.`} className='tag' key={`tag_${i}`}>
 									{t}
-								</div>
+								</button>
 							))
 						}
 						

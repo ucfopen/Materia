@@ -227,6 +227,8 @@
 					border: 1px solid #e4e4e4;
 					color: #333;
 
+					font-family: "Lato", Arial, sans-serif;
+
 					&.blue {
 						background-color: #EBF7FF;
 						color: #0369A1;
@@ -241,7 +243,7 @@
 						margin-right: 2px;
 					}
 
-					&:hover {
+					&:hover, &:focus-visible {
 						background-color: rgba(239, 129, 82, 0.5);
 						border-color: rgba(239, 129, 82, 1);
 						&:before {
@@ -255,7 +257,6 @@
 					&:nth-last-child(-n + 1) {
 						margin-right: 8px;
 					}
-					
 
 					font-size: 12px;
 					font-weight: 400;
@@ -274,14 +275,10 @@
 				width: 100%;
 				padding: 1px 0px;
 				border: none;
+				border-radius: 4px;
 				font-size: 14px;
 				
 				font-family: "Lato", Arial, sans-serif;
-
-				&:focus {
-					outline: none;
-					border-color: #3690e6;
-				}
 
 				&::placeholder {
 					color: #aaa;
