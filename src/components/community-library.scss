@@ -958,28 +958,41 @@
 
 				.carousel {
 					position: absolute;
-					top: calc(50% - 15px);
+					top: calc(50%);
 					font-weight: 700;
 					font-size: 18px;
 					cursor: pointer;
-					padding: 8px;
+					height: 32px;
+					width: 32px;
 					user-select: none;
 					border: none;
 					font-family: "Lato", Arial, sans-serif;
-					transform: scale(1,2);
-					background: none;
 
-					color: #333;
+					background: none;
+					background-color: #0d2c4d;
+					transition: scale 200ms ease;
+
+					&:hover {
+						scale: 1.25;
+					}
+
 					&:disabled {
-						color: #ccc;
+						background-color: #fff;
+						cursor: default;
+						&:hover {
+							scale: 1;
+						}
 					}
 
 					&.left {
-						left: 12px;
+						left: 4px;
+						mask: url("/img/chevron-left.svg") no-repeat center / 32px;
+						
 					}
 
 					&.right {
-						right: 12px;
+						right: 4px;
+						mask: url("/img/chevron-right.svg") no-repeat center / 32px;
 					}
 				}
 			}
@@ -1219,13 +1232,23 @@
 		color: #c7c7c7;
 	}
 
-	.community-library .dashboard .category-box.featured {
-		background: linear-gradient(#21232a, #6bbded80);
+	.community-library .dashboard .category-box {
+		&.featured {
+			background: linear-gradient(#21232a, #6bbded80);
+	
+			p {
+				color: #c9d7e7;
+				&.owner {
+					color: #ccc;
+				}
+			}
+		}
 
-		p {
-			color: #c9d7e7;
-			&.owner {
-				color: #ccc;
+		.content-container .carousel {
+			background-color: #c9d7e7;
+
+			&:disabled {
+				background-color: #0d2c4d;
 			}
 		}
 	}
@@ -1326,6 +1349,10 @@
 		.banner {
 			filter: brightness(65%);
 		}
+	}
+
+	.filter-button .filter-icon {
+		background-color: #ccc;
 	}
 
 	.featured-card {

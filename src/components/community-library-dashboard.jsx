@@ -122,7 +122,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
             </div>
             <div className='content-container'>
                 <button className='carousel left' aria-label='Move carousel to the left.'
-                disabled={carouselShift <= 0} onClick={()=>shiftCarousel(-1)}>{'<'}</button>
+                disabled={carouselShift <= 0} onClick={()=>shiftCarousel(-1)}></button>
                 <div id="carousel-content" className='content' ref={carouselContent}
                 onMouseMove={(e) => {
                     if(e.buttons > 0) {
@@ -183,7 +183,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                     ))}
                 </div>
                 <button className='carousel right'  aria-label='Move carousel to the right.'
-                disabled={carouselShift >= maxShift()} onClick={()=>shiftCarousel(1)}>{'>'}</button>
+                disabled={carouselShift >= maxShift()} onClick={()=>shiftCarousel(1)}></button>
             </div>
         </div>
         <h3>Community Widgets</h3>
