@@ -943,6 +943,7 @@
 					flex-wrap: nowrap;
 
 					user-select: none;
+					touch-action: none;
 
 					&.dragging {
 						cursor: grabbing;
@@ -1289,8 +1290,8 @@
 		}
 
 		.badge {
-			color: #ccc;
-			background-color: #30323b;
+			color: #fff;
+			background-color: #4c4e58;
 
 			&.category {
 				background: rgba(93, 163, 203, 0.65);
@@ -1348,8 +1349,8 @@
 			}
 
 			.badge {
-				color: #ccc;
-				background-color: #30323b;
+				color: #fff;
+				background-color: #4c4e58;
 
 				&.category {
 					background: rgba(93, 163, 203, 0.65);

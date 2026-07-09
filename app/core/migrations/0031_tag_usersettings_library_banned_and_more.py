@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
             name='CommunityLibraryEntry',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('category', models.CharField(choices=[('math', 'Math'), ('science', 'Science'), ('english', 'English'), ('history', 'History'), ('art', 'Art'), ('language', 'World Languages'), ('engineering', 'Engineering'), ('health', 'Health Sciences'), ('medicine', 'Medicine'), ('business', 'Business'), ('education', 'Education'), ('hospitality', 'Education'), ('other', 'Other')], max_length=50)),
+                ('category', models.CharField(choices=[('math', 'Math'), ('science', 'Science'), ('english', 'English'), ('history', 'History'), ('art', 'Art'), ('language', 'World Languages'), ('engineering', 'Engineering'), ('health', 'Health Sciences'), ('medicine', 'Medicine'), ('business', 'Business'), ('education', 'Education'), ('hospitality', 'Hospitality'), ('other', 'Other')], max_length=50)),
                 ('course_level', models.CharField(blank=True, choices=[('introductory', 'Introductory'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')], default='', max_length=50)),
                 ('featured', models.BooleanField(default=False)),
                 ('copy_count', models.IntegerField(default=0)),

@@ -1648,7 +1648,7 @@ class CommunityLibraryEntry(models.Model):
         ("medicine", "Medicine"),
         ("business", "Business"),
         ("education", "Education"),
-        ("hospitality", "Education"),
+        ("hospitality", "Hospitality"),
         ("other", "Other"),
     ]
 
