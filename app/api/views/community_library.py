@@ -21,7 +21,7 @@ from core.utils.b64_util import Base64Util
 from core.utils.validator_util import ValidatorUtil
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import F
+from django.db.models import F, Q
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -95,7 +95,9 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         # Search by latest snapshot name
         search = self.request.query_params.get("search")
         if search:
-            qs = qs.filter(snapshots__name__icontains=search).distinct()
+            qs = qs.filter(Q(snapshots__name__icontains=search)
+                            | Q(instance__user__first_name__icontains=search)
+                            | Q(instance__user__last_name__icontains=search)).distinct()
 
         # Filter by widget type
         widget_id = self.request.query_params.get("widget_id")
