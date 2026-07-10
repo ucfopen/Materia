@@ -36,6 +36,8 @@ const CommunityLibraryDetail = ({entry}) => {
 		[copyMutation],
 	)
 
+	console.log(entry)
+
 	const handleLike = useCallback(
 		(entryId) => {
 			likeMutation.mutate(entryId, {
@@ -145,7 +147,7 @@ const CommunityLibraryDetail = ({entry}) => {
 								</>
 								}
 							</button>
-							<a target='_blank' className='no-under' href={`/preview/snapshot/${!entry ? 0 : entry.id}`}>
+							<a target='_blank' className='no-under' href={`/preview/snapshot/${!entry ? 0 : entry.latest_snapshot_id}`}>
 								<button className='yellow h-sm space row center' style={{gap:"8px"}}>
 									<svg viewBox="0 0 24 24" width="16" height="16" aria-label='External Link Icon'>
 										<path d={EXTERNAL_PATH} />
