@@ -824,13 +824,22 @@ export const apiGetCommunityLibrary = ({ pageParam = 1, limit = null, search = '
 }
 
 export const apiGetLibraryTags = ({count = -1, search = '', exclude = []}) => {
-	let url = `/api/community-library/tags/?count=${count}`
-	if (search) url += `&search=${search}`
+	let url = `/api/community-library/tags/`
+	const params = new URLSearchParams()
+
+	if (count !== -1) params.append('count', count)
+	if (search) params.append('search', search)
+
+
 	if (exclude && exclude.length > 0) {
 		exclude.forEach((t)=>{
-			url += `&exclude=${t}`
+			params.append('exclude', t)
 		})
 	}
+
+	const queryString = params.toString()
+	if (queryString) url += `?${queryString}`
+
 	return handleRequest(methods.GET, url)
 }
 

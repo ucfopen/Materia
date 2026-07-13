@@ -192,8 +192,9 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if exclude:
             qs = qs.exclude(name__in=exclude)
 
-        count = int(request.query_params.get("count", -1))
-        if count != -1:
+        count = request.query_params.get("count", None)
+        if count is not None:
+            count = int(count)
             qs = qs[:count]
 
         res = []
