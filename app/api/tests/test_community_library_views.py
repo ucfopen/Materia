@@ -308,7 +308,7 @@ class TestCommunityLibraryList(CommunityLibraryViewSetTestCase):
             for r in response.data["results"]
             if r["instance_id"] == self.shared_instance.id
         )
-        self.assertEqual(entry["owner_display_name"], "Jane D.")
+        self.assertEqual(entry["owner_display_name"], "Jane Doe")
 
     def test_user_has_liked_false_by_default(self):
         self.client.force_authenticate(user=self.regular_user)
