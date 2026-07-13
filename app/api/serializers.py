@@ -19,11 +19,10 @@ from core.models import (
     ObjectPermission,
     SiteImage,
     SiteMessage,
+    Tag,
     UserExtraAttempts,
     UserLike,
     UserSettings,
-    Tag,
-    TagEntry,
     Widget,
     WidgetInstance,
     WidgetQset,
@@ -916,10 +915,12 @@ class PlayStorageSaveSerializer(serializers.Serializer):
     )
     logs = serializers.JSONField()
 
+
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ["name", "used_count"]
+
 
 class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
     instance_id = serializers.CharField(source="instance.id", read_only=True)
@@ -938,7 +939,7 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
     is_shared = serializers.SerializerMethodField()
     is_deleted = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = CommunityLibraryEntry
         fields = [
@@ -962,7 +963,7 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
             "last_reported_at",
             "tags",
             "is_shared",
-            "is_deleted"
+            "is_deleted",
         ]
 
     def get_instance_name(self, entry):
@@ -984,21 +985,22 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
         return latest_report.created_at if latest_report else None
 
     def get_user_has_liked(self, entry):
-        request = self.context.get("request")
-        return UserLike.objects.filter(user=request.user, entry=entry).exists()
-    
-    def get_tags(self, entry):
-        tag_strs = []
-        tag_entries = entry.tags.all()
-        
-        for te in tag_entries:
-            tag_strs.append(te.name)
+        prefetched_likes = getattr(entry, "liked_by_request_user", None)
+        if prefetched_likes is not None:
+            return len(prefetched_likes) > 0
 
-        return tag_strs
-    
+        request = self.context.get("request")
+        if request is None or request.user.is_anonymous:
+            return False
+
+        return UserLike.objects.filter(user=request.user, entry=entry).exists()
+
+    def get_tags(self, entry):
+        return [tag.name for tag in entry.tags.all()]
+
     def get_is_shared(self, entry):
         return entry.instance.is_shared
-    
+
     def get_is_deleted(self, entry):
         return entry.instance.is_deleted
 
@@ -1017,8 +1019,11 @@ class PublishToLibrarySerializer(serializers.Serializer):
         default="",
     )
     tags = serializers.ListField(
-        child = serializers.CharField(min_length=1, max_length=50)
+        child=serializers.CharField(min_length=1, max_length=50),
+        required=False,
+        default=list,
     )
+
 
 class SiteImageSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(write_only=True, required=True)

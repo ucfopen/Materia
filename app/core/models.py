@@ -1630,10 +1630,24 @@ class UserSettings(models.Model):
 
         self.save()
 
+
 class Tag(models.Model):
     name = models.CharField(max_length=50)
+    normalized_name = models.CharField(max_length=50, unique=True)
     used_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def normalize_name(tag_name: str) -> str:
+        cleaned = " ".join((tag_name or "").strip().split())
+        return cleaned.lower()
+
+    def save(self, *args, **kwargs):
+        cleaned = " ".join((self.name or "").strip().split())
+        self.name = cleaned
+        self.normalized_name = Tag.normalize_name(cleaned)
+        super().save(*args, **kwargs)
+
 
 class CommunityLibraryEntry(models.Model):
     CATEGORY_CHOICES = [
@@ -1658,9 +1672,7 @@ class CommunityLibraryEntry(models.Model):
         ("advanced", "Advanced"),
     ]
 
-    tags = models.ManyToManyField(
-        Tag, through="TagEntry"
-    )
+    tags = models.ManyToManyField(Tag, through="TagEntry")
     instance = models.OneToOneField(
         WidgetInstance,
         on_delete=models.CASCADE,
@@ -1704,6 +1716,7 @@ class UserLike(models.Model):
     class Meta:
         unique_together = ("user", "entry")
 
+
 class TagEntry(models.Model):
     tag = models.ForeignKey(
         Tag, on_delete=models.CASCADE, related_name="library_tagged"
@@ -1714,7 +1727,10 @@ class TagEntry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("tag", "entry")
+        constraints = [
+            models.UniqueConstraint(fields=["tag", "entry"], name="tag_entry_unique"),
+        ]
+
 
 class LibraryReport(models.Model):
     REASON_CHOICES = [

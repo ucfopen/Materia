@@ -1,27 +1,26 @@
 import logging
-import json
 
 from api.permissions import IsSuperOrSupportUser
 from api.serializers import (
     CommunityLibraryEntrySerializer,
     LibraryReportSerializer,
+    TagSerializer,
     WidgetInstanceSerializer,
-    TagSerializer
 )
 from core.models import (
     CommunityLibraryEntry,
     LibraryReport,
     Notification,
+    Tag,
     UserLike,
     WidgetInstance,
-    Tag
 )
 from core.services.user_service import UserService
 from core.utils.b64_util import Base64Util
 from core.utils.validator_util import ValidatorUtil
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import F, Q
+from django.db.models import F, Prefetch, Q
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -48,6 +47,11 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         moderation = ValidatorUtil.validate_bool(
             self.request.query_params.get("moderation")
         )
+        likes_prefetch = Prefetch(
+            "likes",
+            queryset=UserLike.objects.filter(user=self.request.user),
+            to_attr="liked_by_request_user",
+        )
 
         if moderation:
             qs = (
@@ -57,7 +61,7 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
                     "instance__widget",
                     "instance__user",
                 )
-                .prefetch_related("snapshots")
+                .prefetch_related("snapshots", "tags", likes_prefetch)
             )
             status = self.request.query_params.get("status")
             if status == "banned":
@@ -73,8 +77,8 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             else:
                 qs = qs.order_by("-report_count", "-created_at")
 
-            show_deleted = self.request.query_params.get('deleted')
-            if show_deleted == 'false':
+            show_deleted = self.request.query_params.get("deleted")
+            if show_deleted == "false":
                 qs = qs.filter(instance__is_deleted=False)
         else:
             qs = (
@@ -89,15 +93,17 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
                     "instance__widget",
                     "instance__user",
                 )
-                .prefetch_related("snapshots")
+                .prefetch_related("snapshots", "tags", likes_prefetch)
             )
 
         # Search by latest snapshot name
         search = self.request.query_params.get("search")
         if search:
-            qs = qs.filter(Q(snapshots__name__icontains=search)
-                            | Q(instance__user__first_name__icontains=search)
-                            | Q(instance__user__last_name__icontains=search)).distinct()
+            qs = qs.filter(
+                Q(snapshots__name__icontains=search)
+                | Q(instance__user__first_name__icontains=search)
+                | Q(instance__user__last_name__icontains=search)
+            ).distinct()
 
         # Filter by widget type
         widget_id = self.request.query_params.get("widget_id")
@@ -138,7 +144,7 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
         limit = self.request.query_params.get("limit")
         if limit:
-            qs = qs.all()[:int(limit)]
+            qs = qs.all()[: int(limit)]
 
         return qs
 
@@ -165,19 +171,21 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             permission_classes = [IsAuthenticated]
 
         return [permission() for permission in permission_classes]
-    
+
     @action(detail=True, methods=["get"])
     def get(self, request, pk=None):
         return Response(
             CommunityLibraryEntrySerializer(
-                self.get_object(), context={"request": request}).data)
-    
+                self.get_object(), context={"request": request}
+            ).data
+        )
+
     @action(detail=False, methods=["get"])
     def tags(self, request):
         qs = Tag.objects.all().order_by("-used_count", "name")
 
-        search = request.query_params.get("search", '')
-        if search != '':
+        search = request.query_params.get("search", "")
+        if search != "":
             qs = qs.filter(name__icontains=search)
 
         exclude = request.query_params.getlist("exclude")
@@ -191,27 +199,42 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         res = []
         for t in qs:
             res.append(TagSerializer(t).data)
-        return Response(json.dumps(res))
-    
+        return Response(res)
+
     @action(detail=False, methods=["patch", "delete"])
     def tag(self, request):
-        name = request.query_params.get("name", '')
-        tag = Tag.objects.filter(name=name).first()
+        name = request.query_params.get("name", "")
+        normalized_name = Tag.normalize_name(name)
+        tag = Tag.objects.filter(normalized_name=normalized_name).first()
 
-        if not Tag:
-            return Response({'error': 'Cannot delete a tag that does not exist.'}, status=400)
+        if not tag:
+            return Response(
+                {"error": "Cannot delete a tag that does not exist."}, status=400
+            )
 
         if request.method == "DELETE":
             tag.delete()
             return Response(status=200)
         elif request.method == "PATCH":
-            to = request.query_params.get("to", '')
-            dupe = Tag.objects.filter(name=to).first()
-            if dupe:
-                return Response({"error: There already exists a tag with this name."}, status=409)
+            to = request.query_params.get("to", "")
+            cleaned_to = " ".join(to.strip().split())
+            if not cleaned_to:
+                return Response({"error": "Tag name cannot be blank."}, status=400)
 
-            tag.name = to
-            tag.save()
+            normalized_to = Tag.normalize_name(cleaned_to)
+            dupe = (
+                Tag.objects.filter(normalized_name=normalized_to)
+                .exclude(pk=tag.pk)
+                .first()
+            )
+            if dupe:
+                return Response(
+                    {"error": "There already exists a tag with this name."}, status=409
+                )
+
+            tag.name = cleaned_to
+            tag.normalized_name = normalized_to
+            tag.save(update_fields=["name", "normalized_name"])
             return Response(status=200)
 
     @action(detail=True, methods=["post"])
@@ -300,7 +323,7 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             entry, context={"request": request}
         )
         return Response(serializer.data)
-    
+
     @action(detail=True, methods=["get"])
     def get_reports(self, request, pk=None):
         entry = CommunityLibraryEntry.objects.get(pk=pk)
@@ -308,8 +331,8 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
         res = []
         for r in reports:
-             res.append(LibraryReportSerializer(r).data)
-        return Response(json.dumps(res))
+            res.append(LibraryReportSerializer(r).data)
+        return Response(res)
 
     @action(
         detail=True,
@@ -360,7 +383,10 @@ class CommunityLibraryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
                 item_type=ContentType.objects.get_for_model(WidgetInstance).id,
                 item_id=instance.id,
                 is_email_sent=False,
-                subject=f'Community Library item "<b>{instance.name}</b>" was auto-hidden after receiving {REPORT_THRESHOLD} reports.',
+                subject=(
+                    f'Community Library item "<b>{instance.name}</b>" '
+                    f"was auto-hidden after receiving {REPORT_THRESHOLD} reports."
+                ),
                 avatar=avatar,
                 action="library_report",
             )
