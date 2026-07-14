@@ -33,7 +33,8 @@ const Header = ({
 		queryKey: ['site-messages', 'notification', 'alert'],
 		queryFn: () => apiGetSiteMessages(['SITE_NOTIFICATION', 'SITE_ALERT']),
 		staleTime: Infinity,
-		retry: false
+		retry: false,
+		refetchOnWindowFocus: false
 	})
 
 	useEffect(() => {

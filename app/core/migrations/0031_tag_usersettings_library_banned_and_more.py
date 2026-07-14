@@ -8,118 +8,285 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0030_sitemessage'),
+        ("core", "0030_sitemessage"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Tag',
+            name="Tag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-                ('used_count', models.IntegerField(default=0)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
+                ("normalized_name", models.CharField(max_length=50, unique=True)),
+                ("used_count", models.IntegerField(default=0)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.AddField(
-            model_name='usersettings',
-            name='library_banned',
+            model_name="usersettings",
+            name="library_banned",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='widgetinstance',
-            name='is_shared',
+            model_name="widgetinstance",
+            name="is_shared",
             field=models.BooleanField(default=False),
         ),
         migrations.CreateModel(
-            name='CommunityLibraryEntry',
+            name="CommunityLibraryEntry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('category', models.CharField(choices=[('math', 'Math'), ('science', 'Science'), ('english', 'English'), ('history', 'History'), ('art', 'Art'), ('language', 'World Languages'), ('engineering', 'Engineering'), ('health', 'Health Sciences'), ('medicine', 'Medicine'), ('business', 'Business'), ('education', 'Education'), ('hospitality', 'Hospitality'), ('other', 'Other')], max_length=50)),
-                ('course_level', models.CharField(blank=True, choices=[('introductory', 'Introductory'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')], default='', max_length=50)),
-                ('featured', models.BooleanField(default=False)),
-                ('copy_count', models.IntegerField(default=0)),
-                ('like_count', models.IntegerField(default=0)),
-                ('report_count', models.IntegerField(default=0)),
-                ('is_banned', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('instance', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='library_entry', to='core.widgetinstance')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "category",
+                    models.CharField(
+                        choices=[
+                            ("math", "Math"),
+                            ("science", "Science"),
+                            ("english", "English"),
+                            ("history", "History"),
+                            ("art", "Art"),
+                            ("language", "World Languages"),
+                            ("engineering", "Engineering"),
+                            ("health", "Health Sciences"),
+                            ("medicine", "Medicine"),
+                            ("business", "Business"),
+                            ("education", "Education"),
+                            ("hospitality", "Hospitality"),
+                            ("other", "Other"),
+                        ],
+                        max_length=50,
+                    ),
+                ),
+                (
+                    "course_level",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("introductory", "Introductory"),
+                            ("intermediate", "Intermediate"),
+                            ("advanced", "Advanced"),
+                        ],
+                        default="",
+                        max_length=50,
+                    ),
+                ),
+                ("featured", models.BooleanField(default=False)),
+                ("copy_count", models.IntegerField(default=0)),
+                ("like_count", models.IntegerField(default=0)),
+                ("report_count", models.IntegerField(default=0)),
+                ("is_banned", models.BooleanField(default=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "instance",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="library_entry",
+                        to="core.widgetinstance",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='widgetinstance',
-            name='copied_from_entry',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='copies', to='core.communitylibraryentry'),
+            model_name="widgetinstance",
+            name="copied_from_entry",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="copies",
+                to="core.communitylibraryentry",
+            ),
         ),
         migrations.CreateModel(
-            name='TagEntry',
+            name="TagEntry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('entry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tagged', to='core.communitylibraryentry')),
-                ('tag', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='library_tagged', to='core.tag')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "entry",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tagged",
+                        to="core.communitylibraryentry",
+                    ),
+                ),
+                (
+                    "tag",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="library_tagged",
+                        to="core.tag",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('tag', 'entry')},
+                "constraints": [
+                    models.UniqueConstraint(
+                        fields=("tag", "entry"), name="tag_entry_unique"
+                    )
+                ],
             },
         ),
         migrations.AddField(
-            model_name='communitylibraryentry',
-            name='tags',
-            field=models.ManyToManyField(through='core.TagEntry', to='core.tag'),
+            model_name="communitylibraryentry",
+            name="tags",
+            field=models.ManyToManyField(through="core.TagEntry", to="core.tag"),
         ),
         migrations.CreateModel(
-            name='UserLike',
+            name="UserLike",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('entry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='likes', to='core.communitylibraryentry')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='library_likes', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "entry",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="likes",
+                        to="core.communitylibraryentry",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="library_likes",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='LibraryReport',
+            name="LibraryReport",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('reason', models.CharField(choices=[('inappropriate', 'Inappropriate content'), ('incorrect', 'Incorrect content'), ('spam', 'Spam'), ('other', 'Other')], max_length=50)),
-                ('details', models.TextField(blank=True, default='')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('entry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reports', to='core.communitylibraryentry')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='library_reports', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "reason",
+                    models.CharField(
+                        choices=[
+                            ("inappropriate", "Inappropriate content"),
+                            ("incorrect", "Incorrect content"),
+                            ("spam", "Spam"),
+                            ("other", "Other"),
+                        ],
+                        max_length=50,
+                    ),
+                ),
+                ("details", models.TextField(blank=True, default="")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "entry",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reports",
+                        to="core.communitylibraryentry",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="library_reports",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('user', 'entry')},
+                "unique_together": {("user", "entry")},
             },
         ),
         migrations.CreateModel(
-            name='LibrarySnapshot',
+            name="LibrarySnapshot",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('qset_data', models.TextField(default='')),
-                ('qset_version', models.CharField(default='1', max_length=10)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('entry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='snapshots', to='core.communitylibraryentry')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("qset_data", models.TextField(default="")),
+                ("qset_version", models.CharField(default="1", max_length=10)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "entry",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="snapshots",
+                        to="core.communitylibraryentry",
+                    ),
+                ),
             ],
             options={
-                'indexes': [models.Index(fields=['entry', '-created_at'], name='idx_snapshot_entry_latest')],
+                "indexes": [
+                    models.Index(
+                        fields=["entry", "-created_at"],
+                        name="idx_snapshot_entry_latest",
+                    )
+                ],
             },
         ),
         migrations.AddIndex(
-            model_name='communitylibraryentry',
-            index=models.Index(fields=['-created_at'], name='idx_entry_newest'),
+            model_name="communitylibraryentry",
+            index=models.Index(fields=["-created_at"], name="idx_entry_newest"),
         ),
         migrations.AddIndex(
-            model_name='communitylibraryentry',
-            index=models.Index(fields=['-copy_count', '-created_at'], name='idx_entry_most_copied'),
+            model_name="communitylibraryentry",
+            index=models.Index(
+                fields=["-copy_count", "-created_at"], name="idx_entry_most_copied"
+            ),
         ),
         migrations.AddIndex(
-            model_name='communitylibraryentry',
-            index=models.Index(fields=['-like_count', '-created_at'], name='idx_entry_most_liked'),
+            model_name="communitylibraryentry",
+            index=models.Index(
+                fields=["-like_count", "-created_at"], name="idx_entry_most_liked"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='userlike',
-            unique_together={('user', 'entry')},
+            name="userlike",
+            unique_together={("user", "entry")},
         ),
     ]

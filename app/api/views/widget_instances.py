@@ -25,12 +25,12 @@ from core.message_exception import MsgFailure, MsgInvalidInput, MsgNoPerm
 from core.models import (
     CommunityLibraryEntry,
     LibrarySnapshot,
-    TagEntry,
-    Tag,
     LogActivity,
     LogPlay,
     Notification,
     ObjectPermission,
+    Tag,
+    TagEntry,
     UserSettings,
     WidgetInstance,
     WidgetQset,
@@ -38,6 +38,8 @@ from core.models import (
 from core.services.instance_service import WidgetInstanceService
 from core.services.perm_service import PermService
 from core.services.play_data_exporter_service import PlayDataExporterService
+from django.db import transaction
+from django.db.models import F
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
@@ -72,6 +74,64 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             return WidgetInstance.objects.select_related("widget")
         else:
             return WidgetInstance.objects.all()
+
+    @staticmethod
+    def _normalize_tag_names(tag_names):
+        normalized = []
+        seen = set()
+
+        for tag_name in tag_names:
+            cleaned = " ".join((tag_name or "").strip().split())
+            canonical = Tag.normalize_name(cleaned)
+            if not canonical or canonical in seen:
+                continue
+
+            seen.add(canonical)
+            normalized.append(cleaned)
+
+        return normalized
+
+    @staticmethod
+    def _sync_entry_tags(entry, tag_names):
+        canonical_pairs = [
+            (tag_name, Tag.normalize_name(tag_name)) for tag_name in tag_names
+        ]
+        existing_tag_map = {
+            tag.normalized_name: tag
+            for tag in Tag.objects.filter(
+                normalized_name__in=[canonical for _, canonical in canonical_pairs]
+            )
+        }
+
+        for tag_name, canonical in canonical_pairs:
+            if canonical in existing_tag_map:
+                continue
+
+            existing_tag_map[canonical], _ = Tag.objects.get_or_create(
+                normalized_name=canonical,
+                defaults={"name": tag_name},
+            )
+
+        desired_tag_ids = {
+            existing_tag_map[canonical].id for _, canonical in canonical_pairs
+        }
+        current_tag_ids = set(
+            TagEntry.objects.filter(entry=entry).values_list("tag_id", flat=True)
+        )
+
+        to_add = desired_tag_ids - current_tag_ids
+        to_remove = current_tag_ids - desired_tag_ids
+
+        if to_add:
+            TagEntry.objects.bulk_create(
+                [TagEntry(tag_id=tag_id, entry=entry) for tag_id in to_add]
+            )
+            Tag.objects.filter(id__in=to_add).update(used_count=F("used_count") + 1)
+
+        if to_remove:
+            TagEntry.objects.filter(entry=entry, tag_id__in=to_remove).delete()
+            Tag.objects.filter(id__in=to_remove).update(used_count=F("used_count") - 1)
+            Tag.objects.filter(id__in=to_remove, library_tagged__isnull=True).delete()
 
     def get_permissions(self):
         user_query = self.request.query_params.get("user")
@@ -590,7 +650,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         category = serializer.validated_data["category"]
         course_level = serializer.validated_data.get("course_level", "")
-        tags = serializer.validated_data.get("tags", [])
+        tags = self._normalize_tag_names(serializer.validated_data.get("tags", []))
 
         latest_qset = instance.get_latest_qset()
         qset_data = latest_qset.data
@@ -598,59 +658,38 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         existing_entry = getattr(instance, "library_entry", None)
 
-        if existing_entry:
-            # Re-publishing: update entry and create new snapshot
-            existing_entry.category = category
-            existing_entry.course_level = course_level
-            existing_entry.save(update_fields=["category", "course_level"])
-            LibrarySnapshot.objects.create(
-                entry=existing_entry,
-                name=instance.name,
-                qset_data=qset_data,
-                qset_version=qset_version,
-            )
-
-            for tag in list(set(tags)):
-                tag_obj = Tag.objects.filter(name=tag).first()
-                if tag_obj is None:
-                    tag_obj = Tag.objects.create(name=tag)
-
-                TagEntry.objects.create(
-                    tag = tag_obj,
-                    entry = existing_entry
+        with transaction.atomic():
+            if existing_entry:
+                # Re-publishing: update entry and create new snapshot
+                existing_entry.category = category
+                existing_entry.course_level = course_level
+                existing_entry.save(update_fields=["category", "course_level"])
+                LibrarySnapshot.objects.create(
+                    entry=existing_entry,
+                    name=instance.name,
+                    qset_data=qset_data,
+                    qset_version=qset_version,
                 )
 
-                tag_obj.used_count += 1
-                tag_obj.save()
-        else:
-            # New publish: create entry and snapshot
-            entry = CommunityLibraryEntry.objects.create(
-                instance=instance,
-                category=category,
-                course_level=course_level,
-            )
-            LibrarySnapshot.objects.create(
-                entry=entry,
-                name=instance.name,
-                qset_data=qset_data,
-                qset_version=qset_version,
-            )
-
-            for tag in list(set(tags)):
-                tag_obj = Tag.objects.filter(name=tag).first()
-                if tag_obj is None:
-                    tag_obj = Tag.objects.create(name=tag)
-
-                TagEntry.objects.create(
-                    tag = tag_obj,
-                    entry = entry
+                self._sync_entry_tags(existing_entry, tags)
+            else:
+                # New publish: create entry and snapshot
+                entry = CommunityLibraryEntry.objects.create(
+                    instance=instance,
+                    category=category,
+                    course_level=course_level,
+                )
+                LibrarySnapshot.objects.create(
+                    entry=entry,
+                    name=instance.name,
+                    qset_data=qset_data,
+                    qset_version=qset_version,
                 )
 
-                tag_obj.used_count += 1
-                tag_obj.save()
+                self._sync_entry_tags(entry, tags)
 
-        instance.is_shared = True
-        instance.save(update_fields=["is_shared"])
+            instance.is_shared = True
+            instance.save(update_fields=["is_shared"])
 
         return Response({"success": True})
 
@@ -687,17 +726,20 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 status=400,
             )
 
-        instance.is_shared = False
-        instance.save(update_fields=["is_shared"])
+        with transaction.atomic():
+            instance.is_shared = False
+            instance.save(update_fields=["is_shared"])
 
-        # remove old tags
-        for te in TagEntry.objects.filter(entry=entry):
-            te.tag.used_count -= 1
-            if te.tag.used_count <= 0:
-                te.tag.delete()
-            else:
-                te.tag.save()
-            te.delete()
+            tag_ids = list(
+                TagEntry.objects.filter(entry=entry).values_list("tag_id", flat=True)
+            )
+            if tag_ids:
+                TagEntry.objects.filter(entry=entry).delete()
+                Tag.objects.filter(id__in=tag_ids).update(
+                    used_count=F("used_count") - 1
+                )
+                Tag.objects.filter(id__in=tag_ids, library_tagged__isnull=True).delete()
+
         return Response({"success": True})
 
     @action(detail=True, methods=["put"])

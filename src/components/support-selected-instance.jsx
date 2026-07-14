@@ -66,10 +66,10 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 	const { data: reports, isFetching: loadingReports} = useQuery({
 		queryKey: ['entry-reports', updatedInst.library_entry.id],
 		queryFn: async () => {
-			return JSON.parse(await apiGetEntryReports(updatedInst.library_entry.id))
+			return await apiGetEntryReports(updatedInst.library_entry.id)
 		},
-		// enabled: !!updatedInst && !!updatedInst.user_id,
-		staleTime: Infinity
+		staleTime: Infinity,
+		refetchOnWindowFocus: false
 	})
 
 	const { data: perms, isFetching: loadingPerms} = useQuery({
