@@ -24,10 +24,10 @@ const CommunityLibraryDashboard = ({setCategories}) => {
     const [lastTouchX, setLastTouchX] = useState(0)
 
     const { entries: featured } = useCommunityLibraryList(null, "", "", [], "", "", [], true)
-    const { entries: stem } = useCommunityLibraryList(4, "", "", stemCategories, "", "", [], false)
-    const { entries: liberal } = useCommunityLibraryList(4, "", "", liberalCategories, "", "", [], false)
-    const { entries: business } = useCommunityLibraryList(4, "", "", businessCategories, "", "", [], false)
-    const { entries: health } = useCommunityLibraryList(4, "", "", healthCategories, "", "", [], false)
+    const { entries: stem } = useCommunityLibraryList(6, "", "", stemCategories, "", "", [], false)
+    const { entries: liberal } = useCommunityLibraryList(6, "", "", liberalCategories, "", "", [], false)
+    const { entries: business } = useCommunityLibraryList(6, "", "", businessCategories, "", "", [], false)
+    const { entries: health } = useCommunityLibraryList(6, "", "", healthCategories, "", "", [], false)
 
     const mappedCategories = {}
 	CATEGORIES.forEach((v)=>{mappedCategories[v.value] = {color: v.color, label: v.label, banner: v.banner}})
@@ -101,7 +101,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
         <div className='welcome-banner'>
             <div className='column'>
                 <h2>Welcome to the Community Library!</h2>
-                <a href='/my-widgets'>My Widgets</a>
+                <a href='/help/#community-library'>More Info ➜</a>
             </div>
         </div>
         

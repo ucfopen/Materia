@@ -52,6 +52,7 @@ const WidgetPlayerPage = () => {
 					snapshotId: window.SNAPSHOT_ID,
 					snapshotEntryId: window.SNAPSHOT_ENTRY_ID
 				}))
+				console.log(window.SNAPSHOT_ID, window.SNAPSHOT_ENTRY_ID)
 			})
 			return
 		}
