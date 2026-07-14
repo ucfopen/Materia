@@ -824,26 +824,35 @@ export const apiGetCommunityLibrary = ({ pageParam = 1, limit = null, search = '
 }
 
 export const apiGetLibraryTags = ({count = -1, search = '', exclude = []}) => {
-	let url = `/api/community-library/tags/?count=${count}`
-	if (search) url += `&search=${search}`
+	let url = `/api/community-library/tags/`
+	const params = new URLSearchParams()
+
+	if (count !== -1) params.append('count', count)
+	if (search) params.append('search', search)
+
+
 	if (exclude && exclude.length > 0) {
 		exclude.forEach((t)=>{
-			url += `&exclude=${t}`
+			params.append('exclude', t)
 		})
 	}
+
+	const queryString = params.toString()
+	if (queryString) url += `?${queryString}`
+
 	return handleRequest(methods.GET, url)
 }
 
 export const apiDeleteLibraryTag = (name) => {
-	return handleRequest(methods.DELETE, `/api/community-library/tag/?name=${name}`)
+	return handleRequest(methods.DELETE, `/api/community-library/tags/?name=${name}`)
 }
 
 export const apiRenameLibraryTag = (name, to) => {
-	return handleRequest(methods.PATCH, `/api/community-library/tag/?name=${name}&to=${to}`)
+	return handleRequest(methods.PATCH, `/api/community-library/tags/?name=${name}&to=${to}`)
 }
 
 export const apiGetLibraryEntry = (entryId) => {
-	return handleRequest(methods.GET, `/api/community-library/${entryId}/get/`)
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/`)
 }
 
 export const apiCopyFromLibrary = (entryId) => {
@@ -855,11 +864,11 @@ export const apiToggleLike = (entryId) => {
 }
 
 export const apiReportEntry = (entryId, data) => {
-	return handleRequest(methods.POST, `/api/community-library/${entryId}/report/`, data)
+	return handleRequest(methods.POST, `/api/community-library/${entryId}/reports/`, data)
 }
 
 export const apiGetEntryReports = (entryId) => {
-	return handleRequest(methods.GET, `/api/community-library/${entryId}/get_reports/`)
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/reports/`)
 }
 
 export const apiPublishToLibrary = (instId, data) => {

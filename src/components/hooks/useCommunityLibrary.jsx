@@ -64,11 +64,13 @@ export function useTagList(count, search, exclude) {
 	return useQuery({
 		queryKey: ["tags", count, search, exclude],
 		queryFn: async () => {
-			const tags = JSON.parse(await apiGetLibraryTags({count, search, exclude}))
+			const response = await apiGetLibraryTags({count, search, exclude})
+			const tags = response != undefined && response.length ? response : []
 			tags.sort((a, b) => a.used_count < b.used_count)
 			return tags
 		},
-		enabled: true
+		enabled: true,
+		refetchOnWindowFocus: false
 	})
 }
 

@@ -6,6 +6,8 @@ from core.models import (
     LibrarySnapshot,
     Notification,
     ObjectPermission,
+    Tag,
+    TagEntry,
     UserLike,
     Widget,
     WidgetInstance,
@@ -165,9 +167,9 @@ class CommunityLibraryViewSetTestCase(TestCase):
 class TestCommunityLibraryList(CommunityLibraryViewSetTestCase):
     """Tests for GET /api/community-library/"""
 
-    def test_unauthenticated_returns_403(self):
+    def test_unauthenticated_returns_200(self):
         response = self.client.get("/api/community-library/")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_authenticated_returns_published_entries(self):
         self.client.force_authenticate(user=self.regular_user)
@@ -306,7 +308,7 @@ class TestCommunityLibraryList(CommunityLibraryViewSetTestCase):
             for r in response.data["results"]
             if r["instance_id"] == self.shared_instance.id
         )
-        self.assertEqual(entry["owner_display_name"], "Jane D.")
+        self.assertEqual(entry["owner_display_name"], "Jane Doe")
 
     def test_user_has_liked_false_by_default(self):
         self.client.force_authenticate(user=self.regular_user)
@@ -479,11 +481,11 @@ class TestCommunityLibraryLike(CommunityLibraryViewSetTestCase):
 
 
 class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
-    """Tests for POST /api/community-library/{id}/report/"""
+    """Tests for POST /api/community-library/{id}/reports/"""
 
     def test_unauthenticated_returns_403(self):
         response = self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "spam"},
             format="json",
         )
@@ -492,7 +494,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
     def test_valid_report_creates_report(self):
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "spam", "details": "This is spam"},
             format="json",
         )
@@ -512,7 +514,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
         )
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "inappropriate"},
             format="json",
         )
@@ -522,7 +524,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
         original_count = self.library_entry.report_count
         self.client.force_authenticate(user=self.regular_user)
         self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "spam"},
             format="json",
         )
@@ -534,7 +536,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
     def test_report_at_threshold_auto_bans(self, mock_send_email):
         self.client.force_authenticate(user=self.regular_user)
         self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "spam"},
             format="json",
         )
@@ -550,7 +552,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
     def test_report_at_threshold_creates_admin_notifications(self, mock_send_email):
         self.client.force_authenticate(user=self.regular_user)
         self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "spam"},
             format="json",
         )
@@ -570,7 +572,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
     def test_missing_reason_returns_400(self):
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {},
             format="json",
         )
@@ -579,7 +581,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
     def test_invalid_reason_returns_400(self):
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "not_a_valid_reason"},
             format="json",
         )
@@ -814,6 +816,74 @@ class TestPublishToLibrary(CommunityLibraryViewSetTestCase):
         self.unshared_instance.is_shared = False
         self.unshared_instance.save(update_fields=["is_shared"])
 
+    def test_republish_replaces_tags_and_updates_counts(self):
+        self.client.force_authenticate(user=self.author_user)
+
+        first_publish = self.client.put(
+            f"/api/instances/{self.shared_instance.id}/publish_to_library/",
+            {"category": "math", "tags": ["alpha", "beta"]},
+            format="json",
+        )
+        self.assertEqual(first_publish.status_code, status.HTTP_200_OK)
+
+        republish = self.client.put(
+            f"/api/instances/{self.shared_instance.id}/publish_to_library/",
+            {
+                "category": "history",
+                "tags": ["beta", "gamma", "gamma", "  gamma   "],
+            },
+            format="json",
+        )
+        self.assertEqual(republish.status_code, status.HTTP_200_OK)
+
+        self.library_entry.refresh_from_db()
+        self.assertSetEqual(
+            set(self.library_entry.tags.values_list("name", flat=True)),
+            {"beta", "gamma"},
+        )
+
+        self.assertFalse(Tag.objects.filter(name="alpha").exists())
+        self.assertEqual(Tag.objects.get(name="beta").used_count, 1)
+        self.assertEqual(Tag.objects.get(name="gamma").used_count, 1)
+
+    def test_republish_is_idempotent_for_same_tags(self):
+        self.client.force_authenticate(user=self.author_user)
+
+        publish_payload = {"category": "math", "tags": ["alpha", "beta"]}
+        first = self.client.put(
+            f"/api/instances/{self.shared_instance.id}/publish_to_library/",
+            publish_payload,
+            format="json",
+        )
+        self.assertEqual(first.status_code, status.HTTP_200_OK)
+
+        second = self.client.put(
+            f"/api/instances/{self.shared_instance.id}/publish_to_library/",
+            publish_payload,
+            format="json",
+        )
+        self.assertEqual(second.status_code, status.HTTP_200_OK)
+
+        self.library_entry.refresh_from_db()
+        self.assertEqual(self.library_entry.tags.count(), 2)
+        self.assertEqual(TagEntry.objects.filter(entry=self.library_entry).count(), 2)
+        self.assertEqual(Tag.objects.get(name="alpha").used_count, 1)
+        self.assertEqual(Tag.objects.get(name="beta").used_count, 1)
+
+    def test_publish_deduplicates_case_variants(self):
+        self.client.force_authenticate(user=self.author_user)
+
+        response = self.client.put(
+            f"/api/instances/{self.shared_instance.id}/publish_to_library/",
+            {"category": "math", "tags": ["Algebra", "algebra", " ALGEBRA "]},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.library_entry.refresh_from_db()
+        self.assertEqual(self.library_entry.tags.count(), 1)
+        self.assertTrue(Tag.objects.filter(normalized_name="algebra").exists())
+
 
 class TestUpdateInLibrary(CommunityLibraryViewSetTestCase):
     """Tests for PUT /api/instances/{id}/update_in_library/"""
@@ -891,6 +961,25 @@ class TestUpdateInLibrary(CommunityLibraryViewSetTestCase):
         self.shared_instance.is_shared = True
         self.shared_instance.save(update_fields=["is_shared"])
 
+    def test_unpublish_removes_tag_entries_and_orphan_tags(self):
+        self.client.force_authenticate(user=self.author_user)
+
+        publish = self.client.put(
+            f"/api/instances/{self.shared_instance.id}/publish_to_library/",
+            {"category": "math", "tags": ["to-remove", "to-remove-2"]},
+            format="json",
+        )
+        self.assertEqual(publish.status_code, status.HTTP_200_OK)
+
+        unpublish = self.client.put(
+            f"/api/instances/{self.shared_instance.id}/unpublish_from_library/"
+        )
+        self.assertEqual(unpublish.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(TagEntry.objects.filter(entry=self.library_entry).count(), 0)
+        self.assertFalse(Tag.objects.filter(name="to-remove").exists())
+        self.assertFalse(Tag.objects.filter(name="to-remove-2").exists())
+
 
 class TestSnapshotEndpoints(CommunityLibraryViewSetTestCase):
     """Tests for GET /api/community-library/{id}/snapshot_instance/ and snapshot_qset/"""
@@ -917,3 +1006,34 @@ class TestSnapshotEndpoints(CommunityLibraryViewSetTestCase):
             f"/api/community-library/{self.library_entry.id}/snapshot_instance/{self.library_snapshot.id}/"
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class TestCommunityLibraryTags(CommunityLibraryViewSetTestCase):
+    def test_tags_endpoint_returns_list_payload(self):
+        Tag.objects.create(name="z-tag", used_count=1)
+        Tag.objects.create(name="a-tag", used_count=2)
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get("/api/community-library/tags/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+        self.assertEqual(response.data[0]["name"], "a-tag")
+
+    def test_tag_delete_missing_tag_returns_400(self):
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.delete(
+            "/api/community-library/tags/?name=does-not-exist"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_tag_rename_conflict_is_case_insensitive(self):
+        Tag.objects.create(name="Physics")
+        Tag.objects.create(name="Chemistry")
+
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.patch(
+            "/api/community-library/tags/?name=Physics&to=chemistry"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
