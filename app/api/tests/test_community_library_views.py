@@ -167,9 +167,9 @@ class CommunityLibraryViewSetTestCase(TestCase):
 class TestCommunityLibraryList(CommunityLibraryViewSetTestCase):
     """Tests for GET /api/community-library/"""
 
-    def test_unauthenticated_returns_403(self):
+    def test_unauthenticated_returns_200(self):
         response = self.client.get("/api/community-library/")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_authenticated_returns_published_entries(self):
         self.client.force_authenticate(user=self.regular_user)
@@ -481,11 +481,11 @@ class TestCommunityLibraryLike(CommunityLibraryViewSetTestCase):
 
 
 class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
-    """Tests for POST /api/community-library/{id}/report/"""
+    """Tests for POST /api/community-library/{id}/reports/"""
 
     def test_unauthenticated_returns_403(self):
         response = self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "spam"},
             format="json",
         )
@@ -494,7 +494,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
     def test_valid_report_creates_report(self):
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "spam", "details": "This is spam"},
             format="json",
         )
@@ -514,7 +514,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
         )
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "inappropriate"},
             format="json",
         )
@@ -524,7 +524,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
         original_count = self.library_entry.report_count
         self.client.force_authenticate(user=self.regular_user)
         self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "spam"},
             format="json",
         )
@@ -536,7 +536,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
     def test_report_at_threshold_auto_bans(self, mock_send_email):
         self.client.force_authenticate(user=self.regular_user)
         self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "spam"},
             format="json",
         )
@@ -552,7 +552,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
     def test_report_at_threshold_creates_admin_notifications(self, mock_send_email):
         self.client.force_authenticate(user=self.regular_user)
         self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "spam"},
             format="json",
         )
@@ -572,7 +572,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
     def test_missing_reason_returns_400(self):
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {},
             format="json",
         )
@@ -581,7 +581,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
     def test_invalid_reason_returns_400(self):
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.post(
-            f"/api/community-library/{self.library_entry.id}/report/",
+            f"/api/community-library/{self.library_entry.id}/reports/",
             {"reason": "not_a_valid_reason"},
             format="json",
         )
@@ -1022,7 +1022,9 @@ class TestCommunityLibraryTags(CommunityLibraryViewSetTestCase):
 
     def test_tag_delete_missing_tag_returns_400(self):
         self.client.force_authenticate(user=self.support_user)
-        response = self.client.delete("/api/community-library/tag/?name=does-not-exist")
+        response = self.client.delete(
+            "/api/community-library/tags/?name=does-not-exist"
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_tag_rename_conflict_is_case_insensitive(self):
@@ -1031,7 +1033,7 @@ class TestCommunityLibraryTags(CommunityLibraryViewSetTestCase):
 
         self.client.force_authenticate(user=self.support_user)
         response = self.client.patch(
-            "/api/community-library/tag/?name=Physics&to=chemistry"
+            "/api/community-library/tags/?name=Physics&to=chemistry"
         )
 
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)

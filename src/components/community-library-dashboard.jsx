@@ -74,7 +74,9 @@ const CommunityLibraryDashboard = ({setCategories}) => {
         queryFn: async () => {
             const messages = await apiGetSiteMessages(["CATALOG_TEXT"])
             return messages.sort((a,b)=>b.id-a.id)
-        }
+        },
+        refetchOnWindowFocus: false,
+        staleTime: Infinity,
     })
 
     const {data: catalogHeaders} = useQuery({
@@ -82,7 +84,9 @@ const CommunityLibraryDashboard = ({setCategories}) => {
         queryFn: async () => {
             const messages = await apiGetSiteMessages(["CATALOG_HEADER"])
             return messages.sort((a,b)=>b.id-a.id)
-        }
+        },
+        refetchOnWindowFocus: false,
+        staleTime: Infinity,
     })
 
     const mouseStopDrag = (e) => {

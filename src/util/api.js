@@ -844,15 +844,15 @@ export const apiGetLibraryTags = ({count = -1, search = '', exclude = []}) => {
 }
 
 export const apiDeleteLibraryTag = (name) => {
-	return handleRequest(methods.DELETE, `/api/community-library/tag/?name=${name}`)
+	return handleRequest(methods.DELETE, `/api/community-library/tags/?name=${name}`)
 }
 
 export const apiRenameLibraryTag = (name, to) => {
-	return handleRequest(methods.PATCH, `/api/community-library/tag/?name=${name}&to=${to}`)
+	return handleRequest(methods.PATCH, `/api/community-library/tags/?name=${name}&to=${to}`)
 }
 
 export const apiGetLibraryEntry = (entryId) => {
-	return handleRequest(methods.GET, `/api/community-library/${entryId}/get/`)
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/`)
 }
 
 export const apiCopyFromLibrary = (entryId) => {
@@ -864,11 +864,11 @@ export const apiToggleLike = (entryId) => {
 }
 
 export const apiReportEntry = (entryId, data) => {
-	return handleRequest(methods.POST, `/api/community-library/${entryId}/report/`, data)
+	return handleRequest(methods.POST, `/api/community-library/${entryId}/reports/`, data)
 }
 
 export const apiGetEntryReports = (entryId) => {
-	return handleRequest(methods.GET, `/api/community-library/${entryId}/get_reports/`)
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/reports/`)
 }
 
 export const apiPublishToLibrary = (instId, data) => {
