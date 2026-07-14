@@ -206,7 +206,7 @@ class CommunityLibraryTagsView(APIView):
 
         if not tag:
             return Response(
-                {"error": "Cannot delete a tag that does not exist."}, status=400
+                {"error": "Cannot edit a tag that does not exist."}, status=400
             )
 
         to = request.query_params.get("to", "")

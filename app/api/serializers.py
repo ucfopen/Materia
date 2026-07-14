@@ -985,10 +985,6 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
         return latest_report.created_at if latest_report else None
 
     def get_user_has_liked(self, entry):
-        prefetched_likes = getattr(entry, "liked_by_request_user", None)
-        if prefetched_likes is not None:
-            return len(prefetched_likes) > 0
-
         request = self.context.get("request")
         if request is None or request.user.is_anonymous:
             return False
