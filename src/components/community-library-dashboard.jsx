@@ -136,11 +136,10 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                         if(current >= maxTranslate() || current <= 0)
                             delta /= 4
 
-                        setCarouselDrag(Math.min(carouselDrag - delta, maxTranslate()))
+                        setCarouselDrag(carouselDrag - delta)
                         setCarouselDragging(true)
                         carouselContent.current.classList.add("dragging")
                     } else if(carouselDragging) {
-                       
                         setCarouselDragging(false)
                     }
                 }}
@@ -156,7 +155,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
                     let current = Math.min(carouselShift * featuredCardSize, maxTranslate()) + carouselDrag
                     if(current >= maxTranslate() || current <= 0)
                         delta /= 4
-                    setCarouselDrag(Math.min(carouselDrag - delta, maxTranslate()))
+                    setCarouselDrag(carouselDrag - delta)
                     setLastTouchX(e.changedTouches.item(0).clientX)
                 }}
                 onTouchEnd={(e) => {
