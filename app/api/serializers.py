@@ -939,6 +939,7 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
     is_shared = serializers.SerializerMethodField()
     is_deleted = serializers.SerializerMethodField()
+    user_copy = serializers.SerializerMethodField()
 
     class Meta:
         model = CommunityLibraryEntry
@@ -964,6 +965,7 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
             "tags",
             "is_shared",
             "is_deleted",
+            "user_copy"
         ]
 
     def get_instance_name(self, entry):
@@ -999,6 +1001,17 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
 
     def get_is_deleted(self, entry):
         return entry.instance.is_deleted
+    
+    def get_user_copy(self, entry):
+        request = self.context.get("request")
+        if request is None or request.user.is_anonymous:
+            return None
+        
+        copy = WidgetInstance.objects.filter(user=request.user, copied_from_entry=entry).first()
+        if not copy:
+            return None
+        
+        return copy.id
 
 
 class LibraryReportSerializer(serializers.ModelSerializer):

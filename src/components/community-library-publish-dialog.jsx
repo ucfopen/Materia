@@ -45,7 +45,10 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 					if (onSuccess) onSuccess()
 				},
 				onError: (err) => {
-					setErrorText(err?.data?.error || 'Failed to publish. Please try again.')
+					if(err?.data?.title === "Unknown Error")
+						setErrorText("Tag names can be no longer than 50 characters.")
+					else
+						setErrorText(err?.data?.error || 'Failed to publish. Please try again.')
 				},
 			},
 		)

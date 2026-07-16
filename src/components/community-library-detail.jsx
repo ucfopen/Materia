@@ -154,23 +154,35 @@ const CommunityLibraryDetail = ({entry}) => {
 					}
 					<div className='card side blue center shadow alt-border'>
 						<div className='content'>
-							<button className='blue space row center' style={{gap:"8px"}} disabled={dontAllow} onClick={() => handleCopy(entry.id)}>
-								{copySuccess ? 
-								<>
-									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-										<path d={CHECK_PATH} />
-									</svg>
-									Copied!
-								</> : 
-								<>
-									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-										<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
-										<path d={COPY_PATH} />
-									</svg>
-									Copy to My Widgets
-								</>
-								}
-							</button>
+							{
+								entry && entry.user_copy ?
+								<a href={`/my-widgets/#${entry.user_copy}`}>
+									<button className='blue space row center' style={{gap:"8px"}} type='button'>
+										<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none" aria-label='External Link Icon'>
+											<path d={EXTERNAL_PATH} />
+										</svg>
+										Go to Your Copy	
+									</button>
+								</a>
+								:
+								<button className='blue space row center' style={{gap:"8px"}} disabled={dontAllow} onClick={() => handleCopy(entry.id)}>
+									{copySuccess ? 
+									<>
+										<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+											<path d={CHECK_PATH} />
+										</svg>
+										Copied!
+									</> : 
+									<>
+										<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+											<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+											<path d={COPY_PATH} />
+										</svg>
+										Copy to My Widgets
+									</>
+									}
+								</button>
+							}
 							<a target='_blank' className='no-under' href={`/preview/snapshot/${!entry ? 0 : entry.latest_snapshot_id}`}>
 								<button disabled={dontAllow} className='yellow h-sm space row center' style={{gap:"8px"}}>
 									<svg viewBox="0 0 24 24" width="16" height="16" aria-label='External Link Icon'>

@@ -1099,7 +1099,7 @@
 		color: #333;
 
 		.required {
-			color: #e53935;
+			color: #c12321;
 		}
 
 		select,
@@ -1145,9 +1145,10 @@
 	}
 
 	.error-text {
-		color: #e53935;
+		color: #c12321;
 		font-size: 13px;
 		margin: 8px 0;
+		font-weight: 400;
 	}
 
 	button {
