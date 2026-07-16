@@ -89,13 +89,8 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 		staleTime: Infinity,
 	})
 
-	useEffect(()=>{
-		console.log(carouselShift, maxTranslate())
-	}, [carouselShift])
-
 	const mouseStopDrag = (e) => {
 		if(carouselDragging) {
-			console.log(carouselDrag, Math.round(carouselDrag / featuredCardSize), carouselShift, maxShift())
 			setCarouselShift(Math.min(Math.max(carouselShift + Math.round(carouselDrag / featuredCardSize), 0), maxShift()))
 			setCarouselDrag(0)
 			carouselContent.current.classList.remove("dragging")

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Modal from './modal'
 import { usePublishToLibrary, useTagList } from './hooks/useCommunityLibrary'
 import './community-library-publish-dialog.scss'
@@ -18,7 +18,10 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 	const [errorText, setErrorText] = useState('')
 	const [tagList, setTagList] = useState([])
 	const [newTag, setNewTag] = useState("")
-	const [focusedTag, setFocusedTag] = useState(0)
+	const [focusedTag, setFocusedTag] = useState(-1)
+
+	const tagListRef = useRef(null)
+	const searchRef = useRef(null)
 
 	const publishMutation = usePublishToLibrary()
 
@@ -52,6 +55,10 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 		tag = tag.toLowerCase().trim().replaceAll(" ", "-")
 		if(!tagList.includes(tag)) setTagList([...tagList, tag])
 		setNewTag("")
+		setFocusedTag(-1)
+
+		if(searchRef.current)
+			searchRef.current.focus()
 	}
 
 	const handleSearchKey = (e) => {
@@ -66,15 +73,25 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 		if(tags && tags.length > 1 && newTag != "") {
 			if(e.key == "ArrowDown") {
 				e.preventDefault()
-				let newInd = focusedTag + 1 < tags.length ? focusedTag + 1 : 0
+				let newInd = focusedTag + 1 < tags.length ? focusedTag + 1 : -1
 				setFocusedTag(newInd)
 			} else if(e.key == "ArrowUp") {
 				e.preventDefault()
-				let newInd = focusedTag - 1 >= 0 ? focusedTag - 1 : tags.length - 1
+				let newInd = focusedTag - 1 >= -1 ? focusedTag - 1 : tags.length - 1
 				setFocusedTag(newInd)
 			}
 		}
 	}
+
+	useEffect(() => {
+		if(!tagListRef.current) return
+
+		const tagEls = tagListRef.current.querySelectorAll(".drop-entry")
+		if(focusedTag >= 0) 
+			tagEls[focusedTag].focus()
+		else if(searchRef.current)
+			searchRef.current.focus()
+	}, [focusedTag])
 
 	return (
 		<Modal onClose={onClose}>
@@ -111,7 +128,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 					<div className='input-cont'>
 						{
 							newTag != "" &&
-							<div className='tag-dropdown'>
+							<div className='tag-dropdown' ref={tagListRef} aria-label="Tag selection menu." onKeyDown={handleSearchKey}>
 							{
 								!tags ? <div className='notice'>Loading...</div>
 								: 
@@ -122,6 +139,8 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 									return <button 
 									className={`drop-entry ${i == focusedTag ? 'selected' : ''}`}
 									key={`dropdown_tag_${i}`}
+									tabIndex={-1}
+									aria-label={`#${t.name}: used in ${t.used_count} widget${t.used_count > 1 ? "s" : ""}.`}
 									onClick={()=>(enterTag(t.name))}>
 										<div>#{t.name}</div>
 										<div className='used-count'>{t.used_count}</div>
@@ -130,7 +149,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 							}
 							</div>
 						}
-						<input id="tag-input" type='text' autoComplete='off' value={newTag} onChange={(e)=>setNewTag(e.target.value)} onKeyDown={handleSearchKey} placeholder='Press Enter to create a tag...'/>
+						<input id="tag-input" ref={searchRef} type='text' autoComplete='off' value={newTag} onChange={(e)=>setNewTag(e.target.value)} onKeyDown={handleSearchKey} placeholder='Press Enter to create a tag...'/>
 					</div>
 					
 					<div className='tag-cont' aria-label='Currently applied tags:'>

@@ -505,7 +505,7 @@
 		.banner-img {
 			width: fit-content;
 			height: 50px;
-			right: -28px;
+			right: -24px;
 			display: flex;
 			position: absolute;
 			mix-blend-mode: multiply;
@@ -696,6 +696,7 @@
 		width: 240px;
 		height: 240px;
 		flex-shrink: 0;
+		overflow: hidden;
 
 		border-radius: 16px;
 		background-color: #fff;
@@ -713,6 +714,18 @@
 			height: 60px;
 			border-radius: 16px 16px 0 0;
 			filter: brightness(80%) saturate(1.425);
+			position: relative;
+		}
+
+		.banner-img {
+			width: fit-content;
+			height: 60px;
+			top: 0;
+			right: -28px;
+			display: flex;
+			position: absolute;
+			mix-blend-mode: multiply;
+			opacity: 1;
 		}
 
 		.img-holder {

@@ -35,7 +35,10 @@ const CommunityLibraryCard = ({ entry, categoryObject, highlightedTags = [], ski
 			${category_display ? category_display : "Unknown category"}. ${course_level_display ? `${course_level_display}. ` : ""}
 			${entry.tags && entry.tags.length > 0 ? `Tags: ${entry.tags.map((v,i) => `#${v}`)}` : `No tags`}.
 			 Likes: ${entry.like_count}. Copies: ${entry.copy_count}`}>
-				<div className='banner' style={{backgroundColor: categoryObject.color}}></div>
+				<div className='banner' style={{backgroundColor: categoryObject.color}}>
+					<img className='banner-img' src={categoryObject.banner}/>
+				</div>
+				
 				<div className="img-holder">
 					<img src={iconUrl('/widget/', widget?.dir, 92)} alt={widget?.name} draggable="false"/>
 				</div>
