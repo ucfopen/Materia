@@ -180,6 +180,15 @@ section.page {
             &:hover {
                 box-shadow: 0px 1px 2px 2px #0000001A;
             }
+
+            &:disabled {
+                opacity: 0.35;
+                cursor: default;
+
+                &:hover {
+                    box-shadow: none;
+                }
+            }
         }
 
         hr {
@@ -258,6 +267,11 @@ section.page {
             &:hover {
                 text-decoration: none;
             }
+        }
+
+        &.disabled {
+            cursor: default;
+            pointer-events: none;
         }
     }
 

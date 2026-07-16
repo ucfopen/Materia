@@ -1,4 +1,6 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
+import { useQuery } from 'react-query'
+import { apiUserVerify } from '../util/api'
 import './cl-detail.scss'
 import CommunityLibraryReportDialog from './community-library-report-dialog'
 
@@ -35,6 +37,17 @@ const CommunityLibraryDetail = ({entry}) => {
 		},
 		[copyMutation],
 	)
+
+	const { data: userPerms } = useQuery({
+		queryKey: 'isLoggedIn',
+		queryFn: apiUserVerify,
+		staleTime: Infinity,
+		retry: false
+	})
+
+	const dontAllow = useMemo(()=>{
+		return !userPerms?.isAuthenticated || userPerms?.permLevel == "student"
+	}, [userPerms])
 
 	console.log(entry)
 
@@ -127,10 +140,21 @@ const CommunityLibraryDetail = ({entry}) => {
 						<div>{!entry ? "Loading" : `Created ${(new Date(entry.created_at)).toLocaleDateString(undefined, dateOptions)}`}</div>
 					</div>
 				</div>
+				{
+					
+				}
 				<div className='col' style={{gap:"16px"}}>
+					{
+						dontAllow && 
+						<div className='card side blue center shadow alt-border'>
+							<div className='content'>
+								You must be authenticated as an instructor to access widgets in the Community Library.
+							</div>
+						</div>
+					}
 					<div className='card side blue center shadow alt-border'>
 						<div className='content'>
-							<button className='blue space row center' style={{gap:"8px"}} onClick={() => handleCopy(entry.id)}>
+							<button className='blue space row center' style={{gap:"8px"}} disabled={dontAllow} onClick={() => handleCopy(entry.id)}>
 								{copySuccess ? 
 								<>
 									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -148,20 +172,22 @@ const CommunityLibraryDetail = ({entry}) => {
 								}
 							</button>
 							<a target='_blank' className='no-under' href={`/preview/snapshot/${!entry ? 0 : entry.latest_snapshot_id}`}>
-								<button className='yellow h-sm space row center' style={{gap:"8px"}}>
+								<button disabled={dontAllow} className='yellow h-sm space row center' style={{gap:"8px"}}>
 									<svg viewBox="0 0 24 24" width="16" height="16" aria-label='External Link Icon'>
 										<path d={EXTERNAL_PATH} />
 									</svg>
 									Preview Widget
 								</button>
 							</a>
-							This creates a private copy in your account. The original widget will not be affected.
+							{!dontAllow &&
+							<div>This creates a private copy in your account. The original widget will not be affected.</div>
+							}
 						</div>
 					</div>
 					<div className='card side shadow alt-border'>
 						<div className='content'>
 							<div className='row'>
-								<button className='col' onClick={() => handleCopy(entry.id)}>
+								<button className='col' disabled={dontAllow} onClick={() => handleCopy(entry.id)}>
 									<div className='big'>{!entry ? 0 : entry.copy_count}</div>
 									<div className='row center' style={{gap:"4px"}}>
 										<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -171,7 +197,7 @@ const CommunityLibraryDetail = ({entry}) => {
 										{`Cop${(!entry ? 0 : entry.copy_count) == 1 ? 'y' : 'ies'}`}
 									</div>
 								</button>
-								<button className='col like' onClick={() => handleLike(entry.id)}>
+								<button className='col like' disabled={dontAllow} onClick={() => handleLike(entry.id)}>
 									<div className='big'>{!entry ? 0 : entry.like_count}</div>
 									<div className='row center' style={{gap:"4px"}}>
 										<svg viewBox="0 0 24 24" width="16" height="16" className='like'>
@@ -182,7 +208,7 @@ const CommunityLibraryDetail = ({entry}) => {
 								</button>
 							</div>
 							<hr/>
-							<button className='h-sm row center' style={{gap: "4px"}} onClick={() => handleReport()}>
+							<button disabled={dontAllow} className='h-sm row center' style={{gap: "4px"}} onClick={() => handleReport()}>
 								<svg viewBox="0 0 24 24" width="18" height="18" fill='currentColor'>
 									<path d={FLAG_ICON} />
 								</svg>
