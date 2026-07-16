@@ -241,7 +241,8 @@ const CommunityLibrary = ({ widgets = [] }) => {
 			setTagList([...newList])
 		}
 
-		if(tags && tags.length > 1 && tempTag != "") {
+		if(tags && tags.length >= 1 && tempTag != "") {
+			console.log(focusedTag)
 			if(e.key == "ArrowDown") {
 				e.preventDefault()
 				let newInd = focusedTag + 1 < tags.length ? focusedTag + 1 : -1
@@ -293,7 +294,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 
 	const triggerTagMenu = () => {
 		setTempTag("#")
-		setFocusedTag(0)
+		setFocusedTag(-1)
 		setTimeout(()=>{
 			inputElement.focus()
 			inputElement.value += "#"
