@@ -49,13 +49,13 @@ const CommunityLibraryCard = ({ entry, categoryObject, highlightedTags = [], ski
 						{entry.tags.length >= 1 && <>
 						{highlightedTags.map((ht, i) => {
 							if(i >= 2) return
-							return (<span className={`badge highlighted`}>#{ht}</span>)
+							return (<span className={`badge highlighted`} key={i}>#{ht}</span>)
 						})}
 						{entry.tags.map((t, i)=>{
 							if(i >= 2 - highlightedTags.length) return
 							const highlighted = highlightedTags.includes(t)
 							if(!highlighted) {
-								return (<span className={`badge`}>#{t}</span>)
+								return (<span className={`badge`} key={i}>#{t}</span>)
 							}
 						})}
 						<span className='tiny-text'>{entry.tags.length > 2 ? `+${entry.tags.length-2}` : ""}</span>
@@ -95,13 +95,13 @@ const CommunityLibraryCard = ({ entry, categoryObject, highlightedTags = [], ski
 					{entry.tags.length >= 1 ? <>
 					{highlightedTags.map((ht, i) => {
 						if(i >= 2) return
-						return (<span className={`badge highlighted`}>#{ht}</span>)
+						return (<span className={`badge highlighted`} key={i}>#{ht}</span>)
 					})}
 					{entry.tags.map((t, i)=>{
 						if(i >= 2 - highlightedTags.length) return
 						const highlighted = highlightedTags.includes(t)
 						if(!highlighted) {
-							return (<span className={`badge`}>#{t}</span>)
+							return (<span className={`badge`} key={i}>#{t}</span>)
 						}
 					})}
 					<span className='tiny-text'>{entry.tags.length > 2 ? `+${entry.tags.length-2}` : ""}</span>
