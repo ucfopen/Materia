@@ -176,6 +176,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 					{featured.map((entry, i) => (
 						// i>=2 ? null :
 						<div className='carousel-card'
+						key={i}
 						onClick={(e)=>{
 							if(carouselDragging) {
 								e.preventDefault()
