@@ -1541,10 +1541,14 @@
 }
 
 @media (max-width: 800px) {
- .community-library .dashboard .category-box.featured .row {
-	flex-direction: column;
-	align-items: center;
- }
+	.community-library .dashboard .category-box.featured .row {
+		flex-direction: column;
+		align-items: center;
+ 	}
+	.community-library .dashboard .welcome-banner .column p {
+		width: 100%;
+		margin: 2em 0;
+	}
 }
 
 @media (max-width: 720px) {
