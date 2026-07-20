@@ -92,6 +92,9 @@ const Header = ({
 						<a className='elevated' href='/admin/site'>Site</a>
 					</li>
 					<li>
+						<a className='elevated' href='/admin/library'>Library</a>
+					</li>
+					<li>
 						<a className='elevated' href='/admin/' target="_blank">Django Admin</a>
 					</li>
 				</ul>

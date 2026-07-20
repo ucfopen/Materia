@@ -79,6 +79,33 @@
 			}
 		}
 
+		nav {
+			display: flex;
+			flex-direction: row;
+			gap: 0.5em;
+
+			padding: 0.5em 0.5em 0 0.5em;
+			background: $light-gray;
+
+			a.nav_button {
+				display: inline-block;
+				padding: 0.5em 1em;
+
+				background: #fff;
+
+				color: #000;
+				font-weight: 400;
+				font-size: 0.9em;
+
+				border-top-left-radius: 0.5em;
+				border-top-right-radius: 0.5em;
+
+				&.selected {
+					border-bottom: solid 2px $color-features;
+				}
+			}
+		}
+
         .widget_updater_content {
           display: flex;
           flex-direction: column;
@@ -845,8 +872,6 @@
 }
 
 .tag-moderation {
-	padding: 8px;
-
 	input[type="text"] {
 		width: 100%;
 		box-sizing: border-box;

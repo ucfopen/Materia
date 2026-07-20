@@ -1,0 +1,17 @@
+@import 'support-page.scss';
+
+.support-page {
+	padding: 0;
+	box-sizing: border-box;
+
+	.page {
+		.top {
+			box-sizing: border-box;
+			left: auto;
+		}
+
+		.content {
+			padding: 8px 16px;
+		}
+	}
+}
