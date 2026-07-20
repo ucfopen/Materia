@@ -191,7 +191,7 @@ const CommunityLibraryDetail = ({entry}) => {
 									Preview Widget
 								</button>
 							</a>
-							{!dontAllow &&
+							{(!dontAllow && !(entry && entry.user_copy)) &&
 							<div>This creates a private copy in your account. The original widget will not be affected.</div>
 							}
 						</div>
