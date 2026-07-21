@@ -17,7 +17,9 @@ const LibraryAdminPage = () => {
     const [pageState, setPageState] = useState({mode: "tags"})
     const [moderationFilter, setModerationFilter] = useState('')
     const [showDeleted, setShowDeleted] = useState(false)
+
     const [tagSearchText, setTagSearchText] = useState('')
+    const [entrySearchText, setEntrySearchText] = useState('')
 
     const [renamingTag, setRenamingTag] = useState('')
     const [newTagName, setNewTagName] = useState('')
@@ -43,8 +45,8 @@ const LibraryAdminPage = () => {
     }, [])
 
     const { data: moderationData, isFetching: moderationLoading, refetch: refetchModeration } = useQuery({
-        queryKey: ['library-moderation', moderationFilter, showDeleted],
-        queryFn: () => apiGetLibraryModeration(moderationFilter, showDeleted),
+        queryKey: ['library-moderation', moderationFilter, showDeleted, entrySearchText],
+        queryFn: () => apiGetLibraryModeration(moderationFilter, showDeleted, entrySearchText),
         enabled: pageState.mode === 'entries',
         staleTime: 30000,
     })
@@ -146,6 +148,7 @@ const LibraryAdminPage = () => {
 
 		return (
 			<>
+                <input type="text" className='search-field' placeholder="Search for an entry..." value={entrySearchText} onChange={(e)=>setEntrySearchText(e.target.value)}/>
 				<div className='moderation-filters'>
 					<label>Show:</label>
 					<select value={moderationFilter} onChange={(e) => setModerationFilter(e.target.value)}>
