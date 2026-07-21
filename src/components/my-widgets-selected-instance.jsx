@@ -332,7 +332,7 @@ const MyWidgetSelectedInstance = ({
 				onClose={() => setShowPublishDialog(false)}
 				onSuccess={() => {
 					setShowPublishDialog(false)
-					onEdit({...inst, is_shared: true})
+					onEdit({...inst, is_available: true})
 				}}
 			/>
 		)
@@ -524,7 +524,7 @@ const MyWidgetSelectedInstance = ({
 
 			<div className={`community-library-container closed ${(inst.is_draft || inst.guest_access) ? 'draft' : ''}`}>
 				<h3>
-					{`${inst.is_draft ? `Publish to share to the ` : inst.guest_access ? `Only instructors can use the ` : ``}Community Library`}
+					{`${inst.is_draft ? `Publish to share to the ` : inst.guest_access ? `Guest widgets cannot be shared to the` : ``}Community Library`}
 				</h3>
 				<div className="cl-options">
 				{!inst.shared_to_library && !inst.copied_from_library && (
@@ -586,7 +586,7 @@ const MyWidgetSelectedInstance = ({
 								tabIndex="0"
 								onClick={() => {
 									apiUnpublishFromLibrary(inst.id).then(() => {
-										onEdit({...inst, is_shared: false})
+										onEdit({...inst, is_available: false})
 									})
 								}}>
 								Remove from Library

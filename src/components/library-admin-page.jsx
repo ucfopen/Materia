@@ -177,7 +177,7 @@ const LibraryAdminPage = () => {
 						{entries.map((entry) => (
 							<a
 								key={entry.id}
-								className={`search_match clickable ${entry.featured ? 'featured' : ''} ${entry.is_banned ? 'banned' : ''} ${entry.report_count > 0 ? 'reported' : ''} ${!entry.is_shared ? 'unpublished' : ''} ${entry.is_deleted ? 'deleted' : ''}`}
+								className={`search_match clickable ${entry.featured ? 'featured' : ''} ${entry.is_banned ? 'banned' : ''} ${entry.report_count > 0 ? 'reported' : ''} ${!entry.is_available ? 'unpublished' : ''} ${entry.is_deleted ? 'deleted' : ''}`}
                                 href={`/admin/instance#${entry.instance_id}`}
                                 >
 								<div className='img-holder'>
@@ -190,7 +190,7 @@ const LibraryAdminPage = () => {
 										<li className='owner'>{entry.owner_display_name}</li>
 										<li className='row'>
 											{entry.featured && <div className='badge badge-featured'>Featured</div>}
-											{!entry.is_shared && <div className='badge badge-unpublished'>Unpublished</div>}
+											{!entry.is_available && <div className='badge badge-unpublished'>Unpublished</div>}
 											{entry.is_banned && <div className='badge badge-banned'>Banned</div>}
 											{entry.report_count > 0 && <div title={`Last reported ${new Date(entry.last_reported_at).toLocaleDateString()}`} className='badge badge-reported'>{entry.report_count} report{entry.report_count !== 1 ? 's' : ''}</div>}
 											{entry.is_deleted && <div className='badge badge-banned'>Deleted</div>}
