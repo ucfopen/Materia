@@ -89,13 +89,8 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 		staleTime: Infinity,
 	})
 
-	useEffect(()=>{
-		console.log(carouselShift, maxTranslate())
-	}, [carouselShift])
-
 	const mouseStopDrag = (e) => {
 		if(carouselDragging) {
-			console.log(carouselDrag, Math.round(carouselDrag / featuredCardSize), carouselShift, maxShift())
 			setCarouselShift(Math.min(Math.max(carouselShift + Math.round(carouselDrag / featuredCardSize), 0), maxShift()))
 			setCarouselDrag(0)
 			carouselContent.current.classList.remove("dragging")
@@ -115,91 +110,91 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 				<a href='/help/#community-library'>Learn More ➜</a>
 			</div>
 		</div>
-		
-		<div className='category-box featured'>
-			
-			<div className='row'>
-				<div style={{margin: "auto"}}>
-					<h3 className='featured-header'>
-						{catalogHeaders && catalogHeaders.length > 0 ? catalogHeaders[0].message_text : "Featured Widgets"}
-					</h3>
-					{
-						catalogTexts && catalogTexts.length > 0 ? <p>{catalogTexts[0].message_text}</p>
-						:
-						<p>Explore a curated collection of widgets selected by our LS&T staff. Browse available options to find tools and resources that can enhance your course and support your teaching goals.</p>
-					}
+		{
+			featured && featured.length > 0 &&
+			<div className='category-box featured'>
+				<div className='row'>
+					<div style={{margin: "auto"}}>
+						<h3 className='featured-header'>
+							{catalogHeaders && catalogHeaders.length > 0 ? catalogHeaders[0].message_text : "Featured Widgets"}
+						</h3>
+						{
+							catalogTexts && catalogTexts.length > 0 ? <p>{catalogTexts[0].message_text}</p>
+							:
+							<p>Explore a curated collection of widgets selected by our LS&T staff. Browse available options to find tools and resources that can enhance your course and support your teaching goals.</p>
+						}
+					</div>
+					{ catalogImages && catalogImages.length > 0 && <img className="catalog-image" src={catalogImages[0].image_path}/>}
 				</div>
-				{ catalogImages && catalogImages.length > 0 && <img className="catalog-image" src={catalogImages[0].image_path}/>}
-			</div>
-			<div className='content-container'>
-				<button className='carousel left' aria-label='Move carousel to the left.'
-				disabled={carouselShift <= 0} onClick={()=>shiftCarousel(-1)}></button>
-				<div id="carousel-content" className='content' ref={carouselContent}
-				onMouseMove={(e) => {
-					if(e.buttons > 0) {
-						let delta = e.movementX
+				<div className='content-container'>
+					<button className='carousel left' aria-label='Move carousel to the left.'
+					disabled={carouselShift <= 0} onClick={()=>shiftCarousel(-1)}></button>
+					<div id="carousel-content" className='content' ref={carouselContent}
+					onMouseMove={(e) => {
+						if(e.buttons > 0) {
+							let delta = e.movementX
 
+							let current = Math.min(carouselShift * featuredCardSize, maxTranslate()) + carouselDrag
+							if(current >= maxTranslate() || current <= 0)
+								delta /= 4
+
+							setCarouselDrag(carouselDrag - delta)
+							setCarouselDragging(true)
+							carouselContent.current.classList.add("dragging")
+						} else if(carouselDragging) {
+							setCarouselDragging(false)
+						}
+					}}
+					onTouchStart={(e) => {
+						setLastTouchX(e.changedTouches.item(0).clientX)
+						setCarouselDragging(true)
+						carouselContent.current.classList.add("dragging")
+					}}
+					onTouchMove={(e) => {
+						e.preventDefault()
+						
+						let delta = e.changedTouches.item(0).clientX - lastTouchX
 						let current = Math.min(carouselShift * featuredCardSize, maxTranslate()) + carouselDrag
 						if(current >= maxTranslate() || current <= 0)
 							delta /= 4
-
 						setCarouselDrag(carouselDrag - delta)
-						setCarouselDragging(true)
-						carouselContent.current.classList.add("dragging")
-					} else if(carouselDragging) {
-						setCarouselDragging(false)
-					}
-				}}
-				onTouchStart={(e) => {
-					setLastTouchX(e.changedTouches.item(0).clientX)
-					setCarouselDragging(true)
-					carouselContent.current.classList.add("dragging")
-				}}
-				onTouchMove={(e) => {
-					e.preventDefault()
-					
-					let delta = e.changedTouches.item(0).clientX - lastTouchX
-					let current = Math.min(carouselShift * featuredCardSize, maxTranslate()) + carouselDrag
-					if(current >= maxTranslate() || current <= 0)
-						delta /= 4
-					setCarouselDrag(carouselDrag - delta)
-					setLastTouchX(e.changedTouches.item(0).clientX)
-				}}
-				onTouchEnd={(e) => {
-					if(e.touches.length === 0 && carouselDragging) {
-						setCarouselShift(Math.min(Math.max(carouselShift + Math.round(carouselDrag / featuredCardSize), 0), maxShift()))
-						setCarouselDrag(0)
-						carouselContent.current.classList.remove("dragging")
-						setCarouselDragging(false)
-					}
-				}}>
-					{featured.map((entry, i) => (
-						// i>=2 ? null :
-						<div className='carousel-card'
-						key={i}
-						onClick={(e)=>{
-							if(carouselDragging) {
-								e.preventDefault()
-								e.stopPropagation()
-							}
-						}}
-						data-shift={carouselShift}
-						data-translate={maxTranslate()}
-						style={{transform: `translateX(${-Math.min(carouselShift * featuredCardSize, maxTranslate()) - carouselDrag}px)`}}>
-							<CommunityLibraryCard
-								key={entry.id + `_${i}`}
-								entry={entry}
-								highlightedTags={[]}
-								categoryObject={mappedCategories[entry.category]}
-								skinFeatured
-							/>
-						</div>
-					))}
+						setLastTouchX(e.changedTouches.item(0).clientX)
+					}}
+					onTouchEnd={(e) => {
+						if(e.touches.length === 0 && carouselDragging) {
+							setCarouselShift(Math.min(Math.max(carouselShift + Math.round(carouselDrag / featuredCardSize), 0), maxShift()))
+							setCarouselDrag(0)
+							carouselContent.current.classList.remove("dragging")
+							setCarouselDragging(false)
+						}
+					}}>
+						{featured.map((entry, i) => (
+							// i>=2 ? null :
+							<div className='carousel-card'
+							onClick={(e)=>{
+								if(carouselDragging) {
+									e.preventDefault()
+									e.stopPropagation()
+								}
+							}}
+							data-shift={carouselShift}
+							data-translate={maxTranslate()}
+							style={{transform: `translateX(${-Math.min(carouselShift * featuredCardSize, maxTranslate()) - carouselDrag}px)`}}>
+								<CommunityLibraryCard
+									key={entry.id + `_${i}`}
+									entry={entry}
+									highlightedTags={[]}
+									categoryObject={mappedCategories[entry.category]}
+									skinFeatured
+								/>
+							</div>
+						))}
+					</div>
+					<button className='carousel right'  aria-label='Move carousel to the right.'
+					disabled={carouselShift >= maxShift()} onClick={()=>shiftCarousel(1)}></button>
 				</div>
-				<button className='carousel right'  aria-label='Move carousel to the right.'
-				disabled={carouselShift >= maxShift()} onClick={()=>shiftCarousel(1)}></button>
 			</div>
-		</div>
+		}
 		<h3>Community Widgets</h3>
 		<div className='category-box liberal'>
 			<div className='row'>

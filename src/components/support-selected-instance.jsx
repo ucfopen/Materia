@@ -64,10 +64,11 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 	})
 
 	const { data: reports, isFetching: loadingReports} = useQuery({
-		queryKey: ['entry-reports', updatedInst.library_entry.id],
+		queryKey: ['entry-reports', updatedInst.library_entry?.id],
 		queryFn: async () => {
 			return await apiGetEntryReports(updatedInst.library_entry.id)
 		},
+		enabled: !!updatedInst.library_entry?.id,
 		staleTime: Infinity,
 		refetchOnWindowFocus: false
 	})
@@ -544,7 +545,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 							<div>
 								<label>Status:</label>
 								{updatedInst.library_entry.is_banned ? 'Banned' : 
-								updatedInst.library_entry.is_shared ? 'Shared' : 'Unpublished'}
+								updatedInst.library_entry.is_available ? 'Shared' : 'Unpublished'}
 							</div>
 							<div>
 								<label>Reports:</label>

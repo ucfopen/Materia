@@ -22,6 +22,7 @@ CSS_GROUPS = {
     "support": [CSS_BASEURL + "support.css"],
     "user_admin": [CSS_BASEURL + "user-admin.css"],
     "site_admin": [CSS_BASEURL + "site-admin.css"],
+    "library_admin": [CSS_BASEURL + "library-admin.css"],
     "no-permission": [CSS_BASEURL + "no-permission.css"],
     "pre-embed": [CSS_BASEURL + "pre-embed-placeholder.css"],
     "lti": [

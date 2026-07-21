@@ -23,6 +23,7 @@ from core.views.admin import instance as instance_admin
 from core.views.admin import site as site_admin
 from core.views.admin import user as user_admin
 from core.views.admin import widget as widget_admin
+from core.views.admin import library as library_admin
 from core.views.catalog import CatalogView
 from core.views.community_library import (
     CommunityLibraryView,
@@ -171,6 +172,7 @@ urlpatterns = [
     path("admin/widget", widget_admin, name="widget admin"),
     path("admin/site", site_admin, name="site admin"),
     path("admin/instance", instance_admin, name="instance admin"),
+    path("admin/library", library_admin, name="library admin"),
     path("admin/user", user_admin, name="user admin"),
     path("admin/", admin.site.urls),
     path("users/logout/", UsersApi.logout, name="logout"),

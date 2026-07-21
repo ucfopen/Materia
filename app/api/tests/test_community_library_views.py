@@ -1,14 +1,17 @@
 from unittest.mock import patch
 
-from core.models import (
-    CommunityLibraryEntry,
+from community_library.models import (
+    LibraryCategory,
+    LibraryEntry,
     LibraryReport,
     LibrarySnapshot,
-    Notification,
-    ObjectPermission,
     Tag,
     TagEntry,
     UserLike,
+)
+from core.models import (
+    Notification,
+    ObjectPermission,
     Widget,
     WidgetInstance,
     WidgetQset,
@@ -22,6 +25,22 @@ from rest_framework.test import APIClient
 class CommunityLibraryViewSetTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        cls.categories = {
+            slug: LibraryCategory.objects.get_or_create(
+                slug=slug,
+                defaults={
+                    "label": label,
+                    "banner_path": "/static/img/banners/banner_math.svg",
+                },
+            )[0]
+            for slug, label in [
+                ("math", "Math"),
+                ("science", "Science"),
+                ("history", "History"),
+                ("other", "Other"),
+            ]
+        }
+
         cls.author_group, _ = Group.objects.get_or_create(name="basic_author")
         cls.support_group, _ = Group.objects.get_or_create(name="support_user")
 
@@ -83,7 +102,6 @@ class CommunityLibraryViewSetTestCase(TestCase):
             user=cls.author_user,
             name="Shared Instance",
             is_draft=False,
-            is_shared=True,
         )
         ObjectPermission.objects.create(
             user=cls.author_user,
@@ -96,11 +114,13 @@ class CommunityLibraryViewSetTestCase(TestCase):
             version="1",
         )
 
-        cls.library_entry = CommunityLibraryEntry.objects.create(
+        cls.library_entry = LibraryEntry.objects.create(
             instance=cls.shared_instance,
-            category="math",
+            category=cls.categories["math"],
             course_level="introductory",
         )
+        cls.shared_instance.library_entry = cls.library_entry
+        cls.shared_instance.save(update_fields=["library_entry"])
         cls.library_snapshot = LibrarySnapshot.objects.create(
             entry=cls.library_entry,
             name="Shared Instance",
@@ -114,7 +134,6 @@ class CommunityLibraryViewSetTestCase(TestCase):
             user=cls.another_author,
             name="Alpha Instance",
             is_draft=False,
-            is_shared=True,
         )
         ObjectPermission.objects.create(
             user=cls.another_author,
@@ -127,19 +146,38 @@ class CommunityLibraryViewSetTestCase(TestCase):
             version="1",
         )
 
-        cls.library_entry_2 = CommunityLibraryEntry.objects.create(
+        cls.library_entry_2 = LibraryEntry.objects.create(
             instance=cls.shared_instance_2,
-            category="science",
+            category=cls.categories["science"],
             course_level="advanced",
-            copy_count=10,
-            like_count=5,
         )
-        LibrarySnapshot.objects.create(
+        cls.shared_instance_2.library_entry = cls.library_entry_2
+        cls.shared_instance_2.save(update_fields=["library_entry"])
+        cls.library_snapshot_2 = LibrarySnapshot.objects.create(
             entry=cls.library_entry_2,
             name="Alpha Instance",
             qset_data="eyJ0ZXN0IjogImRhdGEifQ==",
             qset_version="1",
         )
+
+        for idx in range(3):
+            WidgetInstance.objects.create(
+                id=f"cp2{idx:04d}",
+                widget=cls.another_widget,
+                user=cls.another_author,
+                name=f"Copy {idx}",
+                is_draft=False,
+                library_entry=cls.library_entry_2,
+                library_snapshot=cls.library_snapshot_2,
+            )
+
+        for idx in range(5):
+            like_user = User.objects.create_user(
+                username=f"like_user_{idx}",
+                email=f"like_user_{idx}@example.com",
+                password="testpass123",
+            )
+            UserLike.objects.create(user=like_user, entry=cls.library_entry_2)
 
         cls.unshared_instance = WidgetInstance.objects.create(
             id="unshare1",
@@ -147,7 +185,6 @@ class CommunityLibraryViewSetTestCase(TestCase):
             user=cls.author_user,
             name="Unshared Instance",
             is_draft=False,
-            is_shared=False,
         )
         ObjectPermission.objects.create(
             user=cls.author_user,
@@ -180,7 +217,7 @@ class TestCommunityLibraryList(CommunityLibraryViewSetTestCase):
         self.assertIn(self.shared_instance_2.id, instance_ids)
 
     def test_excludes_unshared_instance(self):
-        """Entries whose instance.is_shared=False should not appear."""
+        """Entries with no instance.library_entry pointer should not appear."""
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.get("/api/community-library/")
         instance_ids = [r["instance_id"] for r in response.data["results"]]
@@ -363,6 +400,23 @@ class TestCommunityLibraryList(CommunityLibraryViewSetTestCase):
         snapshot = self.library_entry.snapshots.order_by("-created_at").first()
         self.assertEqual(entry["latest_snapshot_id"], snapshot.id)
 
+    def test_snapshotless_entry_serializes_with_fallback_values(self):
+        self.library_entry.snapshots.all().delete()
+        self.shared_instance.name = "Current Shared Name"
+        self.shared_instance.save(update_fields=["name"])
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get("/api/community-library/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        entry = next(
+            r
+            for r in response.data["results"]
+            if r["instance_id"] == self.shared_instance.id
+        )
+        self.assertEqual(entry["instance_name"], "Current Shared Name")
+        self.assertIsNone(entry["latest_snapshot_id"])
+
 
 class TestCommunityLibraryCopy(CommunityLibraryViewSetTestCase):
     """Tests for POST /api/community-library/{id}/copy/"""
@@ -390,13 +444,27 @@ class TestCommunityLibraryCopy(CommunityLibraryViewSetTestCase):
         new_instance = WidgetInstance.objects.get(pk=response.data["id"])
         self.assertEqual(new_instance.user, self.regular_user)
 
-    def test_copied_instance_is_not_shared(self):
+    def test_copied_instance_tracks_source_entry(self):
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.post(
             f"/api/community-library/{self.library_entry.id}/copy/"
         )
         new_instance = WidgetInstance.objects.get(pk=response.data["id"])
-        self.assertFalse(new_instance.is_shared)
+        self.assertEqual(new_instance.library_entry_id, self.library_entry.id)
+        self.assertEqual(new_instance.library_snapshot_id, self.library_snapshot.id)
+
+    def test_copy_without_snapshot_returns_400(self):
+        self.library_entry.snapshots.all().delete()
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.post(
+            f"/api/community-library/{self.library_entry.id}/copy/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data["error"],
+            "This library entry has no snapshots to copy from.",
+        )
 
     def test_copy_increments_copy_count(self):
         original_count = self.library_entry.copy_count
@@ -544,8 +612,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
         self.assertTrue(self.library_entry.is_banned)
 
         self.library_entry.is_banned = False
-        self.library_entry.report_count = 0
-        self.library_entry.save(update_fields=["is_banned", "report_count"])
+        self.library_entry.save(update_fields=["is_banned"])
 
     @patch("api.views.community_library.REPORT_THRESHOLD", 1)
     @patch("core.models.Notification.send_email")
@@ -566,8 +633,7 @@ class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
 
         admin_notifications.delete()
         self.library_entry.is_banned = False
-        self.library_entry.report_count = 0
-        self.library_entry.save(update_fields=["is_banned", "report_count"])
+        self.library_entry.save(update_fields=["is_banned"])
 
     def test_missing_reason_returns_400(self):
         self.client.force_authenticate(user=self.regular_user)
@@ -673,14 +739,14 @@ class TestPublishToLibrary(CommunityLibraryViewSetTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["success"])
         self.unshared_instance.refresh_from_db()
-        self.assertTrue(self.unshared_instance.is_shared)
-        entry = CommunityLibraryEntry.objects.get(instance=self.unshared_instance)
-        self.assertEqual(entry.category, "science")
+        entry = LibraryEntry.objects.get(instance=self.unshared_instance)
+        self.assertEqual(self.unshared_instance.library_entry_id, entry.id)
+        self.assertEqual(entry.category.slug, "science")
         self.assertEqual(entry.course_level, "intermediate")
 
         entry.delete()
-        self.unshared_instance.is_shared = False
-        self.unshared_instance.save(update_fields=["is_shared"])
+        self.unshared_instance.library_entry = None
+        self.unshared_instance.save(update_fields=["library_entry"])
 
     def test_publish_creates_snapshot(self):
         """Publishing should create a LibrarySnapshot record."""
@@ -690,14 +756,14 @@ class TestPublishToLibrary(CommunityLibraryViewSetTestCase):
             {"category": "math"},
             format="json",
         )
-        entry = CommunityLibraryEntry.objects.get(instance=self.unshared_instance)
+        entry = LibraryEntry.objects.get(instance=self.unshared_instance)
         snapshot = entry.snapshots.first()
         self.assertIsNotNone(snapshot)
         self.assertEqual(snapshot.name, self.unshared_instance.name)
 
         entry.delete()
-        self.unshared_instance.is_shared = False
-        self.unshared_instance.save(update_fields=["is_shared"])
+        self.unshared_instance.library_entry = None
+        self.unshared_instance.save(update_fields=["library_entry"])
 
     def test_snapshot_has_correct_qset(self):
         """Snapshot should have a copy of the instance's qset data."""
@@ -707,7 +773,7 @@ class TestPublishToLibrary(CommunityLibraryViewSetTestCase):
             {"category": "math"},
             format="json",
         )
-        entry = CommunityLibraryEntry.objects.get(instance=self.unshared_instance)
+        entry = LibraryEntry.objects.get(instance=self.unshared_instance)
         snapshot = entry.snapshots.first()
         source_qset = self.unshared_instance.get_latest_qset()
         self.assertIsNotNone(snapshot)
@@ -715,8 +781,8 @@ class TestPublishToLibrary(CommunityLibraryViewSetTestCase):
         self.assertEqual(snapshot.qset_version, source_qset.version)
 
         entry.delete()
-        self.unshared_instance.is_shared = False
-        self.unshared_instance.save(update_fields=["is_shared"])
+        self.unshared_instance.library_entry = None
+        self.unshared_instance.save(update_fields=["library_entry"])
 
     def test_entry_instance_points_to_original(self):
         """Entry's instance should point to the original widget."""
@@ -726,14 +792,14 @@ class TestPublishToLibrary(CommunityLibraryViewSetTestCase):
             {"category": "math"},
             format="json",
         )
-        entry = CommunityLibraryEntry.objects.get(instance=self.unshared_instance)
+        entry = LibraryEntry.objects.get(instance=self.unshared_instance)
         self.assertEqual(entry.instance.id, self.unshared_instance.id)
 
         entry.delete()
-        self.unshared_instance.is_shared = False
-        self.unshared_instance.save(update_fields=["is_shared"])
+        self.unshared_instance.library_entry = None
+        self.unshared_instance.save(update_fields=["library_entry"])
 
-    def test_publish_sets_is_shared_true(self):
+    def test_publish_sets_library_entry_pointer(self):
         self.client.force_authenticate(user=self.author_user)
         self.client.put(
             f"/api/instances/{self.unshared_instance.id}/publish_to_library/",
@@ -741,11 +807,11 @@ class TestPublishToLibrary(CommunityLibraryViewSetTestCase):
             format="json",
         )
         self.unshared_instance.refresh_from_db()
-        self.assertTrue(self.unshared_instance.is_shared)
+        self.assertIsNotNone(self.unshared_instance.library_entry_id)
 
-        CommunityLibraryEntry.objects.filter(instance=self.unshared_instance).delete()
-        self.unshared_instance.is_shared = False
-        self.unshared_instance.save(update_fields=["is_shared"])
+        LibraryEntry.objects.filter(instance=self.unshared_instance).delete()
+        self.unshared_instance.library_entry = None
+        self.unshared_instance.save(update_fields=["library_entry"])
 
     def test_banned_user_gets_403(self):
         settings = self.author_user.profile_settings
@@ -791,11 +857,11 @@ class TestPublishToLibrary(CommunityLibraryViewSetTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.library_entry.refresh_from_db()
-        self.assertEqual(self.library_entry.category, "history")
+        self.assertEqual(self.library_entry.category.slug, "history")
         self.assertEqual(self.library_entry.course_level, "advanced")
         self.assertEqual(self.library_entry.snapshots.count(), old_snapshot_count + 1)
 
-        self.library_entry.category = "math"
+        self.library_entry.category = self.categories["math"]
         self.library_entry.course_level = "introductory"
         self.library_entry.save(update_fields=["category", "course_level"])
         self.library_entry.snapshots.order_by("-created_at").first().delete()
@@ -812,9 +878,9 @@ class TestPublishToLibrary(CommunityLibraryViewSetTestCase):
         instance_count_after = WidgetInstance.objects.count()
         self.assertEqual(instance_count_before, instance_count_after)
 
-        CommunityLibraryEntry.objects.filter(instance=self.unshared_instance).delete()
-        self.unshared_instance.is_shared = False
-        self.unshared_instance.save(update_fields=["is_shared"])
+        LibraryEntry.objects.filter(instance=self.unshared_instance).delete()
+        self.unshared_instance.library_entry = None
+        self.unshared_instance.save(update_fields=["library_entry"])
 
     def test_republish_replaces_tags_and_updates_counts(self):
         self.client.force_authenticate(user=self.author_user)
@@ -922,32 +988,68 @@ class TestUpdateInLibrary(CommunityLibraryViewSetTestCase):
 
     def test_update_preserves_entry_stats(self):
         """Updating should not reset copy_count, like_count, etc."""
-        self.library_entry.copy_count = 42
-        self.library_entry.like_count = 10
-        self.library_entry.save(update_fields=["copy_count", "like_count"])
+        copied_a = WidgetInstance.objects.create(
+            id="upst0001",
+            widget=self.widget,
+            user=self.regular_user,
+            name="Stats Copy A",
+            is_draft=False,
+            library_entry=self.library_entry,
+            library_snapshot=self.library_snapshot,
+        )
+        copied_b = WidgetInstance.objects.create(
+            id="upst0002",
+            widget=self.widget,
+            user=self.another_author,
+            name="Stats Copy B",
+            is_draft=False,
+            library_entry=self.library_entry,
+            library_snapshot=self.library_snapshot,
+        )
+        like_user_a = User.objects.create_user(
+            username="stats_like_1",
+            email="stats_like_1@example.com",
+            password="testpass123",
+        )
+        like_user_b = User.objects.create_user(
+            username="stats_like_2",
+            email="stats_like_2@example.com",
+            password="testpass123",
+        )
+        UserLike.objects.create(user=like_user_a, entry=self.library_entry)
+        UserLike.objects.create(user=like_user_b, entry=self.library_entry)
+
+        expected_copy_count = self.library_entry.copy_count
+        expected_like_count = self.library_entry.like_count
+        self.assertGreaterEqual(expected_copy_count, 2)
+        self.assertGreaterEqual(expected_like_count, 2)
+
         self.client.force_authenticate(user=self.author_user)
         self.client.put(f"/api/instances/{self.shared_instance.id}/update_in_library/")
         self.library_entry.refresh_from_db()
-        self.assertEqual(self.library_entry.copy_count, 42)
-        self.assertEqual(self.library_entry.like_count, 10)
+        self.assertEqual(self.library_entry.copy_count, expected_copy_count)
+        self.assertEqual(self.library_entry.like_count, expected_like_count)
 
-        self.shared_instance.is_shared = True
-        self.shared_instance.save(update_fields=["is_shared"])
+        copied_a.delete()
+        copied_b.delete()
+
+        self.shared_instance.library_entry = self.library_entry
+        self.shared_instance.save(update_fields=["library_entry"])
 
     def test_unpublish_preserves_entry_and_snapshots(self):
-        """Unpublishing should keep the entry and snapshots, only set is_shared=False."""
+        """Unpublishing should keep entry/snapshots and clear instance.library_entry pointer."""
         entry_id = self.library_entry.id
         self.client.force_authenticate(user=self.author_user)
         self.client.put(
             f"/api/instances/{self.shared_instance.id}/unpublish_from_library/"
         )
-        self.assertTrue(CommunityLibraryEntry.objects.filter(id=entry_id).exists())
+        self.assertTrue(LibraryEntry.objects.filter(id=entry_id).exists())
         self.assertTrue(LibrarySnapshot.objects.filter(entry_id=entry_id).exists())
         self.shared_instance.refresh_from_db()
-        self.assertFalse(self.shared_instance.is_shared)
+        self.assertIsNone(self.shared_instance.library_entry_id)
 
-        self.shared_instance.is_shared = True
-        self.shared_instance.save(update_fields=["is_shared"])
+        self.shared_instance.library_entry = self.library_entry
+        self.shared_instance.save(update_fields=["library_entry"])
 
     def test_unpublished_instance_not_in_library_list(self):
         self.client.force_authenticate(user=self.author_user)
@@ -958,8 +1060,8 @@ class TestUpdateInLibrary(CommunityLibraryViewSetTestCase):
         instance_ids = [r["instance_id"] for r in response.data["results"]]
         self.assertNotIn(self.shared_instance.id, instance_ids)
 
-        self.shared_instance.is_shared = True
-        self.shared_instance.save(update_fields=["is_shared"])
+        self.shared_instance.library_entry = self.library_entry
+        self.shared_instance.save(update_fields=["library_entry"])
 
     def test_unpublish_removes_tag_entries_and_orphan_tags(self):
         self.client.force_authenticate(user=self.author_user)
@@ -980,12 +1082,51 @@ class TestUpdateInLibrary(CommunityLibraryViewSetTestCase):
         self.assertFalse(Tag.objects.filter(name="to-remove").exists())
         self.assertFalse(Tag.objects.filter(name="to-remove-2").exists())
 
+    def test_pull_from_library_rejects_unpublished_entry(self):
+        self.client.force_authenticate(user=self.regular_user)
+        copy_response = self.client.post(
+            f"/api/community-library/{self.library_entry.id}/copy/"
+        )
+        copied_instance_id = copy_response.data["id"]
+
+        self.library_entry.is_available = False
+        self.library_entry.save(update_fields=["is_available"])
+
+        response = self.client.put(
+            f"/api/instances/{copied_instance_id}/pull_from_library/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data["error"], "This library entry is no longer published."
+        )
+
+        self.library_entry.is_available = True
+        self.library_entry.save(update_fields=["is_available"])
+
+    def test_pull_from_library_without_snapshot_returns_400(self):
+        self.client.force_authenticate(user=self.regular_user)
+        copy_response = self.client.post(
+            f"/api/community-library/{self.library_entry.id}/copy/"
+        )
+        copied_instance_id = copy_response.data["id"]
+
+        self.library_entry.snapshots.all().delete()
+
+        response = self.client.put(
+            f"/api/instances/{copied_instance_id}/pull_from_library/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data["error"],
+            "This library entry has no snapshots to pull from.",
+        )
+
 
 class TestSnapshotEndpoints(CommunityLibraryViewSetTestCase):
     """Tests for GET /api/community-library/{id}/snapshot_instance/ and snapshot_qset/"""
 
     def test_snapshot_instance_returns_data(self):
-        self.client.force_authenticate(user=self.regular_user)
+        self.client.force_authenticate(user=self.author_user)
         response = self.client.get(
             f"/api/community-library/{self.library_entry.id}/snapshot_instance/{self.library_snapshot.id}/"
         )
@@ -994,7 +1135,7 @@ class TestSnapshotEndpoints(CommunityLibraryViewSetTestCase):
         self.assertIn("widget", response.data)
 
     def test_snapshot_qset_returns_data(self):
-        self.client.force_authenticate(user=self.regular_user)
+        self.client.force_authenticate(user=self.author_user)
         response = self.client.get(
             f"/api/community-library/{self.library_entry.id}/snapshot_qset/{self.library_snapshot.id}/"
         )
