@@ -5,7 +5,7 @@ const MyWidgetsInstanceCard = ({inst, indexVal, hidden = false, selected = false
 	const {id, widget, name, is_draft, img} = inst
 	// Handle multiple conditional classes by keeping an array of all classes to apply, then imploding it in the render
 	const classes = ['my-widgets-instance-card', 'widget']
-	const library = inst.copied_from_entry_id || inst.is_shared
+	const library = inst.copied_from_library || inst.shared_to_library
 
 	if (hidden) classes.push('hidden')
 	

@@ -527,7 +527,7 @@ const MyWidgetSelectedInstance = ({
 					{`${inst.is_draft ? `Publish to share to the ` : inst.guest_access ? `Only instructors can use the ` : ``}Community Library`}
 				</h3>
 				<div className="cl-options">
-				{!inst.is_shared && !inst.copied_from_entry_id && (
+				{!inst.shared_to_library && !inst.copied_from_library && (
 					<div className='row'>
 						<p><h4>Make Your Widget Public!</h4>Allow other instructors to discover, copy, and adapt this widget for their own courses.</p>
 						<div className='col'>
@@ -542,10 +542,10 @@ const MyWidgetSelectedInstance = ({
 					</div>
 					
 				)}
-				{inst.copied_from_entry_id ? (
+				{inst.copied_from_library ? (
 					<div className='row'>
 						<p>
-						<h4><span className='state'>COPIED</span><a target="_blank" href={`/community-library/${inst.copied_from_entry_id}`}>{'➜ '}Library Entry</a></h4>
+						<h4><span className='state'>COPIED</span><a target="_blank" href={`/community-library/${inst.library_entry.id}`}>{'➜ '}Library Entry</a></h4>
 							Pull changes to replace this widget's content with the latest version from the Community Library. <span>This cannot be reversed.</span>
 						</p>
 						<div className='col'>
@@ -559,7 +559,7 @@ const MyWidgetSelectedInstance = ({
 					</div>
 					
 				) :
-				inst.is_shared && (
+				inst.shared_to_library && (
 					<div className='row'>
 						<p>
 							<h4><span className='state'>SHARED</span><a target="_blank" href={`/community-library/${inst.library_entry ? inst.library_entry.id : 1}`}>{'➜ '}Library Entry</a></h4>

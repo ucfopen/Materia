@@ -1,12 +1,9 @@
+from community_library.models import LibraryEntry
 from core.utils.context_util import ContextUtil
 from django.conf import settings
+from django.http import Http404
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from core.models import (
-    CommunityLibraryEntry
-)
-
-from django.http import Http404, HttpRequest
 
 
 class CommunityLibraryView(TemplateView):
@@ -21,11 +18,12 @@ class CommunityLibraryView(TemplateView):
 
         return render(request, "react.html", context)
 
+
 class CommunityLibraryDetailView(TemplateView):
     template_name = "react.html"
 
     def get_context_data(self, entry_id):
-        entry = CommunityLibraryEntry.objects.filter(pk=entry_id).first()
+        entry = LibraryEntry.objects.filter(pk=entry_id).first()
         if entry is None:
             raise Http404
 
