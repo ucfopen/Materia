@@ -27,6 +27,22 @@ const CommunityLibraryCard = ({ entry, categoryObject, highlightedTags = [], ski
 		latest_snapshot_id,
 	} = entry
 
+	// count: number of tags to display
+	const tagRender = (count) => {
+		if(entry.tags.length <= 0)
+			return (<p>No tags found.</p>)
+
+		const tags = [...(new Set([...highlightedTags])).union(new Set([...entry.tags]))]
+
+		return (<>
+			{tags.map((t, i) => {
+				if (i >= 2) return
+				return (<span className={`badge ${highlightedTags.includes(t) ? 'highlighted' : ''}`}>#{t}</span>)
+			})}
+			<span className='tiny-text'>{entry.tags.length > count ? `+${entry.tags.length-count}` : ""}</span>
+		</>)
+	}
+
 	if(skinFeatured)
 	return (
 		<div className={`featured-card`} >
@@ -49,20 +65,7 @@ const CommunityLibraryCard = ({ entry, categoryObject, highlightedTags = [], ski
 					{category_display && <div className="badge category">{category_display}</div>}
 					
 					<div className='badges'>
-						{entry.tags.length >= 1 && <>
-						{highlightedTags.map((ht, i) => {
-							if(i >= 2) return
-							return (<span className={`badge highlighted`}>#{ht}</span>)
-						})}
-						{entry.tags.map((t, i)=>{
-							if(i >= 2 - highlightedTags.length) return
-							const highlighted = highlightedTags.includes(t)
-							if(!highlighted) {
-								return (<span className={`badge`}>#{t}</span>)
-							}
-						})}
-						<span className='tiny-text'>{entry.tags.length > 2 ? `+${entry.tags.length-2}` : ""}</span>
-						</>}
+						{tagRender(2)}
 					</div>
 				</div>
 			</a>
@@ -94,21 +97,7 @@ const CommunityLibraryCard = ({ entry, categoryObject, highlightedTags = [], ski
 			<hr/>
 			<div className='row meta'>
 				<div className='badges'>
-					
-					{entry.tags.length >= 1 ? <>
-					{highlightedTags.map((ht, i) => {
-						if(i >= 2) return
-						return (<span className={`badge highlighted`}>#{ht}</span>)
-					})}
-					{entry.tags.map((t, i)=>{
-						if(i >= 2 - highlightedTags.length) return
-						const highlighted = highlightedTags.includes(t)
-						if(!highlighted) {
-							return (<span className={`badge`}>#{t}</span>)
-						}
-					})}
-					<span className='tiny-text'>{entry.tags.length > 2 ? `+${entry.tags.length-2}` : ""}</span>
-					</> : <p>No tags found.</p>}
+					{tagRender(2)}
 				</div>
 
 				<div className='badges'>
