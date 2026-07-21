@@ -988,10 +988,14 @@ class LibraryEntrySerializer(serializers.ModelSerializer):
 
     def get_instance_name(self, entry):
         snapshot = entry.snapshots.order_by("-created_at").first()
+        if snapshot is None:
+            return entry.instance.name
         return snapshot.name
 
     def get_latest_snapshot_id(self, entry):
         snapshot = entry.snapshots.order_by("-created_at").first()
+        if snapshot is None:
+            return None
         return snapshot.id
 
     def get_owner_display_name(self, entry):
@@ -1026,7 +1030,7 @@ class LibraryEntrySerializer(serializers.ModelSerializer):
             return None
 
         copy = WidgetInstance.objects.filter(
-            user=request.user, copied_from_entry=entry
+            user=request.user, library_entry=entry
         ).first()
         if not copy:
             return None

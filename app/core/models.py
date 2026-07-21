@@ -1306,7 +1306,6 @@ class WidgetInstance(models.Model):
 
         # These fields should default to False for new instances (since the new instance won't have any play history)
         dupe.embedded_only = False
-        dupe.is_shared_to_library = False
         dupe.library_entry = None
         dupe.library_snapshot = None
 

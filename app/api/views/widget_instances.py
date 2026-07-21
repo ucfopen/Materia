@@ -764,13 +764,18 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 status=400,
             )
 
-        if entry.instance.library_entry.is_available is False:
+        if entry.is_available is False:
             return Response(
                 {"error": "This library entry is no longer published."},
                 status=400,
             )
 
         snapshot = entry.snapshots.order_by("-created_at").first()
+        if snapshot is None:
+            return Response(
+                {"error": "This library entry has no snapshots to pull from."},
+                status=400,
+            )
 
         instance.name = snapshot.name
         instance.library_snapshot = snapshot

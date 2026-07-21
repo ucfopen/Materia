@@ -1,6 +1,6 @@
 import logging
 
-from api.permissions import IsSuperOrSupportUser, IsInstructor
+from api.permissions import IsInstructor, IsSuperOrSupportUser
 from api.serializers import (
     LibraryEntrySerializer,
     LibraryReportSerializer,
@@ -266,6 +266,12 @@ class CommunityLibraryCopyView(APIView):
     def post(self, request, pk):
         entry = get_object_or_404(LibraryEntry, pk=pk)
         snapshot = entry.snapshots.order_by("-created_at").first()
+        if snapshot is None:
+            return Response(
+                {"error": "This library entry has no snapshots to copy from."},
+                status=400,
+            )
+
         new_instance = entry.instance.duplicate(
             owner=request.user, new_name=snapshot.name
         )

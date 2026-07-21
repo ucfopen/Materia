@@ -400,6 +400,23 @@ class TestCommunityLibraryList(CommunityLibraryViewSetTestCase):
         snapshot = self.library_entry.snapshots.order_by("-created_at").first()
         self.assertEqual(entry["latest_snapshot_id"], snapshot.id)
 
+    def test_snapshotless_entry_serializes_with_fallback_values(self):
+        self.library_entry.snapshots.all().delete()
+        self.shared_instance.name = "Current Shared Name"
+        self.shared_instance.save(update_fields=["name"])
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get("/api/community-library/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        entry = next(
+            r
+            for r in response.data["results"]
+            if r["instance_id"] == self.shared_instance.id
+        )
+        self.assertEqual(entry["instance_name"], "Current Shared Name")
+        self.assertIsNone(entry["latest_snapshot_id"])
+
 
 class TestCommunityLibraryCopy(CommunityLibraryViewSetTestCase):
     """Tests for POST /api/community-library/{id}/copy/"""
@@ -427,13 +444,27 @@ class TestCommunityLibraryCopy(CommunityLibraryViewSetTestCase):
         new_instance = WidgetInstance.objects.get(pk=response.data["id"])
         self.assertEqual(new_instance.user, self.regular_user)
 
-    def test_copied_instance_is_not_shared(self):
+    def test_copied_instance_tracks_source_entry(self):
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.post(
             f"/api/community-library/{self.library_entry.id}/copy/"
         )
         new_instance = WidgetInstance.objects.get(pk=response.data["id"])
-        self.assertIsNone(new_instance.library_entry_id)
+        self.assertEqual(new_instance.library_entry_id, self.library_entry.id)
+        self.assertEqual(new_instance.library_snapshot_id, self.library_snapshot.id)
+
+    def test_copy_without_snapshot_returns_400(self):
+        self.library_entry.snapshots.all().delete()
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.post(
+            f"/api/community-library/{self.library_entry.id}/copy/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data["error"],
+            "This library entry has no snapshots to copy from.",
+        )
 
     def test_copy_increments_copy_count(self):
         original_count = self.library_entry.copy_count
@@ -957,14 +988,50 @@ class TestUpdateInLibrary(CommunityLibraryViewSetTestCase):
 
     def test_update_preserves_entry_stats(self):
         """Updating should not reset copy_count, like_count, etc."""
-        self.library_entry.copy_count = 42
-        self.library_entry.like_count = 10
-        self.library_entry.save(update_fields=["copy_count", "like_count"])
+        copied_a = WidgetInstance.objects.create(
+            id="upst0001",
+            widget=self.widget,
+            user=self.regular_user,
+            name="Stats Copy A",
+            is_draft=False,
+            library_entry=self.library_entry,
+            library_snapshot=self.library_snapshot,
+        )
+        copied_b = WidgetInstance.objects.create(
+            id="upst0002",
+            widget=self.widget,
+            user=self.another_author,
+            name="Stats Copy B",
+            is_draft=False,
+            library_entry=self.library_entry,
+            library_snapshot=self.library_snapshot,
+        )
+        like_user_a = User.objects.create_user(
+            username="stats_like_1",
+            email="stats_like_1@example.com",
+            password="testpass123",
+        )
+        like_user_b = User.objects.create_user(
+            username="stats_like_2",
+            email="stats_like_2@example.com",
+            password="testpass123",
+        )
+        UserLike.objects.create(user=like_user_a, entry=self.library_entry)
+        UserLike.objects.create(user=like_user_b, entry=self.library_entry)
+
+        expected_copy_count = self.library_entry.copy_count
+        expected_like_count = self.library_entry.like_count
+        self.assertGreaterEqual(expected_copy_count, 2)
+        self.assertGreaterEqual(expected_like_count, 2)
+
         self.client.force_authenticate(user=self.author_user)
         self.client.put(f"/api/instances/{self.shared_instance.id}/update_in_library/")
         self.library_entry.refresh_from_db()
-        self.assertEqual(self.library_entry.copy_count, 42)
-        self.assertEqual(self.library_entry.like_count, 10)
+        self.assertEqual(self.library_entry.copy_count, expected_copy_count)
+        self.assertEqual(self.library_entry.like_count, expected_like_count)
+
+        copied_a.delete()
+        copied_b.delete()
 
         self.shared_instance.library_entry = self.library_entry
         self.shared_instance.save(update_fields=["library_entry"])
@@ -1015,12 +1082,51 @@ class TestUpdateInLibrary(CommunityLibraryViewSetTestCase):
         self.assertFalse(Tag.objects.filter(name="to-remove").exists())
         self.assertFalse(Tag.objects.filter(name="to-remove-2").exists())
 
+    def test_pull_from_library_rejects_unpublished_entry(self):
+        self.client.force_authenticate(user=self.regular_user)
+        copy_response = self.client.post(
+            f"/api/community-library/{self.library_entry.id}/copy/"
+        )
+        copied_instance_id = copy_response.data["id"]
+
+        self.library_entry.is_available = False
+        self.library_entry.save(update_fields=["is_available"])
+
+        response = self.client.put(
+            f"/api/instances/{copied_instance_id}/pull_from_library/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data["error"], "This library entry is no longer published."
+        )
+
+        self.library_entry.is_available = True
+        self.library_entry.save(update_fields=["is_available"])
+
+    def test_pull_from_library_without_snapshot_returns_400(self):
+        self.client.force_authenticate(user=self.regular_user)
+        copy_response = self.client.post(
+            f"/api/community-library/{self.library_entry.id}/copy/"
+        )
+        copied_instance_id = copy_response.data["id"]
+
+        self.library_entry.snapshots.all().delete()
+
+        response = self.client.put(
+            f"/api/instances/{copied_instance_id}/pull_from_library/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data["error"],
+            "This library entry has no snapshots to pull from.",
+        )
+
 
 class TestSnapshotEndpoints(CommunityLibraryViewSetTestCase):
     """Tests for GET /api/community-library/{id}/snapshot_instance/ and snapshot_qset/"""
 
     def test_snapshot_instance_returns_data(self):
-        self.client.force_authenticate(user=self.regular_user)
+        self.client.force_authenticate(user=self.author_user)
         response = self.client.get(
             f"/api/community-library/{self.library_entry.id}/snapshot_instance/{self.library_snapshot.id}/"
         )
@@ -1029,7 +1135,7 @@ class TestSnapshotEndpoints(CommunityLibraryViewSetTestCase):
         self.assertIn("widget", response.data)
 
     def test_snapshot_qset_returns_data(self):
-        self.client.force_authenticate(user=self.regular_user)
+        self.client.force_authenticate(user=self.author_user)
         response = self.client.get(
             f"/api/community-library/{self.library_entry.id}/snapshot_qset/{self.library_snapshot.id}/"
         )
