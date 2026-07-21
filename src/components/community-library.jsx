@@ -221,7 +221,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		if(tagStart != -1) {
 			const tagStr = e.target.value.slice(tagStart)
 			setTempTag(tagStr.toLowerCase().replaceAll(" ","-").trim())
-			setFocusedTag(0)
+			setFocusedTag(-1)
 		} else {
 			setTempTag("")
 			setFocusedTag(-1)
@@ -242,7 +242,6 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		}
 
 		if(tags && tags.length >= 1 && tempTag != "") {
-			console.log(focusedTag)
 			if(e.key == "ArrowDown") {
 				e.preventDefault()
 				let newInd = focusedTag + 1 < tags.length ? focusedTag + 1 : -1

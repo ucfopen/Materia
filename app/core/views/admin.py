@@ -64,6 +64,19 @@ def site(request):
     return render(request, "react.html", context)
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser or u.groups.filter(name="support_user"))
+def library(request):
+    context = ContextUtil.create(
+        title="Community Library Admin",
+        js_resources=settings.JS_GROUPS["library_admin"],
+        css_resources=settings.CSS_GROUPS["library_admin"],
+        request=request,
+    )
+
+    return render(request, "react.html", context)
+
+
 # class AdminViews(TemplateView):
 #     def widget(request):
 #         context = {"title": "Welcome to Materia", "bundle_name": "catalog"}

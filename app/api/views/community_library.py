@@ -1,6 +1,6 @@
 import logging
 
-from api.permissions import IsSuperOrSupportUser
+from api.permissions import IsSuperOrSupportUser, IsInstructor
 from api.serializers import (
     LibraryEntrySerializer,
     LibraryReportSerializer,
@@ -351,7 +351,7 @@ class CommunityLibraryModerateView(APIView):
 
 
 class CommunityLibrarySnapshotInstanceView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsInstructor]
 
     def get(self, request, pk, snapshot_id):
         entry = get_object_or_404(LibraryEntry, pk=pk)
@@ -364,7 +364,7 @@ class CommunityLibrarySnapshotInstanceView(APIView):
 
 
 class CommunityLibrarySnapshotQsetView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsInstructor]
 
     def get(self, request, pk, snapshot_id):
         entry = get_object_or_404(LibraryEntry, pk=pk)

@@ -1,0 +1,27 @@
+@import 'support-page.scss';
+
+.support-page {
+	padding: 0;
+	box-sizing: border-box;
+
+	.page {
+		.top {
+			box-sizing: border-box;
+			left: auto;
+		}
+
+		.content {
+			padding: 8px 16px;
+			
+			.search-field {
+				width: 100%;
+				box-sizing: border-box;
+				font-family: "Lato", Arial, sans-serif;
+				border: 1px solid #ccc;
+				padding: 8px 8px;
+				border-radius: 4px;
+				margin-bottom: 8px;
+			}
+		}
+	}
+}
