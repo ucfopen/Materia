@@ -2,25 +2,19 @@ import logging
 
 from api.permissions import IsSuperOrSupportUser
 from api.serializers import (
-    CommunityLibraryEntrySerializer,
+    LibraryEntrySerializer,
     LibraryReportSerializer,
     TagSerializer,
     WidgetInstanceSerializer,
 )
-from core.models import (
-    CommunityLibraryEntry,
-    LibraryReport,
-    Notification,
-    Tag,
-    UserLike,
-    WidgetInstance,
-)
+from community_library.models import LibraryEntry, LibraryReport, Tag, UserLike
+from core.models import Notification, WidgetInstance
 from core.services.user_service import UserService
 from core.utils.b64_util import Base64Util
 from core.utils.validator_util import ValidatorUtil
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import F, Q
+from django.db.models import Count, F, Q
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -30,6 +24,18 @@ from rest_framework.views import APIView
 logger = logging.getLogger(__name__)
 
 REPORT_THRESHOLD = 5
+
+
+def annotate_library_counts(qs):
+    return qs.annotate(
+        annotated_like_count=Count("likes", distinct=True),
+        annotated_report_count=Count("reports", distinct=True),
+        annotated_copy_count=Count(
+            "copied_instances",
+            filter=~Q(copied_instances__id=F("instance_id")),
+            distinct=True,
+        ),
+    )
 
 
 class CommunityLibraryPagination(PageNumberPagination):
@@ -77,46 +83,48 @@ class CommunityLibraryListView(APIView):
         moderation = ValidatorUtil.validate_bool(request.query_params.get("moderation"))
 
         if moderation:
-            qs = (
-                CommunityLibraryEntry.objects.all()
+            qs = annotate_library_counts(
+                LibraryEntry.objects.all()
                 .select_related(
                     "instance",
                     "instance__widget",
                     "instance__user",
                 )
-                .prefetch_related("snapshots", "tags", "likes")
+                .prefetch_related("snapshots", "tags", "likes", "reports")
             )
             status = request.query_params.get("status")
             if status == "banned":
-                qs = qs.filter(is_banned=True).order_by("-report_count", "-created_at")
+                qs = qs.filter(is_banned=True).order_by(
+                    "-annotated_report_count", "-created_at"
+                )
             elif status == "reported":
-                qs = qs.filter(report_count__gt=0).order_by(
-                    "-report_count", "-created_at"
+                qs = qs.filter(annotated_report_count__gt=0).order_by(
+                    "-annotated_report_count", "-created_at"
                 )
             elif status == "unpublished":
-                qs = qs.filter(instance__is_shared=False)
+                qs = qs.filter(is_available=False)
             elif status == "featured":
                 qs = qs.filter(featured=True)
             else:
-                qs = qs.order_by("-report_count", "-created_at")
+                qs = qs.order_by("-annotated_report_count", "-created_at")
 
             show_deleted = request.query_params.get("deleted")
             if show_deleted == "false":
                 qs = qs.filter(instance__is_deleted=False)
         else:
-            qs = (
-                CommunityLibraryEntry.objects.filter(
-                    instance__is_shared=True,
+            qs = annotate_library_counts(
+                LibraryEntry.objects.filter(
                     instance__is_deleted=False,
                     instance__is_draft=False,
                     is_banned=False,
+                    is_available=True,
                 )
                 .select_related(
                     "instance",
                     "instance__widget",
                     "instance__user",
                 )
-                .prefetch_related("snapshots", "tags", "likes")
+                .prefetch_related("snapshots", "tags", "likes", "reports")
             )
 
         # Search by latest snapshot name
@@ -136,7 +144,7 @@ class CommunityLibraryListView(APIView):
         # Filter by category
         categories = request.query_params.getlist("category")
         if categories:
-            qs = qs.filter(category__in=categories)
+            qs = qs.filter(category__slug__in=categories)
 
         # Filter by course level
         course_level = request.query_params.get("course_level")
@@ -155,9 +163,9 @@ class CommunityLibraryListView(APIView):
         # Sorting
         sort = request.query_params.get("sort", "newest")
         if sort == "most_copied":
-            qs = qs.order_by("-copy_count", "-created_at")
+            qs = qs.order_by("-annotated_copy_count", "-created_at")
         elif sort == "most_liked":
-            qs = qs.order_by("-like_count", "-created_at")
+            qs = qs.order_by("-annotated_like_count", "-created_at")
         elif sort == "alphabetical":
             qs = qs.order_by("snapshots__name")
         else:
@@ -169,7 +177,7 @@ class CommunityLibraryListView(APIView):
 
         paginator = CommunityLibraryPagination()
         page = paginator.paginate_queryset(qs, request)
-        serializer = CommunityLibraryEntrySerializer(
+        serializer = LibraryEntrySerializer(
             page, many=True, context={"request": request}
         )
         return paginator.get_paginated_response(serializer.data)
@@ -246,9 +254,9 @@ class CommunityLibraryDetailView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, pk):
-        entry = get_object_or_404(CommunityLibraryEntry, pk=pk)
+        entry = get_object_or_404(LibraryEntry, pk=pk)
         return Response(
-            CommunityLibraryEntrySerializer(entry, context={"request": request}).data
+            LibraryEntrySerializer(entry, context={"request": request}).data
         )
 
 
@@ -256,23 +264,20 @@ class CommunityLibraryCopyView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        entry = get_object_or_404(CommunityLibraryEntry, pk=pk)
+        entry = get_object_or_404(LibraryEntry, pk=pk)
         snapshot = entry.snapshots.order_by("-created_at").first()
         new_instance = entry.instance.duplicate(
             owner=request.user, new_name=snapshot.name
         )
 
-        new_instance.copied_from_entry = entry
-        new_instance.save(update_fields=["copied_from_entry"])
+        new_instance.library_entry = entry
+        new_instance.library_snapshot = snapshot
+        new_instance.save(update_fields=["library_entry", "library_snapshot"])
 
         latest_qset = new_instance.get_latest_qset()
         latest_qset.data = snapshot.qset_data
         latest_qset.version = snapshot.qset_version
         latest_qset.save(update_fields=["data", "version"])
-
-        CommunityLibraryEntry.objects.filter(pk=entry.pk).update(
-            copy_count=F("copy_count") + 1
-        )
 
         return Response(WidgetInstanceSerializer(new_instance).data)
 
@@ -281,21 +286,13 @@ class CommunityLibraryLikeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        entry = get_object_or_404(CommunityLibraryEntry, pk=pk)
+        entry = get_object_or_404(LibraryEntry, pk=pk)
         like, created = UserLike.objects.get_or_create(user=request.user, entry=entry)
 
         if created:
-            CommunityLibraryEntry.objects.filter(pk=entry.pk).update(
-                like_count=F("like_count") + 1
-            )
-            entry.refresh_from_db()
             return Response({"liked": True, "like_count": entry.like_count})
         else:
             like.delete()
-            CommunityLibraryEntry.objects.filter(pk=entry.pk).update(
-                like_count=F("like_count") - 1
-            )
-            entry.refresh_from_db()
             return Response({"liked": False, "like_count": entry.like_count})
 
 
@@ -306,12 +303,12 @@ class CommunityLibraryReportsView(APIView):
         return [IsAuthenticated()]
 
     def get(self, request, pk):
-        entry = get_object_or_404(CommunityLibraryEntry, pk=pk)
+        entry = get_object_or_404(LibraryEntry, pk=pk)
         reports = LibraryReport.objects.filter(entry=entry)
         return Response([LibraryReportSerializer(r).data for r in reports])
 
     def post(self, request, pk):
-        entry = get_object_or_404(CommunityLibraryEntry, pk=pk)
+        entry = get_object_or_404(LibraryEntry, pk=pk)
 
         if LibraryReport.objects.filter(user=request.user, entry=entry).exists():
             return Response(
@@ -328,11 +325,6 @@ class CommunityLibraryReportsView(APIView):
             details=serializer.validated_data.get("details", ""),
         )
 
-        CommunityLibraryEntry.objects.filter(pk=entry.pk).update(
-            report_count=F("report_count") + 1
-        )
-        entry.refresh_from_db()
-
         if entry.report_count >= REPORT_THRESHOLD and not entry.is_banned:
             entry.is_banned = True
             entry.save(update_fields=["is_banned"])
@@ -345,7 +337,7 @@ class CommunityLibraryModerateView(APIView):
     permission_classes = [IsSuperOrSupportUser]
 
     def patch(self, request, pk):
-        entry = get_object_or_404(CommunityLibraryEntry, pk=pk)
+        entry = get_object_or_404(LibraryEntry, pk=pk)
         allowed_fields = ["featured", "is_banned", "category", "course_level"]
 
         for field, value in request.data.items():
@@ -354,7 +346,7 @@ class CommunityLibraryModerateView(APIView):
 
         entry.save()
         return Response(
-            CommunityLibraryEntrySerializer(entry, context={"request": request}).data
+            LibraryEntrySerializer(entry, context={"request": request}).data
         )
 
 
@@ -362,7 +354,7 @@ class CommunityLibrarySnapshotInstanceView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk, snapshot_id):
-        entry = get_object_or_404(CommunityLibraryEntry, pk=pk)
+        entry = get_object_or_404(LibraryEntry, pk=pk)
         snapshot = entry.snapshots.filter(pk=snapshot_id).first()
         if not snapshot:
             return Response({"error": "Snapshot not found."}, status=404)
@@ -375,7 +367,7 @@ class CommunityLibrarySnapshotQsetView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk, snapshot_id):
-        entry = get_object_or_404(CommunityLibraryEntry, pk=pk)
+        entry = get_object_or_404(LibraryEntry, pk=pk)
         snapshot = entry.snapshots.filter(pk=snapshot_id).first()
         if not snapshot:
             return Response({"error": "Snapshot not found."}, status=404)

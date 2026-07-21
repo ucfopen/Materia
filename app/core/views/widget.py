@@ -1,13 +1,13 @@
 import logging
 import os
 
+from community_library.models import LibrarySnapshot
 from core.mixins import (
     MateriaLoginMixin,
     MateriaLoginNeeded,
     MateriaWidgetPlayProcessor,
 )
 from core.models import (
-    LibrarySnapshot,
     LogPlay,
     Lti,
     LtiPlayState,

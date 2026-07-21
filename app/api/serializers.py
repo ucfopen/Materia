@@ -6,11 +6,16 @@ import logging
 import os
 
 import phpserialize
+from community_library.models import (
+    LibraryCategory,
+    LibraryEntry,
+    LibraryReport,
+    Tag,
+    UserLike,
+)
 from core.models import (
     Asset,
-    CommunityLibraryEntry,
     DateRange,
-    LibraryReport,
     Log,
     LogPlay,
     LogStorage,
@@ -19,9 +24,7 @@ from core.models import (
     ObjectPermission,
     SiteImage,
     SiteMessage,
-    Tag,
     UserExtraAttempts,
-    UserLike,
     UserSettings,
     Widget,
     WidgetInstance,
@@ -338,13 +341,16 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
     embed_url = serializers.CharField(read_only=True, allow_null=True)
     is_embedded = serializers.BooleanField(read_only=True)
     qset = QuestionSetSerializer(required=False)
-    copied_from_entry_id = serializers.SerializerMethodField()
+    library_entry = serializers.SerializerMethodField()
+    library_snapshot_id = serializers.SerializerMethodField()
+    copied_from_library = serializers.SerializerMethodField()
+    shared_to_library = serializers.SerializerMethodField()
 
-    def get_copied_from_entry_id(self, instance):
-        entry = instance.copied_from_entry
-        if entry and entry.instance.is_shared:
-            return entry.id
-        return None
+    def get_copied_from_library(self, instance):
+        return instance.is_copied_from_library
+
+    def get_shared_to_library(self, instance):
+        return instance.is_shared_to_library
 
     # remove sensitive info if context flag set
     def get_fields(self):
@@ -394,16 +400,16 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
     id = serializers.CharField(
         required=False
     )  # Model's save function will auto-generate an ID if it is empty
-    library_entry = serializers.SerializerMethodField()
 
     def get_library_entry(self, instance):
-        entry = CommunityLibraryEntry.objects.filter(instance=instance).first()
+        entry = instance.library_entry
         if entry is None:
             return None
+
         return {
             "id": entry.id,
-            "category": entry.category,
-            "category_display": entry.get_category_display(),
+            "category": entry.category.slug,
+            "category_display": entry.category.label,
             "course_level": entry.course_level,
             "course_level_display": entry.get_course_level_display(),
             "featured": entry.featured,
@@ -411,7 +417,16 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "report_count": entry.report_count,
             "copy_count": entry.copy_count,
             "like_count": entry.like_count,
+            "latest_snapshot_id": entry.get_latest_snapshot_id(),
+            "is_available": entry.is_available,
         }
+
+    def get_library_snapshot_id(self, instance):
+        snapshot = instance.library_snapshot
+        if snapshot is not None:
+            return snapshot.id
+        else:
+            return None
 
     class Meta:
         model = WidgetInstance
@@ -428,9 +443,10 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "attempts",
             "is_deleted",
             "embedded_only",
-            "is_shared",
-            "copied_from_entry_id",
+            "shared_to_library",
+            "copied_from_library",
             "library_entry",
+            "library_snapshot_id",
             "widget",
             "widget_id",
             "preview_url",
@@ -443,7 +459,6 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "id",
             "user_id",
             "is_student_made",
-            "copied_from_entry_id",
             "widget",
             "widget_id",
             "is_embedded",
@@ -922,13 +937,15 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ["name", "used_count"]
 
 
-class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
+class LibraryEntrySerializer(serializers.ModelSerializer):
     instance_id = serializers.CharField(source="instance.id", read_only=True)
     instance_name = serializers.SerializerMethodField()
     widget = WidgetSerializer(source="instance.widget", read_only=True)
     owner_display_name = serializers.SerializerMethodField()
-    category_display = serializers.CharField(
-        source="get_category_display", read_only=True
+    category = serializers.CharField(source="category.slug", read_only=True)
+    category_display = serializers.CharField(source="category.label", read_only=True)
+    category_banner = serializers.CharField(
+        source="category.banner_path", read_only=True
     )
     course_level_display = serializers.CharField(
         source="get_course_level_display", read_only=True
@@ -937,11 +954,11 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
     user_has_liked = serializers.SerializerMethodField()
     last_reported_at = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
-    is_shared = serializers.SerializerMethodField()
+    is_available = serializers.SerializerMethodField()
     is_deleted = serializers.SerializerMethodField()
 
     class Meta:
-        model = CommunityLibraryEntry
+        model = LibraryEntry
         fields = [
             "id",
             "instance_id",
@@ -950,6 +967,7 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
             "owner_display_name",
             "category",
             "category_display",
+            "category_banner",
             "course_level",
             "course_level_display",
             "featured",
@@ -962,7 +980,7 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
             "created_at",
             "last_reported_at",
             "tags",
-            "is_shared",
+            "is_available",
             "is_deleted",
         ]
 
@@ -994,8 +1012,8 @@ class CommunityLibraryEntrySerializer(serializers.ModelSerializer):
     def get_tags(self, entry):
         return [tag.name for tag in entry.tags.all()]
 
-    def get_is_shared(self, entry):
-        return entry.instance.is_shared
+    def get_is_available(self, entry):
+        return entry.is_available
 
     def get_is_deleted(self, entry):
         return entry.instance.is_deleted
@@ -1008,9 +1026,9 @@ class LibraryReportSerializer(serializers.ModelSerializer):
 
 
 class PublishToLibrarySerializer(serializers.Serializer):
-    category = serializers.ChoiceField(choices=CommunityLibraryEntry.CATEGORY_CHOICES)
+    category = serializers.CharField()
     course_level = serializers.ChoiceField(
-        choices=[("", "")] + CommunityLibraryEntry.COURSE_LEVEL_CHOICES,
+        choices=[("", "")] + LibraryEntry.COURSE_LEVEL_CHOICES,
         required=False,
         default="",
     )
@@ -1019,6 +1037,12 @@ class PublishToLibrarySerializer(serializers.Serializer):
         required=False,
         default=list,
     )
+
+    def validate_category(self, value):
+        category = LibraryCategory.objects.filter(slug=value).first()
+        if category is None:
+            raise serializers.ValidationError('"%s" is not a valid choice.' % value)
+        return value
 
 
 class SiteImageSerializer(serializers.ModelSerializer):

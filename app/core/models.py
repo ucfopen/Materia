@@ -1110,14 +1110,6 @@ class WidgetInstance(models.Model):
     is_student_made = models.BooleanField(default=False)
     updated_at = models.DateTimeField(default=None, null=True)
     embedded_only = models.BooleanField(default=False)
-    is_shared = models.BooleanField(default=False)
-    copied_from_entry = models.ForeignKey(
-        "CommunityLibraryEntry",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="copies",
-    )
     published_by = models.ForeignKey(
         User,
         related_name="published_instances",
@@ -1126,11 +1118,40 @@ class WidgetInstance(models.Model):
         null=True,
         db_column="published_by",
     )
+    library_entry = models.ForeignKey(
+        "community_library.LibraryEntry",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="copied_instances",
+        db_column="library_entry",
+    )
+    library_snapshot = models.ForeignKey(
+        "community_library.LibrarySnapshot",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="instance",
+        db_column="library_snapshot",
+    )
+
     permissions = GenericRelation(ObjectPermission)
 
     @property
     def dir(self):
         return f"{self.id}-{self.clean_name}{os.sep}"
+
+    @property
+    def is_shared_to_library(self):
+        return (
+            self.library_entry is not None
+            and self.library_entry.is_available is True
+            and self.library_snapshot is None
+        )
+
+    @property
+    def is_copied_from_library(self):
+        return self.library_entry is not None and self.library_snapshot is not None
 
     def attempts_left_for_user(self, user: User, context: str = ""):
         from core.services.semester_service import SemesterService
@@ -1285,8 +1306,9 @@ class WidgetInstance(models.Model):
 
         # These fields should default to False for new instances (since the new instance won't have any play history)
         dupe.embedded_only = False
-        dupe.is_shared = False
-        dupe.copied_from_entry = None
+        dupe.is_shared_to_library = False
+        dupe.library_entry = None
+        dupe.library_snapshot = None
 
         # Manually update created_at
         dupe.created_at = timezone.now()
@@ -1629,148 +1651,6 @@ class UserSettings(models.Model):
         }
 
         self.save()
-
-
-class Tag(models.Model):
-    name = models.CharField(max_length=50)
-    normalized_name = models.CharField(max_length=50, unique=True)
-    used_count = models.IntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    @staticmethod
-    def normalize_name(tag_name: str) -> str:
-        cleaned = " ".join((tag_name or "").strip().split())
-        return cleaned.lower()
-
-    def save(self, *args, **kwargs):
-        cleaned = " ".join((self.name or "").strip().split())
-        self.name = cleaned
-        self.normalized_name = Tag.normalize_name(cleaned)
-        super().save(*args, **kwargs)
-
-
-class CommunityLibraryEntry(models.Model):
-    CATEGORY_CHOICES = [
-        ("math", "Math"),
-        ("science", "Science"),
-        ("english", "English"),
-        ("history", "History"),
-        ("art", "Art"),
-        ("language", "World Languages"),
-        ("engineering", "Engineering"),
-        ("health", "Health Sciences"),
-        ("medicine", "Medicine"),
-        ("business", "Business"),
-        ("education", "Education"),
-        ("hospitality", "Hospitality"),
-        ("other", "Other"),
-    ]
-
-    COURSE_LEVEL_CHOICES = [
-        ("introductory", "Introductory"),
-        ("intermediate", "Intermediate"),
-        ("advanced", "Advanced"),
-    ]
-
-    tags = models.ManyToManyField(Tag, through="TagEntry")
-    instance = models.OneToOneField(
-        WidgetInstance,
-        on_delete=models.CASCADE,
-        related_name="library_entry",
-    )
-    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
-    course_level = models.CharField(
-        max_length=50, choices=COURSE_LEVEL_CHOICES, blank=True, default=""
-    )
-    featured = models.BooleanField(default=False)
-    copy_count = models.IntegerField(default=0)
-    like_count = models.IntegerField(default=0)
-    report_count = models.IntegerField(default=0)
-    is_banned = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=["-created_at"], name="idx_entry_newest"),
-            models.Index(
-                fields=["-copy_count", "-created_at"], name="idx_entry_most_copied"
-            ),
-            models.Index(
-                fields=["-like_count", "-created_at"], name="idx_entry_most_liked"
-            ),
-        ]
-
-    def __str__(self):
-        return f"Library: {self.instance.name}"
-
-
-class UserLike(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="library_likes"
-    )
-    entry = models.ForeignKey(
-        CommunityLibraryEntry, on_delete=models.CASCADE, related_name="likes"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ("user", "entry")
-
-
-class TagEntry(models.Model):
-    tag = models.ForeignKey(
-        Tag, on_delete=models.CASCADE, related_name="library_tagged"
-    )
-    entry = models.ForeignKey(
-        CommunityLibraryEntry, on_delete=models.CASCADE, related_name="tagged"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["tag", "entry"], name="tag_entry_unique"),
-        ]
-
-
-class LibraryReport(models.Model):
-    REASON_CHOICES = [
-        ("inappropriate", "Inappropriate content"),
-        ("incorrect", "Incorrect content"),
-        ("spam", "Spam"),
-        ("other", "Other"),
-    ]
-
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="library_reports"
-    )
-    entry = models.ForeignKey(
-        CommunityLibraryEntry, on_delete=models.CASCADE, related_name="reports"
-    )
-    reason = models.CharField(max_length=50, choices=REASON_CHOICES)
-    details = models.TextField(blank=True, default="")
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ("user", "entry")
-
-
-class LibrarySnapshot(models.Model):
-    entry = models.ForeignKey(
-        CommunityLibraryEntry,
-        on_delete=models.CASCADE,
-        related_name="snapshots",
-    )
-    name = models.CharField(max_length=100)
-    qset_data = models.TextField(default="")
-    qset_version = models.CharField(max_length=10, default="1")
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        indexes = [
-            models.Index(
-                fields=["entry", "-created_at"], name="idx_snapshot_entry_latest"
-            ),
-        ]
 
 
 @receiver(post_save, sender=User)

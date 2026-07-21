@@ -185,13 +185,13 @@ const SupportSearch = ({onClick = () => {}}) => {
 						{entries.map((entry) => (
 							<div
 								key={entry.id}
-								className={`search_match clickable ${entry.featured ? 'featured' : ''} ${entry.is_banned ? 'banned' : ''} ${entry.report_count > 0 ? 'reported' : ''} ${!entry.is_shared ? 'unpublished' : ''} ${entry.is_deleted ? 'deleted' : ''}`}
+								className={`search_match clickable ${entry.featured ? 'featured' : ''} ${entry.is_banned ? 'banned' : ''} ${entry.report_count > 0 ? 'reported' : ''} ${!entry.shared_to_library ? 'unpublished' : ''} ${entry.is_deleted ? 'deleted' : ''}`}
 								onClick={() => {
 									const instanceData = {
 										id: entry.instance_id,
 										name: entry.instance_name,
 										widget: entry.widget,
-										is_shared: true,
+										shared_to_library: true,
 										is_deleted: entry.is_deleted,
 										library_entry: {
 											id: entry.id,
@@ -204,7 +204,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 											report_count: entry.report_count,
 											copy_count: entry.copy_count,
 											like_count: entry.like_count,
-											is_shared: entry.is_shared,
+											is_available: entry.is_available,
 											is_deleted: entry.is_deleted
 										},
 										preview_url: entry.preview_url,
@@ -221,7 +221,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 										<li className='owner'>{entry.owner_display_name}</li>
 										<li className='row'>
 											{entry.featured && <div className='badge badge-featured'>Featured</div>}
-											{!entry.is_shared && <div className='badge badge-unpublished'>Unpublished</div>}
+											{!entry.shared_to_library && <div className='badge badge-unpublished'>Unpublished</div>}
 											{entry.is_banned && <div className='badge badge-banned'>Banned</div>}
 											{entry.report_count > 0 && <div title={`Last reported ${new Date(entry.last_reported_at).toLocaleDateString()}`} className='badge badge-reported'>{entry.report_count} report{entry.report_count !== 1 ? 's' : ''}</div>}
 											{entry.is_deleted && <div className='badge badge-banned'>Deleted</div>}

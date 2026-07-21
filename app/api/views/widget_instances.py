@@ -21,16 +21,19 @@ from api.serializers import (
     WidgetInstanceCopyRequestSerializer,
     WidgetInstanceSerializer,
 )
+from community_library.models import (
+    LibraryCategory,
+    LibraryEntry,
+    LibrarySnapshot,
+    Tag,
+    TagEntry,
+)
 from core.message_exception import MsgFailure, MsgInvalidInput, MsgNoPerm
 from core.models import (
-    CommunityLibraryEntry,
-    LibrarySnapshot,
     LogActivity,
     LogPlay,
     Notification,
     ObjectPermission,
-    Tag,
-    TagEntry,
     UserSettings,
     WidgetInstance,
     WidgetQset,
@@ -648,7 +651,8 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         serializer = PublishToLibrarySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        category = serializer.validated_data["category"]
+        category_slug = serializer.validated_data["category"]
+        category = LibraryCategory.objects.get(slug=category_slug)
         course_level = serializer.validated_data.get("course_level", "")
         tags = self._normalize_tag_names(serializer.validated_data.get("tags", []))
 
@@ -656,14 +660,17 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         qset_data = latest_qset.data
         qset_version = latest_qset.version
 
-        existing_entry = getattr(instance, "library_entry", None)
+        existing_entry = LibraryEntry.objects.filter(instance=instance).first()
 
         with transaction.atomic():
             if existing_entry:
                 # Re-publishing: update entry and create new snapshot
                 existing_entry.category = category
                 existing_entry.course_level = course_level
-                existing_entry.save(update_fields=["category", "course_level"])
+                existing_entry.is_available = True
+                existing_entry.save(
+                    update_fields=["category", "course_level", "is_available"]
+                )
                 LibrarySnapshot.objects.create(
                     entry=existing_entry,
                     name=instance.name,
@@ -674,7 +681,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 self._sync_entry_tags(existing_entry, tags)
             else:
                 # New publish: create entry and snapshot
-                entry = CommunityLibraryEntry.objects.create(
+                entry = LibraryEntry.objects.create(
                     instance=instance,
                     category=category,
                     course_level=course_level,
@@ -688,8 +695,8 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
                 self._sync_entry_tags(entry, tags)
 
-            instance.is_shared = True
-            instance.save(update_fields=["is_shared"])
+            instance.library_entry = existing_entry or entry
+            instance.save(update_fields=["library_entry"])
 
         return Response({"success": True})
 
@@ -697,10 +704,10 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
     def update_in_library(self, request, pk=None):
         instance = self.get_object()
 
-        entry = getattr(instance, "library_entry", None)
-        if not entry:
+        entry = instance.library_entry
+        if entry is None:
             return Response(
-                {"error": "This widget is not published to the library."},
+                {"error": "This widget was not copied from the Community Library."},
                 status=400,
             )
 
@@ -719,16 +726,20 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
     def unpublish_from_library(self, request, pk=None):
 
         instance = self.get_object()
-        entry = getattr(instance, "library_entry", None)
-        if not entry:
+
+        entry = instance.library_entry
+        if entry is None:
             return Response(
-                {"error": "You cannot unpublish a widget that is not in the library."},
+                {"error": "This widget was not copied from the Community Library."},
                 status=400,
             )
 
         with transaction.atomic():
-            instance.is_shared = False
-            instance.save(update_fields=["is_shared"])
+            instance.library_entry = None
+            instance.save(update_fields=["library_entry"])
+
+            entry.is_available = False
+            entry.save(update_fields=["is_available"])
 
             tag_ids = list(
                 TagEntry.objects.filter(entry=entry).values_list("tag_id", flat=True)
@@ -746,14 +757,14 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
     def pull_from_library(self, request, pk=None):
         instance = self.get_object()
 
-        entry = instance.copied_from_entry
-        if not entry:
+        entry = instance.library_entry
+        if entry is None:
             return Response(
                 {"error": "This widget was not copied from the Community Library."},
                 status=400,
             )
 
-        if not entry.instance.is_shared:
+        if entry.instance.library_entry.is_available is False:
             return Response(
                 {"error": "This library entry is no longer published."},
                 status=400,
@@ -762,7 +773,8 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         snapshot = entry.snapshots.order_by("-created_at").first()
 
         instance.name = snapshot.name
-        instance.save(update_fields=["name"])
+        instance.library_snapshot = snapshot
+        instance.save(update_fields=["name", "library_snapshot"])
 
         latest_qset = instance.get_latest_qset()
         latest_qset.data = snapshot.qset_data

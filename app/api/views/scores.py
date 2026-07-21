@@ -6,11 +6,13 @@ from api.serializers import (
     ScoreDetailsForPreviewSerializer,
     ScoresForUserSerializer,
 )
+from community_library.models import LibraryEntry
 from core.message_exception import MsgExpired, MsgNoPerm
-from core.models import CommunityLibraryEntry, LogPlay, WidgetInstance
+from core.models import LogPlay, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
 from core.utils.b64_util import Base64Util
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
@@ -153,12 +155,9 @@ class ScoresDetailView(APIView):
                 qset_override = None
 
                 if snapshot_id and entry_id:
-                    entry = CommunityLibraryEntry.objects.filter(pk=entry_id).first()
-                    snapshot = (
-                        entry.snapshots.filter(pk=snapshot_id).first()
-                        if entry
-                        else None
-                    )
+                    entry = get_object_or_404(LibraryEntry, pk=entry_id)
+                    snapshot = entry.snapshots.filter(pk=snapshot_id).first()
+
                     if not snapshot:
                         return Response({"error": "Snapshot not found."}, status=404)
 
