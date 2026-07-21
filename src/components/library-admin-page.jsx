@@ -3,14 +3,17 @@ import Header from './header'
 import './library-admin-page.scss'
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon'
-import { apiGetLibraryModeration } from '../util/api'
+import { apiGetLibraryModeration, apiGetLibraryCategories } from '../util/api'
 import { iconUrl } from '../util/icon-url'
 
 import {
 	useTagList,
 	useDeleteTag,
-	useRenameTag
+	useRenameTag,
+	useUpdateCategory,
+	useDeleteCategory
 } from './hooks/useCommunityLibrary'
+import CategoryAdminCard from './category-admin-card'
 
 const LibraryAdminPage = () => {
 
@@ -53,8 +56,18 @@ const LibraryAdminPage = () => {
 
     const {data: tags, status: status, refetch: refetchTags} = useTagList(-1, tagSearchText, [])
 
+	const {data: categories, isFetching: categoryLoading, refetch: refetchCategories} = useQuery({
+		queryKey: ['category-moderation'],
+		queryFn: () => apiGetLibraryCategories(),
+		enabled: pageState.mode === 'categories',
+		staleTime: 30000
+	})
+
     const renameTagMutation = useRenameTag()
     const deleteTagMutation = useDeleteTag()
+	
+	const updateCategoryMutation = useUpdateCategory()
+	const deleteCategoryMutation = useDeleteCategory()
 
     const nameInputEnter = (e) => {
 		if(e.key == "Enter")
@@ -65,7 +78,7 @@ const LibraryAdminPage = () => {
 		const finalName = newTagName.toLowerCase().replaceAll(" ","-").trim()
 
 		if(finalName != "")
-			handleRename(renamingTag, finalName)
+			handleTagRename(renamingTag, finalName)
 
 		setRenamingTag('')
 	}
@@ -74,10 +87,10 @@ const LibraryAdminPage = () => {
 		if(deleteConfirm != name)
 			setDeleteConfirm(name)
 		else
-			handleDelete(name)
+			handleTagDelete(name)
 	}
 
-    const handleRename = useCallback(
+    const handleTagRename = useCallback(
         (name, to) => {
             renameTagMutation.mutate({name, to}, {
                 onSuccess: () => {
@@ -88,7 +101,7 @@ const LibraryAdminPage = () => {
         [renameTagMutation],
     )
     
-    const handleDelete = useCallback(
+    const handleTagDelete = useCallback(
         (name) => {
             deleteTagMutation.mutate(name, {
                 onSuccess: () => {
@@ -205,14 +218,44 @@ const LibraryAdminPage = () => {
 		)
     }
 
-    const categoriesRender = (
-        <div>Categories</div>
+	const handleCategoryUpdate = useCallback(
+        (slug, changes) => {
+            updateCategoryMutation.mutate({slug, changes}, {
+                onSuccess: () => {
+                    refetchCategories()
+                }
+            })
+        },
+        [updateCategoryMutation],
     )
+
+	const handleCategoryDelete = useCallback(
+        (slug) => {
+            deleteCategoryMutation.mutate({slug}, {
+                onSuccess: () => {
+                    refetchCategories()
+                }
+            })
+        },
+        [updateCategoryMutation],
+    )
+
+    const renderCategories = () => {
+		return (
+			<div className='category-list'>
+			{
+			categories && categories.map((v) => (
+				<CategoryAdminCard category={v} handleUpdate={handleCategoryUpdate} handleDelete={handleCategoryDelete}/>
+			))
+			}
+			</div>
+		)
+	}
 
     const selectionRender = () => {
         if(pageState.mode === "tags") return renderTagModeration()
         if(pageState.mode === "entries") return renderLibraryModeration()
-        if(pageState.mode === "categories") return categoriesRender
+        if(pageState.mode === "categories") return renderCategories()
 
         return tagsRender
     }

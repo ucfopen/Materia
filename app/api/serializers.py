@@ -1037,6 +1037,10 @@ class LibraryEntrySerializer(serializers.ModelSerializer):
 
         return copy.id
 
+class LibraryCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LibraryCategory
+        fields = ["slug", "label", "banner_path", "color"]
 
 class LibraryReportSerializer(serializers.ModelSerializer):
     class Meta:

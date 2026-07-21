@@ -6,8 +6,9 @@ from api.serializers import (
     LibraryReportSerializer,
     TagSerializer,
     WidgetInstanceSerializer,
+    LibraryCategorySerializer
 )
-from community_library.models import LibraryEntry, LibraryReport, Tag, UserLike
+from community_library.models import LibraryEntry, LibraryReport, Tag, UserLike, LibraryCategory
 from core.models import Notification, WidgetInstance
 from core.services.user_service import UserService
 from core.utils.b64_util import Base64Util
@@ -385,4 +386,48 @@ class CommunityLibrarySnapshotQsetView(APIView):
                 ),
                 "version": snapshot.qset_version,
             }
+        )
+
+
+class CommunityLibraryCategoryView(APIView):
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+        return [IsSuperOrSupportUser()]
+    
+    def get(self, request):
+        qs = LibraryCategory.objects.all()
+
+        return Response([LibraryCategorySerializer(c).data for c in qs])
+    
+    def patch(self, request):
+        category = LibraryCategory.objects.filter(slug=request.query_params.get("slug", "")).first()
+
+        if not category:
+            return Response(
+                {"error": "Cannot edit a category that does not exist."}, status=400
+            )
+
+        allowed_fields = ["label", "banner_path", "color"]
+
+        for field, value in request.data.items():
+            if field in allowed_fields:
+                setattr(category, field, value)
+
+        category.save()
+        return Response(
+            LibraryCategorySerializer(category, context={"request": request}).data
+        )
+    
+    def delete(self, request):
+        category = LibraryCategory.objects.filter(slug=request.query_params.get("slug", "")).first()
+
+        if not category:
+            return Response(
+                {"error": "Cannot delete a category that does not exist."}, status=400
+            )
+
+        category.delete()
+        return Response(
+            LibraryCategorySerializer(category, context={"request": request}).data
         )

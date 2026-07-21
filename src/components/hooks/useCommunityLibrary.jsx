@@ -11,7 +11,9 @@ import {
 	apiPullFromLibrary,
 	apiGetLibraryTags,
 	apiDeleteLibraryTag,
-	apiRenameLibraryTag
+	apiRenameLibraryTag,
+	apiPatchLibraryCategory,
+	apiDeleteLibraryCategory
 } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
@@ -88,6 +90,24 @@ export function useRenameTag() {
 	return useMutation(({ name, to }) => apiRenameLibraryTag(name, to), {
 		onSuccess: () => {
 			queryClient.invalidateQueries(['community-library'])
+		}
+	})
+}
+
+export function useUpdateCategory() {
+	const queryClient = useQueryClient()
+	return useMutation(({slug, changes}) => apiPatchLibraryCategory(slug, changes), {
+		onSuccess: () => {
+			queryClient.invalidateQueries(['category-moderation'])
+		}
+	})
+}
+
+export function useDeleteCategory() {
+	const queryClient = useQueryClient()
+	return useMutation(({slug}) => apiDeleteLibraryCategory(slug), {
+		onSuccess: () => {
+			queryClient.invalidateQueries(['category-moderation'])
 		}
 	})
 }
