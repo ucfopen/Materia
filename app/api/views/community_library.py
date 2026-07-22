@@ -88,10 +88,7 @@ class CommunityLibraryListView(APIView):
         return [AllowAny()]
 
     def get_serializer_context(self):
-        context = super().get_serializer_context()
-
-        context["request"] = self.request
-
+        context = {"request": self.request}
         if PermService.is_superuser_or_elevated(self.request.user):
             context["include_moderation_info"] = True
 
@@ -195,7 +192,9 @@ class CommunityLibraryListView(APIView):
 
         paginator = CommunityLibraryPagination()
         page = paginator.paginate_queryset(qs, request)
-        serializer = LibraryEntrySerializer(page, many=True)
+        serializer = LibraryEntrySerializer(
+            page, many=True, context=self.get_serializer_context()
+        )
         return paginator.get_paginated_response(serializer.data)
 
 
