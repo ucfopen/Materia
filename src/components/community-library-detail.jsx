@@ -147,8 +147,8 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 						<h3>TAGS</h3>
 						<div className='row' style={{gap: "8px"}}>
 						{
-							entry && entry.tags.length != 0 ? entry.tags.map((t)=>(
-								<div className='tag'>#{t}</div>
+							entry && entry.tags.length != 0 ? entry.tags.map((t, i)=>(
+								<div className='tag' key={i}>#{t}</div>
 							)) : <div>This entry has no tags.</div>
 						}
 						</div>

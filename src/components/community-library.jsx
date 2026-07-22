@@ -85,7 +85,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 
 	useEffect(()=>{
 		if(tempTag == "")
-			setFinalInput(searchInput)
+			setFinalInput(omitTagsFromSearch(searchInput))
 	},[searchInput, tempTag])
 
 	const clearSearch = () => {
@@ -213,16 +213,58 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		)
 	}
 
+	const omitTagsFromSearch = (search) => {
+		if(!search) return ""
+
+		return search
+			.replace(/#[^\s]*/g, "")
+			.replace(/\s{2,}/g, " ")
+			.trim()
+	}
+
+	const setTagDropdownLeftFromHash = (inputEl, hashIndex) => {
+		if(!inputEl || !tagListRef.current) return
+		if(hashIndex == null || hashIndex < 0) return
+
+		const textBeforeHash = inputEl.value.slice(0, hashIndex)
+
+		const computedStyles = window.getComputedStyle(inputEl)
+		const mirror = document.createElement("span")
+		mirror.style.position = "absolute"
+		mirror.style.visibility = "hidden"
+		mirror.textContent = textBeforeHash
+
+		document.body.appendChild(mirror)
+		const hashOffsetInInput = mirror.getBoundingClientRect().width - inputEl.scrollLeft
+		document.body.removeChild(mirror)
+
+		const searchBarEl = inputEl.closest(".search-bar")
+		if(!searchBarEl) return
+
+		const inputRect = inputEl.getBoundingClientRect()
+		const searchBarRect = searchBarEl.getBoundingClientRect()
+		const leftFromSearchBar = (inputRect.left - searchBarRect.left) + hashOffsetInInput
+
+		tagListRef.current.style.left = `${leftFromSearchBar}px`
+	}
+
 	const handleSearch = (e) => {
 		setSearchInput(e.target.value)
+		const taglessSearchStr = omitTagsFromSearch(e.target.value)
 
 		if(breakTempTag) return
 
 		const tagStart = e.target.value.lastIndexOf("#")
 		if(tagStart != -1) {
-			const tagStr = e.target.value.slice(tagStart)
-			setTempTag(tagStr.toLowerCase().replaceAll(" ","-").trim())
-			setFocusedTag(-1)
+			const afterHash = e.target.value.slice(tagStart)
+			const whitespaceIndex = afterHash.search(/\s/)
+			const tagStr = whitespaceIndex !== -1 ? afterHash.slice(0, whitespaceIndex) : afterHash
+			if (tagStr != "#") {
+				setTagDropdownLeftFromHash(e.target, tagStart)
+				setTempTag(tagStr.toLowerCase().replaceAll(" ","-").trim())
+			} else {
+				setTagDropdownLeftFromHash(e.target, tagStart)
+			}
 		} else {
 			setTempTag("")
 			setFocusedTag(-1)
@@ -240,6 +282,10 @@ const CommunityLibrary = ({ widgets = [] }) => {
 			newList.splice(newList.length-1, 1)
 
 			setTagList([...newList])
+
+			setBreakTempTag(true)
+			setTempTag("")
+			setFocusedTag(-1)
 		}
 
 		if(tags && tags.length >= 1 && tempTag != "") {
@@ -353,7 +399,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 									<div style={{width: 130, height: 300, backgroundColor: "#fff", borderRadius: 4}}></div>
 									: categories.map((v,i)=> {
 										return(<div className='row' key={`cat${i}`}>
-											<input defaultChecked={v.value == ""} checked={selectedCategories.has(v.value)} type='checkbox' name='discipline' value={v.value} id={`${v.value == "" ? "all" : v.value}-cat-check`} 
+											<input checked={selectedCategories.has(v.value)} type='checkbox' name='discipline' value={v.value} id={`${v.value == "" ? "all" : v.value}-cat-check`} 
 											onChange={(e) => {
 												if(e.target.checked)
 													selectedCategories.add(e.target.value)
@@ -402,29 +448,6 @@ const CommunityLibrary = ({ widgets = [] }) => {
 												}}>{v}</button>
 											))}
 										</div>
-										{tempTag != "" && 
-												
-											<div className='tag-dropdown' ref={tagListRef} aria-label="Tag selection menu." onKeyDown={handleSearchEnter}>
-											{
-												!defTags ? <div className='notice'>Loading...</div>
-												: 
-												defTags.length == 0 && status == "success" ?
-												<div className='notice'>No tags found.</div>
-												:
-												defTags.map((t,i)=>{
-													return <button 
-													className={`drop-entry ${i == focusedTag ? 'selected' : ''}`}
-													key={`dropdown_tag_${i}`}
-													tabIndex={-1}
-													aria-label={`#${t.name}: used in ${t.used_count} widget${t.used_count > 1 ? "s" : ""}.`}
-													onClick={()=>(enterTag(t.name))}>
-														<div>#{t.name}</div>
-														<div className='used-count'>{t.used_count}</div>
-													</button>
-												})
-											}
-											</div>	
-										}
 										<input
 											type="text"
 											id='searchinput'
@@ -436,7 +459,6 @@ const CommunityLibrary = ({ widgets = [] }) => {
 											ref={searchRef}
 											aria-label='Widget search bar.'
 										/>
-										{searchInput && <button className="search-close" onClick={clearSearch} />}
 										{
 											tempTag == "" &&
 											<button className='add-tag'
@@ -444,6 +466,30 @@ const CommunityLibrary = ({ widgets = [] }) => {
 												<b>+</b> add new tag
 											</button>
 										}
+										<div className={`tag-dropdown ${tempTag != '' ? 'active' : 'inactive'}`} ref={tagListRef} aria-label="Tag selection menu." onKeyDown={handleSearchEnter}>
+										{tempTag != "" && 
+											<>
+											{
+												!defTags ? <div className='notice'>Loading...</div>
+												: 
+												defTags.length == 0 && status == "success" ?
+												<div className='notice'>No tags found.</div>
+												:
+												defTags.map((t,i)=>{
+													return <button 
+													className={`drop-entry ${i == focusedTag ? 'selected' : ''}`}
+													key={`dropdown_tag_${i}`}
+													aria-label={`#${t.name}: used in ${t.used_count} widget${t.used_count > 1 ? "s" : ""}.`}
+													onClick={()=>(enterTag(t.name))}>
+														<div>#{t.name}</div>
+														<div className='used-count'>{t.used_count}</div>
+													</button>
+												})
+											}
+											</>
+										}
+										</div>	
+										{searchInput && <button className="search-close" onClick={clearSearch} />}
 									</div>
 								</div>
 								

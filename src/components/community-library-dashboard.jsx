@@ -126,8 +126,10 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 	<div className='dashboard' onMouseUp={mouseStopDrag} onMouseLeave={mouseStopDrag}>
 		<div className='welcome-banner'>
 			<div className='column'>
-				<h2>Welcome to the Community Library!</h2>
-				<a href='/help/#community-library'>More Info ➜</a>
+				<h2>Explore a Universe of Community-Authored Widgets</h2>
+				<p>Peruse and make use of widgets expertly crafted by other instructors. 
+					Share your own widgets with a few clicks, and search for the perfect addition to your course by engine type, discipline, and tags.</p>
+				<a href='/help/#community-library'>Learn More ➜</a>
 			</div>
 		</div>
 		{
