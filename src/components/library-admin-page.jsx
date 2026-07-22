@@ -11,7 +11,8 @@ import {
 	useDeleteTag,
 	useRenameTag,
 	useUpdateCategory,
-	useDeleteCategory
+	useDeleteCategory,
+	useCreateCategory
 } from './hooks/useCommunityLibrary'
 import CategoryAdminCard from './category-admin-card'
 
@@ -27,6 +28,8 @@ const LibraryAdminPage = () => {
     const [renamingTag, setRenamingTag] = useState('')
     const [newTagName, setNewTagName] = useState('')
     const [deleteConfirm, setDeleteConfirm] = useState('')
+
+	const [creatingCategory, setCreatingCategory] = useState(false)
 
     const handleShowDeletedClick = () => setShowDeleted(!showDeleted)
     
@@ -68,6 +71,7 @@ const LibraryAdminPage = () => {
 	
 	const updateCategoryMutation = useUpdateCategory()
 	const deleteCategoryMutation = useDeleteCategory()
+	const createCategoryMutation = useCreateCategory()
 
     const nameInputEnter = (e) => {
 		if(e.key == "Enter")
@@ -229,6 +233,18 @@ const LibraryAdminPage = () => {
         [updateCategoryMutation],
     )
 
+	const handleCategoryCreate = useCallback(
+        (slug, changes) => {
+            createCategoryMutation.mutate({slug, changes}, {
+                onSuccess: () => {
+					setCreatingCategory(false)
+                    refetchCategories()
+                }
+            })
+        },
+        [createCategoryMutation],
+    )
+
 	const handleCategoryDelete = useCallback(
         (slug) => {
             deleteCategoryMutation.mutate({slug}, {
@@ -242,13 +258,29 @@ const LibraryAdminPage = () => {
 
     const renderCategories = () => {
 		return (
-			<div className='category-list'>
-			{
-			categories && categories.map((v) => (
-				<CategoryAdminCard category={v} handleUpdate={handleCategoryUpdate} handleDelete={handleCategoryDelete}/>
-			))
-			}
-			</div>
+			<>	
+				<div className='row'>
+					<div>Showing {categories ? categories.length : 0} categories</div>
+					<button type='button' onClick={()=>setCreatingCategory(!creatingCategory)} className={`cat-btn ${!creatingCategory ? "save" : "delete"}`}>
+						{creatingCategory ? "Cancel" : "Create New Category"}
+					</button>
+				</div>
+				{
+					creatingCategory &&
+					<CategoryAdminCard isCreating category={null} handleUpdate={handleCategoryCreate} handleDelete={null}/>
+				}
+				<hr/>
+				<div className='category-list'>
+				{
+					categoryLoading ? 
+						<div>Loading...</div>
+						:
+					categories && categories.map((v) => (
+						<CategoryAdminCard category={v} handleUpdate={handleCategoryUpdate} handleDelete={handleCategoryDelete}/>
+					))
+				}
+				</div>
+			</>
 		)
 	}
 

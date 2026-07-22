@@ -7,12 +7,13 @@ const HEART_OUTLINE =
     'M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z'
 const COPY_PATH = "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
 
-const CategoryAdminCard = ({category, handleUpdate, handleDelete}) => {
+const CategoryAdminCard = ({category, handleUpdate, handleDelete, isCreating = false}) => {
 
     const [changed, setChanged] = useState(null)
-    const [newColor, setNewColor] = useState(category.color)
-    const [path, setPath] = useState(category.banner_path)
-    const [label, setLabel] = useState(category.label)
+    const [newColor, setNewColor] = useState(category ? category.color : "#CCCCCC")
+    const [path, setPath] = useState(category ? category.banner_path : "")
+    const [label, setLabel] = useState(category ? category.label : "Category Name")
+    const [slug, setSlug] = useState(category ? category.slug : "")
     const [confirmDelete, setConfirmDelete] = useState(false)
 
     useEffect(() => {
@@ -22,6 +23,12 @@ const CategoryAdminCard = ({category, handleUpdate, handleDelete}) => {
             setChanged(true)
     },[newColor, path, label])
 
+    useEffect(() => {
+        if(!isCreating) return
+
+        setSlug(label.toLowerCase().trim().replaceAll(" ", "-"))
+    },[label])
+
     const updateBody = useMemo(()=>({
         label: label,
         banner_path: path,
@@ -29,29 +36,36 @@ const CategoryAdminCard = ({category, handleUpdate, handleDelete}) => {
     }), [path, label, newColor])
 
     const handleSave = () => {
-        handleUpdate(category.slug, updateBody)
+        handleUpdate(slug, updateBody)
         setChanged(false)
     }
 
     const handleConfirmDelete = () => {
         if(confirmDelete)
-            handleDelete(category.slug)
+            handleDelete(slug)
         else
             setConfirmDelete(true)
     }
 
     return (
-        <div className='category-entry' key={`category_${category.slug}`}>
+        <div className={`category-entry ${isCreating ? "creating" : ""}`}>
             <div className='controls'>
                 <div className='names'>
-                    <h3 contentEditable suppressContentEditableWarning onInput={(e)=>setLabel(e.target.innerHTML)} className='name'>{category.label}</h3>
-                    <span className='small'>("{category.slug}")</span>
+                    <h3 contentEditable suppressContentEditableWarning
+                    onInput={(e)=>setLabel(e.target.innerHTML)} className='name'>
+                        {category ? category.label : "Category Name"}
+                    </h3>
+                    {slug != "" && <span className='small'>("{slug}")</span>}
                 </div>
                 <div className='buttons'>
-                    {changed && <button type='button' onClick={handleSave} className='save'>Save</button>}
-                    <button type='button' className='delete' onClick={handleConfirmDelete}>
+                    {(changed || isCreating) && <button type='button' onClick={handleSave} className='cat-btn save'>
+                        {isCreating ? "Create" : "Save"}
+                    </button>}
+                    {!isCreating &&
+                    <button type='button' className='cat-btn delete' onClick={handleConfirmDelete}>
                         {confirmDelete ? "Confirm?" : "Delete"}
                     </button>
+                    }
                 </div>
             </div>
             <details className='preview'>
@@ -60,7 +74,8 @@ const CategoryAdminCard = ({category, handleUpdate, handleDelete}) => {
                     <div className='banner-controls'>
                         <input title='Change Banner Color' aria-label='Change Banner Color' 
                         type='color' value={newColor} onChange={(e)=>setNewColor(e.target.value)}/>
-                        <input title='Change Banner Image Path' aria-label='Change Banner Image Path' type="text" className='path' value={path} onChange={(e)=>setPath(e.target.value)}></input>
+                        <input title='Change Banner Image Path' aria-label='Change Banner Image Path' 
+                        placeholder="Banner Image Path" type="text" className='path' value={path} onChange={(e)=>setPath(e.target.value)}></input>
                     </div>
                 </summary>
                 <div className={`library-card`} role='presentation'>
@@ -76,7 +91,7 @@ const CategoryAdminCard = ({category, handleUpdate, handleDelete}) => {
                             <span className="owner">by Kogneato</span>
                             <div className='row' style={{gap:"4px"}}>
                                 <span className="badge level">Beginner</span>
-                                <span className="badge category">{category.label}</span>
+                                <span className="badge category">{label}</span>
                             </div>
                         </div>
                     </div>
