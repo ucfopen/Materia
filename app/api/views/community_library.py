@@ -2,14 +2,21 @@ import logging
 
 from api.permissions import IsInstructor, IsSuperOrSupportUser
 from api.serializers import (
+    LibraryCategorySerializer,
     LibraryEntrySerializer,
     LibraryReportSerializer,
     TagSerializer,
     WidgetInstanceSerializer,
-    LibraryCategorySerializer
 )
-from community_library.models import LibraryEntry, LibraryReport, Tag, UserLike, LibraryCategory
+from community_library.models import (
+    LibraryCategory,
+    LibraryEntry,
+    LibraryReport,
+    Tag,
+    UserLike,
+)
 from core.models import Notification, WidgetInstance
+from core.services.perm_service import PermService
 from core.services.user_service import UserService
 from core.utils.b64_util import Base64Util
 from core.utils.validator_util import ValidatorUtil
@@ -80,10 +87,20 @@ class CommunityLibraryListView(APIView):
             return [IsSuperOrSupportUser()]
         return [AllowAny()]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+
+        context["request"] = self.request
+
+        if PermService.is_superuser_or_elevated(self.request.user):
+            context["include_moderation_info"] = True
+
+        return context
+
     def get(self, request):
         moderation = ValidatorUtil.validate_bool(request.query_params.get("moderation"))
 
-        if moderation:
+        if moderation and PermService.is_superuser_or_elevated(request.user):
             qs = annotate_library_counts(
                 LibraryEntry.objects.all()
                 .select_related(
@@ -178,9 +195,7 @@ class CommunityLibraryListView(APIView):
 
         paginator = CommunityLibraryPagination()
         page = paginator.paginate_queryset(qs, request)
-        serializer = LibraryEntrySerializer(
-            page, many=True, context={"request": request}
-        )
+        serializer = LibraryEntrySerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
 
 
@@ -256,6 +271,10 @@ class CommunityLibraryDetailView(APIView):
 
     def get(self, request, pk):
         entry = get_object_or_404(LibraryEntry, pk=pk)
+
+        if not PermService.is_superuser_or_elevated(request.user) and entry.is_banned:
+            return Response({"error": "This entry is banned."}, status=403)
+
         return Response(
             LibraryEntrySerializer(entry, context={"request": request}).data
         )
@@ -266,6 +285,13 @@ class CommunityLibraryCopyView(APIView):
 
     def post(self, request, pk):
         entry = get_object_or_404(LibraryEntry, pk=pk)
+
+        if entry.is_banned:
+            return Response(
+                {"error": "This library entry has been banned."},
+                status=403,
+            )
+
         snapshot = entry.snapshots.order_by("-created_at").first()
         if snapshot is None:
             return Response(
@@ -305,7 +331,7 @@ class CommunityLibraryLikeView(APIView):
 
 class CommunityLibraryReportsView(APIView):
     def get_permissions(self):
-        if self.request.method == "GET":
+        if self.request.method != "POST":
             return [IsSuperOrSupportUser()]
         return [IsAuthenticated()]
 
@@ -394,14 +420,16 @@ class CommunityLibraryCategoryView(APIView):
         if self.request.method == "GET":
             return [AllowAny()]
         return [IsSuperOrSupportUser()]
-    
+
     def get(self, request):
         qs = LibraryCategory.objects.all()
 
         return Response([LibraryCategorySerializer(c).data for c in qs])
-    
+
     def patch(self, request):
-        category = LibraryCategory.objects.filter(slug=request.query_params.get("slug", "")).first()
+        category = LibraryCategory.objects.filter(
+            slug=request.query_params.get("slug", "")
+        ).first()
 
         if not category:
             return Response(
@@ -418,9 +446,11 @@ class CommunityLibraryCategoryView(APIView):
         return Response(
             LibraryCategorySerializer(category, context={"request": request}).data
         )
-    
+
     def delete(self, request):
-        category = LibraryCategory.objects.filter(slug=request.query_params.get("slug", "")).first()
+        category = LibraryCategory.objects.filter(
+            slug=request.query_params.get("slug", "")
+        ).first()
 
         if not category:
             return Response(
