@@ -478,7 +478,24 @@ class CommunityLibraryCategoryView(APIView):
             return Response(
                 {"error": "Cannot delete a category that does not exist."}, status=400
             )
+        
+        if category.slug == 'other':
+            return Response(
+                {"error": "The 'Other' category cannot be deleted."}, status=403
+            )
+        
+        other = LibraryCategory.objects.filter(slug='other').first()
+        if not other:
+            return Response(
+                {"error": "The required 'Other' category does not exist in the database."}, status=500
+            )
 
+        entries = category.entries.all()
+        for e in entries:
+            e.category = other
+        
+        LibraryEntry.objects.bulk_update(entries, ["category"])
+        
         category.delete()
         return Response(
             LibraryCategorySerializer(category, context={"request": request}).data

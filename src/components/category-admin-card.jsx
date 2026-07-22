@@ -61,7 +61,7 @@ const CategoryAdminCard = ({category, handleUpdate, handleDelete, isCreating = f
                     {(changed || isCreating) && <button type='button' onClick={handleSave} className='cat-btn save'>
                         {isCreating ? "Create" : "Save"}
                     </button>}
-                    {!isCreating &&
+                    {!isCreating && slug != 'other' &&
                     <button type='button' className='cat-btn delete' onClick={handleConfirmDelete}>
                         {confirmDelete ? "Confirm?" : "Delete"}
                     </button>

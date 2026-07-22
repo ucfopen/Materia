@@ -255,6 +255,7 @@ const LibraryAdminPage = () => {
     const renderCategories = () => {
 		return (
 			<>	
+				<p className='center'><i>Deleting a category will move all widgets inside of it to "Other".</i></p>
 				<div className='row'>
 					<div>Showing {categories ? categories.length : 0} categories</div>
 					<button type='button' onClick={()=>setCreatingCategory(!creatingCategory)} className={`cat-btn ${!creatingCategory ? "save" : "delete"}`}>
