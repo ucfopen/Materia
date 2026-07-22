@@ -1095,7 +1095,7 @@ class TestUpdateInLibrary(CommunityLibraryViewSetTestCase):
         response = self.client.put(
             f"/api/instances/{copied_instance_id}/pull_from_library/"
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
             response.data["error"], "This library entry is no longer published."
         )

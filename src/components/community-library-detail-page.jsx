@@ -7,16 +7,18 @@ import CommunityLibraryDetail from './community-library-detail'
 
 const CommunityLibraryDetailPage = () => {
 	const id = window.location.pathname.replace("/community-library/", "").replace("/", "")
-	const { data: entry } = useQuery({
-		queryKey: 'cl-entry',
+	const { data: entry, error: queryError} = useQuery({
+		queryKey: ['cl-entry', id],
 		queryFn: () => apiGetLibraryEntry(id),
 		staleTime: Infinity,
+		retry: false,
+		refetchOnWindowFocus: false
 	})
 
 	return (
 		<>
 			<Header />
-			<CommunityLibraryDetail entry={entry}/>
+			<CommunityLibraryDetail entry={entry} queryError={queryError} />
 		</>
 	)
 }

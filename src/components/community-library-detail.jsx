@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useQuery } from 'react-query'
 import { apiUserVerify } from '../util/api'
 import './cl-detail.scss'
@@ -18,13 +18,34 @@ const EXTERNAL_PATH = "M18 10.82C17.7348 10.82 17.4804 10.9254 17.2929 11.1129C1
 const COPY_PATH = "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
 const CHECK_PATH = "M18.7 7.20039C18.3 6.80039 17.7 6.80039 17.3 7.20039L9.8 14.7004L6.7 11.6004C6.3 11.2004 5.7 11.2004 5.3 11.6004C4.9 12.0004 4.9 12.6004 5.3 13.0004L9.1 16.8004C9.3 17.0004 9.5 17.1004 9.8 17.1004C10.1 17.1004 10.3 17.0004 10.5 16.8004L18.7 8.60039C19.1 8.20039 19.1 7.60039 18.7 7.20039Z"
 
-const CommunityLibraryDetail = ({entry}) => {
+const CommunityLibraryDetail = ({entry, queryError}) => {
+	const [errorState, setErrorState] = useState(false)
+	const [entryName, setEntryName] = useState(false)
 	const [copySuccess, setCopySuccess] = useState(false)
 	const [likeSuccess, setLikeSuccess] = useState(false)
 	const [reportingEntry, setReportingEntry] = useState(null)
 	
 	const copyMutation = useCopyFromLibrary()
 	const likeMutation = useToggleLike()
+
+	useEffect(() => {
+		if (!!queryError && queryError?.status === 403) {
+			setErrorState('banned')
+		}
+		else if (!!queryError) {
+			setErrorState('error')
+		}
+	}, [queryError])
+
+	useEffect(() => {
+		if (!!entry && !errorState) {
+			setEntryName(entry.instance_name)
+		} else if (errorState == 'banned') {
+			setEntryName('Banned Entry')
+		} else {
+			setEntryName('Entry Unavailable')
+		}
+	},[entry, errorState])
 
 	const handleCopy = useCallback(
 		(entryId) => {
@@ -46,10 +67,8 @@ const CommunityLibraryDetail = ({entry}) => {
 	})
 
 	const dontAllow = useMemo(()=>{
-		return !userPerms?.isAuthenticated || userPerms?.permLevel == "student"
-	}, [userPerms])
-
-	console.log(entry)
+		return !userPerms?.isAuthenticated || userPerms?.permLevel == "student" || errorState != false
+	}, [userPerms, errorState])
 
 	const handleLike = useCallback(
 		(entryId) => {
@@ -72,8 +91,6 @@ const CommunityLibraryDetail = ({entry}) => {
 		setReportingEntry(entry)
 	}
 
-	console.log(entry)
-
 	const dateOptions = {
 		year: "numeric",
 		month: "long",
@@ -88,13 +105,13 @@ const CommunityLibraryDetail = ({entry}) => {
 					<path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path>
 					<path fill="none" d="M0 0h24v24H0V0z"></path>
 				</svg>
-				{!entry ? "Loading..." : entry.instance_name}
+				{!entry && !errorState ? "Loading..." : entryName}
 			</div>
 			<section className='entry'>
-				<div className='card shadow'>
+				<div className={`card shadow ${errorState != false ? 'error' : ''}`}>
 					<div className='header'>
 						<div className='row between'>
-							<h1>{!entry ? "Loading..." : entry.instance_name}</h1>
+							<h1>{!entry && !errorState ? "Loading..." : entryName}</h1>
 							<div className='row fit' style={{gap:"4px"}}>
 								<div className='tag category'>{!entry ? "" : entry.category_display}</div>
 								{entry && entry.course_level_display != "" &&
@@ -145,7 +162,23 @@ const CommunityLibraryDetail = ({entry}) => {
 				}
 				<div className='col' style={{gap:"16px"}}>
 					{
-						dontAllow && 
+						dontAllow && errorState == 'error' &&
+						<div className='card side red center shadow alt-border'>
+							<div className='content'>
+								There was an error accessing this Community Library entry.
+							</div>
+						</div>
+					}
+					{
+						((dontAllow && errorState == 'banned') || entry?.is_banned) &&
+						<div className='card side red center shadow alt-border'>
+							<div className='content'>
+								This entry has been banned from the Community Library.
+							</div>
+						</div>
+					}
+					{
+						dontAllow && errorState == false &&
 						<div className='card side blue center shadow alt-border'>
 							<div className='content'>
 								You must be authenticated as an instructor to access widgets in the Community Library.

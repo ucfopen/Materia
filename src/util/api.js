@@ -903,6 +903,22 @@ export const apiGetSnapshotQset = (entryId, snapshotId) => {
 	return handleRequest(methods.GET, `/api/community-library/${entryId}/snapshot_qset/${snapshotId}/`)
 }
 
+export const apiGetLibraryCategories = () => {
+	return handleRequest(methods.GET, `/api/community-library/categories/`)
+}
+
+export const apiPostLibraryCategory = (slug, changes) => {
+	return handleRequest(methods.POST, `/api/community-library/categories/?slug=${slug}`, changes)
+}
+
+export const apiPatchLibraryCategory = (slug, changes) => {
+	return handleRequest(methods.PATCH, `/api/community-library/categories/?slug=${slug}`, changes)
+}
+
+export const apiDeleteLibraryCategory = (slug, changes) => {
+	return handleRequest(methods.DELETE, `/api/community-library/categories/?slug=${slug}`)
+}
+
 export const apiGetSiteImages = (type) => {
 	switch (type) {
 		case 'profile':

@@ -64,6 +64,7 @@ class LibraryCategory(models.Model):
     slug = models.CharField(max_length=50, unique=True)
     label = models.CharField(max_length=100)
     banner_path = models.CharField(max_length=255)
+    color = models.CharField(max_length=20, default="#CCCCCC")
 
     class Meta:
         constraints = [

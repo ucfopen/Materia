@@ -6,27 +6,12 @@ import {
 	useCopyFromLibrary,
 	useTagList,
 	useToggleLike,
+	useCategoryList
 } from './hooks/useCommunityLibrary'
 import useDebounce from './hooks/useDebounce'
 import './community-library.scss'
 import CommunityLibraryDashboard from './community-library-dashboard'
 import { color } from 'd3'
-
-export const CATEGORIES = [
-	{ value: 'math', label: 'Math', color: "#75bf5b", banner: "/static/img/banners/banner_math.svg"},
-	{ value: 'science', label: 'Science', color: "#75bf5b", banner: "/static/img/banners/banner_math.svg"},
-	{ value: 'english', label: 'English', color: "#b944cc", banner: "/static/img/banners/banner_math.svg" },
-	{ value: 'history', label: 'History', color: "#b944cc", banner: "/static/img/banners/banner_math.svg" },
-	{ value: 'art', label: 'Art', color: "#b944cc", banner: "/static/img/banners/banner_math.svg"},
-	{ value: 'language', label: 'World Languages', color: "#b944cc", banner: "/static/img/banners/banner_math.svg"},
-	{ value: 'engineering', label: 'Engineering', color: "#75bf5b", banner: "/static/img/banners/banner_math.svg"},
-	{ value: 'health', label: 'Health Sciences' , color: "#ef8152", banner: "/static/img/banners/banner_math.svg"},
-	{ value: 'medicine', label: 'Medicine', color: "#ef8152", banner: "/static/img/banners/banner_math.svg"},
-	{ value: 'business', label: 'Business', color: "#5da3cb", banner: "/static/img/banners/banner_math.svg"},
-	{ value: 'education', label: 'Education', color: "#5da3cb", banner: "/static/img/banners/banner_math.svg"},
-	{ value: 'hospitality', label: 'Hospitality', color: "#5da3cb", banner: "/static/img/banners/banner_math.svg"},
-	{ value: 'other', label: 'Other', color: "#bbb", banner: "/static/img/banners/banner_math.svg"},
-]
 
 const COURSE_LEVELS = [
 	{ value: '', label: 'All Levels' },
@@ -56,8 +41,24 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	const [reportingEntry, setReportingEntry] = useState(null)
 	const [copySuccess, setCopySuccess] = useState(null)
 
-	const mappedCategories = {}
-	CATEGORIES.forEach((v)=>{mappedCategories[v.value] = {color: v.color, label: v.label, banner: v.banner}})
+	const { data: categories } = useCategoryList()
+		
+	const [mappedCategories, setMappedCategories] = useState({})
+
+	useEffect(() => {
+		if(!categories) return
+
+		const temp = {}
+		categories.forEach((v)=>{
+			temp[v.slug] = {
+				color: v.color, 
+				label: v.label, 
+				banner: v.banner_path
+			}
+		})
+
+		setMappedCategories(temp)
+	},[categories])
 
 	const formRef = useRef(null)
 	const tagListRef = useRef(null)
@@ -394,7 +395,9 @@ const CommunityLibrary = ({ widgets = [] }) => {
 							<details open>
 								<summary>Discipline</summary>
 								<div className='col small-labels'>
-									{CATEGORIES.map((v,i)=> {
+									{!categories ? 
+									<div style={{width: 130, height: 300, backgroundColor: "#fff", borderRadius: 4}}></div>
+									: categories.map((v,i)=> {
 										return(<div className='row' key={`cat${i}`}>
 											<input checked={selectedCategories.has(v.value)} type='checkbox' name='discipline' value={v.value} id={`${v.value == "" ? "all" : v.value}-cat-check`} 
 											onChange={(e) => {

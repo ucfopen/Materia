@@ -66,6 +66,7 @@ urlpatterns = [
         "community-library/<int:pk>/snapshot_qset/<int:snapshot_id>/",
         community_library.CommunityLibrarySnapshotQsetView.as_view(),
     ),
+    path("community-library/categories/", community_library.CommunityLibraryCategoryView.as_view()),
     path("session/verify/", sessions.SessionView.as_view(), name="session-verify"),
     # User
     path("user/login/", users.UsersApi.service_user_login, name="service_user_login"),

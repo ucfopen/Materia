@@ -11,7 +11,11 @@ import {
 	apiPullFromLibrary,
 	apiGetLibraryTags,
 	apiDeleteLibraryTag,
-	apiRenameLibraryTag
+	apiRenameLibraryTag,
+	apiPatchLibraryCategory,
+	apiDeleteLibraryCategory,
+	apiPostLibraryCategory,
+	apiGetLibraryCategories
 } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
@@ -74,6 +78,15 @@ export function useTagList(count, search, exclude) {
 	})
 }
 
+export function useCategoryList() {
+	return useQuery({
+		queryKey: ['category-moderation'],
+		queryFn: () => apiGetLibraryCategories(),
+		enabled: true,
+		staleTime: 30000
+	})
+}
+
 export function useDeleteTag() {
 	const queryClient = useQueryClient()
 	return useMutation(apiDeleteLibraryTag, {
@@ -88,6 +101,33 @@ export function useRenameTag() {
 	return useMutation(({ name, to }) => apiRenameLibraryTag(name, to), {
 		onSuccess: () => {
 			queryClient.invalidateQueries(['community-library'])
+		}
+	})
+}
+
+export function useUpdateCategory() {
+	const queryClient = useQueryClient()
+	return useMutation(({slug, changes}) => apiPatchLibraryCategory(slug, changes), {
+		onSuccess: () => {
+			queryClient.invalidateQueries(['category-moderation'])
+		}
+	})
+}
+
+export function useDeleteCategory() {
+	const queryClient = useQueryClient()
+	return useMutation(({slug}) => apiDeleteLibraryCategory(slug), {
+		onSuccess: () => {
+			queryClient.invalidateQueries(['category-moderation'])
+		}
+	})
+}
+
+export function useCreateCategory() {
+	const queryClient = useQueryClient()
+	return useMutation(({slug, changes}) => apiPostLibraryCategory(slug, changes), {
+		onSuccess: () => {
+			queryClient.invalidateQueries(['category-moderation'])
 		}
 	})
 }

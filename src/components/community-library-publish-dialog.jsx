@@ -1,9 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Modal from './modal'
-import { usePublishToLibrary, useTagList } from './hooks/useCommunityLibrary'
+import { usePublishToLibrary, useTagList, useCategoryList } from './hooks/useCommunityLibrary'
 import './community-library-publish-dialog.scss'
-
-import { CATEGORIES } from './community-library'
 
 const COURSE_LEVELS = [
 	{ value: '', label: 'Not specified' },
@@ -26,6 +24,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 	const publishMutation = usePublishToLibrary()
 
 	const {data: tags, status} = useTagList(5, newTag.replace("#", ""), tagList)
+	const { data: categories } = useCategoryList()
 
 	const handlePublish = () => {
 		if (!category) {
@@ -85,7 +84,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 			}
 		}
 	}
-
+	
 	useEffect(() => {
 		if(!tagListRef.current) return
 
@@ -107,8 +106,8 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 					Discipline <span className="required">*</span>
 					<select value={category} onChange={(e) => setCategory(e.target.value)}>
 						<option value="">Select a category...</option>
-						{CATEGORIES.map((c) => (
-							<option key={c.value} value={c.value}>
+						{categories && categories.map((c) => (
+							<option key={c.slug} value={c.slug}>
 								{c.label}
 							</option>
 						))}
