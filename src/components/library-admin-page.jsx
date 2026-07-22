@@ -12,7 +12,8 @@ import {
 	useRenameTag,
 	useUpdateCategory,
 	useDeleteCategory,
-	useCreateCategory
+	useCreateCategory,
+	useCategoryList
 } from './hooks/useCommunityLibrary'
 import CategoryAdminCard from './category-admin-card'
 
@@ -59,12 +60,7 @@ const LibraryAdminPage = () => {
 
     const {data: tags, status: status, refetch: refetchTags} = useTagList(-1, tagSearchText, [])
 
-	const {data: categories, isFetching: categoryLoading, refetch: refetchCategories} = useQuery({
-		queryKey: ['category-moderation'],
-		queryFn: () => apiGetLibraryCategories(),
-		enabled: pageState.mode === 'categories',
-		staleTime: 30000
-	})
+	const {data: categories, isFetching: categoryLoading, refetch: refetchCategories} = useCategoryList()
 
     const renameTagMutation = useRenameTag()
     const deleteTagMutation = useDeleteTag()

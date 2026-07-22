@@ -14,7 +14,8 @@ import {
 	apiRenameLibraryTag,
 	apiPatchLibraryCategory,
 	apiDeleteLibraryCategory,
-	apiPostLibraryCategory
+	apiPostLibraryCategory,
+	apiGetLibraryCategories
 } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
@@ -74,6 +75,15 @@ export function useTagList(count, search, exclude) {
 		},
 		enabled: true,
 		refetchOnWindowFocus: false
+	})
+}
+
+export function useCategoryList() {
+	return useQuery({
+		queryKey: ['category-moderation'],
+		queryFn: () => apiGetLibraryCategories(),
+		enabled: true,
+		staleTime: 30000
 	})
 }
 
