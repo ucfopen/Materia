@@ -399,7 +399,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 									<div style={{width: 130, height: 300, backgroundColor: "#fff", borderRadius: 4}}></div>
 									: categories.map((v,i)=> {
 										return(<div className='row' key={`cat${i}`}>
-											<input checked={selectedCategories.has(v.value)} type='checkbox' name='discipline' value={v.value} id={`${v.value == "" ? "all" : v.value}-cat-check`} 
+											<input checked={selectedCategories.has(v.slug)} type='checkbox' name='discipline' value={v.slug} id={`${v.slug == "" ? "all" : v.slug}-cat-check`} 
 											onChange={(e) => {
 												if(e.target.checked)
 													selectedCategories.add(e.target.value)
@@ -408,7 +408,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 												setSelectedCategories(new Set([...selectedCategories]))
 											}}
 											/>
-											<label htmlFor={`${v.value == "" ? "all" : v.value}-cat-check`}>{v.label}</label>										
+											<label htmlFor={`${v.slug == "" ? "all" : v.slug}-cat-check`}>{v.label}</label>										
 										</div>)
 									})}
 								</div>
