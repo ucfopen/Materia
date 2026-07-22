@@ -55,6 +55,7 @@ class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
     profile_fields = serializers.SerializerMethodField()
     is_student = serializers.SerializerMethodField()
+    library_banned = serializers.SerializerMethodField()
 
     def get_is_student(self, user):
         return PermService.user_is_student(user)
@@ -80,9 +81,26 @@ class UserSerializer(serializers.ModelSerializer):
     def get_avatar(self, user):
         return UserService.get_avatar_url(user)
 
+    # avoid duplicate lookups for adjacent user settings fields.
+    def _get_user_settings(self, user):
+        cache = getattr(self, "_user_settings_cache", None)
+        if cache is None:
+            cache = {}
+            self._user_settings_cache = cache
+
+        cache_key = user.pk if user.pk is not None else id(user)
+        if cache_key not in cache:
+            cache[cache_key], _ = UserSettings.objects.get_or_create(user=user)
+
+        return cache[cache_key]
+
     def get_profile_fields(self, user):
-        user_profile, _ = UserSettings.objects.get_or_create(user=user)
+        user_profile = self._get_user_settings(user)
         return user_profile.get_profile_fields()
+
+    def get_library_banned(self, user):
+        settings = self._get_user_settings(user)
+        return settings.library_banned
 
     class Meta:
         model = User
@@ -97,6 +115,7 @@ class UserSerializer(serializers.ModelSerializer):
             "date_joined",
             "last_login",
             "is_student",
+            "library_banned",
         ]
 
         read_only_fields = [
@@ -107,6 +126,7 @@ class UserSerializer(serializers.ModelSerializer):
             "date_joined",
             "last_login",
             "is_student",
+            "library_banned",
         ]
 
 
@@ -406,20 +426,24 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
         if entry is None:
             return None
 
-        return {
+        entry_info = {
             "id": entry.id,
             "category": entry.category.slug,
             "category_display": entry.category.label,
             "course_level": entry.course_level,
             "course_level_display": entry.get_course_level_display(),
             "featured": entry.featured,
-            "is_banned": entry.is_banned,
-            "report_count": entry.report_count,
             "copy_count": entry.copy_count,
             "like_count": entry.like_count,
             "latest_snapshot_id": entry.get_latest_snapshot_id(),
             "is_available": entry.is_available,
+            "is_banned": entry.is_banned,
         }
+
+        if self.context.get("include_entry_moderation_info", False):
+            entry_info["report_count"] = entry.report_count
+
+        return entry_info
 
     def get_library_snapshot_id(self, instance):
         snapshot = instance.library_snapshot
@@ -986,6 +1010,21 @@ class LibraryEntrySerializer(serializers.ModelSerializer):
             "user_copy",
         ]
 
+    # remove sensitive information when requesting with non-privileged access
+    def get_fields(self):
+        fields = super().get_fields()
+        elevated = self.context.get("include_moderation_info")
+
+        if not elevated:
+            for field in [
+                "report_count",
+                "last_reported_at",
+            ]:
+                if fields[field]:
+                    fields.pop(field)
+
+        return fields
+
     def get_instance_name(self, entry):
         snapshot = entry.snapshots.order_by("-created_at").first()
         if snapshot is None:
@@ -1037,10 +1076,12 @@ class LibraryEntrySerializer(serializers.ModelSerializer):
 
         return copy.id
 
+
 class LibraryCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = LibraryCategory
         fields = ["slug", "label", "banner_path", "color"]
+
 
 class LibraryReportSerializer(serializers.ModelSerializer):
     class Meta:

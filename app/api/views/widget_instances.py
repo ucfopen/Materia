@@ -223,6 +223,11 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             else:
                 context["hide_identifying_info"] = True
 
+        if PermService.is_superuser_or_elevated(self.request.user):
+            context["include_entry_moderation_info"] = True
+        else:
+            context["include_entry_moderation_info"] = False
+
         return context
 
     def perform_create(self, serializer):
@@ -664,6 +669,12 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         with transaction.atomic():
             if existing_entry:
+
+                if existing_entry.is_banned:
+                    return Response(
+                        {"error": "You cannot republish a banned widget."}, status=403
+                    )
+
                 # Re-publishing: update entry and create new snapshot
                 existing_entry.category = category
                 existing_entry.course_level = course_level
@@ -709,6 +720,12 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             return Response(
                 {"error": "This widget was not copied from the Community Library."},
                 status=400,
+            )
+
+        if entry.is_banned:
+            return Response(
+                {"error": "This widget cannot be updated as the entry is banned."},
+                status=403,
             )
 
         latest_qset = instance.get_latest_qset()
@@ -761,13 +778,19 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         if entry is None:
             return Response(
                 {"error": "This widget was not copied from the Community Library."},
-                status=400,
+                status=403,
             )
 
         if entry.is_available is False:
             return Response(
                 {"error": "This library entry is no longer published."},
-                status=400,
+                status=403,
+            )
+
+        if entry.is_banned:
+            return Response(
+                {"error": "This entry has been banned."},
+                status=403,
             )
 
         snapshot = entry.snapshots.order_by("-created_at").first()
