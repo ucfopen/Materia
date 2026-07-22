@@ -13,7 +13,8 @@ import {
 	apiDeleteLibraryTag,
 	apiRenameLibraryTag,
 	apiPatchLibraryCategory,
-	apiDeleteLibraryCategory
+	apiDeleteLibraryCategory,
+	apiPostLibraryCategory
 } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
@@ -106,6 +107,15 @@ export function useUpdateCategory() {
 export function useDeleteCategory() {
 	const queryClient = useQueryClient()
 	return useMutation(({slug}) => apiDeleteLibraryCategory(slug), {
+		onSuccess: () => {
+			queryClient.invalidateQueries(['category-moderation'])
+		}
+	})
+}
+
+export function useCreateCategory() {
+	const queryClient = useQueryClient()
+	return useMutation(({slug, changes}) => apiPostLibraryCategory(slug, changes), {
 		onSuccess: () => {
 			queryClient.invalidateQueries(['category-moderation'])
 		}

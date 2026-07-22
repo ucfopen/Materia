@@ -400,6 +400,29 @@ class CommunityLibraryCategoryView(APIView):
 
         return Response([LibraryCategorySerializer(c).data for c in qs])
     
+    def post(self, request):
+        slug = request.query_params.get("slug", "")
+        category = LibraryCategory.objects.filter(slug=slug).first()
+
+        if category:
+            return Response(
+                {"error": "A category with this name already exists."}, status=409
+            )
+        
+        category = LibraryCategory.objects.create()
+        category.slug = slug
+        
+        allowed_fields = ["label", "banner_path", "color"]
+
+        for field, value in request.data.items():
+            if field in allowed_fields:
+                setattr(category, field, value)
+
+        category.save()
+        return Response(
+            LibraryCategorySerializer(category, context={"request": request}).data
+        )
+        
     def patch(self, request):
         category = LibraryCategory.objects.filter(slug=request.query_params.get("slug", "")).first()
 
