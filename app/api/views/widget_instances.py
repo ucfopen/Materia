@@ -696,6 +696,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                     instance=instance,
                     category=category,
                     course_level=course_level,
+                    published_by=self.request.user,
                 )
                 LibrarySnapshot.objects.create(
                     entry=entry,
