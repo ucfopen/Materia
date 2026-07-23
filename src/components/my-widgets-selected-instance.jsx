@@ -82,6 +82,8 @@ const MyWidgetSelectedInstance = ({
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
 
+	const isCustomizable = inst && inst.widget.creator !== "" && !inst.widget.creator.includes("default")
+
 	// Initializes the data when widgets changes
 	useEffect(() => {
 		let playUrl = inst.play_url
@@ -417,7 +419,7 @@ const MyWidgetSelectedInstance = ({
 						<button
 							role='menuitem'
 							tabIndex="0"
-							disabled={inst.is_draft || inst.guest_access}
+							disabled={inst.is_draft || inst.guest_access || !isCustomizable}
 							onClick={() => setShowPublishDialog(true)}>
 							Share to Library
 						</button>
@@ -669,9 +671,12 @@ const MyWidgetSelectedInstance = ({
 
 			{provisionalAccessRender}
 
-			<div className={`community-library-container closed ${(inst.is_draft || inst.guest_access) ? 'draft' : ''}`}>
+			<div className={`community-library-container closed ${(inst.is_draft || inst.guest_access || !isCustomizable) ? 'draft' : ''}`}>
 				<h3>
-					{`${inst.is_draft ? `Publish to share to the ` : inst.guest_access ? `Guest widgets cannot be shared to the` : ``}Community Library`}
+					{`${!isCustomizable ? `This widget type cannot be shared to the `
+						: inst.is_draft ? `Publish to share to the ` 
+						: inst.guest_access ? `Guest widgets cannot be shared to the ` 
+						: ``}Community Library`}
 				</h3>
 				<div className="cl-options">
 					{ communityLibraryContentRender }

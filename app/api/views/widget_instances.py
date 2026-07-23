@@ -652,6 +652,13 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 {"error": "You are not allowed to publish to the Community Library."},
                 status=403,
             )
+        
+        creator = instance.widget.creator
+        if creator == "" or creator == "default":
+            return Response(
+                {"error": "This widget type cannot be published to the Community Library."},
+                status=400,
+            )
 
         serializer = PublishToLibrarySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
