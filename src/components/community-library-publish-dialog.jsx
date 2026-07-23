@@ -23,7 +23,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 
 	const publishMutation = usePublishToLibrary()
 
-	const {data: tags, status} = useTagList(5, newTag.replace("#", ""), tagList)
+	const {data: tags, status} = useTagList(5, newTag.replaceAll("#", ""), tagList)
 	const { data: categories } = useCategoryList()
 
 	const handlePublish = () => {
