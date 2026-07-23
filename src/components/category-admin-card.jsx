@@ -47,6 +47,51 @@ const CategoryAdminCard = ({category, handleUpdate, handleDelete, isCreating = f
             setConfirmDelete(true)
     }
 
+    const hexToRGB = (hex) => {
+        if(hex.length != 7) return
+
+        return {
+            r: parseInt(hex.substring(1,3),16),
+            g: parseInt(hex.substring(3,5),16),
+            b: parseInt(hex.substring(5,7),16)
+        }
+    }
+
+    // https://www.w3.org/WAI/GL/wiki/Relative_luminance
+    const luminance = (rgb) => {
+        const rs = rgb.r/255
+        const gs = rgb.g/255
+        const bs = rgb.b/255
+
+        const R = rs <= 0.03928 ? rs/12.92 : ((rs+0.055)/1.055) ** 2.4
+        const G = gs <= 0.03928 ? gs/12.92 : ((gs+0.055)/1.055) ** 2.4
+        const B = bs <= 0.03928 ? bs/12.92 : ((bs+0.055)/1.055) ** 2.4
+    
+        return (0.2126 * R) + (0.7152 * G) + (0.0722 * B)
+    }
+
+    const contrast = (La, Lb) => {
+        let L1, L2
+
+        if (La > Lb) {
+            L1 = La
+            L2 = Lb
+        } else {
+            L1 = Lb
+            L2 = La
+        }
+
+        return (L1 + 0.05) / (L2 + 0.05)
+    }
+
+    const computedContrast = useMemo(() => {
+        const rgb = hexToRGB(newColor)
+        if(!rgb) return 0
+
+        // test against white text
+        return Math.round(contrast(luminance(rgb), luminance({r:255,g:255,b:255})) * 100) / 100
+    }, [newColor])
+
     return (
         <div className={`category-entry ${isCreating ? "creating" : ""}`}>
             <div className='controls'>
@@ -72,6 +117,10 @@ const CategoryAdminCard = ({category, handleUpdate, handleDelete, isCreating = f
                 <summary>
                     <span>Preview Widget Card</span> 
                     <div className='banner-controls'>
+                        <div className={`contrast ${computedContrast < 3 ? "warning" : ""}`}
+                        title='WCAG 2.1 Color Contrast. For large text such as this widget title, a color contrast of 3:1 is necessary to reach WCAG 2.1 AA standards.'>
+                            {`${computedContrast}:1`}
+                        </div>
                         <input title='Change Banner Color' aria-label='Change Banner Color' 
                         type='color' value={newColor} onChange={(e)=>setNewColor(e.target.value)}/>
                         <input title='Change Banner Image Path' aria-label='Change Banner Image Path' 

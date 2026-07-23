@@ -522,7 +522,6 @@
 			height: 50px;
 			display: flex;
 			position: absolute;
-			filter: brightness(80%) saturate(1.425);
 		}
 
 		.banner-img {
@@ -736,7 +735,6 @@
 			width: 100%;
 			height: 60px;
 			border-radius: 16px 16px 0 0;
-			filter: brightness(80%) saturate(1.425);
 			position: relative;
 		}
 
@@ -1388,7 +1386,7 @@
 		}
 
 		.banner {
-			filter: brightness(65%);
+			filter: brightness(80%);
 		}
 	}
 
@@ -1401,7 +1399,7 @@
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 
 		.banner {
-			filter: brightness(65%);
+			filter: brightness(80%);
 		}
 
 		.card-content {

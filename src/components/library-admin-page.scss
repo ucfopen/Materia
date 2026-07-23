@@ -185,7 +185,6 @@
 							height: 50px;
 							display: flex;
 							position: absolute;
-							filter: brightness(80%) saturate(1.425);
 						}
 
 						.banner-img {
@@ -362,6 +361,24 @@
 					border-radius: 4px;
 					background-color: #fff;
 					padding: 4px;
+
+					.contrast {
+						margin: auto 4px auto 0;
+						font-weight: bold;
+						display: flex;
+
+						&.warning {
+							&::before {
+								background: url("/static/admin/img/icon-alert.svg") no-repeat center;
+								content: " ";
+								display: inline-flex;
+								width: 16px;
+								height: 16px;
+								margin: auto 0;
+								margin-right: 2px;
+							}
+						}
+					}
 
 					.path {
 						font-size: 12px;
