@@ -662,8 +662,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         tags = self._normalize_tag_names(serializer.validated_data.get("tags", []))
 
         latest_qset = instance.get_latest_qset()
-        qset_data = latest_qset.data
-        qset_version = latest_qset.version
 
         existing_entry = LibraryEntry.objects.filter(instance=instance).first()
 
@@ -685,8 +683,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 LibrarySnapshot.objects.create(
                     entry=existing_entry,
                     name=instance.name,
-                    qset_data=qset_data,
-                    qset_version=qset_version,
+                    qset=latest_qset,
                 )
 
                 self._sync_entry_tags(existing_entry, tags)
@@ -700,8 +697,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 LibrarySnapshot.objects.create(
                     entry=entry,
                     name=instance.name,
-                    qset_data=qset_data,
-                    qset_version=qset_version,
+                    qset=latest_qset
                 )
 
                 self._sync_entry_tags(entry, tags)
@@ -733,8 +729,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         LibrarySnapshot.objects.create(
             entry=entry,
             name=instance.name,
-            qset_data=latest_qset.data,
-            qset_version=latest_qset.version,
+            qset=latest_qset,
         )
 
         return Response({"success": True})
@@ -805,8 +800,8 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         instance.save(update_fields=["name", "library_snapshot"])
 
         latest_qset = instance.get_latest_qset()
-        latest_qset.data = snapshot.qset_data
-        latest_qset.version = snapshot.qset_version
+        latest_qset.data = snapshot.qset.data
+        latest_qset.version = snapshot.qset.version
         latest_qset.save(update_fields=["data", "version"])
 
         return Response(WidgetInstanceSerializer(instance).data)

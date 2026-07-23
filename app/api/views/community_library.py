@@ -307,8 +307,8 @@ class CommunityLibraryCopyView(APIView):
         new_instance.save(update_fields=["library_entry", "library_snapshot"])
 
         latest_qset = new_instance.get_latest_qset()
-        latest_qset.data = snapshot.qset_data
-        latest_qset.version = snapshot.qset_version
+        latest_qset.data = snapshot.qset.data
+        latest_qset.version = snapshot.qset.version
         latest_qset.save(update_fields=["data", "version"])
 
         return Response(WidgetInstanceSerializer(new_instance).data)
@@ -407,9 +407,9 @@ class CommunityLibrarySnapshotQsetView(APIView):
         return Response(
             {
                 "data": (
-                    Base64Util.decode(snapshot.qset_data) if snapshot.qset_data else {}
+                    Base64Util.decode(snapshot.qset.data) if snapshot.qset.data else {}
                 ),
-                "version": snapshot.qset_version,
+                "version": snapshot.qset.version,
             }
         )
 
@@ -495,7 +495,7 @@ class CommunityLibraryCategoryView(APIView):
             e.category = other
         
         LibraryEntry.objects.bulk_update(entries, ["category"])
-        
+
         category.delete()
         return Response(
             LibraryCategorySerializer(category, context={"request": request}).data

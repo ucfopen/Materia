@@ -162,8 +162,8 @@ class ScoresDetailView(APIView):
                         return Response({"error": "Snapshot not found."}, status=404)
 
                     qset_override = preview_inst.get_latest_qset()
-                    qset_override.data = snapshot.qset_data
-                    qset_override.version = snapshot.qset_version
+                    qset_override.data = snapshot.qset.data
+                    qset_override.version = snapshot.qset.version
 
                 module = ScoreModuleFactory.create_score_module_for_preview(
                     instance=preview_inst,
@@ -178,11 +178,11 @@ class ScoresDetailView(APIView):
                 if snapshot:
                     response["qset"] = {
                         "data": (
-                            Base64Util.decode(snapshot.qset_data)
-                            if snapshot.qset_data
+                            Base64Util.decode(snapshot.qset.data)
+                            if snapshot.qset.data
                             else {}
                         ),
-                        "version": snapshot.qset_version,
+                        "version": snapshot.qset.version,
                     }
                 else:
                     response["qset"] = QuestionSetSerializer(

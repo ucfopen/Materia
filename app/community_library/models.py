@@ -1,6 +1,6 @@
 import re
 
-from core.models import WidgetInstance
+from core.models import WidgetInstance, WidgetQset
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -171,8 +171,7 @@ class LibrarySnapshot(models.Model):
         related_name="snapshots",
     )
     name = models.CharField(max_length=100)
-    qset_data = models.TextField(default="")
-    qset_version = models.CharField(max_length=10, default="1")
+    qset = models.ForeignKey(WidgetQset, on_delete=models.PROTECT, related_name="snapshots")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
