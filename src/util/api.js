@@ -823,6 +823,16 @@ export const apiGetCommunityLibrary = ({ pageParam = 1, limit = null, search = '
 	return handleRequest(methods.GET, url)
 }
 
+export const apiManageUserBan = (user) => {
+	return handleRequest(methods.POST, `/api/users/${user}/ban/`)
+}
+
+export const apiGetUserLibraryEntries = ({pageParam = 1, userId = null}) => {
+	const url = `/api/community-library/?page=${pageParam}&user=${userId}`
+
+	return handleRequest(methods.GET, url)
+}
+
 export const apiGetLibraryTags = ({count = -1, search = '', exclude = []}) => {
 	let url = `/api/community-library/tags/`
 	const params = new URLSearchParams()

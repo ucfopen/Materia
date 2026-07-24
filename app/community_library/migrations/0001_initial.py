@@ -180,9 +180,20 @@ class Migration(migrations.Migration):
             model_name="libraryentry",
             name="instance",
             field=models.OneToOneField(
-                on_delete=django.db.models.deletion.CASCADE,
+                on_delete=django.db.models.deletion.PROTECT,
                 related_name="published_entry",
                 to="core.widgetinstance",
+            ),
+        ),
+        migrations.AddField(
+            model_name="libraryentry",
+            name="published_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="published_entries",
+                to=settings.AUTH_USER_MODEL,
             ),
         ),
         migrations.AddField(

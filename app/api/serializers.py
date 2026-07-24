@@ -1038,7 +1038,7 @@ class LibraryEntrySerializer(serializers.ModelSerializer):
         return snapshot.id
 
     def get_owner_display_name(self, entry):
-        user = entry.instance.user
+        user = entry.published_by or entry.instance.user
         first = user.first_name or ""
         last = user.last_name or ""
         return f"{first} {last}".strip()

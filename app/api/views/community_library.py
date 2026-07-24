@@ -103,7 +103,7 @@ class CommunityLibraryListView(APIView):
                 .select_related(
                     "instance",
                     "instance__widget",
-                    "instance__user",
+                    "published_by",
                 )
                 .prefetch_related("snapshots", "tags", "likes", "reports")
             )
@@ -137,19 +137,22 @@ class CommunityLibraryListView(APIView):
                 .select_related(
                     "instance",
                     "instance__widget",
-                    "instance__user",
+                    "published_by",
                 )
                 .prefetch_related("snapshots", "tags", "likes", "reports")
             )
 
         # Search by latest snapshot name
         search = request.query_params.get("search")
+        user = request.query_params.get("user", -1)
         if search:
             qs = qs.filter(
                 Q(snapshots__name__icontains=search)
-                | Q(instance__user__first_name__icontains=search)
-                | Q(instance__user__last_name__icontains=search)
+                | Q(published_by__first_name__icontains=search)
+                | Q(published_by__last_name__icontains=search)
             ).distinct()
+        elif ValidatorUtil.is_positive_integer_or_zero(user):
+            qs = qs.filter(published_by=user)
 
         # Filter by widget type
         widget_id = request.query_params.get("widget_id")
@@ -478,22 +481,25 @@ class CommunityLibraryCategoryView(APIView):
             return Response(
                 {"error": "Cannot delete a category that does not exist."}, status=400
             )
-        
-        if category.slug == 'other':
+
+        if category.slug == "other":
             return Response(
                 {"error": "The 'Other' category cannot be deleted."}, status=403
             )
-        
-        other = LibraryCategory.objects.filter(slug='other').first()
+
+        other = LibraryCategory.objects.filter(slug="other").first()
         if not other:
             return Response(
-                {"error": "The required 'Other' category does not exist in the database."}, status=500
+                {
+                    "error": "The required 'Other' category does not exist in the database."
+                },
+                status=500,
             )
 
         entries = category.entries.all()
         for e in entries:
             e.category = other
-        
+
         LibraryEntry.objects.bulk_update(entries, ["category"])
 
         category.delete()
