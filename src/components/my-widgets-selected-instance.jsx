@@ -414,7 +414,10 @@ const MyWidgetSelectedInstance = ({
 		} else {
 			communityLibraryContentRender = (
 				<div className='row'>
-					<p><h4>Make Your Widget Public!</h4>Allow other instructors to discover, copy, and adapt this widget for their own courses.</p>
+					<div className='cl-content'>
+						<h4>Make Your Widget Public!</h4>
+						Allow other instructors to discover, copy, and adapt this widget for their own courses.
+					</div>
 					<div className='col'>
 						<button
 							role='menuitem'
@@ -432,10 +435,10 @@ const MyWidgetSelectedInstance = ({
 		if (inst.library_entry.is_banned) {
 			communityLibraryContentRender = (
 				<div className='row'>
-					<p>
+					<div className='cl-content'>
 						The Community Library entry for this widget <b>has been banned.</b> You can continue to use it and modify this copy 
 						but you cannot update it from the original Community Library entry.
-					</p>
+					</div>
 					<div className='col'>
 						<button
 							role='menuitem'
@@ -448,32 +451,44 @@ const MyWidgetSelectedInstance = ({
 				</div>
 			)
 		} else {
-			communityLibraryContentRender = (
-				<div className='row'>
-					<p>
-					<h4><span className='state'>COPIED</span><a target="_blank" href={`/community-library/${inst.library_entry.id}`}>{'➜ '}Library Entry</a></h4>
-						Pull changes to replace this widget's content with the latest version from the Community Library. <span>This cannot be reversed.</span>
-					</p>
-					<div className='col'>
-						<button
-							role='menuitem'
-							tabIndex="0"
-							onClick={() => setShowPullDialog(true)}>
-							{pullLabel}
-						</button>
+			const newSnapshotAvailable = inst.library_entry.latest_snapshot_id != inst.library_snapshot_id
+			if (newSnapshotAvailable) {
+				communityLibraryContentRender = (
+					<div className='row'>
+						<div className='cl-content'>
+							<h4><span className='state'>COPIED</span><a target="_blank" href={`/community-library/${inst.library_entry.id}`}>{'➜ '}Library Entry</a></h4>
+							Pull changes to replace this widget's content with the latest version from the Community Library. <b>This cannot be reversed.</b>
+						</div>
+						<div className='col'>
+							<button
+								role='menuitem'
+								tabIndex="0"
+								onClick={() => setShowPullDialog(true)}>
+								{pullLabel}
+							</button>
+						</div>
 					</div>
-				</div>
-			)
+				)
+			} else {
+				communityLibraryContentRender = (
+					<div className='row'>
+						<div>
+							<h4><span className='state'>COPIED</span><a target="_blank" href={`/community-library/${inst.library_entry.id}`}>{'➜ '}Library Entry</a></h4>
+							This widget was copied from the Community Library. Edits you make to this copy will not influence the original.
+						</div>
+					</div>
+				)
+			}
 		}
 
 	} else if (inst.shared_to_library) {
 		if (inst.library_entry.is_banned) {
 			communityLibraryContentRender = (
 				<div className='row'>
-					<p>
+					<div className='cl-content'>
 						<p>Your widget has been <b>Banned from the Community Library</b>. You cannot push new updates. You may choose to unpublish the entry,
 						but users who previously copied your widget can continue to use their copies. If you believe this ban was in error, <a href="/help" target="_blank">contact support</a>.</p>
-					</p>
+					</div>
 					<div className='col'>
 						<button
 							className='alt'
@@ -501,11 +516,11 @@ const MyWidgetSelectedInstance = ({
 		} else {
 			communityLibraryContentRender = (
 				<div className='row'>
-					<p>
+					<div className='cl-content'>
 						<h4><span className='state'>SHARED</span><a target="_blank" href={`/community-library/${inst.library_entry ? inst.library_entry.id : 1}`}>{'➜ '}Library Entry</a></h4>
-						<p>Select <span>Update in Library</span> to sync any changes to this widget to the Community Library.</p>
-						Select <span>Remove from Library</span> to remove this widget from the Community Library. This will prevent new copies of this widget from being made.
-					</p>
+						<p>Select <b>Update in Library</b> to sync any changes to this widget to the Community Library.</p>
+						Select <b>Remove from Library</b> to remove this widget from the Community Library. This will prevent new copies of this widget from being made.
+					</div>
 					<div className='col'>
 						<button
 							className='alt'
@@ -515,6 +530,10 @@ const MyWidgetSelectedInstance = ({
 								updateInLibrary.mutate(inst.id, {
 									onSuccess: () => {
 										setUpdateLibraryLabel('Updated!')
+										setTimeout(() => setUpdateLibraryLabel('Update in Library'), 3000)
+									},
+									onError: () => {
+										setUpdateLibraryLabel('Already Up to Date')
 										setTimeout(() => setUpdateLibraryLabel('Update in Library'), 3000)
 									}
 								})

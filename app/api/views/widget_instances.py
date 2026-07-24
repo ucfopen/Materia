@@ -652,11 +652,13 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 {"error": "You are not allowed to publish to the Community Library."},
                 status=403,
             )
-        
+
         creator = instance.widget.creator
         if creator == "" or creator == "default":
             return Response(
-                {"error": "This widget type cannot be published to the Community Library."},
+                {
+                    "error": "This widget type cannot be published to the Community Library."
+                },
                 status=400,
             )
 
@@ -702,9 +704,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                     course_level=course_level,
                 )
                 LibrarySnapshot.objects.create(
-                    entry=entry,
-                    name=instance.name,
-                    qset=latest_qset
+                    entry=entry, name=instance.name, qset=latest_qset
                 )
 
                 self._sync_entry_tags(entry, tags)
@@ -732,14 +732,26 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             )
 
         latest_qset = instance.get_latest_qset()
+        latest_snapshot = entry.snapshots.order_by("-created_at").first()
 
-        LibrarySnapshot.objects.create(
-            entry=entry,
-            name=instance.name,
-            qset=latest_qset,
-        )
+        if latest_snapshot.qset.id != latest_qset.id:
 
-        return Response({"success": True})
+            LibrarySnapshot.objects.create(
+                entry=entry,
+                name=instance.name,
+                qset=latest_qset,
+            )
+
+            return Response({"success": True})
+
+        else:
+            return Response(
+                {
+                    "success": False,
+                    "message": "There is already a snapshot for the latest qset",
+                },
+                status=403,
+            )
 
     @action(detail=True, methods=["put"])
     def unpublish_from_library(self, request, pk=None):
