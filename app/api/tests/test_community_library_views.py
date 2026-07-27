@@ -84,6 +84,7 @@ class CommunityLibraryViewSetTestCase(TestCase):
         cls.widget = Widget.objects.create(
             name="Test Widget",
             clean_name="test-widget",
+            creator="test_widget_creator.html",
             is_editable=True,
             is_playable=True,
             is_scorable=True,
@@ -92,6 +93,7 @@ class CommunityLibraryViewSetTestCase(TestCase):
         cls.another_widget = Widget.objects.create(
             name="Another Widget",
             clean_name="another-widget",
+            creator="test_widget_creator.html",
             is_editable=True,
             is_playable=True,
         )
@@ -113,6 +115,7 @@ class CommunityLibraryViewSetTestCase(TestCase):
             data="eyJ0ZXN0IjogImRhdGEifQ==",
             version="1",
         )
+        cls.shared_qset = cls.shared_instance.get_latest_qset()
 
         cls.library_entry = LibraryEntry.objects.create(
             instance=cls.shared_instance,
@@ -124,8 +127,7 @@ class CommunityLibraryViewSetTestCase(TestCase):
         cls.library_snapshot = LibrarySnapshot.objects.create(
             entry=cls.library_entry,
             name="Shared Instance",
-            qset_data="eyJ0ZXN0IjogImRhdGEifQ==",
-            qset_version="1",
+            qset=cls.shared_qset,
         )
 
         cls.shared_instance_2 = WidgetInstance.objects.create(
@@ -145,6 +147,7 @@ class CommunityLibraryViewSetTestCase(TestCase):
             data="eyJ0ZXN0IjogImRhdGEifQ==",
             version="1",
         )
+        cls.shared_qset_2 = cls.shared_instance_2.get_latest_qset()
 
         cls.library_entry_2 = LibraryEntry.objects.create(
             instance=cls.shared_instance_2,
@@ -156,8 +159,7 @@ class CommunityLibraryViewSetTestCase(TestCase):
         cls.library_snapshot_2 = LibrarySnapshot.objects.create(
             entry=cls.library_entry_2,
             name="Alpha Instance",
-            qset_data="eyJ0ZXN0IjogImRhdGEifQ==",
-            qset_version="1",
+            qset=cls.shared_qset_2,
         )
 
         for idx in range(3):
@@ -417,6 +419,175 @@ class TestCommunityLibraryList(CommunityLibraryViewSetTestCase):
         self.assertEqual(entry["instance_name"], "Current Shared Name")
         self.assertIsNone(entry["latest_snapshot_id"])
 
+    def test_moderation_list_requires_elevated_user(self):
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get("/api/community-library/", {"moderation": "true"})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_moderation_list_includes_moderation_fields_for_elevated_user(self):
+        LibraryReport.objects.create(
+            user=self.regular_user,
+            entry=self.library_entry,
+            reason="spam",
+        )
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.get("/api/community-library/", {"moderation": "true"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        entry = next(
+            r
+            for r in response.data["results"]
+            if r["instance_id"] == self.shared_instance.id
+        )
+        self.assertIn("report_count", entry)
+        self.assertIn("last_reported_at", entry)
+
+    def test_moderation_status_filter_banned(self):
+        self.library_entry.is_banned = True
+        self.library_entry.save(update_fields=["is_banned"])
+
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.get(
+            "/api/community-library/",
+            {"moderation": "true", "status": "banned"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        instance_ids = [r["instance_id"] for r in response.data["results"]]
+        self.assertIn(self.shared_instance.id, instance_ids)
+        self.assertNotIn(self.shared_instance_2.id, instance_ids)
+
+    def test_moderation_status_filter_reported(self):
+        LibraryReport.objects.create(
+            user=self.regular_user,
+            entry=self.library_entry,
+            reason="spam",
+        )
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.get(
+            "/api/community-library/",
+            {"moderation": "true", "status": "reported"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        instance_ids = [r["instance_id"] for r in response.data["results"]]
+        self.assertIn(self.shared_instance.id, instance_ids)
+        self.assertNotIn(self.shared_instance_2.id, instance_ids)
+
+    def test_moderation_status_filter_unpublished(self):
+        self.library_entry_2.is_available = False
+        self.library_entry_2.save(update_fields=["is_available"])
+
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.get(
+            "/api/community-library/",
+            {"moderation": "true", "status": "unpublished"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        instance_ids = [r["instance_id"] for r in response.data["results"]]
+        self.assertIn(self.shared_instance_2.id, instance_ids)
+        self.assertNotIn(self.shared_instance.id, instance_ids)
+
+        self.library_entry_2.is_available = True
+        self.library_entry_2.save(update_fields=["is_available"])
+
+    def test_moderation_status_filter_featured(self):
+        self.library_entry.featured = True
+        self.library_entry.save(update_fields=["featured"])
+
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.get(
+            "/api/community-library/",
+            {"moderation": "true", "status": "featured"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        instance_ids = [r["instance_id"] for r in response.data["results"]]
+        self.assertIn(self.shared_instance.id, instance_ids)
+        self.assertNotIn(self.shared_instance_2.id, instance_ids)
+
+        self.library_entry.featured = False
+        self.library_entry.save(update_fields=["featured"])
+
+    def test_moderation_list_default_includes_report_counts(self):
+        extra_reporter = User.objects.create_user(
+            username="mod_reporter",
+            email="mod_reporter@example.com",
+            password="testpass123",
+        )
+        LibraryReport.objects.create(
+            user=self.regular_user,
+            entry=self.library_entry,
+            reason="spam",
+        )
+        LibraryReport.objects.create(
+            user=extra_reporter,
+            entry=self.library_entry,
+            reason="inappropriate",
+        )
+        LibraryReport.objects.create(
+            user=self.another_author,
+            entry=self.library_entry_2,
+            reason="spam",
+        )
+
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.get("/api/community-library/", {"moderation": "true"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result_ids = [r["instance_id"] for r in response.data["results"]]
+        self.assertIn(self.shared_instance.id, result_ids)
+        self.assertIn(self.shared_instance_2.id, result_ids)
+        for entry in response.data["results"]:
+            self.assertIn("report_count", entry)
+
+    def test_moderation_deleted_false_excludes_deleted_instances(self):
+        self.shared_instance_2.is_deleted = True
+        self.shared_instance_2.save(update_fields=["is_deleted"])
+
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.get(
+            "/api/community-library/",
+            {"moderation": "true", "deleted": "false"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        instance_ids = [r["instance_id"] for r in response.data["results"]]
+        self.assertNotIn(self.shared_instance_2.id, instance_ids)
+
+        self.shared_instance_2.is_deleted = False
+        self.shared_instance_2.save(update_fields=["is_deleted"])
+
+
+class TestCommunityLibraryDetail(CommunityLibraryViewSetTestCase):
+    """Tests for GET /api/community-library/{id}/"""
+
+    def test_detail_returns_200_for_visible_entry(self):
+        response = self.client.get(f"/api/community-library/{self.library_entry.id}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.library_entry.id)
+
+    def test_detail_banned_entry_returns_403_for_regular_user(self):
+        self.library_entry.is_banned = True
+        self.library_entry.save(update_fields=["is_banned"])
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(f"/api/community-library/{self.library_entry.id}/")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.library_entry.is_banned = False
+        self.library_entry.save(update_fields=["is_banned"])
+
+    def test_detail_banned_entry_returns_200_for_elevated_user(self):
+        self.library_entry.is_banned = True
+        self.library_entry.save(update_fields=["is_banned"])
+
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.get(f"/api/community-library/{self.library_entry.id}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.library_entry.id)
+
+        self.library_entry.is_banned = False
+        self.library_entry.save(update_fields=["is_banned"])
+
+    def test_detail_returns_404_for_missing_entry(self):
+        response = self.client.get("/api/community-library/999999/")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
 
 class TestCommunityLibraryCopy(CommunityLibraryViewSetTestCase):
     """Tests for POST /api/community-library/{id}/copy/"""
@@ -549,7 +720,57 @@ class TestCommunityLibraryLike(CommunityLibraryViewSetTestCase):
 
 
 class TestCommunityLibraryReport(CommunityLibraryViewSetTestCase):
-    """Tests for POST /api/community-library/{id}/reports/"""
+    """Tests for GET/POST /api/community-library/{id}/reports/"""
+
+    def test_reports_get_unauthenticated_returns_403(self):
+        response = self.client.get(
+            f"/api/community-library/{self.library_entry.id}/reports/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_reports_get_regular_user_returns_403(self):
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(
+            f"/api/community-library/{self.library_entry.id}/reports/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_reports_get_support_user_returns_reports(self):
+        LibraryReport.objects.create(
+            user=self.regular_user,
+            entry=self.library_entry,
+            reason="spam",
+            details="reported",
+        )
+
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.get(
+            f"/api/community-library/{self.library_entry.id}/reports/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["reason"], "spam")
+
+    def test_reports_get_superuser_returns_reports(self):
+        LibraryReport.objects.create(
+            user=self.regular_user,
+            entry=self.library_entry,
+            reason="inappropriate",
+            details="bad content",
+        )
+
+        self.client.force_authenticate(user=self.superuser)
+        response = self.client.get(
+            f"/api/community-library/{self.library_entry.id}/reports/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["reason"], "inappropriate")
+
+    def test_reports_get_returns_404_for_missing_entry(self):
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.get("/api/community-library/999999/reports/")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unauthenticated_returns_403(self):
         response = self.client.post(
@@ -777,8 +998,9 @@ class TestPublishToLibrary(CommunityLibraryViewSetTestCase):
         snapshot = entry.snapshots.first()
         source_qset = self.unshared_instance.get_latest_qset()
         self.assertIsNotNone(snapshot)
-        self.assertEqual(snapshot.qset_data, source_qset.data)
-        self.assertEqual(snapshot.qset_version, source_qset.version)
+        self.assertEqual(snapshot.qset_id, source_qset.id)
+        self.assertEqual(snapshot.qset.data, source_qset.data)
+        self.assertEqual(snapshot.qset.version, source_qset.version)
 
         entry.delete()
         self.unshared_instance.library_entry = None
@@ -961,6 +1183,11 @@ class TestUpdateInLibrary(CommunityLibraryViewSetTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_owner_can_update(self):
+        WidgetQset.objects.create(
+            instance=self.shared_instance,
+            data="eyJ0ZXN0IjogImRhdGEifQ==",
+            version="2",
+        )
         self.client.force_authenticate(user=self.author_user)
         response = self.client.put(
             f"/api/instances/{self.shared_instance.id}/update_in_library/"
@@ -975,6 +1202,11 @@ class TestUpdateInLibrary(CommunityLibraryViewSetTestCase):
         old_snapshot_count = self.library_entry.snapshots.count()
         self.shared_instance.name = "Updated Name"
         self.shared_instance.save(update_fields=["name"])
+        WidgetQset.objects.create(
+            instance=self.shared_instance,
+            data="eyJ1cGRhdGVkIjogInFzZXQifQ==",
+            version="2",
+        )
         self.client.force_authenticate(user=self.author_user)
         self.client.put(f"/api/instances/{self.shared_instance.id}/update_in_library/")
         self.library_entry.refresh_from_db()
@@ -1178,3 +1410,107 @@ class TestCommunityLibraryTags(CommunityLibraryViewSetTestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+
+class TestCommunityLibraryCategories(CommunityLibraryViewSetTestCase):
+    """Tests for GET/POST/PATCH/DELETE /api/community-library/categories/"""
+
+    def test_categories_get_returns_200(self):
+        response = self.client.get("/api/community-library/categories/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(any(c["slug"] == "other" for c in response.data))
+
+    def test_categories_write_requires_elevated_user(self):
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.post(
+            "/api/community-library/categories/?slug=new-cat",
+            {"label": "New Cat"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_categories_post_duplicate_slug_returns_409(self):
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.post(
+            "/api/community-library/categories/?slug=math",
+            {"label": "Math Duplicate"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+    def test_categories_post_creates_category(self):
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.post(
+            "/api/community-library/categories/?slug=language-arts",
+            {
+                "label": "Language Arts",
+                "banner_path": "/static/img/banners/banner_lang.svg",
+                "color": "#112233",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["slug"], "language-arts")
+        self.assertEqual(response.data["label"], "Language Arts")
+
+    def test_categories_patch_missing_slug_returns_400(self):
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.patch(
+            "/api/community-library/categories/?slug=does-not-exist",
+            {"label": "Nope"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_categories_patch_updates_existing_category(self):
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.patch(
+            "/api/community-library/categories/?slug=science",
+            {"label": "Sci", "color": "#abcdef"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        updated = LibraryCategory.objects.get(slug="science")
+        self.assertEqual(updated.label, "Sci")
+        self.assertEqual(updated.color, "#abcdef")
+
+    def test_categories_delete_missing_slug_returns_400(self):
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.delete(
+            "/api/community-library/categories/?slug=does-not-exist"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_categories_delete_other_returns_403(self):
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.delete("/api/community-library/categories/?slug=other")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_categories_delete_reassigns_entries_to_other(self):
+        category = LibraryCategory.objects.create(
+            slug="temp-delete",
+            label="Temp Delete",
+            banner_path="/static/img/banners/banner_math.svg",
+        )
+        temp_instance = WidgetInstance.objects.create(
+            id="catdel01",
+            widget=self.widget,
+            user=self.author_user,
+            name="Category Delete Instance",
+            is_draft=False,
+        )
+        temp_entry = LibraryEntry.objects.create(
+            instance=temp_instance,
+            category=category,
+            course_level="introductory",
+        )
+
+        self.client.force_authenticate(user=self.support_user)
+        response = self.client.delete(
+            "/api/community-library/categories/?slug=temp-delete"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        temp_entry.refresh_from_db()
+        self.assertEqual(temp_entry.category.slug, "other")
+        self.assertFalse(LibraryCategory.objects.filter(slug="temp-delete").exists())
