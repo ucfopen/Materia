@@ -15,7 +15,8 @@ import {
 	apiPatchLibraryCategory,
 	apiDeleteLibraryCategory,
 	apiPostLibraryCategory,
-	apiGetLibraryCategories
+	apiGetLibraryCategories,
+	apiGetUserLibraryEntries
 } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
@@ -48,6 +49,40 @@ export function useCommunityLibraryList(limit, search, widgetId, categories, cou
 					tags,
 					featuredOnly
 				}),
+			getNextPageParam: (lastPage) =>
+				lastPage.next != null ? lastPage.next.match(/page=([0-9]+)/)[1] : undefined,
+			refetchOnWindowFocus: false,
+		})
+
+	const entries = useMemo(() => formatData(data), [data])
+
+	return {
+		entries,
+		isFetching,
+		isFetchingNextPage,
+		hasNextPage,
+		fetchNextPage,
+	}
+}
+
+export function useUserPublishedEntriesList(userId) {
+	const formatData = (list) => {
+		if (list?.pages) {
+			return list.pages.flatMap((page) =>
+				page.results.map((entry) => ({
+					...entry,
+					img: iconUrl('/widget/', entry.widget?.dir, 275),
+				})),
+			)
+		}
+		return []
+	}
+
+	const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
+		useInfiniteQuery({
+			queryKey: ['community-library', 'user', userId],
+			queryFn: ({ pageParam = 1 }) =>
+				apiGetUserLibraryEntries({pageParam, userId}),
 			getNextPageParam: (lastPage) =>
 				lastPage.next != null ? lastPage.next.match(/page=([0-9]+)/)[1] : undefined,
 			refetchOnWindowFocus: false,

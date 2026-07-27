@@ -88,7 +88,7 @@ class LibraryEntry(models.Model):
     tags = models.ManyToManyField(Tag, through="TagEntry")
     instance = models.OneToOneField(
         WidgetInstance,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="published_entry",
     )
     category = models.ForeignKey(
@@ -98,6 +98,13 @@ class LibraryEntry(models.Model):
     )
     course_level = models.CharField(
         max_length=50, choices=COURSE_LEVEL_CHOICES, blank=True, default=""
+    )
+    published_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="published_entries",
+        blank=True,
+        null=True,
     )
     featured = models.BooleanField(default=False)
     is_banned = models.BooleanField(default=False)

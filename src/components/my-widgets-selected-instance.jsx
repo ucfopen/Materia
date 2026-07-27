@@ -404,7 +404,7 @@ const MyWidgetSelectedInstance = ({
 						<button
 							role='menuitem'
 							tabIndex="0"
-							disabled={inst.is_draft || inst.guest_access}
+							disabled={inst.is_draft || inst.guest_access || !isCustomizable || !state.perms.editable}
 							onClick={() => setShowPublishDialog(true)}>
 							Share to Library
 						</button>
@@ -422,7 +422,7 @@ const MyWidgetSelectedInstance = ({
 						<button
 							role='menuitem'
 							tabIndex="0"
-							disabled={inst.is_draft || inst.guest_access || !isCustomizable}
+							disabled={inst.is_draft || inst.guest_access || !isCustomizable || !state.perms.editable}
 							onClick={() => setShowPublishDialog(true)}>
 							Share to Library
 						</button>
@@ -503,6 +503,7 @@ const MyWidgetSelectedInstance = ({
 						<button
 							role='menuitem'
 							tabIndex="0"
+							disabled={!state.perms.editable}
 							onClick={() => {
 								apiUnpublishFromLibrary(inst.id).then(() => {
 									onEdit({...inst, is_available: false})
@@ -526,6 +527,7 @@ const MyWidgetSelectedInstance = ({
 							className='alt'
 							role='menuitem'
 							tabIndex="0"
+							disabled={!state.perms.editable}
 							onClick={() => {
 								updateInLibrary.mutate(inst.id, {
 									onSuccess: () => {
@@ -543,6 +545,7 @@ const MyWidgetSelectedInstance = ({
 						<button
 							role='menuitem'
 							tabIndex="0"
+							disabled={!state.perms.editable}
 							onClick={() => {
 								apiUnpublishFromLibrary(inst.id).then(() => {
 									onEdit({...inst, is_available: false})
@@ -690,11 +693,12 @@ const MyWidgetSelectedInstance = ({
 
 			{provisionalAccessRender}
 
-			<div className={`community-library-container closed ${(inst.is_draft || inst.guest_access || !isCustomizable) ? 'draft' : ''}`}>
+			<div className={`community-library-container closed ${(inst.is_draft || inst.guest_access || !isCustomizable || !state.perms.editable) ? 'draft' : ''}`}>
 				<h3>
 					{`${!isCustomizable ? `This widget type cannot be shared to the `
-						: inst.is_draft ? `Publish to share to the ` 
+						: !state.perms.editable ? `You need edit access to use the `
 						: inst.guest_access ? `Guest widgets cannot be shared to the ` 
+						: inst.is_draft ? `Publish to share to the ` 
 						: ``}Community Library`}
 				</h3>
 				<div className="cl-options">
