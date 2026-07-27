@@ -332,9 +332,13 @@ const MyWidgetSelectedInstance = ({
 			<CommunityLibraryPublishDialog
 				inst={inst}
 				onClose={() => setShowPublishDialog(false)}
-				onSuccess={() => {
+				onSuccess={(entry) => {
 					setShowPublishDialog(false)
-					onEdit({...inst, is_available: true})
+					onEdit({...inst,
+						is_available: true,
+						shared_to_library: true,
+						library_entry: {...entry}
+					})
 				}}
 			/>
 		)
@@ -506,7 +510,12 @@ const MyWidgetSelectedInstance = ({
 							disabled={!state.perms.editable}
 							onClick={() => {
 								apiUnpublishFromLibrary(inst.id).then(() => {
-									onEdit({...inst, is_available: false})
+									onEdit({
+										...inst,
+										is_available: false,
+										library_entry: null,
+										shared_to_library: false
+									})
 								})
 							}}>
 							Remove from Library
@@ -548,7 +557,12 @@ const MyWidgetSelectedInstance = ({
 							disabled={!state.perms.editable}
 							onClick={() => {
 								apiUnpublishFromLibrary(inst.id).then(() => {
-									onEdit({...inst, is_available: false})
+									onEdit({
+										...inst,
+										is_available: false,
+										library_entry: null,
+										shared_to_library: false
+									})
 								})
 							}}>
 							Remove from Library

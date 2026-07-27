@@ -12,6 +12,7 @@ from api.permissions import (
     ReadOnlyIfAuthenticated,
 )
 from api.serializers import (
+    LibraryEntrySerializer,
     ObjectPermissionSerializer,
     PermsUpdateRequestListSerializer,
     PlayIdSerializer,
@@ -713,7 +714,10 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             instance.library_entry = existing_entry or entry
             instance.save(update_fields=["library_entry"])
 
-        return Response({"success": True})
+        serialized_entry = LibraryEntrySerializer(
+            instance.library_entry, context={"request": self.request}
+        ).data
+        return Response({"success": True, "entry": serialized_entry})
 
     @action(detail=True, methods=["put"])
     def update_in_library(self, request, pk=None):
