@@ -49,6 +49,7 @@ DEFAULT_LIBRARY_CATEGORY_COLORS = {
     "other": "#389ad6",
 }
 
+
 def seed_library_categories(apps, schema_editor):
     LibraryCategory = apps.get_model("community_library", "LibraryCategory")
 
@@ -60,9 +61,7 @@ def seed_library_categories(apps, schema_editor):
                 "banner_path": DEFAULT_LIBRARY_CATEGORY_BANNER_PATHS.get(
                     slug, "/static/img/banners/banner_math.svg"
                 ),
-                "color": DEFAULT_LIBRARY_CATEGORY_COLORS.get(
-                    slug, "#959595"
-                ),
+                "color": DEFAULT_LIBRARY_CATEGORY_COLORS.get(slug, "#959595"),
             },
         )
 
