@@ -26,40 +26,6 @@ class Tag(models.Model):
         super().save(*args, **kwargs)
 
 
-DEFAULT_LIBRARY_CATEGORIES = [
-    ("math", "Math"),
-    ("science", "Science"),
-    ("english", "English"),
-    ("history", "History"),
-    ("art", "Art"),
-    ("language", "World Languages"),
-    ("engineering", "Engineering"),
-    ("health", "Health Sciences"),
-    ("medicine", "Medicine"),
-    ("business", "Business"),
-    ("education", "Education"),
-    ("hospitality", "Hospitality"),
-    ("other", "Other"),
-]
-
-
-DEFAULT_LIBRARY_CATEGORY_BANNER_PATHS = {
-    "math": "/static/img/banners/banner_math.svg",
-    "science": "/static/img/banners/banner_science.svg",
-    "english": "/static/img/banners/banner_english.svg",
-    "history": "/static/img/banners/banner_history.svg",
-    "art": "/static/img/banners/banner_art.svg",
-    "language": "/static/img/banners/banner_world_language.svg",
-    "engineering": "/static/img/banners/banner_engineering.svg",
-    "health": "/static/img/banners/banner_health.svg",
-    "medicine": "/static/img/banners/banner_medicine.svg",
-    "business": "/static/img/banners/banner_business.svg",
-    "education": "/static/img/banners/banner_education.svg",
-    "hospitality": "/static/img/banners/banner_hospitality.svg",
-    "other": "/static/img/banners/banner_default.svg",
-}
-
-
 class LibraryCategory(models.Model):
     slug = models.CharField(max_length=50, unique=True)
     label = models.CharField(max_length=100)
