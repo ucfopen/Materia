@@ -1069,7 +1069,7 @@ class LibraryEntrySerializer(serializers.ModelSerializer):
             return None
 
         copy = WidgetInstance.objects.filter(
-            user=request.user, library_entry=entry
+            user=request.user, library_entry=entry, is_deleted=False
         ).first()
         if not copy:
             return None

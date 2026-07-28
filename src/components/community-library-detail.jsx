@@ -50,9 +50,11 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 	const handleCopy = useCallback(
 		(entryId) => {
 			copyMutation.mutate(entryId, {
-				onSuccess: () => {
+				onSuccess: (data) => {
 					setCopySuccess(true)
+					setTimeout(()=>setCopySuccess(false), 3000)
 					entry.copy_count++
+					entry.user_copy = data.id
 				},
 			})
 		},
@@ -191,29 +193,30 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 								entry && entry.user_copy ?
 								<a href={`/my-widgets/#${entry.user_copy}`}>
 									<button className='blue space row center' style={{gap:"8px"}} type='button'>
-										<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none" aria-label='External Link Icon'>
-											<path d={EXTERNAL_PATH} />
-										</svg>
-										Go to Your Copy	
+										{copySuccess ?
+										<>
+											<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+												<path d={CHECK_PATH} />
+											</svg>
+											Copied!
+										</>
+										:
+										<>
+											<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none" aria-label='External Link Icon'>
+												<path d={EXTERNAL_PATH} />
+											</svg>
+											Go to Your Copy	
+										</>
+										}
 									</button>
 								</a>
 								:
 								<button className='blue space row center' style={{gap:"8px"}} disabled={dontAllow} onClick={() => handleCopy(entry.id)}>
-									{copySuccess ? 
-									<>
-										<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-											<path d={CHECK_PATH} />
-										</svg>
-										Copied!
-									</> : 
-									<>
-										<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-											<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
-											<path d={COPY_PATH} />
-										</svg>
-										Copy to My Widgets
-									</>
-									}
+									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+										<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+										<path d={COPY_PATH} />
+									</svg>
+									Copy to My Widgets
 								</button>
 							}
 							<a target='_blank' className='no-under' href={`/preview/snapshot/${!entry ? 0 : entry.latest_snapshot_id}`}>
@@ -232,7 +235,7 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 					<div className='card side shadow alt-border'>
 						<div className='content'>
 							<div className='row'>
-								<button className='col' disabled={dontAllow} onClick={() => handleCopy(entry.id)}>
+								<button className='col copy-btn' disabled={dontAllow || !entry || entry.user_copy} onClick={() => handleCopy(entry.id)}>
 									<div className='big'>{!entry ? 0 : entry.copy_count}</div>
 									<div className='row center' style={{gap:"4px"}}>
 										<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

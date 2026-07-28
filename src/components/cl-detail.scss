@@ -196,6 +196,9 @@ section.page {
 
             &:disabled {
                 opacity: 0.35;
+                &.copy-btn {
+                    opacity: 1;
+                }
                 cursor: default;
 
                 &:hover {
