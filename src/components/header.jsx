@@ -33,7 +33,8 @@ const Header = ({
 		queryKey: ['site-messages', 'notification', 'alert'],
 		queryFn: () => apiGetSiteMessages(['SITE_NOTIFICATION', 'SITE_ALERT']),
 		staleTime: Infinity,
-		retry: false
+		retry: false,
+		refetchOnWindowFocus: false
 	})
 
 	useEffect(() => {
@@ -89,6 +90,9 @@ const Header = ({
 					</li>
 					<li>
 						<a className='elevated' href='/admin/site'>Site</a>
+					</li>
+					<li>
+						<a className='elevated' href='/admin/library'>Library</a>
 					</li>
 					<li>
 						<a className='elevated' href='/admin/' target="_blank">Django Admin</a>
@@ -220,6 +224,9 @@ const Header = ({
 				<ul>
 					<li>
 						<a href='/widgets/' >Widget Catalog</a>
+					</li>
+					<li>
+						<a href='/community-library'>Community Library</a>
 					</li>
 					<li>
 						<a href='/my-widgets/'>My Widgets</a>

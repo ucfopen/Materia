@@ -388,8 +388,10 @@ export const apiGetWidgetInstancePlayScores = (playId) => {
  * @param {string} previewInstId - The instance ID of the widget instance being previewed.
  * @returns {Promise<any>} - Parsed response data.
  */
-export const apiGetWidgetInstancePreviewScores = (playId, previewInstId) => {
-	return handleRequest(methods.GET, `/api/scores/details/?play_id=${playId}&preview_inst_id=${previewInstId}`)
+export const apiGetWidgetInstancePreviewScores = (playId, previewInstId, snapshotId, entryId) => {
+	let url = `/api/scores/details/?play_id=${playId}&preview_inst_id=${previewInstId}`
+	if (snapshotId && entryId) url += `&snapshot_id=${snapshotId}&entry_id=${entryId}`
+	return handleRequest(methods.GET, url)
 }
 
 /**
@@ -799,12 +801,141 @@ export const readFromStorage = () => {
 	}, [])
 }
 
-export const apiGetSiteImages = (type) => {
+export const apiGetCommunityLibrary = ({ pageParam = 1, limit = null, search = '', widgetId = '', categories = [], courseLevel = '', sort = 'newest', tags = [], featuredOnly = false }) => {
+	let url = `/api/community-library/?page=${pageParam}`
+	if (limit) url += `&limit=${limit}`
+	if (search) url += `&search=${encodeURIComponent(search)}`
+	if (featuredOnly) url += `&featured=true`
+	if (widgetId) url += `&widget_id=${widgetId}`
+	// if (category) url += `&category=${category}`
+	if (categories && categories.length > 0) {
+		categories.forEach((c)=>{
+			url += `&category=${c}`
+		})
+	}
+	if (courseLevel) url += `&course_level=${courseLevel}`
+	if (sort) url += `&sort=${sort}`
+	if (tags && tags.length > 0) {
+		tags.forEach((t)=>{
+			url += `&tags=${t}`
+		})
+	}
+	return handleRequest(methods.GET, url)
+}
 
+export const apiManageUserBan = (user) => {
+	return handleRequest(methods.POST, `/api/users/${user}/ban/`)
+}
+
+export const apiGetUserLibraryEntries = ({pageParam = 1, userId = null}) => {
+	const url = `/api/community-library/?page=${pageParam}&user=${userId}`
+
+	return handleRequest(methods.GET, url)
+}
+
+export const apiGetLibraryTags = ({count = -1, search = '', exclude = []}) => {
+	let url = `/api/community-library/tags/`
+	const params = new URLSearchParams()
+
+	if (count !== -1) params.append('count', count)
+	if (search) params.append('search', search)
+
+
+	if (exclude && exclude.length > 0) {
+		exclude.forEach((t)=>{
+			params.append('exclude', t)
+		})
+	}
+
+	const queryString = params.toString()
+	if (queryString) url += `?${queryString}`
+
+	return handleRequest(methods.GET, url)
+}
+
+export const apiDeleteLibraryTag = (name) => {
+	return handleRequest(methods.DELETE, `/api/community-library/tags/?name=${name}`)
+}
+
+export const apiRenameLibraryTag = (name, to) => {
+	return handleRequest(methods.PATCH, `/api/community-library/tags/?name=${name}&to=${to}`)
+}
+
+export const apiGetLibraryEntry = (entryId) => {
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/`)
+}
+
+export const apiCopyFromLibrary = (entryId) => {
+	return handleRequest(methods.POST, `/api/community-library/${entryId}/copy/`)
+}
+
+export const apiToggleLike = (entryId) => {
+	return handleRequest(methods.POST, `/api/community-library/${entryId}/like/`)
+}
+
+export const apiReportEntry = (entryId, data) => {
+	return handleRequest(methods.POST, `/api/community-library/${entryId}/reports/`, data)
+}
+
+export const apiGetEntryReports = (entryId) => {
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/reports/`)
+}
+
+export const apiPublishToLibrary = (instId, data) => {
+	return handleRequest(methods.PUT, `/api/instances/${instId}/publish_to_library/`, data)
+}
+
+export const apiUnpublishFromLibrary = (instId) => {
+	return handleRequest(methods.PUT, `/api/instances/${instId}/unpublish_from_library/`)
+}
+
+export const apiUpdateInLibrary = (instId) => {
+	return handleRequest(methods.PUT, `/api/instances/${instId}/update_in_library/`)
+}
+
+export const apiPullFromLibrary = (instId) => {
+	return handleRequest(methods.PUT, `/api/instances/${instId}/pull_from_library/`)
+}
+
+export const apiModerateEntry = (entryId, data) => {
+	return handleRequest(methods.PATCH, `/api/community-library/${entryId}/moderate/`, data)
+}
+
+export const apiGetLibraryModeration = (status = 'banned', showDeleted = 'false', search = '') => {
+	return handleRequest(methods.GET, `/api/community-library/?moderation=true&status=${status}&deleted=${showDeleted}&search=${search}`)
+}
+
+export const apiGetSnapshotInstance = (entryId, snapshotId) => {
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/snapshot_instance/${snapshotId}/`)
+}
+
+export const apiGetSnapshotQset = (entryId, snapshotId) => {
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/snapshot_qset/${snapshotId}/`)
+}
+
+export const apiGetLibraryCategories = () => {
+	return handleRequest(methods.GET, `/api/community-library/categories/`)
+}
+
+export const apiPostLibraryCategory = (slug, changes) => {
+	return handleRequest(methods.POST, `/api/community-library/categories/?slug=${slug}`, changes)
+}
+
+export const apiPatchLibraryCategory = (slug, changes) => {
+	return handleRequest(methods.PATCH, `/api/community-library/categories/?slug=${slug}`, changes)
+}
+
+export const apiDeleteLibraryCategory = (slug, changes) => {
+	return handleRequest(methods.DELETE, `/api/community-library/categories/?slug=${slug}`)
+}
+
+export const apiGetSiteImages = (type) => {
 	switch (type) {
 		case 'profile':
 			type = 'PROFILE_IMAGE'
 			break
+		case 'catalog':
+			type = 'CATALOG_BANNER'
 		default:
 			break
 	}

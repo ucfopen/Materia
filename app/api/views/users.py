@@ -78,6 +78,8 @@ class UserViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         elif self.action == "me":
             permission_classes = [IsAuthenticated]
+        elif self.action == "ban":
+            permission_classes = [IsSuperOrSupportUser]
         else:  # do not allow remaining actions (create, delete) under any circumstance
             permission_classes = [DenyAll]
 
@@ -240,6 +242,16 @@ class UserViewSet(viewsets.ModelViewSet):
 
             else:
                 return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=["post"])
+    def ban(self, request, pk):
+        user = self.get_object()
+        settings, _ = UserSettings.objects.get_or_create(user=user)
+
+        settings.library_banned = not settings.library_banned
+        settings.save()
+
+        return Response({"success": True, "banned": settings.library_banned})
 
 
 # API stuff below this line is not yet converted to DRF #

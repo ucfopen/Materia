@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef} from 'react'
 import { useQuery } from 'react-query'
-import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetWidgetInstancePlayScores, apiGetWidgetInstancePreviewScores } from '../util/api'
+import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetWidgetInstancePlayScores, apiGetWidgetInstancePreviewScores, apiGetSnapshotInstance } from '../util/api'
 
 import LoadingIcon from './loading-icon'
 import ScoreOverview from './score-overview'
@@ -49,13 +49,16 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 
 	const scoreWidgetRef = useRef(null)
 
+	const snapshotParam = new URLSearchParams(window.location.search).get('snapshot')
+	const entryParam = new URLSearchParams(window.location.search).get('entry')
+
 	/*
 	Grab instance information: required for all score screen types
 	*/
 	const { isLoading: instanceIsLoading, data: instance} = useQuery({
-		queryKey: ['widget-inst', instID],
-		queryFn: () => apiGetWidgetInstance(instID),
-		enabled: !!instID,
+		queryKey: snapshotParam ? ['snapshot-inst', entryParam, snapshotParam] : ['widget-inst', instID],
+		queryFn: () => snapshotParam ? apiGetSnapshotInstance(entryParam, snapshotParam) : apiGetWidgetInstance(instID),
+		enabled: snapshotParam ? (!!entryParam && !!snapshotParam) : !!instID,
 		staleTime: Infinity,
 	})
 
@@ -81,7 +84,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	const { data: playScores, error: playScoresError } = useQuery({
 		queryKey: ['play-scores', playID],
 		queryFn: () => {
-			if (isPreview) return apiGetWidgetInstancePreviewScores(playID, instID)
+			if (isPreview) return apiGetWidgetInstancePreviewScores(playID, instID, snapshotParam, entryParam)
 			else return apiGetWidgetInstancePlayScores(playID)
 		},
 		staleTime: Infinity,
@@ -105,6 +108,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 				return instance.play_url
 			})()
 			if (token) path = `${path}?token=${token}`
+			if (snapshotParam) path = `/preview/snapshot/${snapshotParam}/`
 
 			const score_screen = instance.widget.score_screen
 			let enginePath

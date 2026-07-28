@@ -15,7 +15,8 @@ const SiteAdminPage = () => {
 		imageUploadNotice: '',
 		isUploadingImage: false,
 		imageUploadError: false,
-		profileImages: []
+		profileImages: [],
+		catalogImages: []
 	})
 
 	const [messageState, setMessageState] = useState({
@@ -35,6 +36,10 @@ const SiteAdminPage = () => {
 			apiUploadSiteImage(imgType, file)
 			.then(res => {
 				refetchProfileImages()
+				refetchCatalogImages()
+				// setState((state) => ({
+				// 	...state,
+				// }))
 				setImageState((imageState) => ({
 					...imageState,
 					imageUploadNotice: 'Image uploaded successfully.'
@@ -76,6 +81,7 @@ const SiteAdminPage = () => {
 		apiDeleteSiteImage(id).then(res => {
 			console.log('delete image request response!', res)
 			refetchProfileImages()
+			refetchCatalogImages()
 		})
 	}
 
@@ -101,6 +107,13 @@ const SiteAdminPage = () => {
 		queryKey: ['site-messages', 'all'],
 		queryFn: () => apiGetSiteMessages([], true),
 		enabled: pageState.mode == 'message',
+		staleTime: Infinity,
+		retry: false
+	})
+
+	const {data: catalogImages, refetch: refetchCatalogImages } = useQuery({
+		queryKey: ['catalog-images'],
+		queryFn: () => apiGetSiteImages('catalog'),
 		staleTime: Infinity,
 		retry: false
 	})
@@ -135,6 +148,18 @@ const SiteAdminPage = () => {
 	},[profileImages])
 
 	useEffect(() => {
+		console.log(catalogImages)
+		if (catalogImages != undefined) {
+			setImageState((imageState) => ({
+				...imageState,
+				isUploadingImage: false,
+				imageUploadError: false,
+				catalogImages: catalogImages,
+			}))
+		}
+	},[catalogImages])
+
+	useEffect(() => {
 		if (siteMessages != undefined) {
 			setMessageState((messageState) => ({
 				...messageState,
@@ -149,6 +174,7 @@ const SiteAdminPage = () => {
 	if (pageState.mode == 'image') {
 
 		let profileGalleryRender = null
+		let catalogImageRender = null
 		if ( !!imageState.profileImages) {
 			const profileImageList = imageState.profileImages.map((img, index) => {
 				return (
@@ -166,6 +192,26 @@ const SiteAdminPage = () => {
 			profileGalleryRender = (
 				<ul className='profile-images'>
 					{profileImageList}
+				</ul>
+			)
+		}
+		if(!!imageState.catalogImages) {
+			const catalogImageList = imageState.catalogImages.map((img, index) => {
+				return (
+					<li className="profile-image" key={index}>
+						<img src={img.image_path} alt="" />
+						<button 
+							className="action_button remove_profile_img"
+							data-ormid={img.id}
+							onClick={handleImageRemoveRequest}>
+								Remove
+							</button>
+					</li>
+				)
+			})
+			catalogImageRender = (
+				<ul className='profile-images'>
+					{catalogImageList}
 				</ul>
 			)
 		}
@@ -201,6 +247,7 @@ const SiteAdminPage = () => {
 					</section>
 					<section className="management-subsection">
 						<h3>Catalog Banner</h3>
+						{catalogImageRender}
 					</section>
 					<section className="management-subsection">
 						<h3>Profile Images</h3>
@@ -294,6 +341,28 @@ const SiteAdminPage = () => {
 					</section>
 				</section>
 			</>
+		)
+	}
+
+	let catalogGalleryRender = null
+	if ( !!imageState.catalogImages) {
+		const catalogImageList = imageState.catalogImages.map((img, index) => {
+			return (
+				<li className="profile-image" key={index}>
+					<img src={img.image_path} alt="" />
+					<button 
+						className="action_button remove_profile_img"
+						data-ormid={img.id}
+						onClick={handleImageRemoveRequest}>
+							Remove
+						</button>
+				</li>
+			)
+		})
+		catalogGalleryRender = (
+			<ul>
+				{catalogImageList}
+			</ul>
 		)
 	}
 
