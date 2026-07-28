@@ -85,7 +85,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         seen = set()
 
         for tag_name in tag_names:
-            cleaned = " ".join((tag_name or "").strip().split())
+            cleaned = " ".join((tag_name or "").strip().replace("#","").split())
             canonical = Tag.normalize_name(cleaned)
             if not canonical or canonical in seen:
                 continue

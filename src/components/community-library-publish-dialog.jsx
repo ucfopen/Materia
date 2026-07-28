@@ -52,7 +52,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 	}
 
 	const enterTag = (tag) => {
-		tag = tag.toLowerCase().trim().replaceAll(" ", "-")
+		tag = tag.toLowerCase().trim().replaceAll(" ", "-").replaceAll("#", "")
 		if(!tagList.includes(tag)) setTagList([...tagList, tag])
 		setNewTag("")
 		setFocusedTag(-1)
