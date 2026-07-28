@@ -38,18 +38,16 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 			{
 				instId: inst.id,
 				data: { category, course_level: courseLevel, tags: tagList },
-			},
-			{
-				onSuccess: () => {
-					if (onSuccess) onSuccess()
+				successFunc: entry => {
+					onSuccess(entry)
 				},
-				onError: (err) => {
+				errorFunc: (err) => {
 					if(err?.data?.title === "Unknown Error")
 						setErrorText("Tag names can be no longer than 50 characters.")
 					else
 						setErrorText(err?.data?.error || 'Failed to publish. Please try again.')
-				},
-			},
+				}
+			}
 		)
 	}
 

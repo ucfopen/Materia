@@ -119,8 +119,8 @@ const LibraryAdminPage = () => {
 				<div className="tag-grid">
 				{tags ? 
 				tags.length == 0 ? <div>No tags found.</div>
-				: tags.map((v)=>(
-					<div className={`tag-item ${renamingTag == v.name ? "renaming":""}`}>
+				: tags.map((v, i)=>(
+					<div className={`tag-item ${renamingTag == v.name ? "renaming":""}`} key={i}>
 						<div className="row">
 							<div className="tag-name">
 								#{renamingTag != v.name ? v.name : 
@@ -272,8 +272,8 @@ const LibraryAdminPage = () => {
 					categoryLoading ? 
 						<div>Loading...</div>
 						:
-					categories && categories.map((v) => (
-						<CategoryAdminCard category={v} handleUpdate={handleCategoryUpdate} handleDelete={handleCategoryDelete}/>
+					categories && categories.map((v, i) => (
+						<CategoryAdminCard category={v} handleUpdate={handleCategoryUpdate} handleDelete={handleCategoryDelete} key={i}/>
 					))
 				}
 				</div>

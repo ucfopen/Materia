@@ -12,6 +12,7 @@ from api.permissions import (
     ReadOnlyIfAuthenticated,
 )
 from api.serializers import (
+    LibraryEntrySerializer,
     ObjectPermissionSerializer,
     PermsUpdateRequestListSerializer,
     PlayIdSerializer,
@@ -652,11 +653,13 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 {"error": "You are not allowed to publish to the Community Library."},
                 status=403,
             )
-        
+
         creator = instance.widget.creator
         if creator == "" or creator == "default":
             return Response(
-                {"error": "This widget type cannot be published to the Community Library."},
+                {
+                    "error": "This widget type cannot be published to the Community Library."
+                },
                 status=400,
             )
 
@@ -703,9 +706,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                     published_by=self.request.user,
                 )
                 LibrarySnapshot.objects.create(
-                    entry=entry,
-                    name=instance.name,
-                    qset=latest_qset
+                    entry=entry, name=instance.name, qset=latest_qset
                 )
 
                 self._sync_entry_tags(entry, tags)
@@ -713,7 +714,10 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             instance.library_entry = existing_entry or entry
             instance.save(update_fields=["library_entry"])
 
-        return Response({"success": True})
+        serialized_entry = LibraryEntrySerializer(
+            instance.library_entry, context={"request": self.request}
+        ).data
+        return Response({"success": True, "entry": serialized_entry})
 
     @action(detail=True, methods=["put"])
     def update_in_library(self, request, pk=None):
@@ -733,14 +737,26 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             )
 
         latest_qset = instance.get_latest_qset()
+        latest_snapshot = entry.snapshots.order_by("-created_at").first()
 
-        LibrarySnapshot.objects.create(
-            entry=entry,
-            name=instance.name,
-            qset=latest_qset,
-        )
+        if latest_snapshot.qset.id != latest_qset.id:
 
-        return Response({"success": True})
+            LibrarySnapshot.objects.create(
+                entry=entry,
+                name=instance.name,
+                qset=latest_qset,
+            )
+
+            return Response({"success": True})
+
+        else:
+            return Response(
+                {
+                    "success": False,
+                    "message": "There is already a snapshot for the latest qset",
+                },
+                status=403,
+            )
 
     @action(detail=True, methods=["put"])
     def unpublish_from_library(self, request, pk=None):

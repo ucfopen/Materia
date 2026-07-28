@@ -226,10 +226,10 @@ const Header = ({
 						<a href='/widgets/' >Widget Catalog</a>
 					</li>
 					<li>
-						<a href='/my-widgets/'>My Widgets</a>
+						<a href='/community-library'>Community Library</a>
 					</li>
 					<li>
-						<a href='/community-library'>Community Library</a>
+						<a href='/my-widgets/'>My Widgets</a>
 					</li>
 					{ profileNavRender }
 					<li>

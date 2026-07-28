@@ -198,9 +198,13 @@ export function useReportEntry() {
 export function usePublishToLibrary() {
 	const queryClient = useQueryClient()
 	return useMutation(({ instId, data }) => apiPublishToLibrary(instId, data), {
-		onSuccess: () => {
+		onSuccess: (data, variables) => {
 			queryClient.invalidateQueries(['community-library'])
+			variables.successFunc(data.entry)
 		},
+		onError: (err, variables, context) => {
+			variables.errorFunc(err)
+		}
 	})
 }
 

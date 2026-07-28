@@ -45,18 +45,18 @@ DEFAULT_LIBRARY_CATEGORIES = [
 
 DEFAULT_LIBRARY_CATEGORY_BANNER_PATHS = {
     "math": "/static/img/banners/banner_math.svg",
-    "science": "/static/img/banners/banner_math.svg",
-    "english": "/static/img/banners/banner_math.svg",
-    "history": "/static/img/banners/banner_math.svg",
-    "art": "/static/img/banners/banner_math.svg",
-    "language": "/static/img/banners/banner_math.svg",
-    "engineering": "/static/img/banners/banner_math.svg",
-    "health": "/static/img/banners/banner_math.svg",
-    "medicine": "/static/img/banners/banner_math.svg",
-    "business": "/static/img/banners/banner_math.svg",
-    "education": "/static/img/banners/banner_math.svg",
-    "hospitality": "/static/img/banners/banner_math.svg",
-    "other": "/static/img/banners/banner_math.svg",
+    "science": "/static/img/banners/banner_science.svg",
+    "english": "/static/img/banners/banner_english.svg",
+    "history": "/static/img/banners/banner_history.svg",
+    "art": "/static/img/banners/banner_art.svg",
+    "language": "/static/img/banners/banner_world_language.svg",
+    "engineering": "/static/img/banners/banner_engineering.svg",
+    "health": "/static/img/banners/banner_health.svg",
+    "medicine": "/static/img/banners/banner_medicine.svg",
+    "business": "/static/img/banners/banner_business.svg",
+    "education": "/static/img/banners/banner_education.svg",
+    "hospitality": "/static/img/banners/banner_hospitality.svg",
+    "other": "/static/img/banners/banner_default.svg",
 }
 
 
@@ -178,7 +178,9 @@ class LibrarySnapshot(models.Model):
         related_name="snapshots",
     )
     name = models.CharField(max_length=100)
-    qset = models.ForeignKey(WidgetQset, on_delete=models.PROTECT, related_name="snapshots")
+    qset = models.ForeignKey(
+        WidgetQset, on_delete=models.PROTECT, related_name="snapshots"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
