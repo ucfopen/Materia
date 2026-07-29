@@ -66,6 +66,12 @@ RUN pip install --no-cache-dir --no-index --find-links=/wheels /wheels/* \
 # Create directory structure
 RUN mkdir -p /var/www/html
 
+# Create static site image directory
+RUN mkdir -p /var/www/html/staticfiles/site_img/
+
+# Create default profile images directory
+RUN mkdir -p /var/www/html/staticfiles/img/default/profile_images/
+
 # Copy wait script
 COPY docker/dockerfiles/wait_for_it.sh /wait_for_it.sh
 RUN chmod +x /wait_for_it.sh
@@ -75,6 +81,9 @@ COPY --chown=www-data:www-data ./app /var/www/html/
 
 # Copy built frontend assets from yarn stage
 COPY --from=yarn_stage --chown=www-data:www-data /build/public /var/www/html/public
+
+# Copy default profile images (note that these are shadowed by default development compose configs locally)
+COPY --chown=www-data:www-data ./public/img/default/profile_images/ /var/www/html/staticfiles/img/default/profile_images/
 
 # Set ownership
 RUN chown -R www-data:www-data /var/www
