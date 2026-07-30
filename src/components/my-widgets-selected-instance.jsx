@@ -707,29 +707,33 @@ const MyWidgetSelectedInstance = ({
 
 			{provisionalAccessRender}
 
-			<div className={`community-library-container closed ${(inst.is_draft || inst.guest_access || !isCustomizable || !state.perms.editable) ? 'draft' : ''}`}>
-				<h3>
-					{`${!isCustomizable ? `This widget type cannot be shared to the `
-						: !state.perms.editable ? `You need edit access to use the `
-						: inst.guest_access ? `Guest widgets cannot be shared to the ` 
-						: inst.is_draft ? `Publish to share to the ` 
-						: ``}Community Library`}
-				</h3>
-				<div className="cl-options">
-					{ communityLibraryContentRender }
+			{ !currentUser?.is_student &&
+				<div className={`community-library-container closed ${(inst.is_draft || inst.guest_access || !isCustomizable || !state.perms.editable) ? 'draft' : ''}`}>
+					<h3>
+						{`${!isCustomizable ? `This widget type cannot be shared to the `
+							: !state.perms.editable ? `You need edit access to use the `
+							: inst.guest_access ? `Guest widgets cannot be shared to the ` 
+							: inst.is_draft ? `Publish to share to the ` 
+							: ``}Community Library`}
+					</h3>
+					<div className="cl-options">
+						{ communityLibraryContentRender }
+					</div>
 				</div>
-			</div>
+			}
 
 			<div className={`share-widget-container closed ${inst.is_draft ? 'draft' : ''}`}>
 				<h3>
-					{inst.is_draft ? 'Publish to share' : 'Share'} with your students
+					{inst.is_draft ? 'Publish to Share' : 'Share'} Your Widget
 				</h3>
-				<div className="share-widget-options-first" id="first-share-widget-option">
-					<h4> Via LMS / LTI Setup </h4>
-					<p> Integrate your widget into your LMS. You can use External Tools in Canvas to embed directly into Webcourses, allowing for immediate authentication, automatic grade passback, and more. Learn more
-					<a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html"> here.</a>
-					</p>
-				</div>
+				{ !currentUser?.is_student && 
+					<div className="share-widget-options-first" id="first-share-widget-option">
+						<h4>Via LMS Integration</h4>
+						<p>Materia can integrate directly with your LMS. You can use External Tools in Canvas to embed widgets into your course, allowing for immediate authentication, automatic grade passback, 
+							and more. <a href="https://ucfopen.github.io/Materia-Docs/v11/users/embedding-in-canvas.html" target="_blank">Learn more about embedding widgets in Canvas</a>.
+						</p>
+					</div>
+				}
 				<div className="share-widget-options-second" id="third-share-widget-option">
 				<h4> Via Embed Code </h4>
 					<p>
