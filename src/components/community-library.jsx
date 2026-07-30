@@ -168,7 +168,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	const widgetTypeOptions = useMemo(() => {
 		if (!widgets.length) return []
 		return widgets.filter((w) => (
-			w.in_catalog && w.creator !== "" && w.creator.includes("default")
+			w.in_catalog && w.creator !== "" && !w.creator.includes("default")
 		)).sort((a, b) => a.name.localeCompare(b.name))
 	}, [widgets])
 
