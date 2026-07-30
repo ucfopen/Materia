@@ -475,6 +475,7 @@ class WidgetGuideView(TemplateView):
                 + widget.clean_name
                 + "/"
                 + guide,
+                "IS_EMBEDDED": False,
             },
             request=self.request,
         )

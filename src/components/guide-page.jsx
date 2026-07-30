@@ -10,16 +10,18 @@ const GuidePage = () => {
 	const [hasPlayerGuide, setHasPlayerGuide] = useState(null)
 	const [hasCreatorGuide, setHasCreatorGuide] = useState(null)
 	const [docPath, setDocPath] = useState(null)
+	const [isEmbedded, setIsEmbedded] = useState(false)
 
 	const iframeRef = useRef(null)
 
 	useEffect(() => {
-		waitForWindow(['NAME', 'TYPE', 'HAS_PLAYER_GUIDE', 'HAS_CREATOR_GUIDE', 'DOC_PATH']).then(() => {
+		waitForWindow(['IS_EMBEDDED', 'NAME', 'TYPE', 'HAS_PLAYER_GUIDE', 'HAS_CREATOR_GUIDE', 'DOC_PATH']).then(() => {
 			setName(window.NAME)
 			setType(window.TYPE)
 			setHasPlayerGuide(window.HAS_PLAYER_GUIDE)
 			setHasCreatorGuide(window.HAS_CREATOR_GUIDE)
 			setDocPath(window.DOC_PATH)
+			setIsEmbedded(window.IS_EMBEDDED)
 
 			if (document.body.classList.contains('darkMode') && iframeRef.current) {
 				iframeRef.current.addEventListener('load', () => {
@@ -29,7 +31,7 @@ const GuidePage = () => {
 		})
 	})
 
-	let headerRender = <Header />
+	let headerRender = isEmbedded ? null : <Header />
 
 	let bodyRender = null
 	if (!!name) {
