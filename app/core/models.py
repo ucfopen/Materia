@@ -707,7 +707,12 @@ class Notification(models.Model):
         )
 
         # Send email, if not sent already
-        self.send_email()
+        try:
+            self.send_email()
+        except Exception:
+            logger.error(
+                "Failed to send email for user %s:", self.to_id.id, exc_info=True
+            )
 
     @classmethod
     def create_instance_notification(
@@ -762,6 +767,8 @@ class Notification(models.Model):
                     f"The widget is currently being used within a course in your LMS."
                 )
                 action = "access_request"
+            case "restored":
+                content = f"{user_link} restored {widget_type} widget '{widget_name}'."
             case _:
                 return None
 
@@ -905,6 +912,29 @@ class SiteImage(models.Model):
     )
 
     image_path = models.CharField(max_length=255)
+
+
+class SiteMessage(models.Model):
+
+    class MessageType(models.TextChoices):
+        NO_TYPE = "NO_TYPE", gettext_lazy("No Type")
+        SITE_NOTIFICATION = "SITE_NOTIFICATION", gettext_lazy("Site Notification")
+        SITE_ALERT = "SITE_ALERT", gettext_lazy("Site Alert")
+        CATALOG_HEADER = "CATALOG_HEADER", gettext_lazy("Catalog Header")
+        CATALOG_TEXT = "CATALOG_TEXT", gettext_lazy("Catalog Text")
+
+    message_type = models.CharField(
+        max_length=26,
+        blank=True,
+        null=True,
+        choices=MessageType.choices,
+        default=MessageType.NO_TYPE,
+    )
+
+    message_text = models.TextField()
+
+    start_at = models.DateTimeField(default=None, null=True)
+    end_at = models.DateTimeField(default=None, null=True)
 
 
 class UserExtraAttempts(models.Model):
@@ -1090,11 +1120,40 @@ class WidgetInstance(models.Model):
         null=True,
         db_column="published_by",
     )
+    library_entry = models.ForeignKey(
+        "community_library.LibraryEntry",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="copied_instances",
+        db_column="library_entry",
+    )
+    library_snapshot = models.ForeignKey(
+        "community_library.LibrarySnapshot",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="instance",
+        db_column="library_snapshot",
+    )
+
     permissions = GenericRelation(ObjectPermission)
 
     @property
     def dir(self):
         return f"{self.id}-{self.clean_name}{os.sep}"
+
+    @property
+    def is_shared_to_library(self):
+        return (
+            self.library_entry is not None
+            and self.library_entry.is_available is True
+            and self.library_snapshot is None
+        )
+
+    @property
+    def is_copied_from_library(self):
+        return self.library_entry is not None and self.library_snapshot is not None
 
     def attempts_left_for_user(self, user: User, context: str = ""):
         from core.services.semester_service import SemesterService
@@ -1249,6 +1308,8 @@ class WidgetInstance(models.Model):
 
         # These fields should default to False for new instances (since the new instance won't have any play history)
         dupe.embedded_only = False
+        dupe.library_entry = None
+        dupe.library_snapshot = None
 
         # Manually update created_at
         dupe.created_at = timezone.now()
@@ -1539,6 +1600,7 @@ class UserSettings(models.Model):
         User, on_delete=models.CASCADE, related_name="profile_settings"
     )
     profile_fields = models.JSONField(default=dict)
+    library_banned = models.BooleanField(default=False)
 
     def set_profile_fields(self, key, value):
         self.profile_fields[key] = value

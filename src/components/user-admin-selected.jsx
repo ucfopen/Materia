@@ -2,15 +2,18 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import UserAdminInstanceAvailable from './user-admin-instance-available'
 import UserAdminInstancePlayed from './user-admin-instance-played'
+import UserAdminLibraryEntries from './user-admin-library-entries'
+import { useUserPublishedEntriesList } from './hooks/useCommunityLibrary'
 import useInstanceList from './hooks/useInstanceList'
 import useGetPlaySessions from './hooks/useGetPlaySessions'
 import UserAdminRoleManager from './user-admin-role-manager'
-import { apiUpdateUser } from '../util/api'
+import { apiUpdateUser, apiManageUserBan } from '../util/api'
 
 const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 	const queryClient = useQueryClient()
 	const [updatedUser, setUpdatedUser] = useState({...selectedUser})
 	const instancesOwned = useInstanceList(updatedUser.id)
+	const entriesOwned = useUserPublishedEntriesList(updatedUser.id)
 	const userLogs = useGetPlaySessions(updatedUser.id, false, true)
 	const [isSuper, setIsSuper] = useState(false)
 	const scrollAnchorRef = useRef(null)
@@ -41,6 +44,18 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 		setUpdatedUser({...updatedUser, [attr]: value})
 	}
 
+	const applyUserBan = () => {
+		try {
+			apiManageUserBan(updatedUser.id)
+			.then((res) => {
+				setSuccessText(res.banned ? 'User banned from Community Library.' : 'User unbanned from Community Library.')
+			})
+		}
+		catch {
+			setErrorText('User ban failed.')
+		}
+	}
+
 	const applyChanges = () => {
 		try {
 			apiUpdateUser({
@@ -49,6 +64,7 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 			})
 			.then((res) => {
 				setSuccessText('User updated.')
+
 			})
 		}
 		catch {
@@ -108,6 +124,20 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 		suRender = <UserAdminRoleManager selectedUser={selectedUser} roles={roles} />
 	}
 
+	let entriesRender = <span>Library Entries are loading...</span>
+	let userReportCount = 0
+
+	if (!entriesOwned.isFetching) {
+		if (!!entriesOwned && entriesOwned.entries.length > 0) {
+			entriesRender = entriesOwned.entries?.map((entry, index) => {
+				userReportCount += parseInt(entry.report_count)
+				return (<UserAdminLibraryEntries entry={entry} key={index} />)
+			})
+		} else {
+			entriesRender = <span>No published entries.</span>
+		}
+	}
+
 	return (
 		<section className='page inst-info'>
 			<div id='breadcrumb-container'>
@@ -162,6 +192,16 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 				<span>
 					<label>Theme: </label>{ updatedUser.profile_fields.theme }
 				</span>
+				<h3>Community Library</h3>
+				<span>
+					<label>Library Status: </label>
+					{ 
+					updatedUser.library_banned ? 'Banned' : (userReportCount > 0 ? `${userReportCount} Total Report(s) for Entries` : 'In Good Standing') 
+					}
+				</span>
+				<span>
+					<label>Ban Action: </label> <button className='action_button' onClick={applyUserBan}>{ updatedUser.library_banned ? 'Revoke Ban' : 'Ban User'}</button>
+				</span>
 			</div>
 			<div className='info-holder'>
 				{ suRender }
@@ -171,6 +211,14 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 					</div>
 					<ul>
 						{ instancesAvailable }
+					</ul>
+				</div>
+				<div className='entries admin-subsection'>
+					<div className='top'>
+						<h2>Published Community Library Entries:</h2>
+					</div>
+					<ul>
+						{ entriesRender || 'No published entries.' }
 					</ul>
 				</div>
 				<div className='instances admin-subsection'>

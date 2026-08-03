@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { apiGetUser, apiUserVerify } from '../util/api'
+import { apiGetUser, apiUserVerify, apiGetSiteMessages } from '../util/api'
 import Notifications from './notifications'
 
 const Header = ({
@@ -12,6 +12,9 @@ const Header = ({
 	const [user, setUser] = useState(null)
 	const [verified, setVerified] = useState(false)
 	const [permLevel, setPermLevel] = useState('anonymous')
+
+	const [headerNotification, setHeaderNotification] = useState(null)
+	const [headerAlert, setHeaderAlert] = useState(null)
 
 	const { data: userPerms } = useQuery({
 		queryKey: ['isLoggedIn'],
@@ -25,6 +28,23 @@ const Header = ({
 		staleTime: Infinity,
 		enabled: !!verified
 	})
+
+	const {data: siteMessages } = useQuery({
+		queryKey: ['site-messages', 'notification', 'alert'],
+		queryFn: () => apiGetSiteMessages(['SITE_NOTIFICATION', 'SITE_ALERT']),
+		staleTime: Infinity,
+		retry: false,
+		refetchOnWindowFocus: false
+	})
+
+	useEffect(() => {
+		if (siteMessages != undefined) {
+			siteMessages.forEach((msg) => {
+				if (msg.message_type == 'SITE_NOTIFICATION') setHeaderNotification(msg.message_text)
+				else if (msg.message_type == 'SITE_ALERT') setHeaderAlert(msg.message_text)
+			})
+		}
+	},[siteMessages])
 
 	useEffect(() => {
 		if (userData != undefined) {
@@ -56,7 +76,7 @@ const Header = ({
 	let elevatedPermsNavRender = null
 	if (permLevel == 'super_user') {
 		elevatedPermsNavRender = (
-			<li className='nav_expandable'>
+			<li className='nav_expandable admin'>
 				<span className='elevated admin'>Admin</span>
 				<ul>
 					<li>
@@ -72,6 +92,9 @@ const Header = ({
 						<a className='elevated' href='/admin/site'>Site</a>
 					</li>
 					<li>
+						<a className='elevated' href='/admin/library'>Library</a>
+					</li>
+					<li>
 						<a className='elevated' href='/admin/' target="_blank">Django Admin</a>
 					</li>
 				</ul>
@@ -80,7 +103,7 @@ const Header = ({
 	}
 	else if (permLevel == 'support_user') {
 		elevatedPermsNavRender = (
-			<li className='nav_expandable'>
+			<li className='nav_expandable support'>
 				<span className='elevated support'>Support</span>
 				<ul>
 					<li>
@@ -171,24 +194,39 @@ const Header = ({
 		)
 	}
 
+	let siteNotificationRender = null
+
+	if (headerNotification != null) {
+		siteNotificationRender = (
+			<section className='site-notification'>
+				<img className="warning-icon" src="/img/warning.svg" alt="" />
+				{headerNotification}
+			</section>
+		)
+	}
+
+	let siteAlertRender = null
+	if (headerAlert != null) {
+		siteAlertRender = (
+			<section className='site-alert'>
+				<img className="warning-icon" src="/img/warning.svg" alt="" />
+				{headerAlert}
+			</section>
+		)
+	}
+
 	return (
 		<header className={userData ? 'logged-in' : 'logged-out'} >
-			<h1 className='logo'><a href='/'>Materia</a></h1>
-			{ userRender }
-			<div className="mobile-notifications">
-				{ notificationRender }
-			</div>
-			<button id='mobile-menu-toggle'
-				aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-				className={menuOpen ? 'expanded' : ''}
-				onClick={toggleMobileNavMenu}>
-				<div/>
-			</button>
-
+			{siteAlertRender}
+			{siteNotificationRender}
+			<h1 className='logo'><a href='/' aria-label='Materia'></a></h1>
 			<nav>
 				<ul>
 					<li>
 						<a href='/widgets/' >Widget Catalog</a>
+					</li>
+					<li>
+						<a href='/community-library'>Community Library</a>
 					</li>
 					<li>
 						<a href='/my-widgets/'>My Widgets</a>
@@ -203,6 +241,16 @@ const Header = ({
 					{ logoutNavRender }
 				</ul>
 			</nav>
+			{ userRender }
+			<div className="mobile-notifications">
+				{ notificationRender }
+			</div>
+			<button id='mobile-menu-toggle'
+				aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+				className={menuOpen ? 'expanded' : ''}
+				onClick={toggleMobileNavMenu}>
+				<div/>
+			</button>
 
 		</header>
 	)

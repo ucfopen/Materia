@@ -270,6 +270,9 @@ const MyWidgetsPage = () => {
 			selectedInst: inst,
 			widgetHash: inst.id
 		})
+
+		// refresh to ensure community library information is populated correctly
+		instanceList.refresh()
 	}
 
 	const beards = useMemo(
