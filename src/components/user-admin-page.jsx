@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query'
-import { apiGetUser, apiGetUsers, apiGetUserRoles} from '../util/api'
+import { apiGetUser, apiGetUsers, apiGetUserRoles } from '../util/api'
 import React, { useState, useRef, useEffect } from 'react'
 import Header from './header'
 import UserAdminSearch from './user-admin-search'

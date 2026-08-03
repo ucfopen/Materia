@@ -82,6 +82,7 @@ class WidgetPlayValidationService:
     INVALID_DRAFT_NOT_PLAYABLE = "draft_not_playable"
     INVALID_RETIRED_WIDGET = "widget_retired"
     INVALID_NO_ATTEMPTS = "no_attempts"
+    INVALID_RECOVERY_TOKEN = "bad_recovery_token"
     VALID_WITH_PRE_EMBED = "pre_embed"
     VALID = "valid"
 
