@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef, useReducer, useMemo} from 'react'
 import { useQuery } from 'react-query'
 import { v4 as uuidv4 } from 'uuid';
-import { apiGetWidgetInstance, apiGetQuestionSet, apiSessionVerify } from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiSessionVerify, apiGetSnapshotInstance, apiGetSnapshotQset } from '../util/api'
 import { player } from './materia-constants'
 import Alert from './alert'
 import usePlayStorageDataSave from './hooks/usePlayStorageDataSave'
@@ -10,6 +10,7 @@ import LoadingIcon from './loading-icon'
 import './widget-player.scss'
 
 const HEARTBEAT_INTERVAL = 15000 // 15 seconds for each heartbeat
+const MIN_WIDGET_HEIGHT = 640
 
 const initLogs = () => ({ play: [], storage: [] })
 
@@ -83,9 +84,10 @@ const _translateForApiVersion = (instance, qset) => {
 }
 
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
+const isSnapshotPreview = window.location.pathname.includes('/preview/snapshot/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/') || window.location.href.includes('/lti/assignment')
 
-const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=true}) => {
+const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null, minHeight=0, minWidth=0,showFooter=true}) => {
 
 	const [alert, setAlert] = useState({
 		msg: '',
@@ -122,12 +124,15 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 	const scoreScreenUrlRef = useRef(null)
 	const darkModeRef = useRef(false)
 
+	const urlParams = new URLSearchParams(window.location.search)
+	const hasLti = urlParams.has('token')
+
 	/*********************** queries ***********************/
 
 	const { data: inst } = useQuery({
-		queryKey: ['widget-inst', instanceId],
-		queryFn: () => apiGetWidgetInstance(instanceId),
-		enabled: instanceId !== null,
+		queryKey: snapshotEntryId ? ['snapshot-inst', snapshotEntryId, snapshotId] : ['widget-inst', instanceId],
+		queryFn: () => snapshotEntryId ? apiGetSnapshotInstance(snapshotEntryId, snapshotId) : apiGetWidgetInstance(instanceId),
+		enabled: snapshotEntryId !== null || instanceId !== null,
 		staleTime: Infinity,
 		retry: false,
 		onError: (err) => {
@@ -151,8 +156,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 	})
 
 	const { data: qset } = useQuery({
-		queryKey: ['qset', instanceId],
-		queryFn: () => apiGetQuestionSet(instanceId, playId),
+		queryKey: snapshotEntryId ? ['snapshot-qset', snapshotEntryId, snapshotId] : ['qset', instanceId],
+		queryFn: () => snapshotEntryId ? apiGetSnapshotQset(snapshotEntryId, snapshotId) : apiGetQuestionSet(instanceId, playId),
 		staleTime: Infinity,
 		placeholderData: null,
 		retry: false,
@@ -246,7 +251,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 			const fullscreen = inst.widget.meta_data.features?.find((f) => f.toLowerCase() === 'fullscreen')
 			let enginePath
 
-			if (!isPreview && playId === null) {
+			if (!isPreview && !isSnapshotPreview && playId === null) {
 				_onLoadFail('Unable to start play session.')
 				return
 			}
@@ -368,7 +373,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 		}
 		else if( ! ['react-devtools-content-script', 'react-devtools-bridge', 'react-devtools-inject-backend'].includes(e.data.source)) {
 			throw new Error(
-				`Post message Origin does not match. Expected: ${expectedOrigin}, Actual: ${origin}`
+				`Post message Origin does not match. Expected: ${window.BASE_URL} || ${window.STATIC_CROSSDOMAIN}, Actual: ${origin}`
 			)
 		}
 	}
@@ -381,6 +386,12 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 			setStartTime(new Date().getTime())
 			_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
 			setPlayState('playing')
+
+			// if embedded in an LTI context, preemptively set the height of the player frame
+			if (hasLti) {
+				const initHeight = inst.widget.height != 0 ? inst.widget.height : MIN_WIDGET_HEIGHT
+				_setHeight(initHeight)
+			}
 		}
 	}
 
@@ -528,7 +539,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 
 	const _initScoreScreenUrl = () => {
 		let _scoreScreenURL = ''
-			if (isPreview) {
+			if (isSnapshotPreview) {
+				_scoreScreenURL = `${window.BASE_URL}scores/preview/${inst.id}/${previewPlayId}?snapshot=${snapshotId}&entry=${snapshotEntryId}`
+			} else if (isPreview) {
 				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}/${previewPlayId}`
 			} else if (isEmbedded) {
 				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}/${playId}`
@@ -536,7 +549,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}/${playId}`
 			}
 			// do we have an LTI token? Make sure it's appended to the score screen URL so we can play again with the same launch
-			if ( !!window.LTI_TOKEN) _scoreScreenURL += `?token=${window.LTI_TOKEN}`
+			if ( !!window.LTI_TOKEN) _scoreScreenURL += `${_scoreScreenURL.includes('?') ? '&' : '?'}token=${window.LTI_TOKEN}`
 		return _scoreScreenURL
 	}
 
@@ -544,6 +557,17 @@ const WidgetPlayer = ({instanceId, playId, minHeight=0, minWidth=0,showFooter=tr
 		const min_h = inst.widget.height
 		let desiredHeight = Math.max(h, min_h)
 		setAttributes((oldData) => ({...oldData, height: `${desiredHeight}px`}))
+
+		// The presence of the token param indicates an LTI play. Send the frameResize postMessage to the parent frame (the LMS)
+		if (hasLti) {
+			window.parent.postMessage(
+			{
+				subject: 'lti.frameResize',
+    			height: desiredHeight + 60, // add 60 to desiredHeight for footer
+			},
+			'*'
+			)
+		}
 	}
 
 	const _setVerticalScroll = location => {
