@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { apiGetUsers, apiGetUserPermsForInstance, apiModerateEntry, apiGetEntryReports } from '../util/api'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { iconUrl } from '../util/icon-url'
 import rawPermsToObj from '../util/raw-perms-to-object'
 import useDeleteWidget from './hooks/useSupportDeleteWidget'
@@ -73,23 +73,24 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 		refetchOnWindowFocus: false
 	})
 
-	const { data: perms, isFetching: loadingPerms} = useQuery({
+	const { data: perms, isFetching: loadingPerms, error: permsError} = useQuery({
 		queryKey: ['user-perms', inst.id],
 		queryFn: () => apiGetUserPermsForInstance(inst.id),
 		enabled: !!inst && inst.id !== undefined,
 		placeholderData: null,
 		staleTime: Infinity,
 		retry: false,
-		onError: (err) => {
-			setAlertDialog({
-				enabled: true,
-				message: err.cause,
-				title: err.message,
-				fatal: err.halt,
-				enableLoginButton: false
-			})
-		}
 	})
+
+	useEffect(() => {
+		if (permsError) setAlertDialog({
+			enabled: true,
+			message: permsError.cause,
+			title: permsError.message,
+			fatal: permsError.halt,
+			enableLoginButton: false
+		})
+	}, [permsError])
 
 	// hook associated with the invalidLogin error
 	useEffect(() => {

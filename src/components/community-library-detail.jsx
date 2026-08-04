@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiUserVerify } from '../util/api'
 import './cl-detail.scss'
 import CommunityLibraryReportDialog from './community-library-report-dialog'
@@ -62,7 +62,7 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 	)
 
 	const { data: userPerms } = useQuery({
-		queryKey: 'isLoggedIn',
+		queryKey: ['isLoggedIn'],
 		queryFn: apiUserVerify,
 		staleTime: Infinity,
 		retry: false

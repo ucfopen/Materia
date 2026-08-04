@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useRef, useReducer, useMemo} from 'react'
-import { useQuery } from 'react-query'
+import React, { useState, useEffect, useRef, useReducer, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { v4 as uuidv4 } from 'uuid';
 import { apiGetWidgetInstance, apiGetQuestionSet, apiSessionVerify, apiGetSnapshotInstance, apiGetSnapshotQset } from '../util/api'
 import { player } from './materia-constants'
@@ -29,7 +29,7 @@ const logReducer = (state, action) => {
 			return {...state, storage: [...state.storage].filter((storage) => !action.payload.ids.includes(storage.queueId))}
 
 		default:
-			throw new Error(`Unrecognized action: ${action.type}`);
+			throw new Error(`Unrecognized action: ${action.type}`)
 	}
 }
 
@@ -129,82 +129,74 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 
 	/*********************** queries ***********************/
 
-	const { data: inst } = useQuery({
+	const { data: inst, error: instError } = useQuery({
 		queryKey: snapshotEntryId ? ['snapshot-inst', snapshotEntryId, snapshotId] : ['widget-inst', instanceId],
 		queryFn: () => snapshotEntryId ? apiGetSnapshotInstance(snapshotEntryId, snapshotId) : apiGetWidgetInstance(instanceId),
 		enabled: snapshotEntryId !== null || instanceId !== null,
 		staleTime: Infinity,
 		retry: false,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setAlert({
-					msg: "You are no longer logged in.",
-					title: 'Invalid Play Session',
-					fatal: true,
-					showLoginButton: true
-				})
-			} else if (err.message == "Permission Denied") {
-				setAlert({
-					msg: "You do not have permission to view this widget.",
-					title: 'Failure',
-					fatal: err.halt,
-					showLoginButton: false
-				})
-			}
-			else _onLoadFail("There was a problem loading the widget instance.")
-		}
 	})
 
-	const { data: qset } = useQuery({
+	const { data: qset, error: qsetError } = useQuery({
 		queryKey: snapshotEntryId ? ['snapshot-qset', snapshotEntryId, snapshotId] : ['qset', instanceId],
 		queryFn: () => snapshotEntryId ? apiGetSnapshotQset(snapshotEntryId, snapshotId) : apiGetQuestionSet(instanceId, playId),
 		staleTime: Infinity,
 		placeholderData: null,
 		retry: false,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setAlert({
-					msg: "You are no longer logged in.",
-					title: 'Invalid Play Session',
-					fatal: true,
-					showLoginButton: true
-				})
-			} else if (err.message == "Permission Denied") {
-				setAlert({
-					msg: "You do not have permission to view this widget.",
-					title: 'Failure',
-					fatal: err.halt,
-					showLoginButton: false
-				})
-			}
-			else _onLoadFail("There was a problem loading the widget's question set.")
-		}
 	})
 
-	const { data: heartbeat } = useQuery({
+	const { data: heartbeat, error: heartbeatError } = useQuery({
 		queryKey: ['heartbeat', playId],
 		queryFn: () => apiSessionVerify(playId),
 		staleTime: Infinity,
 		refetchInterval: HEARTBEAT_INTERVAL,
 		enabled: !!playId && heartbeatActive,
-		retry: 1,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
-				setAlert({
-					msg: "You are no longer logged in.",
-					title: 'Invalid Play Session',
-					fatal: true,
-					showLoginButton: true
-				})
-			}
-			else _onLoadFail("Your play session is no longer valid.  You'll need to reload the page and start over.")
-		},
-		onSuccess: (data) => {
-			if (!data) {
-				_onLoadFail("Your play session is no longer valid.  You'll need to reload the page and start over.")
-			}
-		}
+		retry: 1
 	})
+
+	useEffect(() => {
+		if (heartbeat === false) {
+			_onLoadFail("Your play session is no longer valid.  You'll need to reload the page and start over.")
+		}
+	}, [heartbeat])
+
+	useEffect(() => {
+		[instError, heartbeatError, qsetError].some(someErr => {
+			if (!someErr) return false
+			switch (someErr.status) {
+				case 401: {
+					setAlert({
+						msg: "You are no longer logged in.",
+						title: 'Invalid Play Session',
+						fatal: true,
+						showLoginButton: true
+					})
+					break
+				}
+				case 403: {
+					setAlert({
+						msg: "You do not have permission to view this widget.",
+						title: 'Failure',
+						fatal: someErr.halt,
+						showLoginButton: false
+					})
+					break
+				}
+				default: {
+					if (someErr == qsetError)
+						_onLoadFail("There was a problem loading the widget's question set.")
+					else if (someErr == instError)
+						_onLoadFail("There was a problem loading the widget instance.")
+					else if (someErr == heartbeatError)
+						_onLoadFail("Your play session is no longer valid. You'll need to reload the page and start over.")
+					else
+						_onLoadFail("An unknown error has occurred.")
+					break
+				}
+			}
+			return true
+		})
+	}, [instError, heartbeatError, qsetError])
 
 	/*********************** listeners ***********************/
 	/* note: the values being tracked by these hooks is so the state values referenced in the callbacks is up-to-date */
@@ -371,7 +363,7 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 					throw new Error(`Unknown PostMessage received from player core: ${msg.type}`)
 			}
 		}
-		else if( ! ['react-devtools-content-script', 'react-devtools-bridge', 'react-devtools-inject-backend'].includes(e.data.source)) {
+		else if ( ! ['react-devtools-content-script', 'react-devtools-bridge', 'react-devtools-inject-backend'].includes(e.data.source)) {
 			throw new Error(
 				`Post message Origin does not match. Expected: ${window.BASE_URL} || ${window.STATIC_CROSSDOMAIN}, Actual: ${origin}`
 			)
@@ -384,7 +376,7 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 		} else {
 			const convertedInstance = _translateForApiVersion(inst, qset)
 			setStartTime(new Date().getTime())
-			_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
+			_sendToWidget('initWidget', [qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
 			setPlayState('playing')
 
 			// if embedded in an LTI context, preemptively set the height of the player frame
@@ -426,7 +418,7 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 		const d = new Date().getTime()
 		log['game_time'] = (d - startTime) / 1000 // log time in seconds
 		log['queueId'] = uuidv4() // this isn't actually used by the server, instead it's a way to identify which logs have been processed. Using a uuid to prevent collisions
-		dispatchPendingLogs({type: 'addPlay', payload: {log: log}})
+		dispatchPendingLogs({ type: 'addPlay', payload: {log: log} })
 	}
 
 	const _pushPendingLogs = logQueue => {
@@ -532,24 +524,24 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 	}
 
 	const _sendStorage = msg => {
-		dispatchPendingLogs({type: 'addStorage', payload: {log: {...msg, queueId: uuidv4()}}})
+		dispatchPendingLogs({type: 'addStorage', payload: { log: { ...msg, queueId: uuidv4() }}})
 	}
 
 	/*********************** helper methods ***********************/
 
 	const _initScoreScreenUrl = () => {
 		let _scoreScreenURL = ''
-			if (isSnapshotPreview) {
-				_scoreScreenURL = `${window.BASE_URL}scores/preview/${inst.id}/${previewPlayId}?snapshot=${snapshotId}&entry=${snapshotEntryId}`
-			} else if (isPreview) {
-				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}/${previewPlayId}`
-			} else if (isEmbedded) {
-				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}/${playId}`
-			} else {
-				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}/${playId}`
-			}
-			// do we have an LTI token? Make sure it's appended to the score screen URL so we can play again with the same launch
-			if ( !!window.LTI_TOKEN) _scoreScreenURL += `${_scoreScreenURL.includes('?') ? '&' : '?'}token=${window.LTI_TOKEN}`
+		if (isSnapshotPreview) {
+			_scoreScreenURL = `${window.BASE_URL}scores/preview/${inst.id}/${previewPlayId}?snapshot=${snapshotId}&entry=${snapshotEntryId}`
+		} else if (isPreview) {
+			_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}/${previewPlayId}`
+		} else if (isEmbedded) {
+			_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}/${playId}`
+		} else {
+			_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}/${playId}`
+		}
+		// do we have an LTI token? Make sure it's appended to the score screen URL so we can play again with the same launch
+		if ( !!window.LTI_TOKEN) _scoreScreenURL += `${_scoreScreenURL.includes('?') ? '&' : '?'}token=${window.LTI_TOKEN}`
 		return _scoreScreenURL
 	}
 
@@ -651,7 +643,7 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 						minWidth: minWidth + 'px',
 						width: attributes.width !== '0px' ? attributes.width : 'auto',
 						height: attributes.height !== '0px' ? attributes.height : '100%'}}>
-					<iframe src={ attributes.htmlPath }
+					<iframe src={attributes.htmlPath}
 						id='container'
 						className='html'
 						scrolling='yes'

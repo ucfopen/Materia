@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetUser, apiUserVerify, apiGetSiteMessages } from '../util/api'
 import Notifications from './notifications'
 
@@ -17,7 +17,7 @@ const Header = ({
 	const [headerAlert, setHeaderAlert] = useState(null)
 
 	const { data: userPerms } = useQuery({
-		queryKey: 'isLoggedIn',
+		queryKey: ['isLoggedIn'],
 		queryFn: apiUserVerify,
 		staleTime: Infinity,
 		retry: false

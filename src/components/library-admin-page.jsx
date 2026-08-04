@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import Header from './header'
 import './library-admin-page.scss'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import LoadingIcon from './loading-icon'
 import { apiGetLibraryModeration, apiGetLibraryCategories } from '../util/api'
 import { iconUrl } from '../util/icon-url'

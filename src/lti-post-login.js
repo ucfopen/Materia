@@ -1,6 +1,6 @@
 import React from 'react'
 import {createRoot} from 'react-dom/client'
-import { QueryClient, QueryClientProvider, QueryCache } from 'react-query'
+import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query'
 import PostLogin from './components/lti/post-login'
 
 const queryCache = new QueryCache()

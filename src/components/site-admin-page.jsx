@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiUploadSiteImage, apiGetSiteImages, apiDeleteSiteImage, apiGetSiteMessages, apiUploadSiteMessage, apiDeleteSiteMessage } from '../util/api'
 import React, { useState, useRef, useEffect } from 'react'
 import Header from './header'

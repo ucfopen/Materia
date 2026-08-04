@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiUpdateUserSettings } from '../../util/api'
 
 export default function useUpdateUserSettings() {
@@ -6,25 +6,34 @@ export default function useUpdateUserSettings() {
 	const queryClient = useQueryClient()
 
 	return useMutation(
-		apiUpdateUserSettings,
 		{
+			mutationFn: apiUpdateUserSettings,
 			onMutate: async settings => {
-				await queryClient.cancelQueries('user')
-				const val = {...queryClient.getQueryData('user')}
-				const prior = queryClient.getQueryData('user')
+				await queryClient.cancelQueries({ queryKey: ['user', 'me'] })
 
-				queryClient.setQueryData('user', () => val)
+				// Merge new profile_field settings
+				const val = {
+					...queryClient.getQueryData(['user', 'me']),
+					profile_fields: settings.profile_fields
+				}
+				const previousValue = queryClient.getQueryData(['user', 'me'])
 
-				return { prior }
+				// Cache current and return old for use if needed
+				queryClient.setQueryData(['user', 'me'], () => val)
+				return { previousValue }
 			},
 			onSuccess: (data, variables, context) => {
+				queryClient.invalidateQueries({
+					queryKey: ['user', 'me']
+				})
+				// variables.successFunc(data)
+				// queryClient.invalidateQueries('user')
 				variables.successFunc({...data.profile_fields})
-				queryClient.invalidateQueries('user')
 
 			},
 			onError: (err, variables, context) => {
 				variables.errorFunc(err)
-				queryClient.setQueryData('user', context.previousValue)
+				queryClient.setQueryData(['user', 'me'], context.previousValue)
 			}
 		}
 	)

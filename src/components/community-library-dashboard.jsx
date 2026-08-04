@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef, useDeferredValue } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetUser, apiGetSiteImages, apiGetSiteMessages } from '../util/api'
 import './community-library.scss'
 import CommunityLibraryCard from './community-library-card'

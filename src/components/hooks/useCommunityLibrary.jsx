@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
 	apiGetCommunityLibrary,
 	apiCopyFromLibrary,
@@ -124,7 +124,8 @@ export function useCategoryList() {
 
 export function useDeleteTag() {
 	const queryClient = useQueryClient()
-	return useMutation(apiDeleteLibraryTag, {
+	return useMutation({
+		mutationFn: apiDeleteLibraryTag,
 		onSuccess: () => {
 			queryClient.invalidateQueries(['community-library'])
 		}
@@ -133,7 +134,8 @@ export function useDeleteTag() {
 
 export function useRenameTag() {
 	const queryClient = useQueryClient()
-	return useMutation(({ name, to }) => apiRenameLibraryTag(name, to), {
+	return useMutation({
+		mutationFn: ({ name, to }) => apiRenameLibraryTag(name, to),
 		onSuccess: () => {
 			queryClient.invalidateQueries(['community-library'])
 		}
@@ -142,7 +144,8 @@ export function useRenameTag() {
 
 export function useUpdateCategory() {
 	const queryClient = useQueryClient()
-	return useMutation(({slug, changes}) => apiPatchLibraryCategory(slug, changes), {
+	return useMutation({
+		mutationFn: ({slug, changes}) => apiPatchLibraryCategory(slug, changes),
 		onSuccess: () => {
 			queryClient.invalidateQueries(['category-moderation'])
 		}
@@ -151,7 +154,8 @@ export function useUpdateCategory() {
 
 export function useDeleteCategory() {
 	const queryClient = useQueryClient()
-	return useMutation(({slug}) => apiDeleteLibraryCategory(slug), {
+	return useMutation({
+		mutationFn: ({slug}) => apiDeleteLibraryCategory(slug),
 		onSuccess: () => {
 			queryClient.invalidateQueries(['category-moderation'])
 		}
@@ -160,7 +164,8 @@ export function useDeleteCategory() {
 
 export function useCreateCategory() {
 	const queryClient = useQueryClient()
-	return useMutation(({slug, changes}) => apiPostLibraryCategory(slug, changes), {
+	return useMutation({
+		mutationFn: ({slug, changes}) => apiPostLibraryCategory(slug, changes),
 		onSuccess: () => {
 			queryClient.invalidateQueries(['category-moderation'])
 		}
@@ -169,35 +174,39 @@ export function useCreateCategory() {
 
 export function useCopyFromLibrary() {
 	const queryClient = useQueryClient()
-	return useMutation(apiCopyFromLibrary, {
+	return useMutation({
+		mutationFn: apiCopyFromLibrary,
 		onSuccess: () => {
 			queryClient.invalidateQueries(['instances'])
 			queryClient.invalidateQueries(['community-library'])
-		},
+		}
 	})
 }
 
 export function useToggleLike() {
 	const queryClient = useQueryClient()
-	return useMutation(apiToggleLike, {
+	return useMutation({
+		mutationFn: apiToggleLike,
 		onSuccess: () => {
 			queryClient.invalidateQueries(['community-library'])
-		},
+		}
 	})
 }
 
 export function useReportEntry() {
 	const queryClient = useQueryClient()
-	return useMutation(({ entryId, data }) => apiReportEntry(entryId, data), {
+	return useMutation({
+		mutationFn: ({ entryId, data }) => apiReportEntry(entryId, data),
 		onSuccess: () => {
 			queryClient.invalidateQueries(['community-library'])
-		},
+		}
 	})
 }
 
 export function usePublishToLibrary() {
 	const queryClient = useQueryClient()
-	return useMutation(({ instId, data }) => apiPublishToLibrary(instId, data), {
+	return useMutation({
+		mutationFn: ({ instId, data }) => apiPublishToLibrary(instId, data),
 		onSuccess: (data, variables) => {
 			queryClient.invalidateQueries(['community-library'])
 			variables.successFunc(data.entry)
@@ -210,27 +219,30 @@ export function usePublishToLibrary() {
 
 export function useUnpublishFromLibrary() {
 	const queryClient = useQueryClient()
-	return useMutation(apiUnpublishFromLibrary, {
+	return useMutation({
+		mutationFn: apiUnpublishFromLibrary,
 		onSuccess: () => {
 			queryClient.invalidateQueries(['community-library'])
-		},
+		}
 	})
 }
 
 export function useUpdateInLibrary() {
 	const queryClient = useQueryClient()
-	return useMutation(apiUpdateInLibrary, {
+	return useMutation({
+		mutationFn: apiUpdateInLibrary,
 		onSuccess: () => {
 			queryClient.invalidateQueries(['community-library'])
-		},
+		}
 	})
 }
 
 export function usePullFromLibrary() {
 	const queryClient = useQueryClient()
-	return useMutation(apiPullFromLibrary, {
+	return useMutation({
+		mutationFn: apiPullFromLibrary,
 		onSuccess: () => {
 			queryClient.invalidateQueries(['instances'])
-		},
+		}
 	})
 }

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import LoadingIcon from './loading-icon'
 import { apiGetUser, apiGetSiteImages } from '../util/api'
 import useUpdateUserSettings from './hooks/useUpdateUserSettings'
@@ -25,15 +25,18 @@ const SettingsPage = () => {
 		profileImage: -1
 	})
 
-	const { data: currentUser, isLoading} = useQuery({
+	const { data: currentUser, isFetching, isError: currentUserError } = useQuery({
 		queryKey: ['user', 'me'],
 		queryFn: ({ queryKey }) => {
 			const [_key, user] = queryKey
 			return apiGetUser(user)
 		},
 		staleTime: Infinity,
-		retry: false,
-		onError: (err) => {
+		retry: false
+	})
+
+	useEffect(() => {
+		if (currentUserError) {
 			setAlertDialog({
 				enabled: true,
 				message: 'You must be logged in to view your settings.',
@@ -42,10 +45,10 @@ const SettingsPage = () => {
 				enableLoginButton: true
 			})
 		}
-	})
+	}, [currentUserError])
 
 	useEffect(() => {
-		if (mounted && ! isLoading && currentUser) {
+		if (mounted && ! isFetching && currentUser) {
 			mounted.current = true
 			setState({
 				notify: currentUser.profile_fields.notify,
@@ -57,7 +60,7 @@ const SettingsPage = () => {
 		return () => {
 			mounted.current = false
 		}
-	},[isLoading])
+	},[isFetching])
 
 	const { data: profileImages, isFetching: isFetchingProfileImages} = useQuery({
 		queryKey: ['profile-images'],
@@ -160,7 +163,7 @@ const SettingsPage = () => {
 	}
 
 	let mainContentRender = <section className='page loading'><div className='loading-icon-holder'><LoadingIcon /></div></section>
-	if ( !isLoading && currentUser ) {
+	if ( !isFetching && currentUser ) {
 
 		let profileImageList = []
 		if (profileImages && !isFetchingProfileImages) {
