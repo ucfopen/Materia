@@ -73,7 +73,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 		refetchOnWindowFocus: false
 	})
 
-	const { data: perms, isFetching: loadingPerms} = useQuery({
+	const { data: perms, isFetching: loadingPerms, error: permsError} = useQuery({
 		queryKey: ['user-perms', inst.id],
 		queryFn: () => apiGetUserPermsForInstance(inst.id),
 		enabled: !!inst && inst.id !== undefined,
