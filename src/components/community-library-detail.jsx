@@ -147,7 +147,7 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 						</div>
 						<br/>
 						<h3>TAGS</h3>
-						<div className='row' style={{gap: "8px"}}>
+						<div className='row wrap' style={{gap: "8px"}}>
 						{
 							entry && entry.tags.length != 0 ? entry.tags.map((t, i)=>(
 								<div className='tag' key={i}>#{t}</div>

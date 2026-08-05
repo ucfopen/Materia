@@ -95,6 +95,7 @@ section.page {
 
             h1, h2, h3 {
                 margin: 0;
+                word-break: break-word;
             }
 
             .author {
@@ -224,6 +225,10 @@ section.page {
 
         &.between {
             justify-content: space-between;
+        }
+
+        &.wrap {
+            flex-wrap: wrap;
         }
 
         &.fit {
