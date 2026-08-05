@@ -146,11 +146,21 @@ class CommunityLibraryListView(APIView):
         search = request.query_params.get("search")
         user = request.query_params.get("user", -1)
         if search:
-            qs = qs.filter(
-                Q(snapshots__name__icontains=search)
-                | Q(published_by__first_name__icontains=search)
-                | Q(published_by__last_name__icontains=search)
-            ).distinct()
+            terms = search.strip().split()
+            if len(terms) >= 2:
+                qs = qs.filter(
+                    Q(snapshots__name__icontains=search)
+                    | Q(published_by__first_name__icontains=terms[0],
+                        published_by__last_name__icontains=terms[1])
+                    | Q(published_by__first_name__icontains=terms[1],
+                        published_by__last_name__icontains=terms[0])
+                ).distinct()
+            else:       
+                qs = qs.filter(
+                    Q(snapshots__name__icontains=search)
+                    | Q(published_by__first_name__icontains=search)
+                    | Q(published_by__last_name__icontains=search)
+                ).distinct()
         elif ValidatorUtil.is_positive_integer_or_zero(user):
             qs = qs.filter(published_by=user)
 
