@@ -400,18 +400,9 @@ const MyWidgetSelectedInstance = ({
 		if (currentUser?.library_banned) {
 			communityLibraryContentRender = (
 				<div className='row'>
-					<p>
-						<b>You Have Been Banned From the Community Library</b>. You are unable to publish widgets. If you believe this to be in error, 
-						<a href="/help" target="_blank">contact support</a>.
-					</p>
-					<div className='col'>
-						<button
-							role='menuitem'
-							tabIndex="0"
-							disabled={inst.is_draft || inst.guest_access || !isCustomizable || !state.perms.editable}
-							onClick={() => setShowPublishDialog(true)}>
-							Share to Library
-						</button>
+					<div className='cl-content'>
+						<h4>You have been banned from the Community Library.</h4>
+						You are unable to publish widgets. If you believe this to be in error, <a href="/help" target="_blank">contact support</a>.
 					</div>
 				</div>
 			)

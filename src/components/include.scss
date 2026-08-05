@@ -468,11 +468,15 @@ header {
 		}
 	}
 
+	.notifContainer {
+		position: relative;
+	}
+
 	#notices {
 		position:absolute;
 		display: flex;
 		flex-direction: column;
-		right: 20px;
+		right: -60px;
 		top: 45px;
 		width: 400px;
 		box-shadow: 1px 10px 10px 1px rgba(0,0,0,0.1);
@@ -510,6 +514,7 @@ header {
 		background-color:red !important
 	}
 	#notifications_link {
+		position: relative;
 		cursor:pointer;
 		width: 45px;
 		height: 31px;
@@ -1046,11 +1051,14 @@ header {
 			top: auto;
 
 			#notices {
-				top: auto;
-				right: auto;
-				width: 100%;
-				overflow: hidden;
-				max-height: inherit;
+				top: 90px;
+				right: 60px;
+				width: calc(100% - 120px);
+				// top: auto;
+				// right: auto;
+				// width: 100%;
+				// overflow: hidden;
+				// max-height: inherit;
 			}
 			.noticeClose
 			{
