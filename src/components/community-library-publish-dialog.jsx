@@ -13,7 +13,10 @@ const COURSE_LEVELS = [
 const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 	const [category, setCategory] = useState('')
 	const [courseLevel, setCourseLevel] = useState('')
+
 	const [errorText, setErrorText] = useState('')
+	const [errorLock, setErrorLock] = useState(false)
+
 	const [tagList, setTagList] = useState([])
 	const [newTag, setNewTag] = useState("")
 	const [focusedTag, setFocusedTag] = useState(-1)
@@ -26,9 +29,15 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 	const {data: tags, status} = useTagList(5, newTag.replaceAll("#", ""), tagList)
 	const { data: categories } = useCategoryList()
 
+	// prevent spamming bad publish calls
+	useEffect(()=>{
+		setTimeout(()=>setErrorLock(false), 3000)
+	}, [errorLock])
+
 	const handlePublish = () => {
 		if (!category) {
 			setErrorText('Please select a category.')
+			setErrorLock(true)
 			return
 		}
 
@@ -46,6 +55,8 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 						setErrorText("Tag names can be no longer than 50 characters.")
 					else
 						setErrorText(err?.data?.error || 'Failed to publish. Please try again.')
+
+					setErrorLock(true)
 				}
 			}
 		)
@@ -177,7 +188,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 					<button
 						className="btn publish"
 						onClick={handlePublish}
-						disabled={publishMutation.isLoading || category == ""}
+						disabled={publishMutation.isLoading || category == "" || errorLock}
 					>
 						{publishMutation.isLoading ? 'Sharing...' : 'Share'}
 					</button>
