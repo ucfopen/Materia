@@ -213,8 +213,8 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 		const args = {
 			id: u.id,
 			name: u.name,
-			open_at: u.open_at,
-			close_at: u.close_at,
+			openAt: u.open_at,
+			closeAt: u.close_at,
 			attempts: u.attempts,
 			guestAccess: u.guest_access,
 			embeddedOnly: u.embedded_only,
