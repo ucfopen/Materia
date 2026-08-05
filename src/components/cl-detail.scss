@@ -251,6 +251,7 @@ section.page {
         height: fit-content;
         width: fit-content;
         text-align: center;
+        white-space: nowrap;
 
         &.category {
             background-color: #E0F2FE;

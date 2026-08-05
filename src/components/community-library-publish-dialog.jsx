@@ -149,7 +149,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 							}
 							</div>
 						}
-						<input id="tag-input" ref={searchRef} type='text' autoComplete='off' value={newTag} onChange={(e)=>setNewTag(e.target.value)} onKeyDown={handleSearchKey} placeholder='Press Enter to create a tag...'/>
+						<input id="tag-input" maxLength={50} ref={searchRef} type='text' autoComplete='off' value={newTag} onChange={(e)=>setNewTag(e.target.value)} onKeyDown={handleSearchKey} placeholder='Press Enter to create a tag...'/>
 					</div>
 					
 					<div className='tag-cont' aria-label='Currently applied tags:'>
