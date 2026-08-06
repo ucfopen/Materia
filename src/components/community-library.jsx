@@ -423,7 +423,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 								<div className='col small-labels'>
 									{COURSE_LEVELS.map((v,i)=> {
 										return(<div className='row' key={`level${i}`}>
-											<input defaultChecked={v.value == ""} type='radio' name='level' value={v.value} id={`${v.value == "" ? "all" : v.value}-level-check`} onChange={(e) => setSelectedCourseLevel(e.target.value)}/>
+											<input defaultChecked={v.value == ""} tabIndex={0} type='radio' name='level' value={v.value} id={`${v.value == "" ? "all" : v.value}-level-check`} onChange={(e) => setSelectedCourseLevel(e.target.value)}/>
 											<label htmlFor={`${v.value == "" ? "all" : v.value}-level-check`}>{v.label}</label>										
 										</div>)
 									})}
@@ -436,7 +436,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 									<div style={{width: 130, height: 300, backgroundColor: "#fff", borderRadius: 4}}></div>
 									: categories.map((v,i)=> {
 										return(<div className='row' key={`cat${i}`}>
-											<input checked={selectedCategories.has(v.slug)} type='checkbox' name='discipline' value={v.slug} id={`${v.slug == "" ? "all" : v.slug}-cat-check`} 
+											<input checked={selectedCategories.has(v.slug)} tabIndex={0} type='checkbox' name='discipline' value={v.slug} id={`${v.slug == "" ? "all" : v.slug}-cat-check`} 
 											onChange={(e) => {
 												if(e.target.checked)
 													selectedCategories.add(e.target.value)
@@ -454,7 +454,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 								<summary>Widget Engine</summary>
 								<div className='col small-labels'>
 									<div className='row'>
-										<input defaultChecked={true} type='radio' name='widget' value={""} id={`all-check`} onChange={(e) => setSelectedWidgetType(e.target.value)}/>
+										<input defaultChecked={true} tabIndex={0} type='radio' name='widget' value={""} id={`all-check`} onChange={(e) => setSelectedWidgetType(e.target.value)}/>
 										<label htmlFor={`all-check`}>All Widget Types</label>
 									</div>
 									{widgetTypeOptions.map((v,i)=> {
