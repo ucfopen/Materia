@@ -45,6 +45,8 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		
 	const [mappedCategories, setMappedCategories] = useState({})
 
+	const url = new URL(location)
+
 	useEffect(() => {
 		if(!categories) return
 
@@ -59,6 +61,39 @@ const CommunityLibrary = ({ widgets = [] }) => {
 
 		setMappedCategories(temp)
 	},[categories])
+	
+	const popStateListener = (e) => {
+		if(!e.state || !e.state.category) {
+			setSelectedCategories(new Set([]))
+			return
+		}
+
+		console.log(e.state.category)
+		setSelectedCategories(new Set([...e.state.category]))
+	}
+	
+	useEffect(() => {
+		window.addEventListener('popstate', popStateListener)
+		
+		return () => {
+			window.removeEventListener('popstate', popStateListener)
+		}
+	}, [])
+	
+	const setCategoriesHistory = (newCat) => {
+		setSelectedCategories(newCat)
+		console.log(newCat)
+		console.log(url.searchParams.getAll("category"))
+		
+		const empty = newCat.size === 0
+		if(newCat.size === 0) 
+			url.searchParams.delete("category")
+		else
+			url.searchParams.set("category", [...newCat])
+
+		console.log(url.searchParams.getAll("category"))
+		history.pushState(empty ? {} : {category: [...newCat]}, "", url);
+	}
 
 	const formRef = useRef(null)
 	const tagListRef = useRef(null)
@@ -155,7 +190,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	const clearFilters = () => {
 		clearSearch()
 		setSelectedWidgetType('')
-		setSelectedCategories(new Set([]))
+		setCategoriesHistory(new Set([]))
 		setSelectedCourseLevel('')
 		setTagList([])
 		document.getElementById("filter-form").reset();
@@ -407,7 +442,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 													selectedCategories.add(e.target.value)
 												else selectedCategories.delete(e.target.value)
 
-												setSelectedCategories(new Set([...selectedCategories]))
+												setCategoriesHistory(new Set([...selectedCategories]))
 											}}
 											/>
 											<label htmlFor={`${v.slug == "" ? "all" : v.slug}-cat-check`}>{v.label}</label>										
@@ -513,7 +548,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 							</div>
 							{
 								!isFiltered ?
-								<CommunityLibraryDashboard setCategories={setSelectedCategories}/>
+								<CommunityLibraryDashboard setCategories={setCategoriesHistory}/>
 								:
 								<>
 								{contentRender}
