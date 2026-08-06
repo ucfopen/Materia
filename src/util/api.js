@@ -937,6 +937,10 @@ export const apiGetSiteImages = (type) => {
 			break
 		case 'catalog':
 			type = 'CATALOG_BANNER'
+			break
+		case 'library':
+			type = 'LIBRARY_BANNER'
+			break
 		default:
 			break
 	}

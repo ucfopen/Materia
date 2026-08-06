@@ -136,7 +136,22 @@
 			font-weight: 400;
 
 			.notice {
-				padding: 4px;
+				padding: 6px;
+				transition: opacity 100ms ease;
+
+				&.greyed {
+					opacity: 0.25;
+				}
+				
+				// font-weight: 300;
+				.key {
+					background-color: #333;
+					color: #eee;
+					padding: 2px 4px;
+					font-weight: 500;
+					border-radius: 2px;
+					margin-left: 4px;
+				}
 			}
 
 			.drop-entry {

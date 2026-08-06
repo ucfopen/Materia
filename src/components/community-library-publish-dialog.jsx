@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
 import Modal from './modal'
 import { usePublishToLibrary, useTagList, useCategoryList } from './hooks/useCommunityLibrary'
 import './community-library-publish-dialog.scss'
@@ -33,6 +33,8 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 	useEffect(()=>{
 		setTimeout(()=>setErrorLock(false), 3000)
 	}, [errorLock])
+
+	const normalizeTag = (t) => t.toLowerCase().trim().replaceAll(" ", "-").replaceAll("#", "")
 
 	const handlePublish = () => {
 		if (!category) {
@@ -69,7 +71,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 	}
 
 	const enterTag = (tag) => {
-		tag = tag.toLowerCase().trim().replaceAll(" ", "-").replaceAll("#", "")
+		tag = normalizeTag(tag)
 		if(!tagList.includes(tag)) setTagList([...tagList, tag])
 		setNewTag("")
 		setFocusedTag(-1)
@@ -79,15 +81,15 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 	}
 
 	const handleSearchKey = (e) => {
-		if(e.key == "Enter" && newTag != "") {
+		if(e.key == "Enter" && normalizeTag(newTag) != "") {
 			e.preventDefault()
-			if(tags && tags.length > 0)
+			if(tags && tags.length > 0 && focusedTag != -1)
 				enterTag(tags.at(focusedTag).name)
 			else
 				enterTag(newTag)
 		}
 
-		if(tags && tags.length > 1 && newTag != "") {
+		if(tags && tags.length >= 1 && newTag != "") {
 			if(e.key == "ArrowDown") {
 				e.preventDefault()
 				let newInd = focusedTag + 1 < tags.length ? focusedTag + 1 : -1
@@ -148,21 +150,25 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 							<div className='tag-dropdown' ref={tagListRef} aria-label="Tag selection menu." onKeyDown={handleSearchKey}>
 							{
 								!tags ? <div className='notice'>Loading...</div>
-								: 
-								tags.length == 0 && status == "success" ?
-								<div className='notice'>Create a new tag <b>#{newTag.toLowerCase().trim().replaceAll(" ", "-").replaceAll("#", "")}</b></div>
 								:
-								tags.map((t,i)=>{
+								<>
+								{tags.map((t,i)=>{
 									return <button 
 									className={`drop-entry ${i == focusedTag ? 'selected' : ''}`}
 									key={`dropdown_tag_${i}`}
 									tabIndex={-1}
 									aria-label={`#${t.name}: used in ${t.used_count} widget${t.used_count > 1 ? "s" : ""}.`}
-									onClick={()=>(enterTag(t.name))}>
+									onClick={()=>enterTag(t.name)}>
 										<div>#{t.name}</div>
 										<div className='used-count'>{t.used_count}</div>
 									</button>
-								})
+								})}
+								{!tags.includes(normalizeTag(newTag)) && 
+								<div className={`notice ${focusedTag != -1 ? 'greyed' : ''}`}>
+									<b>#{normalizeTag(newTag)}</b>
+									<span className='key'>Enter</span>
+								</div>}
+								</>
 							}
 							</div>
 						}

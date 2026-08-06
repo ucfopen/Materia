@@ -81,10 +81,10 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 	}, [featured, carouselContent.current])
 
 	// first in array order should be correct image to pull
-	const {data: catalogImages, refetch: refetchCatalogImages } = useQuery({
-		queryKey: ['catalog-images'],
+	const {data: libraryImages, refetch: refetchlibraryImages } = useQuery({
+		queryKey: ['library-images'],
 		queryFn: async () => {
-			const images = await apiGetSiteImages('catalog')
+			const images = await apiGetSiteImages('library')
 			return images.sort((a,b)=>b.id-a.id)
 		},
 		staleTime: Infinity,
@@ -146,7 +146,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 							<p>Explore a curated collection of widgets selected by our LS&T staff. Browse available options to find tools and resources that can enhance your course and support your teaching goals.</p>
 						}
 					</div>
-					{ catalogImages && catalogImages.length > 0 && <img className="catalog-image" src={catalogImages[0].image_path}/>}
+					{ libraryImages && libraryImages.length > 0 && <img className="catalog-image" src={libraryImages[0].image_path}/>}
 				</div>
 				<div className='content-container'>
 					<button className='carousel left' aria-label='Move carousel to the left.'
