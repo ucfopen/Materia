@@ -200,7 +200,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 					<button
 						className="btn publish"
 						onClick={handlePublish}
-						disabled={publishMutation.isLoading || category == "" || errorLock}
+						disabled={publishMutation.isLoading || errorLock}
 					>
 						{publishMutation.isLoading ? 'Sharing...' : 'Share'}
 					</button>
