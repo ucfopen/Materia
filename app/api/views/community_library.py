@@ -154,6 +154,8 @@ class CommunityLibraryListView(APIView):
                         published_by__last_name__icontains=terms[1])
                     | Q(published_by__first_name__icontains=terms[1],
                         published_by__last_name__icontains=terms[0])
+                    | Q(published_by__first_name__icontains=search)
+                    | Q(published_by__last_name__icontains=search)
                 ).distinct()
             else:       
                 qs = qs.filter(

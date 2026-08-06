@@ -40,7 +40,13 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 			setErrorLock(true)
 			return
 		}
-
+		
+		if (tagList.length > 10) {
+			setErrorText('Widgets cannot have more than 10 tags applied.')
+			setErrorLock(true)
+			return
+		}
+		
 		setErrorText('')
 
 		publishMutation.mutate(
