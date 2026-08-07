@@ -212,7 +212,8 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	const likeMutation = useToggleLike()
 
 	// list of 5 most relevant tags from database
-	const {data: tags, status} = useTagList(5, tempTag.replace("#", ""), tagList)
+	const searchTag = useDebounce(tempTag, 200)
+	const {data: tags, status} = useTagList(5, searchTag.replace("#", ""), tagList)
 	const defTags = useDeferredValue(tags)
 	
 	const handleCopy = useCallback(

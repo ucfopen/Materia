@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useRef, useEffect, useMem } from 'react'
 import Modal from './modal'
 import { usePublishToLibrary, useTagList, useCategoryList } from './hooks/useCommunityLibrary'
+import useDebounce from './hooks/useDebounce'
 import './community-library-publish-dialog.scss'
 
 const COURSE_LEVELS = [
@@ -26,7 +27,8 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 
 	const publishMutation = usePublishToLibrary()
 
-	const {data: tags, status} = useTagList(5, newTag.replaceAll("#", ""), tagList)
+	const searchTag = useDebounce(newTag, 200)
+	const {data: tags, status} = useTagList(5, searchTag.replaceAll("#", ""), tagList)
 	const { data: categories } = useCategoryList()
 
 	// prevent spamming bad publish calls
