@@ -74,9 +74,36 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		setSelectedWidgetType(!e.state.widget_id ? '' : e.state.widget_id)
 		setSelectedCourseLevel(!e.state.course_level ? '' : e.state.course_level)
 	}
+
+	const wipeFakeHistory = () => {
+		url.searchParams.delete("category")
+		url.searchParams.delete("widget_id")
+		url.searchParams.delete("course_level")
+
+		history.pushState({}, "", url)
+	}
+
+	const populateFromParams = () => {
+		const cat = url.searchParams.get("category")
+		setSelectedCategories(new Set(cat ? cat.split(',') : []))
+		setSelectedWidgetType(url.searchParams.get("widget_id") ?? '')
+		setSelectedCourseLevel(url.searchParams.get("course_level") ?? '')
+	}
+
+	const detectReload = () => {
+		const entries = performance.getEntriesByType("navigation");
+		entries.forEach((entry) => {
+			if (entry.type === "reload") {
+				wipeFakeHistory()
+				return
+			}
+		});
+	}
 	
 	useEffect(() => {
 		window.addEventListener('popstate', popStateListener)
+		detectReload()
+		populateFromParams()
 		
 		return () => {
 			window.removeEventListener('popstate', popStateListener)
