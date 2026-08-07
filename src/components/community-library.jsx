@@ -32,11 +32,11 @@ const GLASS_PATH = "m244.19 214.6l-54.379-54.378c-0.289-0.289-0.628-0.491-0.93-0
 const CommunityLibrary = ({ widgets = [] }) => {
 	const [searchInput, setSearchInput] = useState('')
 	const [finallInput, setFinalInput] = useState('')
+
 	const [selectedWidgetType, setSelectedWidgetType] = useState('')
-
 	const [selectedCategories, setSelectedCategories] = useState(new Set([]))
-
 	const [selectedCourseLevel, setSelectedCourseLevel] = useState('')
+
 	const [sortBy, setSortBy] = useState('newest')
 	const [reportingEntry, setReportingEntry] = useState(null)
 	const [copySuccess, setCopySuccess] = useState(null)
@@ -63,13 +63,16 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	},[categories])
 	
 	const popStateListener = (e) => {
-		if(!e.state || !e.state.category) {
+		if(!e.state) {
 			setSelectedCategories(new Set([]))
+			setSelectedWidgetType('')
+			setSelectedCourseLevel('')
 			return
 		}
 
-		console.log(e.state.category)
-		setSelectedCategories(new Set([...e.state.category]))
+		setSelectedCategories(new Set(!e.state.category ? [] : [...e.state.category]))
+		setSelectedWidgetType(!e.state.widget_id ? '' : e.state.widget_id)
+		setSelectedCourseLevel(!e.state.course_level ? '' : e.state.course_level)
 	}
 	
 	useEffect(() => {
@@ -82,17 +85,38 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	
 	const setCategoriesHistory = (newCat) => {
 		setSelectedCategories(newCat)
-		console.log(newCat)
-		console.log(url.searchParams.getAll("category"))
 		
 		const empty = newCat.size === 0
-		if(newCat.size === 0) 
+		if(empty) 
 			url.searchParams.delete("category")
 		else
 			url.searchParams.set("category", [...newCat])
 
-		console.log(url.searchParams.getAll("category"))
 		history.pushState(empty ? {} : {category: [...newCat]}, "", url);
+	}
+
+	const setWidgetHistory = (id) => {
+		setSelectedWidgetType(id)
+
+		const empty = id === ''
+		if(empty) 
+			url.searchParams.delete("widget_id")
+		else
+			url.searchParams.set("widget_id", id)
+
+		history.pushState(empty ? {} : {widget_id: id}, "", url);
+	}
+
+	const setLevelHistory = (level) => {
+		setSelectedCourseLevel(level)
+
+		const empty = level === ''
+		if(empty) 
+			url.searchParams.delete("course_level")
+		else
+			url.searchParams.set("course_level", level)
+
+		history.pushState(empty ? {} : {course_level: level}, "", url);
 	}
 
 	const formRef = useRef(null)
@@ -189,9 +213,9 @@ const CommunityLibrary = ({ widgets = [] }) => {
 
 	const clearFilters = () => {
 		clearSearch()
-		setSelectedWidgetType('')
+		setWidgetHistory('')
 		setCategoriesHistory(new Set([]))
-		setSelectedCourseLevel('')
+		setLevelHistory('')
 		setTagList([])
 		document.getElementById("filter-form").reset();
 	}
@@ -423,7 +447,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 								<div className='col small-labels'>
 									{COURSE_LEVELS.map((v,i)=> {
 										return(<div className='row' key={`level${i}`}>
-											<input defaultChecked={v.value == ""} tabIndex={0} type='radio' name='level' value={v.value} id={`${v.value == "" ? "all" : v.value}-level-check`} onChange={(e) => setSelectedCourseLevel(e.target.value)}/>
+											<input checked={v.value == selectedCourseLevel} tabIndex={0} type='radio' name='level' value={v.value} id={`${v.value == "" ? "all" : v.value}-level-check`} onChange={(e) => setLevelHistory(e.target.value)}/>
 											<label htmlFor={`${v.value == "" ? "all" : v.value}-level-check`}>{v.label}</label>										
 										</div>)
 									})}
@@ -454,12 +478,12 @@ const CommunityLibrary = ({ widgets = [] }) => {
 								<summary>Widget Engine</summary>
 								<div className='col small-labels'>
 									<div className='row'>
-										<input defaultChecked={true} tabIndex={0} type='radio' name='widget' value={""} id={`all-check`} onChange={(e) => setSelectedWidgetType(e.target.value)}/>
+										<input checked={selectedWidgetType === ''} tabIndex={0} type='radio' name='widget' value={''} id={`all-check`} onChange={(e) => setWidgetHistory(e.target.value)}/>
 										<label htmlFor={`all-check`}>All Widget Types</label>
 									</div>
 									{widgetTypeOptions.map((v,i)=> {
 										return(<div className='row' key={`widget${i}`}>
-											<input type='radio' name='widget' value={v.id} id={`${v.id}-check`} onChange={(e) => setSelectedWidgetType(e.target.value)}/>
+											<input checked={parseInt(selectedWidgetType) === v.id} type='radio' name='widget' value={v.id} id={`${v.id}-check`} onChange={(e) => setWidgetHistory(e.target.value)}/>
 											<label htmlFor={`${v.id}-check`}>{v.name}</label>										
 										</div>)
 									})}

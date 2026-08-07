@@ -808,7 +808,6 @@ export const apiGetCommunityLibrary = ({ pageParam = 1, limit = null, search = '
 	if (search) url += `&search=${encodeURIComponent(search)}`
 	if (featuredOnly) url += `&featured=true`
 	if (widgetId) url += `&widget_id=${widgetId}`
-	// if (category) url += `&category=${category}`
 	if (categories && categories.length > 0) {
 		categories.forEach((c)=>{
 			url += `&category=${c}`
