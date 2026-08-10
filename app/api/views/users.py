@@ -78,6 +78,8 @@ class UserViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         elif self.action == "me":
             permission_classes = [IsAuthenticated]
+        elif self.action == "ban":
+            permission_classes = [IsSuperOrSupportUser]
         else:  # do not allow remaining actions (create, delete) under any circumstance
             permission_classes = [DenyAll]
 
@@ -152,7 +154,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["put"])
+    @action(detail=True, methods=["patch"])
     def profile_fields(self, request, pk=None):
         user = self.get_object()
         serializer = UserMetadataSerializer(data=request.data)
@@ -164,11 +166,6 @@ class UserViewSet(viewsets.ModelViewSet):
             profile_fields = user_profile.get_profile_fields()
             for key, value in validated.items():
                 profile_fields[key] = value
-
-                # if key == "darkMode":
-                #     cache_key = f'user_dark_mode_{request.user.id}'
-                #     logger.error(f"located darkMode key for user {request.user.id} and deleting cache !!!")
-                #     cache.delete(cache_key)
 
             user_profile.profile_fields = profile_fields
             user_profile.save()
@@ -245,6 +242,16 @@ class UserViewSet(viewsets.ModelViewSet):
 
             else:
                 return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=["post"])
+    def ban(self, request, pk):
+        user = self.get_object()
+        settings, _ = UserSettings.objects.get_or_create(user=user)
+
+        settings.library_banned = not settings.library_banned
+        settings.save()
+
+        return Response({"success": True, "banned": settings.library_banned})
 
 
 # API stuff below this line is not yet converted to DRF #

@@ -1,0 +1,508 @@
+import logging
+
+from api.permissions import IsInstructor, IsSuperOrSupportUser
+from api.serializers import (
+    LibraryCategorySerializer,
+    LibraryEntrySerializer,
+    LibraryReportSerializer,
+    TagSerializer,
+    WidgetInstanceSerializer,
+)
+from community_library.models import (
+    LibraryCategory,
+    LibraryEntry,
+    LibraryReport,
+    Tag,
+    UserLike,
+)
+from core.models import Notification, WidgetInstance
+from core.services.perm_service import PermService
+from core.services.user_service import UserService
+from core.utils.b64_util import Base64Util
+from core.utils.validator_util import ValidatorUtil
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count, F, Q
+from django.shortcuts import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+logger = logging.getLogger(__name__)
+
+REPORT_THRESHOLD = 5
+
+
+def annotate_library_counts(qs):
+    return qs.annotate(
+        annotated_like_count=Count("likes", distinct=True),
+        annotated_report_count=Count("reports", distinct=True),
+        annotated_copy_count=Count(
+            "copied_instances",
+            filter=~Q(copied_instances__id=F("instance_id")),
+            distinct=True,
+        ),
+    )
+
+
+class CommunityLibraryPagination(PageNumberPagination):
+    page_size = 80
+    page_size_query_param = "page_size"
+    max_page_size = 80
+
+
+def _notify_admins_of_ban(entry, reporting_user):
+    admin_users = User.objects.filter(is_superuser=True) | User.objects.filter(
+        groups__name="support_user"
+    )
+    admin_users = admin_users.distinct()
+
+    avatar = UserService.get_avatar_url(reporting_user)
+    instance = entry.instance
+
+    for admin_user in admin_users:
+        notification = Notification.objects.create(
+            from_id=reporting_user,
+            to_id=admin_user,
+            item_type=ContentType.objects.get_for_model(WidgetInstance).id,
+            item_id=instance.id,
+            is_email_sent=False,
+            subject=(
+                f'Community Library item "<b>{instance.name}</b>" '
+                f"was auto-hidden after receiving {REPORT_THRESHOLD} reports."
+            ),
+            avatar=avatar,
+            action="library_report",
+        )
+        notification.send_email()
+
+
+class CommunityLibraryListView(APIView):
+    def get_permissions(self):
+        moderation = ValidatorUtil.validate_bool(
+            self.request.query_params.get("moderation")
+        )
+        if moderation:
+            return [IsSuperOrSupportUser()]
+        return [AllowAny()]
+
+    def get_serializer_context(self):
+        context = {"request": self.request}
+        if PermService.is_superuser_or_elevated(self.request.user):
+            context["include_moderation_info"] = True
+
+        return context
+
+    def get(self, request):
+        moderation = ValidatorUtil.validate_bool(request.query_params.get("moderation"))
+
+        if moderation and PermService.is_superuser_or_elevated(request.user):
+            qs = annotate_library_counts(
+                LibraryEntry.objects.all()
+                .select_related(
+                    "instance",
+                    "instance__widget",
+                    "published_by",
+                )
+                .prefetch_related("snapshots", "tags", "likes", "reports")
+            )
+            status = request.query_params.get("status")
+            if status == "banned":
+                qs = qs.filter(is_banned=True).order_by(
+                    "-annotated_report_count", "-created_at"
+                )
+            elif status == "reported":
+                qs = qs.filter(annotated_report_count__gt=0).order_by(
+                    "-annotated_report_count", "-created_at"
+                )
+            elif status == "unpublished":
+                qs = qs.filter(is_available=False)
+            elif status == "featured":
+                qs = qs.filter(featured=True)
+            else:
+                qs = qs.order_by("-annotated_report_count", "-created_at")
+
+            show_deleted = request.query_params.get("deleted")
+            if show_deleted == "false":
+                qs = qs.filter(instance__is_deleted=False)
+        else:
+            qs = annotate_library_counts(
+                LibraryEntry.objects.filter(
+                    instance__is_deleted=False,
+                    instance__is_draft=False,
+                    is_banned=False,
+                    is_available=True,
+                )
+                .select_related(
+                    "instance",
+                    "instance__widget",
+                    "published_by",
+                )
+                .prefetch_related("snapshots", "tags", "likes", "reports")
+            )
+
+        # Search by latest snapshot name
+        search = request.query_params.get("search")
+        user = request.query_params.get("user", -1)
+        if search:
+            qs = qs.filter(
+                Q(snapshots__name__icontains=search)
+                | Q(published_by__first_name__icontains=search)
+                | Q(published_by__last_name__icontains=search)
+            ).distinct()
+        elif ValidatorUtil.is_positive_integer_or_zero(user):
+            qs = qs.filter(published_by=user)
+
+        # Filter by widget type
+        widget_id = request.query_params.get("widget_id")
+        if widget_id:
+            qs = qs.filter(instance__widget_id=widget_id)
+
+        # Filter by category
+        categories = request.query_params.getlist("category")
+        if categories:
+            qs = qs.filter(category__slug__in=categories)
+
+        # Filter by course level
+        course_level = request.query_params.get("course_level")
+        if course_level:
+            qs = qs.filter(course_level=course_level)
+
+        # Filter featured only
+        featured = ValidatorUtil.validate_bool(request.query_params.get("featured"))
+        if featured:
+            qs = qs.filter(featured=True)
+
+        tags = request.query_params.getlist("tags")
+        if tags:
+            qs = qs.filter(tags__name__in=tags).distinct()
+
+        # Sorting
+        sort = request.query_params.get("sort", "newest")
+        if sort == "most_copied":
+            qs = qs.order_by("-annotated_copy_count", "-created_at")
+        elif sort == "most_liked":
+            qs = qs.order_by("-annotated_like_count", "-created_at")
+        elif sort == "alphabetical":
+            qs = qs.order_by("snapshots__name")
+        else:
+            qs = qs.order_by("-created_at")
+
+        limit = request.query_params.get("limit")
+        if limit:
+            qs = qs.all()[: int(limit)]
+
+        paginator = CommunityLibraryPagination()
+        page = paginator.paginate_queryset(qs, request)
+        serializer = LibraryEntrySerializer(
+            page, many=True, context=self.get_serializer_context()
+        )
+        return paginator.get_paginated_response(serializer.data)
+
+
+class CommunityLibraryTagsView(APIView):
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+        return [IsSuperOrSupportUser()]
+
+    def get(self, request):
+        qs = Tag.objects.all().order_by("-used_count", "name")
+
+        search = request.query_params.get("search", "")
+        if search != "":
+            qs = qs.filter(name__icontains=search)
+
+        exclude = request.query_params.getlist("exclude")
+        if exclude:
+            qs = qs.exclude(name__in=exclude)
+
+        count = request.query_params.get("count", None)
+        if count is not None:
+            count = int(count)
+            qs = qs[:count]
+
+        return Response([TagSerializer(t).data for t in qs])
+
+    def patch(self, request):
+        name = request.query_params.get("name", "")
+        normalized_name = Tag.normalize_name(name)
+        tag = Tag.objects.filter(normalized_name=normalized_name).first()
+
+        if not tag:
+            return Response(
+                {"error": "Cannot edit a tag that does not exist."}, status=400
+            )
+
+        to = request.query_params.get("to", "")
+        cleaned_to = " ".join(to.strip().split())
+        if not cleaned_to:
+            return Response({"error": "Tag name cannot be blank."}, status=400)
+
+        normalized_to = Tag.normalize_name(cleaned_to)
+        dupe = (
+            Tag.objects.filter(normalized_name=normalized_to).exclude(pk=tag.pk).first()
+        )
+        if dupe:
+            return Response(
+                {"error": "There already exists a tag with this name."}, status=409
+            )
+
+        tag.name = cleaned_to
+        tag.normalized_name = normalized_to
+        tag.save(update_fields=["name", "normalized_name"])
+        return Response(status=200)
+
+    def delete(self, request):
+        name = request.query_params.get("name", "")
+        normalized_name = Tag.normalize_name(name)
+        tag = Tag.objects.filter(normalized_name=normalized_name).first()
+
+        if not tag:
+            return Response(
+                {"error": "Cannot delete a tag that does not exist."}, status=400
+            )
+
+        tag.delete()
+        return Response(status=200)
+
+
+class CommunityLibraryDetailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk):
+        entry = get_object_or_404(LibraryEntry, pk=pk)
+
+        if not PermService.is_superuser_or_elevated(request.user) and entry.is_banned:
+            return Response({"error": "This entry is banned."}, status=403)
+
+        return Response(
+            LibraryEntrySerializer(entry, context={"request": request}).data
+        )
+
+
+class CommunityLibraryCopyView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        entry = get_object_or_404(LibraryEntry, pk=pk)
+
+        if entry.is_banned:
+            return Response(
+                {"error": "This library entry has been banned."},
+                status=403,
+            )
+
+        snapshot = entry.snapshots.order_by("-created_at").first()
+        if snapshot is None:
+            return Response(
+                {"error": "This library entry has no snapshots to copy from."},
+                status=400,
+            )
+
+        new_instance = entry.instance.duplicate(
+            owner=request.user, new_name=snapshot.name
+        )
+
+        new_instance.library_entry = entry
+        new_instance.library_snapshot = snapshot
+        new_instance.save(update_fields=["library_entry", "library_snapshot"])
+
+        latest_qset = new_instance.get_latest_qset()
+        latest_qset.data = snapshot.qset.data
+        latest_qset.version = snapshot.qset.version
+        latest_qset.save(update_fields=["data", "version"])
+
+        return Response(WidgetInstanceSerializer(new_instance).data)
+
+
+class CommunityLibraryLikeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        entry = get_object_or_404(LibraryEntry, pk=pk)
+        like, created = UserLike.objects.get_or_create(user=request.user, entry=entry)
+
+        if created:
+            return Response({"liked": True, "like_count": entry.like_count})
+        else:
+            like.delete()
+            return Response({"liked": False, "like_count": entry.like_count})
+
+
+class CommunityLibraryReportsView(APIView):
+    def get_permissions(self):
+        if self.request.method != "POST":
+            return [IsSuperOrSupportUser()]
+        return [IsAuthenticated()]
+
+    def get(self, request, pk):
+        entry = get_object_or_404(LibraryEntry, pk=pk)
+        reports = LibraryReport.objects.filter(entry=entry)
+        return Response([LibraryReportSerializer(r).data for r in reports])
+
+    def post(self, request, pk):
+        entry = get_object_or_404(LibraryEntry, pk=pk)
+
+        if LibraryReport.objects.filter(user=request.user, entry=entry).exists():
+            return Response(
+                {"error": "You have already reported this item."}, status=400
+            )
+
+        serializer = LibraryReportSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        LibraryReport.objects.create(
+            user=request.user,
+            entry=entry,
+            reason=serializer.validated_data["reason"],
+            details=serializer.validated_data.get("details", ""),
+        )
+
+        if entry.report_count >= REPORT_THRESHOLD and not entry.is_banned:
+            entry.is_banned = True
+            entry.save(update_fields=["is_banned"])
+            _notify_admins_of_ban(entry, request.user)
+
+        return Response({"success": True})
+
+
+class CommunityLibraryModerateView(APIView):
+    permission_classes = [IsSuperOrSupportUser]
+
+    def patch(self, request, pk):
+        entry = get_object_or_404(LibraryEntry, pk=pk)
+        allowed_fields = ["featured", "is_banned", "category", "course_level"]
+
+        for field, value in request.data.items():
+            if field in allowed_fields:
+                setattr(entry, field, value)
+
+        entry.save()
+        return Response(
+            LibraryEntrySerializer(entry, context={"request": request}).data
+        )
+
+
+class CommunityLibrarySnapshotInstanceView(APIView):
+    permission_classes = [IsInstructor]
+
+    def get(self, request, pk, snapshot_id):
+        entry = get_object_or_404(LibraryEntry, pk=pk)
+        snapshot = entry.snapshots.filter(pk=snapshot_id).first()
+        if not snapshot:
+            return Response({"error": "Snapshot not found."}, status=404)
+        data = WidgetInstanceSerializer(entry.instance).data
+        data["name"] = snapshot.name
+        return Response(data)
+
+
+class CommunityLibrarySnapshotQsetView(APIView):
+    permission_classes = [IsInstructor]
+
+    def get(self, request, pk, snapshot_id):
+        entry = get_object_or_404(LibraryEntry, pk=pk)
+        snapshot = entry.snapshots.filter(pk=snapshot_id).first()
+        if not snapshot:
+            return Response({"error": "Snapshot not found."}, status=404)
+
+        return Response(
+            {
+                "data": (
+                    Base64Util.decode(snapshot.qset.data) if snapshot.qset.data else {}
+                ),
+                "version": snapshot.qset.version,
+            }
+        )
+
+
+class CommunityLibraryCategoryView(APIView):
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+        return [IsSuperOrSupportUser()]
+
+    def get(self, request):
+        qs = LibraryCategory.objects.all()
+
+        return Response([LibraryCategorySerializer(c).data for c in qs])
+
+    def post(self, request):
+        slug = request.query_params.get("slug", "")
+        category = LibraryCategory.objects.filter(slug=slug).first()
+
+        if category:
+            return Response(
+                {"error": "A category with this name already exists."}, status=409
+            )
+
+        category = LibraryCategory.objects.create()
+        category.slug = slug
+
+        allowed_fields = ["label", "banner_path", "color"]
+
+        for field, value in request.data.items():
+            if field in allowed_fields:
+                setattr(category, field, value)
+
+        category.save()
+        return Response(
+            LibraryCategorySerializer(category, context={"request": request}).data
+        )
+
+    def patch(self, request):
+        category = LibraryCategory.objects.filter(
+            slug=request.query_params.get("slug", "")
+        ).first()
+
+        if not category:
+            return Response(
+                {"error": "Cannot edit a category that does not exist."}, status=400
+            )
+
+        allowed_fields = ["label", "banner_path", "color"]
+
+        for field, value in request.data.items():
+            if field in allowed_fields:
+                setattr(category, field, value)
+
+        category.save()
+        return Response(
+            LibraryCategorySerializer(category, context={"request": request}).data
+        )
+
+    def delete(self, request):
+        category = LibraryCategory.objects.filter(
+            slug=request.query_params.get("slug", "")
+        ).first()
+
+        if not category:
+            return Response(
+                {"error": "Cannot delete a category that does not exist."}, status=400
+            )
+
+        if category.slug == "other":
+            return Response(
+                {"error": "The 'Other' category cannot be deleted."}, status=403
+            )
+
+        other = LibraryCategory.objects.filter(slug="other").first()
+        if not other:
+            return Response(
+                {
+                    "error": "The required 'Other' category does not exist in the database."
+                },
+                status=500,
+            )
+
+        entries = category.entries.all()
+        for e in entries:
+            e.category = other
+
+        LibraryEntry.objects.bulk_update(entries, ["category"])
+
+        category.delete()
+        return Response(
+            LibraryCategorySerializer(category, context={"request": request}).data
+        )

@@ -5,8 +5,8 @@ import DatePicker from 'react-datepicker'
 import './my-widgets-collaborate-dialog.scss'
 
 const accessLevels = {
-	[access.VISIBLE]: { value: access.VISIBLE, text: 'View Scores' },
-	[access.FULL]: { value: access.FULL, text: 'Full' }
+	[access.VISIBLE]: { value: access.VISIBLE, text: 'Can View Scores' },
+	[access.FULL]: { value: access.FULL, text: 'Full Access' }
 }
 
 const initRowState = () => {
@@ -94,7 +94,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 			<div className='demote-dialog'>
 				<div className='arrow'></div>
 				<div className='warning'>
-					Are you sure you want to limit <strong>your</strong> access?
+					Are you sure you want to remove <strong>your</strong> access?
 				</div>
 				<a data-testid={`cancel-remove-access`} className='no-button' onClick={cancelSelfDemote}>No</a>
 				<a data-testid={`accept-remove-access`} className='button action_button yes-button' onClick={removeAccess}>Yes</a>
@@ -145,6 +145,57 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 		}
 	}
 
+	let optionsContent = null
+	if (!isCurrentUser) {
+		const disableRemoveOptions = (onlyOneFullPermHolder && (perms.accessLevel === access.FULL))
+		if (myPerms.accessLevel === access.FULL) {
+			optionsContent = (
+				<>
+					<div className='options'>
+						<select disabled={readOnly || isCurrentUser || removedCurrentUser || state.contexts != null}
+							data-testid={`${user.id}-select`}
+							tabIndex='0'
+							className='perm'
+							value={state.accessLevel}
+							onChange={changeLevel}>
+							{ selectOptionElements }
+						</select>
+						<div className='expires'>
+							<span className='expire-label'>Expires: </span>
+							{ expirationSettingRender }
+						</div>
+					</div>
+					{
+						disableRemoveOptions ? <></> : (
+							<button tabIndex='0'
+								onClick={checkForWarning}
+								className='remove'
+								disabled={disableRemoveOptions}
+								aria-hidden={disableRemoveOptions}
+								aria-label="Remove user access"
+								data-testid={`${user.id}-delete-user`}>
+								&#10799;
+							</button>
+						)
+					}
+				</>
+			)
+		}
+
+	} else {
+		optionsContent = (
+			<div className='options-for-self'>
+				<span className='self-status'>{ perms.accessLevel == access.FULL ? 'Full Access' : 'Can View Scores' }</span>
+				<button className='action_button leave'
+					disabled={onlyOneFullPermHolder && (perms.accessLevel === access.FULL)}
+					aria-hidden={onlyOneFullPermHolder && (perms.accessLevel === access.FULL)}
+					onClick={checkForWarning}>
+						Leave
+					</button>
+			</div>
+		)
+	}
+
 	let provisionalAccess = null
 	if ((state.contexts != null || state.provisionalAccessRemoved == true) && !readOnly ) {
 		provisionalAccess = (
@@ -152,8 +203,8 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 				{ state.provisionalAccessRemoved == false ? (
 					<>
 						<span>
-							This user has provisional access due to the widget being embedded in their course. They can only see scores associated
-							with that course. Selecting Unrestrict Access will allow them to view all scores the widget has collected.
+							<strong>Provisional Access:</strong> This user can view scores from a course the widget was embedded in. They can only see scores associated
+							with that course. Unrestricted Access will allow them to view all scores the widget has collected.
 						</span>
 						<button className='action_button' onClick={removeContexts}>
 							Unrestrict Access
@@ -167,16 +218,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 	}
 
 	return (
-		<div className={`user-perm ${state.remove ? 'deleted' : ''} ${ (state.contexts != null || state.provisionalAccessRemoved == true) ? 'provisional' : ''}`}>
-			<button tabIndex='0'
-				onClick={checkForWarning}
-				className='remove'
-				disabled={onlyOneFullPermHolder && (perms.accessLevel === access.FULL)}
-				aria-hidden={onlyOneFullPermHolder && (perms.accessLevel === access.FULL)}
-				aria-label="Remove user access"
-				data-testid={`${user.id}-delete-user`}>
-				&#10799;
-			</button>
+		<div className={`user-perm ${state.remove ? 'deleted' : ''} ${ (state.contexts != null || state.provisionalAccessRemoved == true) ? 'provisional' : ''} ${ isCurrentUser ? 'current-user' : ''}`}>
 
 			<div className='about'>
 				<img className='avatar' src={user.avatar} alt=""/>
@@ -186,20 +228,8 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 				</span>
 			</div>
 			{ selfDemoteWarningRender }
-			<div className='options'>
-				<select disabled={readOnly || isCurrentUser || removedCurrentUser || state.contexts != null}
-					data-testid={`${user.id}-select`}
-					tabIndex='0'
-					className='perm'
-					value={state.accessLevel}
-					onChange={changeLevel}>
-					{ selectOptionElements }
-				</select>
-				<div className='expires'>
-					<span className='expire-label'>Expires: </span>
-					{ expirationSettingRender }
-				</div>
-			</div>
+			{ optionsContent }
+
 			{ provisionalAccess }
 		</div>
 	)
