@@ -148,11 +148,11 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 	let optionsContent = null
 	if (!isCurrentUser) {
 		const disableRemoveOptions = (onlyOneFullPermHolder && (perms.accessLevel === access.FULL))
-		if (myPerms.accessLevel === access.FULL) {
+		if (myPerms?.accessLevel === access.FULL || myPerms?.isSupportUser) {
 			optionsContent = (
 				<>
 					<div className='options'>
-						<select disabled={readOnly || isCurrentUser || removedCurrentUser || state.contexts != null}
+						<select disabled={readOnly || isCurrentUser || removedCurrentUser || state.contexts != null || disableRemoveOptions}
 							data-testid={`${user.id}-select`}
 							tabIndex='0'
 							className='perm'

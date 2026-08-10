@@ -156,7 +156,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 		let permsObj = [];
 
-		if (delCurrUser && myPerms.accessLevel != access.FULL)
+		if (delCurrUser && myPerms?.accessLevel != access.FULL)
 		{
 			// Only send a request to update current user perms so that it doesn't get no-perm'd by the server
 			let currentUserPerms = state.updatedAllUserPerms.get(currentUser.id);
@@ -306,7 +306,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 						onlyOneFullPermHolder={onlyOneFullPermHolder}
 						removedCurrentUser={removedCurrentUser}
 						onChange={(userId, perms) => updatePerms(userId, perms)}
-						readOnly={myPerms?.can?.share === false}
+						readOnly={myPerms?.can?.share === false && !myPerms?.isSupportUser}
 					/>
 				)
 
@@ -364,7 +364,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					<p className='disclaimer'>
 						Users with full access can edit this widget and can
 						add or remove people in this list. 
-						{onlyOneFullPermHolder && myPerms.accessLevel == access.FULL && (
+						{onlyOneFullPermHolder && myPerms?.accessLevel == access.FULL && (
 							<span>
 								<em>
 								{	'\u00A0'}Note: There must be at least one user with full access.

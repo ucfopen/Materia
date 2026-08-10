@@ -112,13 +112,13 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 			const myPerms = new Map()
 
 			perms.forEach(perm => {
+
+				const permToObj = rawPermsToObj(perm, isEditable)
 				
 				if (perm.user == currentUser?.id) {
-					myPerms.set(perm.user, rawPermsToObj(perm, isEditable))
+					myPerms.set(perm.user, permToObj)
 				}
-				else {
-					othersPerms.set(perm.user, rawPermsToObj(perm, isEditable))
-				}
+				othersPerms.set(perm.user, permToObj)
 			})
 			myPerms.isSupportUser = true
 
@@ -267,10 +267,15 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 
 	let collaborateDialogRender = null
 	if (showCollab) {
+		const entries = allPerms.myPerms.entries()
+		let myPerms = null
+		if (entries) myPerms = entries.next().value[1] ?? null
+		// isSupportUser should always be present here, but check its value just to be sure
+		if (allPerms.myPerms && myPerms && allPerms.myPerms.isSupportUser == true) myPerms.isSupportUser = true
 		collaborateDialogRender = (
 			<MyWidgetsCollaborateDialog inst={inst}
 				currentUser={currentUser}
-				myPerms={allPerms.myPerms}
+				myPerms={myPerms}
 				otherUserPerms={allPerms.otherUserPerms}
 				setOtherUserPerms={(p) => setAllPerms({...allPerms, otherUserPerms: p})}
 				onClose={() => {setShowCollab(false)}}
