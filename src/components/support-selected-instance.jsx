@@ -269,7 +269,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 	if (showCollab) {
 		const entries = allPerms.myPerms.entries()
 		let myPerms = null
-		if (entries) myPerms = entries.next().value[1] ?? null
+		if (entries && entries.length) myPerms = entries.next().value[1] ?? null
 		// isSupportUser should always be present here, but check its value just to be sure
 		if (allPerms.myPerms && myPerms && allPerms.myPerms.isSupportUser == true) myPerms.isSupportUser = true
 		collaborateDialogRender = (
