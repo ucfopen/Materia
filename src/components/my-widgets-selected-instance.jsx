@@ -7,10 +7,14 @@ import parseObjectToDateString from '../util/object-to-date-string'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
+import MyWidgetsPullDialog from './my-widgets-pull-dialog'
 import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
+import CommunityLibraryPublishDialog from './community-library-publish-dialog'
 import Modal from './modal'
 import LoadingIcon from './loading-icon'
 import Warning from "@/components/warning";
+import { useUpdateInLibrary, usePullFromLibrary } from './hooks/useCommunityLibrary'
+import { apiUnpublishFromLibrary } from '../util/api'
 
 const convertAvailabilityDates = (startDateStr, endDateStr) => {
 	let endDate, endTime, open_at, startTime
@@ -69,8 +73,16 @@ const MyWidgetSelectedInstance = ({
 	const [showSettings, setShowSettings] = useState(false)
 	const [error, setError] = useState('')
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
+	const [showPublishDialog, setShowPublishDialog] = useState(false)
+	const [showPullDialog, setShowPullDialog] = useState(false)
+	const [updateLibraryLabel, setUpdateLibraryLabel] = useState('Update in Library')
+	const [pullLabel, setPullLabel] = useState('Pull Latest from Library')
+	const updateInLibrary = useUpdateInLibrary()
+	const pullFromLibrary = usePullFromLibrary()
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
+
+	const isCustomizable = inst && inst.widget.creator !== "" && !inst.widget.creator.includes("default")
 
 	// Initializes the data when widgets changes
 	useEffect(() => {
@@ -314,6 +326,44 @@ const MyWidgetSelectedInstance = ({
 	}
 
 	const lockedDialogOnClose = () => setShowLocked(false)
+	let publishDialogRender = null
+	if (showPublishDialog) {
+		publishDialogRender = (
+			<CommunityLibraryPublishDialog
+				inst={inst}
+				onClose={() => setShowPublishDialog(false)}
+				onSuccess={(entry) => {
+					setShowPublishDialog(false)
+					onEdit({...inst,
+						is_available: true,
+						shared_to_library: true,
+						library_entry: {...entry}
+					})
+				}}
+			/>
+		)
+	}
+
+	let pullDialogRender = null
+	if (showPullDialog) {
+		pullDialogRender = (
+			<MyWidgetsPullDialog
+				onClose={() => setShowPullDialog(false)}
+				onConfirm={(callbacks) => {
+					pullFromLibrary.mutate(inst.id, {
+						onSuccess: (data) => {
+							setShowPullDialog(false)
+							onEdit(data)
+							setPullLabel('Pulled!')
+							setTimeout(() => setPullLabel('Pull Latest from Library'), 3000)
+						},
+						onError: callbacks.onError,
+					})
+				}}
+			/>
+		)
+	}
+
 	let lockedDialogRender = null
 	if (showLocked) {
 		lockedDialogRender = (
@@ -342,6 +392,176 @@ const MyWidgetSelectedInstance = ({
 				</p>
 			</div>
 		)
+	}
+
+	let communityLibraryContentRender = null
+
+	if (!inst.shared_to_library && !inst.copied_from_library) {
+		if (currentUser?.library_banned) {
+			communityLibraryContentRender = (
+				<div className='row'>
+					<div className='cl-content'>
+						<h4>You have been banned from the Community Library.</h4>
+						You are unable to publish widgets. If you believe this to be in error, <a href="/help" target="_blank">contact support</a>.
+					</div>
+				</div>
+			)
+		} else {
+			communityLibraryContentRender = (
+				<div className='row'>
+					<div className='cl-content'>
+						<h4>Make Your Widget Public!</h4>
+						Allow other instructors to discover, copy, and adapt this widget for their own courses.
+					</div>
+					<div className='col'>
+						<button
+							role='menuitem'
+							tabIndex="0"
+							disabled={inst.is_draft || inst.guest_access || !isCustomizable || !state.perms.editable}
+							onClick={() => setShowPublishDialog(true)}>
+							Share to Library
+						</button>
+					</div>
+				</div>
+			)
+		}
+
+	} else if (inst.copied_from_library) {
+		if (inst.library_entry.is_banned) {
+			communityLibraryContentRender = (
+				<div className='row'>
+					<div className='cl-content'>
+						The Community Library entry for this widget <b>has been banned.</b> You can continue to use it and modify this copy 
+						but you cannot update it from the original Community Library entry.
+					</div>
+					<div className='col'>
+						<button
+							role='menuitem'
+							tabIndex="0"
+							disabled={true}
+							onClick={() => {return false}}>
+							Cannot Update From Library
+						</button>
+					</div>
+				</div>
+			)
+		} else {
+			const newSnapshotAvailable = inst.library_entry.latest_snapshot_id != inst.library_snapshot_id
+			if (newSnapshotAvailable) {
+				communityLibraryContentRender = (
+					<div className='row'>
+						<div className='cl-content'>
+							<h4><span className='state'>COPIED</span><a target="_blank" href={`/community-library/${inst.library_entry.id}`}>{'➜ '}Library Entry</a></h4>
+							Pull changes to replace this widget's content with the latest version from the Community Library. <b>This cannot be reversed.</b>
+						</div>
+						<div className='col'>
+							<button
+								role='menuitem'
+								tabIndex="0"
+								onClick={() => setShowPullDialog(true)}>
+								{pullLabel}
+							</button>
+						</div>
+					</div>
+				)
+			} else {
+				communityLibraryContentRender = (
+					<div className='row'>
+						<div>
+							<h4><span className='state'>COPIED</span><a target="_blank" href={`/community-library/${inst.library_entry.id}`}>{'➜ '}Library Entry</a></h4>
+							This widget was copied from the Community Library. Edits you make to this copy will not influence the original.
+						</div>
+					</div>
+				)
+			}
+		}
+
+	} else if (inst.shared_to_library) {
+		if (inst.library_entry.is_banned) {
+			communityLibraryContentRender = (
+				<div className='row'>
+					<div className='cl-content'>
+						<p>Your widget has been <b>Banned from the Community Library</b>. You cannot push new updates. You may choose to unpublish the entry,
+						but users who previously copied your widget can continue to use their copies. If you believe this ban was in error, <a href="/help" target="_blank">contact support</a>.</p>
+					</div>
+					<div className='col'>
+						<button
+							className='alt'
+							role='menuitem'
+							tabIndex="0"
+							disabled={true}
+							onClick={() => {
+								return false
+							}}>
+							Cannot Update
+						</button>
+						<button
+							role='menuitem'
+							tabIndex="0"
+							disabled={!state.perms.editable}
+							onClick={() => {
+								apiUnpublishFromLibrary(inst.id).then(() => {
+									onEdit({
+										...inst,
+										is_available: false,
+										library_entry: null,
+										shared_to_library: false
+									})
+								})
+							}}>
+							Remove from Library
+						</button>
+					</div>
+				</div>
+			)
+		} else {
+			communityLibraryContentRender = (
+				<div className='row'>
+					<div className='cl-content'>
+						<h4><span className='state'>SHARED</span><a target="_blank" href={`/community-library/${inst.library_entry ? inst.library_entry.id : 1}`}>{'➜ '}Library Entry</a></h4>
+						<p>Select <b>Update in Library</b> to sync any changes to this widget to the Community Library.</p>
+						Select <b>Remove from Library</b> to remove this widget from the Community Library. This will prevent new copies of this widget from being made.
+					</div>
+					<div className='col'>
+						<button
+							className='alt'
+							role='menuitem'
+							tabIndex="0"
+							disabled={!state.perms.editable}
+							onClick={() => {
+								updateInLibrary.mutate(inst.id, {
+									onSuccess: () => {
+										setUpdateLibraryLabel('Updated!')
+										setTimeout(() => setUpdateLibraryLabel('Update in Library'), 3000)
+									},
+									onError: () => {
+										setUpdateLibraryLabel('Already Up to Date')
+										setTimeout(() => setUpdateLibraryLabel('Update in Library'), 3000)
+									}
+								})
+							}}>
+							{updateLibraryLabel}
+						</button>
+						<button
+							role='menuitem'
+							tabIndex="0"
+							disabled={!state.perms.editable}
+							onClick={() => {
+								apiUnpublishFromLibrary(inst.id).then(() => {
+									onEdit({
+										...inst,
+										is_available: false,
+										library_entry: null,
+										shared_to_library: false
+									})
+								})
+							}}>
+							Remove from Library
+						</button>
+					</div>
+				</div>
+			)
+		}
 	}
 
 	let mainContentRender = null
@@ -478,16 +698,33 @@ const MyWidgetSelectedInstance = ({
 
 			{provisionalAccessRender}
 
+			{ !currentUser?.is_student &&
+				<div className={`community-library-container closed ${(inst.is_draft || inst.guest_access || !isCustomizable || !state.perms.editable) ? 'draft' : ''}`}>
+					<h3>
+						{`${!isCustomizable ? `This widget type cannot be shared to the `
+							: !state.perms.editable ? `You need edit access to use the `
+							: inst.guest_access ? `Guest widgets cannot be shared to the ` 
+							: inst.is_draft ? `Publish to share to the ` 
+							: ``}Community Library`}
+					</h3>
+					<div className="cl-options">
+						{ communityLibraryContentRender }
+					</div>
+				</div>
+			}
+
 			<div className={`share-widget-container closed ${inst.is_draft ? 'draft' : ''}`}>
 				<h3>
-					{inst.is_draft ? 'Publish to share' : 'Share'} with your students
+					{inst.is_draft ? 'Publish to Share' : 'Share'} Your Widget
 				</h3>
-				<div className="share-widget-options-first" id="first-share-widget-option">
-					<h4> Via LMS / LTI Setup </h4>
-					<p> Integrate your widget into your LMS. You can use External Tools in Canvas to embed directly into Webcourses, allowing for immediate authentication, automatic grade passback, and more. Learn more
-					<a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html"> here.</a>
-					</p>
-				</div>
+				{ !currentUser?.is_student && 
+					<div className="share-widget-options-first" id="first-share-widget-option">
+						<h4>Via LMS Integration</h4>
+						<p>Materia can integrate directly with your LMS. You can use External Tools in Canvas to embed widgets into your course, allowing for immediate authentication, automatic grade passback, 
+							and more. <a href="https://ucfopen.github.io/Materia-Docs/v11/users/embedding-in-canvas.html" target="_blank">Learn more about embedding widgets in Canvas</a>.
+						</p>
+					</div>
+				}
 				<div className="share-widget-options-second" id="third-share-widget-option">
 				<h4> Via Embed Code </h4>
 					<p>
@@ -531,6 +768,8 @@ const MyWidgetSelectedInstance = ({
 		{ warningDialogRender }
 		{ settingsDialogRender }
 		{ lockedDialogRender }
+		{ pullDialogRender }
+		{ publishDialogRender }
 		<MyWidgetsScores inst={inst} contexts={myPerms?.contexts} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
 		</>
 	}
