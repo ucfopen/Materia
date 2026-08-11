@@ -118,6 +118,13 @@ const SiteAdminPage = () => {
 		retry: false
 	})
 
+	const {data: libraryImages, refetch: refetchLibraryImages } = useQuery({
+		queryKey: ['library-images'],
+		queryFn: () => apiGetSiteImages('library'),
+		staleTime: Infinity,
+		retry: false
+	})
+
 	useEffect(() => {
 		const handleHashChange = () => {
 			if (window.location.hash === '#images') {
@@ -148,7 +155,6 @@ const SiteAdminPage = () => {
 	},[profileImages])
 
 	useEffect(() => {
-		console.log(catalogImages)
 		if (catalogImages != undefined) {
 			setImageState((imageState) => ({
 				...imageState,
@@ -158,6 +164,17 @@ const SiteAdminPage = () => {
 			}))
 		}
 	},[catalogImages])
+
+	useEffect(() => {
+		if (libraryImages != undefined) {
+			setImageState((imageState) => ({
+				...imageState,
+				isUploadingImage: false,
+				imageUploadError: false,
+				libraryImages: libraryImages,
+			}))
+		}
+	},[libraryImages])
 
 	useEffect(() => {
 		if (siteMessages != undefined) {
@@ -175,6 +192,7 @@ const SiteAdminPage = () => {
 
 		let profileGalleryRender = null
 		let catalogImageRender = null
+		let libraryImageRender = null
 		if ( !!imageState.profileImages) {
 			const profileImageList = imageState.profileImages.map((img, index) => {
 				return (
@@ -215,6 +233,26 @@ const SiteAdminPage = () => {
 				</ul>
 			)
 		}
+		if(!!imageState.libraryImages) {
+			const libraryImageList = imageState.libraryImages.map((img, index) => {
+				return (
+					<li className="profile-image" key={index}>
+						<img src={img.image_path} alt="" />
+						<button 
+							className="action_button remove_profile_img"
+							data-ormid={img.id}
+							onClick={handleImageRemoveRequest}>
+								Remove
+							</button>
+					</li>
+				)
+			})
+			libraryImageRender = (
+				<ul className='profile-images'>
+					{libraryImageList}
+				</ul>
+			)
+		}
 
 		contentRender = (
 			<>
@@ -227,6 +265,7 @@ const SiteAdminPage = () => {
 								className="image_uploader_select"
 								name="image_type">
 									<option value="PROFILE_IMAGE">Profile Image</option>
+									<option value="LIBRARY_BANNER">Library Banner</option>
 									<option value="CATALOG_BANNER">Catalog Banner</option>
 								</select>
 							<input
@@ -248,6 +287,10 @@ const SiteAdminPage = () => {
 					<section className="management-subsection">
 						<h3>Catalog Banner</h3>
 						{catalogImageRender}
+					</section>
+					<section className="management-subsection">
+						<h3>Library Banner</h3>
+						{libraryImageRender}
 					</section>
 					<section className="management-subsection">
 						<h3>Profile Images</h3>
@@ -341,28 +384,6 @@ const SiteAdminPage = () => {
 					</section>
 				</section>
 			</>
-		)
-	}
-
-	let catalogGalleryRender = null
-	if ( !!imageState.catalogImages) {
-		const catalogImageList = imageState.catalogImages.map((img, index) => {
-			return (
-				<li className="profile-image" key={index}>
-					<img src={img.image_path} alt="" />
-					<button 
-						className="action_button remove_profile_img"
-						data-ormid={img.id}
-						onClick={handleImageRemoveRequest}>
-							Remove
-						</button>
-				</li>
-			)
-		})
-		catalogGalleryRender = (
-			<ul>
-				{catalogImageList}
-			</ul>
 		)
 	}
 

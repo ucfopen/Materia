@@ -32,11 +32,11 @@ const GLASS_PATH = "m244.19 214.6l-54.379-54.378c-0.289-0.289-0.628-0.491-0.93-0
 const CommunityLibrary = ({ widgets = [] }) => {
 	const [searchInput, setSearchInput] = useState('')
 	const [finallInput, setFinalInput] = useState('')
+
 	const [selectedWidgetType, setSelectedWidgetType] = useState('')
-
 	const [selectedCategories, setSelectedCategories] = useState(new Set([]))
-
 	const [selectedCourseLevel, setSelectedCourseLevel] = useState('')
+
 	const [sortBy, setSortBy] = useState('newest')
 	const [reportingEntry, setReportingEntry] = useState(null)
 	const [copySuccess, setCopySuccess] = useState(null)
@@ -44,6 +44,8 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	const { data: categories } = useCategoryList()
 		
 	const [mappedCategories, setMappedCategories] = useState({})
+
+	const url = new URL(location)
 
 	useEffect(() => {
 		if(!categories) return
@@ -59,6 +61,90 @@ const CommunityLibrary = ({ widgets = [] }) => {
 
 		setMappedCategories(temp)
 	},[categories])
+	
+	const popStateListener = (e) => {
+		if(!e.state) {
+			setSelectedCategories(new Set([]))
+			setSelectedWidgetType('')
+			setSelectedCourseLevel('')
+			return
+		}
+
+		setSelectedCategories(new Set(!e.state.category ? [] : [...e.state.category]))
+		setSelectedWidgetType(!e.state.widget_id ? '' : e.state.widget_id)
+		setSelectedCourseLevel(!e.state.course_level ? '' : e.state.course_level)
+	}
+
+	const wipeFakeHistory = () => {
+		url.searchParams.delete("category")
+		url.searchParams.delete("widget_id")
+		url.searchParams.delete("course_level")
+
+		history.pushState({}, "", url)
+	}
+
+	const populateFromParams = () => {
+		const cat = url.searchParams.get("category")
+		setSelectedCategories(new Set(cat ? cat.split(',') : []))
+		setSelectedWidgetType(url.searchParams.get("widget_id") ?? '')
+		setSelectedCourseLevel(url.searchParams.get("course_level") ?? '')
+	}
+
+	const detectReload = () => {
+		const entries = performance.getEntriesByType("navigation");
+		entries.forEach((entry) => {
+			if (entry.type === "reload") {
+				wipeFakeHistory()
+				return
+			}
+		});
+	}
+	
+	useEffect(() => {
+		window.addEventListener('popstate', popStateListener)
+		detectReload()
+		populateFromParams()
+		
+		return () => {
+			window.removeEventListener('popstate', popStateListener)
+		}
+	}, [])
+	
+	const setCategoriesHistory = (newCat) => {
+		setSelectedCategories(newCat)
+		
+		const empty = newCat.size === 0
+		if(empty) 
+			url.searchParams.delete("category")
+		else
+			url.searchParams.set("category", [...newCat])
+
+		history.pushState(empty ? {} : {category: [...newCat]}, "", url);
+	}
+
+	const setWidgetHistory = (id) => {
+		setSelectedWidgetType(id)
+
+		const empty = id === ''
+		if(empty) 
+			url.searchParams.delete("widget_id")
+		else
+			url.searchParams.set("widget_id", id)
+
+		history.pushState(empty ? {} : {widget_id: id}, "", url);
+	}
+
+	const setLevelHistory = (level) => {
+		setSelectedCourseLevel(level)
+
+		const empty = level === ''
+		if(empty) 
+			url.searchParams.delete("course_level")
+		else
+			url.searchParams.set("course_level", level)
+
+		history.pushState(empty ? {} : {course_level: level}, "", url);
+	}
 
 	const formRef = useRef(null)
 	const tagListRef = useRef(null)
@@ -126,7 +212,8 @@ const CommunityLibrary = ({ widgets = [] }) => {
 	const likeMutation = useToggleLike()
 
 	// list of 5 most relevant tags from database
-	const {data: tags, status} = useTagList(5, tempTag.replace("#", ""), tagList)
+	const searchTag = useDebounce(tempTag, 200)
+	const {data: tags, status} = useTagList(5, searchTag.replace("#", ""), tagList)
 	const defTags = useDeferredValue(tags)
 	
 	const handleCopy = useCallback(
@@ -154,9 +241,9 @@ const CommunityLibrary = ({ widgets = [] }) => {
 
 	const clearFilters = () => {
 		clearSearch()
-		setSelectedWidgetType('')
-		setSelectedCategories(new Set([]))
-		setSelectedCourseLevel('')
+		setWidgetHistory('')
+		setCategoriesHistory(new Set([]))
+		setLevelHistory('')
 		setTagList([])
 		document.getElementById("filter-form").reset();
 	}
@@ -388,7 +475,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 								<div className='col small-labels'>
 									{COURSE_LEVELS.map((v,i)=> {
 										return(<div className='row' key={`level${i}`}>
-											<input defaultChecked={v.value == ""} type='radio' name='level' value={v.value} id={`${v.value == "" ? "all" : v.value}-level-check`} onChange={(e) => setSelectedCourseLevel(e.target.value)}/>
+											<input checked={v.value == selectedCourseLevel} tabIndex={0} type='radio' name='level' value={v.value} id={`${v.value == "" ? "all" : v.value}-level-check`} onChange={(e) => setLevelHistory(e.target.value)}/>
 											<label htmlFor={`${v.value == "" ? "all" : v.value}-level-check`}>{v.label}</label>										
 										</div>)
 									})}
@@ -401,13 +488,13 @@ const CommunityLibrary = ({ widgets = [] }) => {
 									<div style={{width: 130, height: 300, backgroundColor: "#fff", borderRadius: 4}}></div>
 									: categories.map((v,i)=> {
 										return(<div className='row' key={`cat${i}`}>
-											<input checked={selectedCategories.has(v.slug)} type='checkbox' name='discipline' value={v.slug} id={`${v.slug == "" ? "all" : v.slug}-cat-check`} 
+											<input checked={selectedCategories.has(v.slug)} tabIndex={0} type='checkbox' name='discipline' value={v.slug} id={`${v.slug == "" ? "all" : v.slug}-cat-check`} 
 											onChange={(e) => {
 												if(e.target.checked)
 													selectedCategories.add(e.target.value)
 												else selectedCategories.delete(e.target.value)
 
-												setSelectedCategories(new Set([...selectedCategories]))
+												setCategoriesHistory(new Set([...selectedCategories]))
 											}}
 											/>
 											<label htmlFor={`${v.slug == "" ? "all" : v.slug}-cat-check`}>{v.label}</label>										
@@ -419,12 +506,12 @@ const CommunityLibrary = ({ widgets = [] }) => {
 								<summary>Widget Engine</summary>
 								<div className='col small-labels'>
 									<div className='row'>
-										<input defaultChecked={true} type='radio' name='widget' value={""} id={`all-check`} onChange={(e) => setSelectedWidgetType(e.target.value)}/>
+										<input checked={selectedWidgetType === ''} tabIndex={0} type='radio' name='widget' value={''} id={`all-check`} onChange={(e) => setWidgetHistory(e.target.value)}/>
 										<label htmlFor={`all-check`}>All Widget Types</label>
 									</div>
 									{widgetTypeOptions.map((v,i)=> {
 										return(<div className='row' key={`widget${i}`}>
-											<input type='radio' name='widget' value={v.id} id={`${v.id}-check`} onChange={(e) => setSelectedWidgetType(e.target.value)}/>
+											<input checked={parseInt(selectedWidgetType) === v.id} type='radio' name='widget' value={v.id} id={`${v.id}-check`} onChange={(e) => setWidgetHistory(e.target.value)}/>
 											<label htmlFor={`${v.id}-check`}>{v.name}</label>										
 										</div>)
 									})}
@@ -513,7 +600,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 							</div>
 							{
 								!isFiltered ?
-								<CommunityLibraryDashboard setCategories={setSelectedCategories}/>
+								<CommunityLibraryDashboard setCategories={setCategoriesHistory}/>
 								:
 								<>
 								{contentRender}

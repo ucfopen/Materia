@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { apiUserVerify } from '../util/api'
 import './cl-detail.scss'
 import CommunityLibraryReportDialog from './community-library-report-dialog'
+import { iconUrl } from '../util/icon-url'
 
 import {
 	useCopyFromLibrary,
@@ -130,7 +131,7 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 							<div className='content row small'>
 								{
 									entry ?
-									<img src={`/widget/${entry.widget.dir}img/icon-92.png`}/>
+									<img src={iconUrl('/widget/', entry.widget.dir, 92)}/>
 									:
 									<div style={{width: "92px", height: "92px", borderRadius: "4px", backgroundColor: "#aaa", flexShrink: 0}}></div>
 								}
@@ -147,7 +148,7 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 						</div>
 						<br/>
 						<h3>TAGS</h3>
-						<div className='row' style={{gap: "8px"}}>
+						<div className='row wrap' style={{gap: "8px"}}>
 						{
 							entry && entry.tags.length != 0 ? entry.tags.map((t, i)=>(
 								<div className='tag' key={i}>#{t}</div>

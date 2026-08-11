@@ -675,6 +675,11 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         existing_entry = LibraryEntry.objects.filter(instance=instance).first()
 
+        if len(tags) > 10:
+            return Response(
+                {"error": "Widgets cannot have more than 10 tags applied."}, status=400
+            )
+
         with transaction.atomic():
             if existing_entry:
 

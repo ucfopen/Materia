@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Modal from './modal'
 import { useReportEntry } from './hooks/useCommunityLibrary'
 
@@ -13,12 +13,19 @@ const CommunityLibraryReportDialog = ({ entry, onClose, onSuccess }) => {
 	const [reason, setReason] = useState('')
 	const [details, setDetails] = useState('')
 	const [errorText, setErrorText] = useState('')
+	const [errorLock, setErrorLock] = useState("")
 
 	const reportMutation = useReportEntry()
+
+	useEffect(()=>{
+		if(errorLock === "temp")
+			setTimeout(()=>setErrorLock(""), 3000)
+	}, [errorLock])
 
 	const handleSubmit = () => {
 		if (!reason) {
 			setErrorText('Please select a reason.')
+			setErrorLock("temp")
 			return
 		}
 
@@ -35,6 +42,7 @@ const CommunityLibraryReportDialog = ({ entry, onClose, onSuccess }) => {
 				},
 				onError: (err) => {
 					setErrorText(err?.data?.error || 'Failed to submit report. Please try again.')
+					setErrorLock("permanent")
 				},
 			},
 		)
@@ -83,7 +91,7 @@ const CommunityLibraryReportDialog = ({ entry, onClose, onSuccess }) => {
 					<button
 						className="btn report-submit"
 						onClick={handleSubmit}
-						disabled={reportMutation.isLoading}
+						disabled={reportMutation.isLoading ?? errorLock}
 					>
 						{reportMutation.isLoading ? 'Submitting...' : 'Submit Report'}
 					</button>

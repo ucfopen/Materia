@@ -95,6 +95,7 @@ section.page {
 
             h1, h2, h3 {
                 margin: 0;
+                word-break: break-word;
             }
 
             .author {
@@ -131,6 +132,11 @@ section.page {
 
             &.small {
                 padding: 16px 12px;
+
+                img {
+                    width: 92px;
+                    height: 92px;
+                }
             }
         }
 
@@ -226,6 +232,10 @@ section.page {
             justify-content: space-between;
         }
 
+        &.wrap {
+            flex-wrap: wrap;
+        }
+
         &.fit {
             width: fit-content;
         }
@@ -251,6 +261,7 @@ section.page {
         height: fit-content;
         width: fit-content;
         text-align: center;
+        white-space: nowrap;
 
         &.category {
             background-color: #E0F2FE;
