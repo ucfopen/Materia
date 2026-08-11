@@ -13,18 +13,19 @@ const CommunityLibraryReportDialog = ({ entry, onClose, onSuccess }) => {
 	const [reason, setReason] = useState('')
 	const [details, setDetails] = useState('')
 	const [errorText, setErrorText] = useState('')
-	const [errorLock, setErrorLock] = useState(false)
+	const [errorLock, setErrorLock] = useState("")
 
 	const reportMutation = useReportEntry()
 
 	useEffect(()=>{
-		setTimeout(()=>setErrorLock(false), 3000)
+		if(errorLock === "temp")
+			setTimeout(()=>setErrorLock(""), 3000)
 	}, [errorLock])
 
 	const handleSubmit = () => {
 		if (!reason) {
 			setErrorText('Please select a reason.')
-			setErrorLock(true)
+			setErrorLock("temp")
 			return
 		}
 
@@ -41,7 +42,7 @@ const CommunityLibraryReportDialog = ({ entry, onClose, onSuccess }) => {
 				},
 				onError: (err) => {
 					setErrorText(err?.data?.error || 'Failed to submit report. Please try again.')
-					setErrorLock(true)
+					setErrorLock("permanent")
 				},
 			},
 		)
