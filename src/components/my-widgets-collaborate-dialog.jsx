@@ -146,7 +146,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	// does the perms set contain the current user?
 	// supportUsers always have implicit access. Otherwise, verify the user is in the perms set and isn't pending removal.
 	const containsUser = () => {
-		if (myPerms?.isSupportUser || suOverride) return true
+		if (suOverride) return true
 		for (const [id, val] of Array.from(state.updatedAllUserPerms)) {
 			if (id == currentUser.id) return !val.remove
 		}
@@ -312,6 +312,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 						removedCurrentUser={removedCurrentUser}
 						onChange={(userId, perms) => updatePerms(userId, perms)}
 						readOnly={myPerms?.can?.share === false && !suOverride}
+						suOverride={suOverride}
 					/>
 				)
 

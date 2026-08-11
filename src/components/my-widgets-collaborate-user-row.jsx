@@ -41,7 +41,7 @@ const CalendarContainer = ({children}) => {
 	)
 }
 
-const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPermHolder, removedCurrentUser, onChange, readOnly}) => {
+const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPermHolder, removedCurrentUser, onChange, readOnly, suOverride}) => {
 	const [state, setState] = useState({
 		...initRowState(),
 		...perms,
@@ -87,6 +87,8 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 	}
 
 	const removeContexts = () => setState({...state, contexts: null, provisionalAccessRemoved: true})
+
+	const disableRemoveOptions = (onlyOneFullPermHolder && (perms.accessLevel === access.FULL))
 
 	let selfDemoteWarningRender = null
 	if (state.showDemoteDialog) {
@@ -135,10 +137,10 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 			)
 		} else {
 			expirationSettingRender = (
-				<button className={(readOnly || isCurrentUser || removedCurrentUser || perms.contexts != null) ? 'expire-open-button-disabled' : 'expire-open-button'}
+				<button className={(readOnly || isCurrentUser || removedCurrentUser || perms.contexts != null || disableRemoveOptions) ? 'expire-open-button-disabled' : 'expire-open-button'}
 					data-testid={`${user.id}-never-expire`}
 					onClick={toggleShowExpire}
-					disabled={readOnly || isCurrentUser || removedCurrentUser || perms.contexts != null}>
+					disabled={readOnly || isCurrentUser || removedCurrentUser || perms.contexts != null || disableRemoveOptions}>
 					Never
 				</button>
 			)
@@ -147,8 +149,7 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onlyOneFullPer
 
 	let optionsContent = null
 	if (!isCurrentUser) {
-		const disableRemoveOptions = (onlyOneFullPermHolder && (perms.accessLevel === access.FULL))
-		if (myPerms?.accessLevel === access.FULL || myPerms?.isSupportUser) {
+		if (myPerms?.accessLevel === access.FULL || suOverride) {
 			optionsContent = (
 				<>
 					<div className='options'>

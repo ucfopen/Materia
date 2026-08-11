@@ -120,8 +120,6 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 				}
 				othersPerms.set(perm.user, permToObj)
 			})
-			myPerms.isSupportUser = true
-
 			setAllPerms({myPerms: myPerms, otherUserPerms: othersPerms})
 		}
 	}, [perms])
@@ -270,8 +268,6 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 		const entries = allPerms.myPerms.entries()
 		let myPerms = null
 		if (entries && entries.length) myPerms = entries.next().value[1] ?? null
-		// isSupportUser should always be present here, but check its value just to be sure
-		if (allPerms.myPerms && myPerms && allPerms.myPerms.isSupportUser == true) myPerms.isSupportUser = true
 		collaborateDialogRender = (
 			<MyWidgetsCollaborateDialog inst={inst}
 				currentUser={currentUser}
@@ -488,7 +484,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 								name='available'
 								value={-1}
 								checked={availableDisabled}
-								onChange={() => {setAvailableDisabled(true); handleChange('open_at', -1)}}
+								onChange={() => {setAvailableDisabled(true); handleChange('open_at', null)}}
 							/>
 							<label htmlFor="now">Now</label>
 						</div>
@@ -519,7 +515,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 								id="never"
 								value={-1}
 								checked={closeDisabled}
-								onChange={() => {setCloseDisabled(true); handleChange('close_at', -1)}}
+								onChange={() => {setCloseDisabled(true); handleChange('close_at', null)}}
 							/>
 							<label htmlFor="never">Never</label>
 						</div>
