@@ -1618,6 +1618,9 @@ class UserSettings(models.Model):
             self.profile_fields = updated_fields
             self.save()
 
+        elif "theme" not in self.profile_fields:
+            self.set_profile_fields("theme", "light")
+
         profile_images = SiteImage.objects.filter(
             image_type=SiteImage.ImageType.PROFILE_IMAGE
         )
