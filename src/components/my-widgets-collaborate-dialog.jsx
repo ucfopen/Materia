@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import React, { useEffect, useState, useRef } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiGetUsers } from '../util/api'
-import setUserInstancePerms from './hooks/useSetUserInstancePerms'
+import useSetUserInstancePerms from './hooks/useSetUserInstancePerms'
 import Modal from './modal'
 import useDebounce from './hooks/useDebounce'
 import LoadingIcon from './loading-icon'
@@ -23,39 +23,49 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const [state, setState] = useState(initDialogState())
 	const debouncedSearchTerm = useDebounce(state.searchText, 250)
 	const queryClient = useQueryClient()
-	const setUserPerms = setUserInstancePerms()
+	const setUserPerms = useSetUserInstancePerms()
 	const [error, setError] = useState('')
 	const mounted = useRef(false)
 	const popperRef = useRef(null)
 	const userList = useUserList(debouncedSearchTerm)
 	const [collabUsers, setCollabUsers] = useState({})
+	const [suOverride, setSuOverride] = useState(false)
 
-	const { data, remove: clearUsers, isFetching} = useQuery({
-		queryKey: ['collab-users', inst.id, (otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)], // check for changes in otherUserPerms
+	const collabUsersQueryKey = [
+		'collab-users',
+		inst.id,
+		(otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)
+	] // check for changes in otherUserPerms
+	const { data, isFetching, error: usersError } = useQuery({
+		queryKey: collabUsersQueryKey,
 		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys()).length > 0,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		staleTime: Infinity,
 		placeholderData: {},
-		retry: false,
-		onSuccess: (data) => {
-			setCollabUsers({...collabUsers, ...data})
-		},
-		onError: (err) => {
-			if (err.message == "Invalid Login")
-			{
+		retry: false
+	})
+
+	useEffect(() => {
+		if (!usersError) return
+		switch (usersError.status) {
+			case 401:
 				setInvalidLogin(true)
 				customClose()
-			} else {
-				setError("Failed to load users")
-			}
+				break
+			default:
+				setError("Failed to load users.")
 		}
-	})
+	}, [usersError])
+
+	useEffect(() => {
+		if (!data) return
+		setCollabUsers(prev => ({ ...prev, ...data }))
+	}, [data])
 
 	useEffect(() => {
 		if (userList.error) {
 			setError(`User search failed with error: ${data.msg}`);
-			if (userList.error.title == "Invalid Login")
-			{
+			if (userList.error.title == "Invalid Login") {
 				setInvalidLogin(true)
 			}
 		}
@@ -63,6 +73,10 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	useEffect(() => {
 		mounted.current = true
+
+		const currentUserPerms = queryClient.getQueryData(['isLoggedIn'])
+		if (currentUserPerms?.permLevel && (currentUserPerms?.permLevel == 'super_user') || currentUserPerms?.permLevel == 'support_user') setSuOverride(true)
+
 		return () => {
 			mounted.current = false
 		}
@@ -132,7 +146,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	// does the perms set contain the current user?
 	// supportUsers always have implicit access. Otherwise, verify the user is in the perms set and isn't pending removal.
 	const containsUser = () => {
-		if (myPerms?.isSupportUser) return true
+		if (suOverride) return true
 		for (const [id, val] of Array.from(state.updatedAllUserPerms)) {
 			if (id == currentUser.id) return !val.remove
 		}
@@ -147,7 +161,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 		let permsObj = [];
 
-		if (delCurrUser && myPerms.accessLevel != access.FULL)
+		if (delCurrUser && myPerms?.accessLevel != access.FULL)
 		{
 			// Only send a request to update current user perms so that it doesn't get no-perm'd by the server
 			let currentUserPerms = state.updatedAllUserPerms.get(currentUser.id);
@@ -177,12 +191,14 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			successFunc: (data) => {
 				if (mounted.current) {
 					if (delCurrUser) {
-						queryClient.invalidateQueries(['instances', currentUser])
+						queryClient.invalidateQueries({
+							queryKey: ['instances', currentUser]
+						})
 					}
-					queryClient.invalidateQueries('search-widgets')
-					queryClient.invalidateQueries(['user-perms', inst.id])
-					queryClient.invalidateQueries(['user-search', inst.id])
-					queryClient.removeQueries(['collab-users', inst.id])
+					queryClient.invalidateQueries({ queryKey: ['search-widgets'] })
+					queryClient.invalidateQueries({ queryKey: ['user-perms', inst.id] })
+					queryClient.invalidateQueries({ queryKey: ['user-search', inst.id] })
+					queryClient.removeQueries({ queryKey: ['collab-users', inst.id] })
 
 					setOtherUserPerms(state.updatedAllUserPerms)
 					customClose()
@@ -213,7 +229,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	}
 
 	const customClose = () => {
-		clearUsers()
+		queryClient.removeQueries({ queryKey: collabUsersQueryKey })
 		onClose()
 	}
 
@@ -225,7 +241,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	// Can't search unless you have full access.
 	let searchContainerRender = null
-	if (myPerms?.can?.share || myPerms?.isSupportUser) {
+	if (myPerms?.can?.share || suOverride) {
 		let searchResultsRender = null
 		if (debouncedSearchTerm !== '' && state.searchText !== '' && userList.users?.length && userList.users?.length !== 0) {
 			const searchResultElements = userList.users?.map(match =>
@@ -257,7 +273,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					onChange={(e) => setState({...state, searchText: e.target.value})}
 					className='user-add'
 					type='text'
-					placeholder="Enter a Materia user's name or e-mail"/>
+					placeholder="Enter a user's name or e-mail"/>
+				<span className="collab-input-disclaimer">Only individuals who have previously used Materia will show up in search.</span>
 				{ searchResultsRender }
 			</div>
 		)
@@ -273,33 +290,46 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		mainContentRender = <NoContentIcon />
 
 		if (containsUser) {
-			const mainContentElements = Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
+
+			const mainContentElements = []
+			let userContentElement = null
+			
+			Array.from(state.updatedAllUserPerms).forEach(([userId, userPerms]) => {
 				if (userPerms.remove === true) return
 
 				let user = collabUsers[userId]
-				if (!user)
-				{
-					return <div key={userId}></div>
-				}
+				if (!user) return
 
-				user.is_owner = user.id === inst.user_id;
+				user.is_owner = user.id === inst.user_id
+				const rowElement = (
+					<CollaborateUserRow
+						key={user.id}
+						user={user}
+						perms={userPerms}
+						myPerms={myPerms}
+						isCurrentUser={currentUser.id === user.id}
+						onlyOneFullPermHolder={onlyOneFullPermHolder}
+						removedCurrentUser={removedCurrentUser}
+						onChange={(userId, perms) => updatePerms(userId, perms)}
+						readOnly={myPerms?.can?.share === false && !suOverride}
+						suOverride={suOverride}
+					/>
+				)
 
-				return <CollaborateUserRow
-					key={user.id}
-					user={user}
-					perms={userPerms}
-					myPerms={myPerms}
-					isCurrentUser={currentUser.id === user.id}
-					onlyOneFullPermHolder={onlyOneFullPermHolder}
-					removedCurrentUser={removedCurrentUser}
-					onChange={(userId, perms) => updatePerms(userId, perms)}
-					readOnly={myPerms?.can?.share === false}
-				/>
+				if (currentUser.id === user.id) userContentElement = rowElement
+				else mainContentElements.push(rowElement)
 			})
+
+			if (userContentElement == null && suOverride) {
+				userContentElement = <span className='not-shared'>You have implicit access to this widget due to your role as an elevated user.</span>
+			}
 
 			mainContentRender = (
 				<>
-					{ mainContentElements }
+					<header className='access-list-header'>You</header>
+					{ userContentElement }
+					<header className='access-list-header'>Users With Access</header>
+					{ mainContentElements.length > 0 ? mainContentElements : <span className='not-shared'>No other users have access to your widget.</span> }
 				</>
 			)
 		}
@@ -342,12 +372,14 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					{/* Calendar portal used to bring calendar popup out of access-list to avoid cutting off the overflow */}
 					<div id='calendar-portal' />
 					<p className='disclaimer'>
-						Users with full access can edit or copy this widget and can
+						Users with full access can edit this widget and can
 						add or remove people in this list. 
-						{onlyOneFullPermHolder && myPerms.accessLevel == access.FULL && (
-							<em>
-								{'\u00A0'}Note: There must be at least one user with full access.
-							</em>
+						{onlyOneFullPermHolder && myPerms?.accessLevel == access.FULL && (
+							<span>
+								<em>
+								{	'\u00A0'}Note: There must be at least one user with full access.
+								</em>
+							</span>
 						)}
 					</p>
 					<div className='btn-box'>

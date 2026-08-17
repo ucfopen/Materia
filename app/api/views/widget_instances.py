@@ -12,13 +12,22 @@ from api.permissions import (
     ReadOnlyIfAuthenticated,
 )
 from api.serializers import (
+    LibraryEntrySerializer,
     ObjectPermissionSerializer,
     PermsUpdateRequestListSerializer,
     PlayIdSerializer,
+    PublishToLibrarySerializer,
     QuestionSetSerializer,
     ScoreSummarySerializer,
     WidgetInstanceCopyRequestSerializer,
     WidgetInstanceSerializer,
+)
+from community_library.models import (
+    LibraryCategory,
+    LibraryEntry,
+    LibrarySnapshot,
+    Tag,
+    TagEntry,
 )
 from core.message_exception import MsgFailure, MsgInvalidInput, MsgNoPerm
 from core.models import (
@@ -26,12 +35,15 @@ from core.models import (
     LogPlay,
     Notification,
     ObjectPermission,
+    UserSettings,
     WidgetInstance,
     WidgetQset,
 )
 from core.services.instance_service import WidgetInstanceService
 from core.services.perm_service import PermService
 from core.services.play_data_exporter_service import PlayDataExporterService
+from django.db import transaction
+from django.db.models import F
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
@@ -67,6 +79,64 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         else:
             return WidgetInstance.objects.all()
 
+    @staticmethod
+    def _normalize_tag_names(tag_names):
+        normalized = []
+        seen = set()
+
+        for tag_name in tag_names:
+            cleaned = " ".join((tag_name or "").strip().replace("#","").split())
+            canonical = Tag.normalize_name(cleaned)
+            if not canonical or canonical in seen:
+                continue
+
+            seen.add(canonical)
+            normalized.append(cleaned)
+
+        return normalized
+
+    @staticmethod
+    def _sync_entry_tags(entry, tag_names):
+        canonical_pairs = [
+            (tag_name, Tag.normalize_name(tag_name)) for tag_name in tag_names
+        ]
+        existing_tag_map = {
+            tag.normalized_name: tag
+            for tag in Tag.objects.filter(
+                normalized_name__in=[canonical for _, canonical in canonical_pairs]
+            )
+        }
+
+        for tag_name, canonical in canonical_pairs:
+            if canonical in existing_tag_map:
+                continue
+
+            existing_tag_map[canonical], _ = Tag.objects.get_or_create(
+                normalized_name=canonical,
+                defaults={"name": tag_name},
+            )
+
+        desired_tag_ids = {
+            existing_tag_map[canonical].id for _, canonical in canonical_pairs
+        }
+        current_tag_ids = set(
+            TagEntry.objects.filter(entry=entry).values_list("tag_id", flat=True)
+        )
+
+        to_add = desired_tag_ids - current_tag_ids
+        to_remove = current_tag_ids - desired_tag_ids
+
+        if to_add:
+            TagEntry.objects.bulk_create(
+                [TagEntry(tag_id=tag_id, entry=entry) for tag_id in to_add]
+            )
+            Tag.objects.filter(id__in=to_add).update(used_count=F("used_count") + 1)
+
+        if to_remove:
+            TagEntry.objects.filter(entry=entry, tag_id__in=to_remove).delete()
+            Tag.objects.filter(id__in=to_remove).update(used_count=F("used_count") - 1)
+            Tag.objects.filter(id__in=to_remove, library_tagged__isnull=True).delete()
+
     def get_permissions(self):
         user_query = self.request.query_params.get("user")
         # play_id = self.request.query_params.get("play_id")
@@ -90,6 +160,14 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         # must have (any) access to instance or elevated perms
         # TODO: question_sets can't be restricted in this way, but we may want more context-sensitive authorization
         elif self.action == "copy":
+            permission_classes = [HasFullPerms | IsSuperOrSupportUser]
+
+        elif self.action in (
+            "publish_to_library",
+            "unpublish_from_library",
+            "update_in_library",
+            "pull_from_library",
+        ):
             permission_classes = [HasFullPerms | IsSuperOrSupportUser]
 
         elif self.action == "export_playdata":
@@ -145,6 +223,11 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 context["hide_identifying_info"] = False
             else:
                 context["hide_identifying_info"] = True
+
+        if PermService.is_superuser_or_elevated(self.request.user):
+            context["include_entry_moderation_info"] = True
+        else:
+            context["include_entry_moderation_info"] = False
 
         return context
 
@@ -560,6 +643,198 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         return Response(WidgetInstanceSerializer(duplicate).data)
 
+    @action(detail=True, methods=["put"])
+    def publish_to_library(self, request, pk=None):
+        instance = self.get_object()
+
+        user_settings = UserSettings.objects.get(user=request.user)
+        if user_settings.library_banned:
+            return Response(
+                {"error": "You are not allowed to publish to the Community Library."},
+                status=403,
+            )
+
+        creator = instance.widget.creator
+        if creator == "" or creator == "default":
+            return Response(
+                {
+                    "error": "This widget type cannot be published to the Community Library."
+                },
+                status=400,
+            )
+
+        serializer = PublishToLibrarySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        category_slug = serializer.validated_data["category"]
+        category = LibraryCategory.objects.get(slug=category_slug)
+        course_level = serializer.validated_data.get("course_level", "")
+        tags = self._normalize_tag_names(serializer.validated_data.get("tags", []))
+
+        latest_qset = instance.get_latest_qset()
+
+        existing_entry = LibraryEntry.objects.filter(instance=instance).first()
+
+        if len(tags) > 10:
+            return Response(
+                {"error": "Widgets cannot have more than 10 tags applied."}, status=400
+            )
+
+        with transaction.atomic():
+            if existing_entry:
+
+                if existing_entry.is_banned:
+                    return Response(
+                        {"error": "You cannot republish a banned widget."}, status=403
+                    )
+
+                # Re-publishing: update entry and create new snapshot
+                existing_entry.category = category
+                existing_entry.course_level = course_level
+                existing_entry.is_available = True
+                existing_entry.save(
+                    update_fields=["category", "course_level", "is_available"]
+                )
+                LibrarySnapshot.objects.create(
+                    entry=existing_entry,
+                    name=instance.name,
+                    qset=latest_qset,
+                )
+
+                self._sync_entry_tags(existing_entry, tags)
+            else:
+                # New publish: create entry and snapshot
+                entry = LibraryEntry.objects.create(
+                    instance=instance,
+                    category=category,
+                    course_level=course_level,
+                    published_by=self.request.user,
+                )
+                LibrarySnapshot.objects.create(
+                    entry=entry, name=instance.name, qset=latest_qset
+                )
+
+                self._sync_entry_tags(entry, tags)
+
+            instance.library_entry = existing_entry or entry
+            instance.save(update_fields=["library_entry"])
+
+        serialized_entry = LibraryEntrySerializer(
+            instance.library_entry, context={"request": self.request}
+        ).data
+        return Response({"success": True, "entry": serialized_entry})
+
+    @action(detail=True, methods=["put"])
+    def update_in_library(self, request, pk=None):
+        instance = self.get_object()
+
+        entry = instance.library_entry
+        if entry is None:
+            return Response(
+                {"error": "This widget was not copied from the Community Library."},
+                status=400,
+            )
+
+        if entry.is_banned:
+            return Response(
+                {"error": "This widget cannot be updated as the entry is banned."},
+                status=403,
+            )
+
+        latest_qset = instance.get_latest_qset()
+        latest_snapshot = entry.snapshots.order_by("-created_at").first()
+
+        if latest_snapshot.qset.id != latest_qset.id:
+
+            LibrarySnapshot.objects.create(
+                entry=entry,
+                name=instance.name,
+                qset=latest_qset,
+            )
+
+            return Response({"success": True})
+
+        else:
+            return Response(
+                {
+                    "success": False,
+                    "message": "There is already a snapshot for the latest qset",
+                },
+                status=403,
+            )
+
+    @action(detail=True, methods=["put"])
+    def unpublish_from_library(self, request, pk=None):
+
+        instance = self.get_object()
+
+        entry = instance.library_entry
+        if entry is None:
+            return Response(
+                {"error": "This widget was not copied from the Community Library."},
+                status=400,
+            )
+
+        with transaction.atomic():
+            instance.library_entry = None
+            instance.save(update_fields=["library_entry"])
+
+            entry.is_available = False
+            entry.save(update_fields=["is_available"])
+
+            tag_ids = list(
+                TagEntry.objects.filter(entry=entry).values_list("tag_id", flat=True)
+            )
+            if tag_ids:
+                TagEntry.objects.filter(entry=entry).delete()
+                Tag.objects.filter(id__in=tag_ids).update(
+                    used_count=F("used_count") - 1
+                )
+                Tag.objects.filter(id__in=tag_ids, library_tagged__isnull=True).delete()
+
+        return Response({"success": True})
+
+    @action(detail=True, methods=["put"])
+    def pull_from_library(self, request, pk=None):
+        instance = self.get_object()
+
+        entry = instance.library_entry
+        if entry is None:
+            return Response(
+                {"error": "This widget was not copied from the Community Library."},
+                status=403,
+            )
+
+        if entry.is_available is False:
+            return Response(
+                {"error": "This library entry is no longer published."},
+                status=403,
+            )
+
+        if entry.is_banned:
+            return Response(
+                {"error": "This entry has been banned."},
+                status=403,
+            )
+
+        snapshot = entry.snapshots.order_by("-created_at").first()
+        if snapshot is None:
+            return Response(
+                {"error": "This library entry has no snapshots to pull from."},
+                status=400,
+            )
+
+        instance.name = snapshot.name
+        instance.library_snapshot = snapshot
+        instance.save(update_fields=["name", "library_snapshot"])
+
+        latest_qset = instance.get_latest_qset()
+        latest_qset.data = snapshot.qset.data
+        latest_qset.version = snapshot.qset.version
+        latest_qset.save(update_fields=["data", "version"])
+
+        return Response(WidgetInstanceSerializer(instance).data)
+
     # WAS /data/export/
     # This endpoint can be visited directly and the file will download, or can be called like a normal API endpoint
     @action(detail=True, methods=["get"])
@@ -634,5 +909,13 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
         instance.is_deleted = False
         instance.save()
+
+        for shared_user_perm in instance.permissions.all():
+            Notification.create_instance_notification(
+                from_user=self.request.user,
+                to_user=shared_user_perm.user,
+                instance=instance,
+                mode="restored",
+            )
 
         return Response({"success": True})

@@ -1,26 +1,27 @@
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiUpdateWidgetInstance } from '../../util/api'
 
 export default function useSupportUpdateWidget() {
 	const queryClient = useQueryClient()
 
-	// Optimistically updates the cache value on mutate
+	// TODO: Optimistically updates the cache value on mutate?
 	return useMutation(
-		apiUpdateWidgetInstance,
 		{
+			mutationFn: apiUpdateWidgetInstance,
 			onSuccess: (data, variables) => {
-				// Refresh widgets
-				queryClient.invalidateQueries('widgets')
+				queryClient.invalidateQueries({
+					queryKey: ['widgets']
+				})
 
-				queryClient.removeQueries('search-widgets', {
+				queryClient.removeQueries({
+					queryKey: ['search-widgets'],
 					exact: false
 				})
 
-				variables.successFunc()
+				variables.successFunc(data)
 			},
-			onError: (error, variables, context) => {
-				queryClient.setQueryData('widgets', context.previousValue)
-				variables.errorFunc()
+			onError: (err, variables, context) => {
+				variables.errorFunc(err)
 			}
 		}
 	)

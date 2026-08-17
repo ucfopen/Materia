@@ -281,10 +281,16 @@ class PlayDataExporterService:
                 csv_questions.append(csv_question)
 
             # Grab out the keys of options, add them if not already in the list
-            for key in question_row_data["options"].keys():
-                if key in csv_options:
-                    continue
-                csv_options.append(key)
+            try:
+                for key in question_row_data["options"].keys():
+                    if key in csv_options:
+                        continue
+                    csv_options.append(key)
+            except AttributeError:
+                # If a widget engine sets a question's 'options' to a list, it'll
+                #  be difficult to predictably traverse for keys like we do with
+                #  objects above - just ignore them for now, revisit if need be
+                pass
 
             # Grab out each individual answer
             for answer in question_row_data["answers"]:

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useRef, useId } from 'react'
-import { useQueryClient, useQuery } from 'react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { apiGetPlayLogs } from '../util/api'
 import ScoreAuthIndicator from './score-auth-indicator'
 import useDebounce from './hooks/useDebounce'
@@ -29,42 +29,46 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, contexts, setInvali
 	const debouncedSearchTerm = useDebounce(state.searchText, 250)
 	const {
 		data,
-		refetch
-	} = useQuery(
-		['play-logs', instId, semester],
-		() => apiGetPlayLogs(instId, semester.term, semester.year, contexts, page),
-		{
-			keepPreviousData: true,
-			enabled: !!instId && !!semester && !!semester.term && !!semester.year,
-			placeholderData: [],
-			refetchOnWindowFocus: false,
-			retry: false,
-			onSuccess: (result) => {
-				if (page <= result?.total_num_pages) setPage(page + 1)
-				if (result && result.pagination) {
-					let newLogs = state.logs
+		refetch,
+		error: playLogsError
+	} = useQuery({
+		queryKey: ['play-logs', instId, semester],
+		queryFn: () => apiGetPlayLogs(instId, semester.term, semester.year, contexts, page),
+		placeholderData: keepPreviousData,
+		enabled: !!instId && !!semester && !!semester.term && !!semester.year,
+		refetchOnWindowFocus: false,
+		retry: false
+	})
 
-					result.pagination.forEach((record) => {
-						if (newLogs[record.userId]) newLogs[record.userId].scores.push(...record.scores)
-						else newLogs[record.userId] = { userId: record.userId, name: record.name, searchableName: record.searchableName, scores: record.scores }
-						newLogs[record.userId].scores.sort(_compareScores)
-					})
+	useEffect(() => {
+		if (!data) return
+		if (page <= data?.total_num_pages) setPage(page + 1)
+		if (data && data.pagination) {
+			let newLogs = state.logs
 
-					setState({ ...state, logs: newLogs, filteredLogs: newLogs })
-				} else if (result.length == 0) {
-					setState({ ...state, logs: [], isLoading: false })
-				}
-			},
-			onError: (err) => {
-				if (err.message == "Invalid Login") {
-					setInvalidLogin(true);
-				} else {
-					setError((err.message || "Error") + ": Failed to retrieve individual scores.")
-				}
-				setState({ ...state, isLoading: false })
-			}
+			data.pagination.forEach((record) => {
+				if (newLogs[record.userId]) newLogs[record.userId].scores.push(...record.scores)
+				else newLogs[record.userId] = { userId: record.userId, name: record.name, searchableName: record.searchableName, scores: record.scores }
+				newLogs[record.userId].scores.sort(_compareScores)
+			})
+
+			setState({ ...state, logs: newLogs, filteredLogs: newLogs })
+		} else if (data.length == 0) {
+			setState({ ...state, logs: [], isLoading: false })
 		}
-	)
+	}, [data])
+
+	useEffect(() => {
+		if (!playLogsError) return
+		switch (playLogsError.status) {
+			case 401:
+				setInvalidLogin(true)
+				break
+			default:
+				setError((playLogsError.message || "Error") + ": Failed to retrieve individual scores.")
+		}
+		setState({ ...state, isLoading: false })
+	}, [playLogsError])
 
 	useEffect(() => {
 		if (page <= data?.total_num_pages) { refetch() }

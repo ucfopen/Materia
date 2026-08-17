@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { apiGetUsers, apiGetUserPermsForInstance } from '../util/api'
-import { useQuery } from 'react-query'
+import { apiGetUsers, apiGetUserPermsForInstance, apiModerateEntry, apiGetEntryReports } from '../util/api'
+import { useQuery } from '@tanstack/react-query'
 import { iconUrl } from '../util/icon-url'
 import rawPermsToObj from '../util/raw-perms-to-object'
 import useDeleteWidget from './hooks/useSupportDeleteWidget'
@@ -57,29 +57,40 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 	})
 
 	const { data: instOwner, isFetching: loadingInstOwner } = useQuery({
-		queryKey: ['instance-owner', inst.id],
+		queryKey: ['instance-owner', updatedInst.id],
 		queryFn: () => apiGetUsers([updatedInst.user_id]),
 		enabled: !!updatedInst && !!updatedInst.user_id,
 		staleTime: Infinity
 	})
 
-	const { data: perms, isFetching: loadingPerms} = useQuery({
+	const { data: reports, isFetching: loadingReports} = useQuery({
+		queryKey: ['entry-reports', updatedInst.library_entry?.id],
+		queryFn: async () => {
+			return await apiGetEntryReports(updatedInst.library_entry.id)
+		},
+		enabled: !!updatedInst.library_entry?.id,
+		staleTime: Infinity,
+		refetchOnWindowFocus: false
+	})
+
+	const { data: perms, isFetching: loadingPerms, error: permsError} = useQuery({
 		queryKey: ['user-perms', inst.id],
 		queryFn: () => apiGetUserPermsForInstance(inst.id),
 		enabled: !!inst && inst.id !== undefined,
 		placeholderData: null,
 		staleTime: Infinity,
 		retry: false,
-		onError: (err) => {
-			setAlertDialog({
-				enabled: true,
-				message: err.cause,
-				title: err.message,
-				fatal: err.halt,
-				enableLoginButton: false
-			})
-		}
 	})
+
+	useEffect(() => {
+		if (permsError) setAlertDialog({
+			enabled: true,
+			message: permsError.cause,
+			title: permsError.message,
+			fatal: permsError.halt,
+			enableLoginButton: false
+		})
+	}, [permsError])
 
 	// hook associated with the invalidLogin error
 	useEffect(() => {
@@ -101,16 +112,14 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 			const myPerms = new Map()
 
 			perms.forEach(perm => {
+
+				const permToObj = rawPermsToObj(perm, isEditable)
 				
 				if (perm.user == currentUser?.id) {
-					myPerms.set(perm.user, rawPermsToObj(perm, isEditable))
+					myPerms.set(perm.user, permToObj)
 				}
-				else {
-					othersPerms.set(perm.user, rawPermsToObj(perm, isEditable))
-				}
+				othersPerms.set(perm.user, permToObj)
 			})
-			myPerms.isSupportUser = true
-
 			setAllPerms({myPerms: myPerms, otherUserPerms: othersPerms})
 		}
 	}, [perms])
@@ -202,8 +211,8 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 		const args = {
 			id: u.id,
 			name: u.name,
-			open_at: u.open_at,
-			close_at: u.close_at,
+			openAt: u.open_at,
+			closeAt: u.close_at,
 			attempts: u.attempts,
 			guestAccess: u.guest_access,
 			embeddedOnly: u.embedded_only,
@@ -256,10 +265,13 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 
 	let collaborateDialogRender = null
 	if (showCollab) {
+		const entries = allPerms.myPerms.entries()
+		let myPerms = null
+		if (entries && entries.length) myPerms = entries.next().value[1] ?? null
 		collaborateDialogRender = (
 			<MyWidgetsCollaborateDialog inst={inst}
 				currentUser={currentUser}
-				myPerms={allPerms.myPerms}
+				myPerms={myPerms}
 				otherUserPerms={allPerms.otherUserPerms}
 				setOtherUserPerms={(p) => setAllPerms({...allPerms, otherUserPerms: p})}
 				onClose={() => {setShowCollab(false)}}
@@ -311,6 +323,27 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 				onCloseCallback={() => {
 					setAlertDialog({...alertDialog, enabled: false})
 				}} />
+		)
+	}
+
+	const compileReports = (rep) => {
+		const dict = {"inappropriate": 0, "incorrect": 0, "spam": 0, "other": 0}
+		if(!rep) return dict
+
+		rep.forEach((r)=>dict[r.reason]++)
+		return dict
+	}
+
+	let reportRender = 0
+	if (reports && reports.length > 0) {
+		const compiled = compileReports(reports)
+		reportRender = (
+			<>
+			{compiled.inappropriate > 0 && <span className="report-pill">Inappropriate: {compiled.inappropriate}</span>}
+			{compiled.incorrect > 0 && <span className="report-pill">Incorrect: {compiled.incorrect}</span>}
+			{compiled.spam > 0 && <span className="report-pill">Spam: {compiled.spam}</span>}
+			{compiled.other > 0 && <span className="report-pill">Other: {compiled.other}</span>}
+			</>
 		)
 	}
 
@@ -451,7 +484,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 								name='available'
 								value={-1}
 								checked={availableDisabled}
-								onChange={() => {setAvailableDisabled(true); handleChange('open_at', -1)}}
+								onChange={() => {setAvailableDisabled(true); handleChange('open_at', null)}}
 							/>
 							<label htmlFor="now">Now</label>
 						</div>
@@ -482,7 +515,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 								id="never"
 								value={-1}
 								checked={closeDisabled}
-								onChange={() => {setCloseDisabled(true); handleChange('close_at', -1)}}
+								onChange={() => {setCloseDisabled(true); handleChange('close_at', null)}}
 							/>
 							<label htmlFor="never">Never</label>
 						</div>
@@ -508,6 +541,60 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 							{updatedInst.preview_url}
 						</a>
 					</div>
+					{updatedInst.library_entry && (
+						<div className='library-moderation'>
+							<h3>Community Library</h3>
+							<div>
+								<label>Status:</label>
+								{updatedInst.library_entry.is_banned ? 'Banned' : 
+								updatedInst.library_entry.is_available ? 'Shared' : 'Unpublished'}
+							</div>
+							<div>
+								<label>Reports:</label>
+								{reportRender}
+							</div>
+							<div>
+								<label>Copies:</label>
+								{updatedInst.library_entry.copy_count}
+							</div>
+							<div>
+								<label>Likes:</label>
+								{updatedInst.library_entry.like_count}
+							</div>
+							<div>
+								<label htmlFor="featured">Featured:</label>
+								<input type='checkbox'
+									id="featured"
+									checked={updatedInst.library_entry.featured}
+									onChange={(e) => {
+										apiModerateEntry(updatedInst.library_entry.id, { featured: e.target.checked })
+											.then((data) => {
+												setUpdatedInst({...updatedInst, library_entry: {...updatedInst.library_entry, featured: data.featured}})
+												setSuccessText('Featured status updated')
+												setErrorText('')
+											})
+											.catch(() => setErrorText('Failed to update featured status'))
+									}}
+								/>
+							</div>
+							<div>
+								<label>Ban:</label>
+								<button className={`action_button ${updatedInst.library_entry.is_banned ? '' : 'delete'}`}
+									onClick={() => {
+										const newBanned = !updatedInst.library_entry.is_banned
+										apiModerateEntry(updatedInst.library_entry.id, { is_banned: newBanned })
+											.then((data) => {
+												setUpdatedInst({...updatedInst, library_entry: {...updatedInst.library_entry, is_banned: data.is_banned}})
+												setSuccessText(newBanned ? 'Entry banned from library' : 'Entry unbanned')
+												setErrorText('')
+											})
+											.catch(() => setErrorText('Failed to update ban status'))
+									}}>
+									{updatedInst.library_entry.is_banned ? 'Unban' : 'Ban'}
+								</button>
+							</div>
+						</div>
+					)}
 					<div className='bottom-buttons'>
 						<button className='action_button' onClick={() => setShowScoreDetails(!showScoreDetails)}>Scores</button>
 						<div className='apply-changes'>
