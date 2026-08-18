@@ -134,7 +134,9 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 		</div>
 		{
 			featured && featured.length > 0 &&
-			<div className='category-box featured'>
+			<div className='category-box featured' style={ libraryImages && libraryImages.length > 0 ? {
+				'--featured-banner-image': `url("${libraryImages[0].image_path}")`
+			} : {}}>
 				<div className='row'>
 					<div style={{margin: "auto"}}>
 						<h3 className='featured-header'>
@@ -146,7 +148,6 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 							<p>Explore a curated collection of widgets selected by our LS&T staff. Browse available options to find tools and resources that can enhance your course and support your teaching goals.</p>
 						}
 					</div>
-					{ libraryImages && libraryImages.length > 0 && <img className="catalog-image" src={libraryImages[0].image_path}/>}
 				</div>
 				<div className='content-container'>
 					<button className='carousel left' aria-label='Move carousel to the left.'
