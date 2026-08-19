@@ -1044,17 +1044,33 @@
 			}
 
 			&.featured {
-				// background-color: rgb(185, 68, 204, 0.075);
-				// border: 1px solid #ccc;
-				// rgba(185, 68, 204, 0.15)
-				// border: 2px dashed #3fa7e3;
-				// border: 2px dashed #ccc;
-				// background-color: #f8f8f8;
-				margin-top: 48px;
-				background: linear-gradient(#ffffff, #6bbded);
+				position: relative;
+				--featured-banner-image: url('static/img/default/library_banner/kogneato_featured_default.svg');
+
+				background-image:
+					linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.85) 60%, rgba(255, 255, 255, 0) 80%, rgba(255, 255, 255, 0) 100%),
+					var(--featured-banner-image);
+				background-color: #fff;
+				background-position: right center;
+				background-size: auto 100%;
+				background-repeat: no-repeat;
 				color: #000;
 				padding: 0;
 				gap: 24px;
+
+				&:before {
+					display: block;
+					position: absolute;
+					content: "";
+					left: 0;
+					bottom: 0;
+					width: 100%;
+					height: 100%;
+					background: linear-gradient(to top, #6bbded 0%, transparent 45%);
+
+					border-bottom-left-radius: 8px;
+					border-bottom-right-radius: 8px;
+				}
 
 				p {
 					font-weight: 400;
@@ -1074,8 +1090,9 @@
 				}
 
 				.row {
-					padding-bottom: 0;
-					padding: 24px 48px;
+					position: relative;
+					width: 65%;
+					margin: 24px;
 					box-sizing: border-box;
 				}
 			}
@@ -1274,7 +1291,11 @@
 
 	.community-library .dashboard .category-box {
 		&.featured {
-			background: linear-gradient(#21232a, #6bbded80);
+			--featured-banner-image: url('static/img/default/library_banner/kogneato_featured_default_dark.svg');
+			background-image:
+				linear-gradient(to right, rgba(33, 35, 42, 1) 0%, rgba(33, 35, 42, 0.85) 60%, rgba(33, 35, 42, 0) 80%, rgba(33, 35, 42, 0) 100%),
+				var(--featured-banner-image);
+			background-color: #21232a;
 	
 			p {
 				color: #c9d7e7;
@@ -1471,6 +1492,8 @@
 			border-color: #444;
 			color: #eee;
 
+			box-shadow: 0px 0px 4px #000;
+
 			input {
 				background: #30323b;
 				color: #eee;
@@ -1480,13 +1503,15 @@
 				color: #55baf1;
 				background-color: #1f2d37;
 				border-color: #3d5463;
+
+				box-shadow: 0px 0px 4px #000;
 			}
 
 			.search-tags {
 				.tag {
 					color: #ccc;
-    				background-color: #333;
-					border-color: #444;
+    				background-color: #1b1b1b;
+					border-color: #1e1e1e;
 				}
 			}
 		}
