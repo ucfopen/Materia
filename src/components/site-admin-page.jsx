@@ -97,7 +97,7 @@ const SiteAdminPage = () => {
 
 	const {data: profileImages, refetch: refetchProfileImages } = useQuery({
 		queryKey: ['profile-images'],
-		queryFn: () => apiGetSiteImages('profile'),
+		queryFn: () => apiGetSiteImages('profile', false),
 		enabled: pageState.mode == 'image',
 		staleTime: Infinity,
 		retry: false
@@ -113,14 +113,14 @@ const SiteAdminPage = () => {
 
 	const {data: catalogImages, refetch: refetchCatalogImages } = useQuery({
 		queryKey: ['catalog-images'],
-		queryFn: () => apiGetSiteImages('catalog'),
+		queryFn: () => apiGetSiteImages('catalog', false),
 		staleTime: Infinity,
 		retry: false
 	})
 
 	const {data: libraryImages, refetch: refetchLibraryImages } = useQuery({
 		queryKey: ['library-images'],
-		queryFn: () => apiGetSiteImages('library'),
+		queryFn: () => apiGetSiteImages('library', false),
 		staleTime: Infinity,
 		retry: false
 	})

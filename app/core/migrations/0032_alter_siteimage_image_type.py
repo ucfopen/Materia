@@ -6,13 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0031_usersettings_library_banned_and_more'),
+        ("core", "0031_usersettings_library_banned_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='siteimage',
-            name='image_type',
-            field=models.CharField(blank=True, choices=[('NO_TYPE', 'No Type'), ('PROFILE_IMAGE', 'Profile Image'), ('LIBRARY_BANNER', 'Library Banner'), ('CATALOG_BANNER', 'Catalog Banner')], default='NO_TYPE', max_length=26, null=True),
+            model_name="siteimage",
+            name="image_type",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("NO_TYPE", "No Type"),
+                    ("PROFILE_IMAGE", "Profile Image"),
+                    ("LIBRARY_BANNER", "Library Banner"),
+                    ("CATALOG_BANNER", "Catalog Banner"),
+                ],
+                default="NO_TYPE",
+                max_length=26,
+                null=True,
+            ),
         ),
     ]

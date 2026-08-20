@@ -929,7 +929,7 @@ export const apiDeleteLibraryCategory = (slug, changes) => {
 	return handleRequest(methods.DELETE, `/api/community-library/categories/?slug=${slug}`)
 }
 
-export const apiGetSiteImages = (type) => {
+export const apiGetSiteImages = (type, latest=true) => {
 	switch (type) {
 		case 'profile':
 			type = 'PROFILE_IMAGE'
@@ -944,7 +944,7 @@ export const apiGetSiteImages = (type) => {
 			break
 	}
 
-	return handleRequest(methods.GET, `/api/site-images/?type=${type}`)
+	return handleRequest(methods.GET, `/api/site-images/?type=${type}&latest=${latest}`)
 }
 
 export const apiDeleteSiteImage = (id) => {
