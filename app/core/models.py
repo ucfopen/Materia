@@ -923,6 +923,8 @@ class SiteMessage(models.Model):
         SITE_ALERT = "SITE_ALERT", gettext_lazy("Site Alert")
         CATALOG_HEADER = "CATALOG_HEADER", gettext_lazy("Catalog Header")
         CATALOG_TEXT = "CATALOG_TEXT", gettext_lazy("Catalog Text")
+        LIBRARY_HEADER = "LIBRARY_HEADER", gettext_lazy("Library Header")
+        LIBRARY_TEXT = "LIBRARY_TEXT", gettext_lazy("Library Text")
 
     message_type = models.CharField(
         max_length=26,

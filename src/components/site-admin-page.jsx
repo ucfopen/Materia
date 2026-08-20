@@ -352,11 +352,13 @@ const SiteAdminPage = () => {
 									<option value="SITE_ALERT">System Alert</option>
 									<option value="CATALOG_HEADER">Catalog Header</option>
 									<option value="CATALOG_TEXT">Catalog Text</option>
+									<option value="LIBRARY_HEADER">Library Header</option>
+									<option value="LIBRARY_TEXT">Library Text</option>
 								</select>
 							<textarea id="message_content_input" name="message_content" className="message_uploader_input">
 							</textarea>
 							<section className="form-subsection">
-								<p>Note: Start and End values are optional.</p>
+								<p>Note: Start and End values are optional. These are only applied to <b>System Notifications</b> and <b>System Alerts</b>.</p>
 								<label htmlFor="message_start_time_input">Start At</label>
 								<input
 									id="message_start_time_input"

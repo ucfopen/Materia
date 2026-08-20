@@ -1191,3 +1191,17 @@ class SiteMessageSerializer(serializers.ModelSerializer):
         model = SiteMessage
         fields = ["id", "message_type", "message_text", "start_at", "end_at"]
         read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        message_type = attrs.get(
+            "message_type", self.instance.message_type if self.instance else None
+        )
+
+        if message_type not in {
+            SiteMessage.MessageType.SITE_ALERT,
+            SiteMessage.MessageType.SITE_NOTIFICATION,
+        }:
+            attrs["start_at"] = None
+            attrs["end_at"] = None
+
+        return attrs
