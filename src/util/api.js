@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import fetchWriteOptions from './fetch-options'
-import { useQueryClient } from 'react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const getCSRFToken = () => {
 	const cookies = document.cookie.split(';')
-	for(let cookie of cookies) {
-		if(cookie.trim().startsWith('csrftoken=')) {
+	for (let cookie of cookies) {
+		if (cookie.trim().startsWith('csrftoken=')) {
 			return cookie.split('=')[1]
 		}
 	}
@@ -37,24 +37,25 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 		}
 		else {
 			const add_options = {
-				...fetchWriteOptions(method, {body: data}),
+				...fetchWriteOptions(method, { body: data }),
 				...options
 			}
 			response = await fetch(url, add_options)
 		}
 
 		if (!response.ok) {
-			// Try to parse error response
-			let errorData
+			// We want to try to parse the response, but if it fails there
+			// isn't an issue, since we are just saying message OR title OR
+			// some default value string.
+			let errorData = null
 			try {
 				errorData = await response.json();
-			} catch (e) {
-				throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
-			}
+			} catch (_e) { }
 
 			// Create a rich error object with all available info
 			const error = new Error(
-				errorData.msg || errorData.title || `HTTP error ${response.status}`
+				// For some reason, Django uses msg.detail="", while we use msg=""
+				errorData?.msg?.detail ?? errorData?.msg ?? errorData?.title ?? `HTTP error ${response.status}: ${response.statusText}`
 			)
 
 			// Add extra properties to the error
@@ -66,10 +67,10 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 		}
 
 		try {
-			if (response.status === 204){
+			if (response.status === 204) {
 				return null
 			}
-  
+
 			if (
 				response.headers.get('Content-Type') === 'application/download' ||
 				response.headers.get('Content-Type') === 'text/csv' ||
@@ -388,8 +389,10 @@ export const apiGetWidgetInstancePlayScores = (playId) => {
  * @param {string} previewInstId - The instance ID of the widget instance being previewed.
  * @returns {Promise<any>} - Parsed response data.
  */
-export const apiGetWidgetInstancePreviewScores = (playId, previewInstId) => {
-	return handleRequest(methods.GET, `/api/scores/details/?play_id=${playId}&preview_inst_id=${previewInstId}`)
+export const apiGetWidgetInstancePreviewScores = (playId, previewInstId, snapshotId, entryId) => {
+	let url = `/api/scores/details/?play_id=${playId}&preview_inst_id=${previewInstId}`
+	if (snapshotId && entryId) url += `&snapshot_id=${snapshotId}&entry_id=${entryId}`
+	return handleRequest(methods.GET, url)
 }
 
 /**
@@ -609,7 +612,7 @@ export const apiGetUserPlaySessions = (user, pageParam = 1, admin_activity = fal
 }
 
 export const apiUpdateUserSettings = (settings) => {
-	return handleRequest(methods.PUT, `/api/users/${settings.user_id}/profile_fields/`, settings)
+	return handleRequest(methods.PATCH, `/api/users/${settings.user_id}/profile_fields/`, settings)
 }
 
 export const apiGetUserRoles = (id) => {
@@ -793,8 +796,203 @@ export const readFromStorage = () => {
 				const data = queriesWithData[queryKey];
 
 				queryClient.setQueryData(queryKey, data);
-				queryClient.invalidateQueries(queryKey)
+				queryClient.invalidateQueries({ queryKey: queryKey })
 			}
 		}
 	}, [])
+}
+
+export const apiGetCommunityLibrary = ({ pageParam = 1, limit = null, search = '', widgetId = '', categories = [], courseLevel = '', sort = 'newest', tags = [], featuredOnly = false }) => {
+	let url = `/api/community-library/?page=${pageParam}`
+	if (limit) url += `&limit=${limit}`
+	if (search) url += `&search=${encodeURIComponent(search)}`
+	if (featuredOnly) url += `&featured=true`
+	if (widgetId) url += `&widget_id=${widgetId}`
+	if (categories && categories.length > 0) {
+		categories.forEach((c)=>{
+			url += `&category=${c}`
+		})
+	}
+	if (courseLevel) url += `&course_level=${courseLevel}`
+	if (sort) url += `&sort=${sort}`
+	if (tags && tags.length > 0) {
+		tags.forEach((t)=>{
+			url += `&tags=${t}`
+		})
+	}
+	return handleRequest(methods.GET, url)
+}
+
+export const apiManageUserBan = (user) => {
+	return handleRequest(methods.POST, `/api/users/${user}/ban/`)
+}
+
+export const apiGetUserLibraryEntries = ({pageParam = 1, userId = null}) => {
+	const url = `/api/community-library/?page=${pageParam}&user=${userId}`
+
+	return handleRequest(methods.GET, url)
+}
+
+export const apiGetLibraryTags = ({count = -1, search = '', exclude = []}) => {
+	let url = `/api/community-library/tags/`
+	const params = new URLSearchParams()
+
+	if (count !== -1) params.append('count', count)
+	if (search) params.append('search', search)
+
+
+	if (exclude && exclude.length > 0) {
+		exclude.forEach((t)=>{
+			params.append('exclude', t)
+		})
+	}
+
+	const queryString = params.toString()
+	if (queryString) url += `?${queryString}`
+
+	return handleRequest(methods.GET, url)
+}
+
+export const apiDeleteLibraryTag = (name) => {
+	return handleRequest(methods.DELETE, `/api/community-library/tags/?name=${name}`)
+}
+
+export const apiRenameLibraryTag = (name, to) => {
+	return handleRequest(methods.PATCH, `/api/community-library/tags/?name=${name}&to=${to}`)
+}
+
+export const apiGetLibraryEntry = (entryId) => {
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/`)
+}
+
+export const apiCopyFromLibrary = (entryId) => {
+	return handleRequest(methods.POST, `/api/community-library/${entryId}/copy/`)
+}
+
+export const apiToggleLike = (entryId) => {
+	return handleRequest(methods.POST, `/api/community-library/${entryId}/like/`)
+}
+
+export const apiReportEntry = (entryId, data) => {
+	return handleRequest(methods.POST, `/api/community-library/${entryId}/reports/`, data)
+}
+
+export const apiGetEntryReports = (entryId) => {
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/reports/`)
+}
+
+export const apiPublishToLibrary = (instId, data) => {
+	return handleRequest(methods.PUT, `/api/instances/${instId}/publish_to_library/`, data)
+}
+
+export const apiUnpublishFromLibrary = (instId) => {
+	return handleRequest(methods.PUT, `/api/instances/${instId}/unpublish_from_library/`)
+}
+
+export const apiUpdateInLibrary = (instId) => {
+	return handleRequest(methods.PUT, `/api/instances/${instId}/update_in_library/`)
+}
+
+export const apiPullFromLibrary = (instId) => {
+	return handleRequest(methods.PUT, `/api/instances/${instId}/pull_from_library/`)
+}
+
+export const apiModerateEntry = (entryId, data) => {
+	return handleRequest(methods.PATCH, `/api/community-library/${entryId}/moderate/`, data)
+}
+
+export const apiGetLibraryModeration = (status = 'banned', showDeleted = 'false', search = '') => {
+	return handleRequest(methods.GET, `/api/community-library/?moderation=true&status=${status}&deleted=${showDeleted}&search=${search}`)
+}
+
+export const apiGetSnapshotInstance = (entryId, snapshotId) => {
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/snapshot_instance/${snapshotId}/`)
+}
+
+export const apiGetSnapshotQset = (entryId, snapshotId) => {
+	return handleRequest(methods.GET, `/api/community-library/${entryId}/snapshot_qset/${snapshotId}/`)
+}
+
+export const apiGetLibraryCategories = () => {
+	return handleRequest(methods.GET, `/api/community-library/categories/`)
+}
+
+export const apiPostLibraryCategory = (slug, changes) => {
+	return handleRequest(methods.POST, `/api/community-library/categories/?slug=${slug}`, changes)
+}
+
+export const apiPatchLibraryCategory = (slug, changes) => {
+	return handleRequest(methods.PATCH, `/api/community-library/categories/?slug=${slug}`, changes)
+}
+
+export const apiDeleteLibraryCategory = (slug, changes) => {
+	return handleRequest(methods.DELETE, `/api/community-library/categories/?slug=${slug}`)
+}
+
+export const apiGetSiteImages = (type, latest=true) => {
+	switch (type) {
+		case 'profile':
+			type = 'PROFILE_IMAGE'
+			break
+		case 'catalog':
+			type = 'CATALOG_BANNER'
+			break
+		case 'library':
+			type = 'LIBRARY_BANNER'
+			break
+		default:
+			break
+	}
+
+	return handleRequest(methods.GET, `/api/site-images/?type=${type}&latest=${latest}`)
+}
+
+export const apiDeleteSiteImage = (id) => {
+	return handleRequest(methods.DELETE, `/api/site-images/${id}/`)
+}
+
+export const apiUploadSiteImage = (type, file) => {
+	const formData = new FormData()
+	formData.append('image', file)
+	formData.append('image_type', type)
+	return handleRequest(methods.POST, `/api/site-images/`, {}, { headers: { 'X-CSRFToken': getCSRFToken(), }, body: formData })
+}
+
+export const apiGetSiteMessages = (types, include_all=false, latest=true) => {
+
+	let path = '/api/site-messages/'
+
+	if (types.length > 1) {
+		path = `${path}?types=${types.join(',')}`
+	}
+
+	if (types.length === 1) {
+		path = `/api/site-messages/?type=${types[0]}`
+	}
+
+	if (include_all) {
+		path = `${path}${path.includes('?') ? '&' : '?'}include_expired=true`
+	}
+
+	if (latest) {
+		path = `${path}${path.includes('?') ? '&' : '?'}latest=true`
+	}
+
+	return handleRequest(methods.GET, path)
+
+}
+
+export const apiUploadSiteMessage = (type, content, start_time, end_time) => {
+	const formData = new FormData()
+	formData.append('message_type', type)
+	formData.append('message_text', content)
+	
+	if (start_time != null) formData.append('start_at', start_time)
+	if (end_time != null) formData.append('end_at', end_time)
+	
+	return handleRequest(methods.POST, `/api/site-messages/`, {}, { headers: { 'X-CSRFToken': getCSRFToken(), }, body: formData })
+}
+
+export const apiDeleteSiteMessage = (id) => {
+	return handleRequest(methods.DELETE, `/api/site-messages/${id}/`)
 }

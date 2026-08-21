@@ -6,6 +6,13 @@ import logging
 import os
 
 import phpserialize
+from community_library.models import (
+    LibraryCategory,
+    LibraryEntry,
+    LibraryReport,
+    Tag,
+    UserLike,
+)
 from core.models import (
     Asset,
     DateRange,
@@ -15,6 +22,8 @@ from core.models import (
     Lti,
     Notification,
     ObjectPermission,
+    SiteImage,
+    SiteMessage,
     UserExtraAttempts,
     UserSettings,
     Widget,
@@ -46,6 +55,7 @@ class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
     profile_fields = serializers.SerializerMethodField()
     is_student = serializers.SerializerMethodField()
+    library_banned = serializers.SerializerMethodField()
 
     def get_is_student(self, user):
         return PermService.user_is_student(user)
@@ -71,9 +81,26 @@ class UserSerializer(serializers.ModelSerializer):
     def get_avatar(self, user):
         return UserService.get_avatar_url(user)
 
+    # avoid duplicate lookups for adjacent user settings fields.
+    def _get_user_settings(self, user):
+        cache = getattr(self, "_user_settings_cache", None)
+        if cache is None:
+            cache = {}
+            self._user_settings_cache = cache
+
+        cache_key = user.pk if user.pk is not None else id(user)
+        if cache_key not in cache:
+            cache[cache_key], _ = UserSettings.objects.get_or_create(user=user)
+
+        return cache[cache_key]
+
     def get_profile_fields(self, user):
-        user_profile, _ = UserSettings.objects.get_or_create(user=user)
+        user_profile = self._get_user_settings(user)
         return user_profile.get_profile_fields()
+
+    def get_library_banned(self, user):
+        settings = self._get_user_settings(user)
+        return settings.library_banned
 
     class Meta:
         model = User
@@ -88,6 +115,7 @@ class UserSerializer(serializers.ModelSerializer):
             "date_joined",
             "last_login",
             "is_student",
+            "library_banned",
         ]
 
         read_only_fields = [
@@ -98,6 +126,7 @@ class UserSerializer(serializers.ModelSerializer):
             "date_joined",
             "last_login",
             "is_student",
+            "library_banned",
         ]
 
 
@@ -112,12 +141,16 @@ class UserMetadataSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError("User ID invalid.")
 
-        valid_keys = ["useGravatar", "notify", "theme", "beardMode"]
+        valid_keys = ["useGravatar", "profileImage", "notify", "theme", "beardMode"]
 
         for key, value in data["profile_fields"].items():
             if key not in valid_keys:
                 raise serializers.ValidationError(
                     f"Invalid profile field provided: {key}"
+                )
+            if key == "profileImage" and not isinstance(value, int):
+                raise serializers.ValidationError(
+                    f"Invalid value for {key}, must be integer."
                 )
             if key == "theme" and value not in ["dark", "light", "os"]:
                 raise serializers.ValidationError(
@@ -328,6 +361,16 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
     embed_url = serializers.CharField(read_only=True, allow_null=True)
     is_embedded = serializers.BooleanField(read_only=True)
     qset = QuestionSetSerializer(required=False)
+    library_entry = serializers.SerializerMethodField()
+    library_snapshot_id = serializers.SerializerMethodField()
+    copied_from_library = serializers.SerializerMethodField()
+    shared_to_library = serializers.SerializerMethodField()
+
+    def get_copied_from_library(self, instance):
+        return instance.is_copied_from_library
+
+    def get_shared_to_library(self, instance):
+        return instance.is_shared_to_library
 
     # remove sensitive info if context flag set
     def get_fields(self):
@@ -378,6 +421,37 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
         required=False
     )  # Model's save function will auto-generate an ID if it is empty
 
+    def get_library_entry(self, instance):
+        entry = instance.library_entry
+        if entry is None:
+            return None
+
+        entry_info = {
+            "id": entry.id,
+            "category": entry.category.slug,
+            "category_display": entry.category.label,
+            "course_level": entry.course_level,
+            "course_level_display": entry.get_course_level_display(),
+            "featured": entry.featured,
+            "copy_count": entry.copy_count,
+            "like_count": entry.like_count,
+            "latest_snapshot_id": entry.get_latest_snapshot_id(),
+            "is_available": entry.is_available,
+            "is_banned": entry.is_banned,
+        }
+
+        if self.context.get("include_entry_moderation_info", False):
+            entry_info["report_count"] = entry.report_count
+
+        return entry_info
+
+    def get_library_snapshot_id(self, instance):
+        snapshot = instance.library_snapshot
+        if snapshot is not None:
+            return snapshot.id
+        else:
+            return None
+
     class Meta:
         model = WidgetInstance
         fields = [
@@ -393,6 +467,10 @@ class WidgetInstanceSerializer(serializers.ModelSerializer):
             "attempts",
             "is_deleted",
             "embedded_only",
+            "shared_to_library",
+            "copied_from_library",
+            "library_entry",
+            "library_snapshot_id",
             "widget",
             "widget_id",
             "preview_url",
@@ -875,3 +953,255 @@ class PlayStorageSaveSerializer(serializers.Serializer):
         queryset=LogPlay.objects.all(), required=True
     )
     logs = serializers.JSONField()
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ["name", "used_count"]
+
+
+class LibraryEntrySerializer(serializers.ModelSerializer):
+    instance_id = serializers.CharField(source="instance.id", read_only=True)
+    instance_name = serializers.SerializerMethodField()
+    widget = WidgetSerializer(source="instance.widget", read_only=True)
+    owner_display_name = serializers.SerializerMethodField()
+    category = serializers.CharField(source="category.slug", read_only=True)
+    category_display = serializers.CharField(source="category.label", read_only=True)
+    category_banner = serializers.CharField(
+        source="category.banner_path", read_only=True
+    )
+    course_level_display = serializers.CharField(
+        source="get_course_level_display", read_only=True
+    )
+    latest_snapshot_id = serializers.SerializerMethodField()
+    user_has_liked = serializers.SerializerMethodField()
+    last_reported_at = serializers.SerializerMethodField()
+    tags = serializers.SerializerMethodField()
+    is_available = serializers.SerializerMethodField()
+    is_deleted = serializers.SerializerMethodField()
+    user_copy = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LibraryEntry
+        fields = [
+            "id",
+            "instance_id",
+            "instance_name",
+            "widget",
+            "owner_display_name",
+            "category",
+            "category_display",
+            "category_banner",
+            "course_level",
+            "course_level_display",
+            "featured",
+            "copy_count",
+            "like_count",
+            "report_count",
+            "is_banned",
+            "latest_snapshot_id",
+            "user_has_liked",
+            "created_at",
+            "last_reported_at",
+            "tags",
+            "is_available",
+            "is_deleted",
+            "user_copy",
+        ]
+
+    # remove sensitive information when requesting with non-privileged access
+    def get_fields(self):
+        fields = super().get_fields()
+        elevated = self.context.get("include_moderation_info")
+
+        if not elevated:
+            for field in [
+                "report_count",
+                "last_reported_at",
+            ]:
+                if fields[field]:
+                    fields.pop(field)
+
+        return fields
+
+    def get_instance_name(self, entry):
+        snapshot = entry.snapshots.order_by("-created_at").first()
+        if snapshot is None:
+            return entry.instance.name
+        return snapshot.name
+
+    def get_latest_snapshot_id(self, entry):
+        snapshot = entry.snapshots.order_by("-created_at").first()
+        if snapshot is None:
+            return None
+        return snapshot.id
+
+    def get_owner_display_name(self, entry):
+        user = entry.published_by or entry.instance.user
+        first = user.first_name or ""
+        last = user.last_name or ""
+        return f"{first} {last}".strip()
+
+    def get_last_reported_at(self, entry):
+        latest_report = entry.reports.order_by("-created_at").first()
+        return latest_report.created_at if latest_report else None
+
+    def get_user_has_liked(self, entry):
+        request = self.context.get("request")
+        if request is None or request.user.is_anonymous:
+            return False
+
+        return UserLike.objects.filter(user=request.user, entry=entry).exists()
+
+    def get_tags(self, entry):
+        return [tag.name for tag in entry.tags.all()]
+
+    def get_is_available(self, entry):
+        return entry.is_available
+
+    def get_is_deleted(self, entry):
+        return entry.instance.is_deleted
+
+    def get_user_copy(self, entry):
+        request = self.context.get("request")
+        if request is None or request.user.is_anonymous:
+            return None
+
+        copy = WidgetInstance.objects.filter(
+            user=request.user, library_entry=entry, is_deleted=False
+        ).first()
+        if not copy:
+            return None
+
+        return copy.id
+
+
+class LibraryCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LibraryCategory
+        fields = ["slug", "label", "banner_path", "color"]
+
+
+class LibraryReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LibraryReport
+        fields = ["reason", "details"]
+
+
+class PublishToLibrarySerializer(serializers.Serializer):
+    category = serializers.CharField()
+    course_level = serializers.ChoiceField(
+        choices=[("", "")] + LibraryEntry.COURSE_LEVEL_CHOICES,
+        required=False,
+        default="",
+    )
+    tags = serializers.ListField(
+        child=serializers.CharField(min_length=1, max_length=50),
+        required=False,
+        default=list,
+    )
+
+    def validate_category(self, value):
+        category = LibraryCategory.objects.filter(slug=value).first()
+        if category is None:
+            raise serializers.ValidationError('"%s" is not a valid choice.' % value)
+        return value
+
+
+class SiteImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(write_only=True, required=True)
+    image_type = serializers.ChoiceField(
+        choices=SiteImage.ImageType.choices, required=True
+    )
+
+    class Meta:
+        model = SiteImage
+        fields = ["id", "image_type", "image_path", "image"]
+        read_only_fields = ["id", "image_path"]
+
+    def create(self, validated_data):
+        import os
+        import uuid
+
+        from django.conf import settings
+        from PIL import Image
+
+        image_file = validated_data.pop("image")
+        image_type = validated_data.get("image_type")
+
+        ext = os.path.splitext(image_file.name)[1]
+        filename = f"{image_type.lower()}_{uuid.uuid4()}{ext}"
+
+        site_images_dir = settings.DIRS.get(
+            "site_images", os.path.join(settings.BASE_DIR, "staticfiles", "site_img")
+        )
+        os.makedirs(site_images_dir, exist_ok=True)
+
+        file_path = os.path.join(site_images_dir, filename)
+
+        # Resize profile images to max 960px on any side
+        if image_type == SiteImage.ImageType.PROFILE_IMAGE:
+            img = Image.open(image_file)
+
+            # Convert RGBA to RGB if necessary (for JPEG compatibility)
+            if img.mode in ("RGBA", "LA", "P"):
+                background = Image.new("RGB", img.size, (255, 255, 255))
+                background.paste(
+                    img, mask=img.split()[-1] if img.mode == "RGBA" else None
+                )
+                img = background
+
+            max_dimension = 640
+            width, height = img.size
+
+            if width > max_dimension or height > max_dimension:
+                if width > height:
+                    new_width = max_dimension
+                    new_height = int((max_dimension / width) * height)
+                else:
+                    new_height = max_dimension
+                    new_width = int((max_dimension / height) * width)
+
+                img = img.resize((new_width, new_height), Image.LANCZOS)
+
+            img.save(file_path, quality=90, optimize=True)
+        else:
+            # Save the file as-is for non-profile images
+            with open(file_path, "wb+") as destination:
+                for chunk in image_file.chunks():
+                    destination.write(chunk)
+
+        validated_data["image_path"] = f"/site_img/{filename}"
+
+        return super().create(validated_data)
+
+
+class SiteMessageSerializer(serializers.ModelSerializer):
+
+    message_text = serializers.CharField(required=True)
+    message_type = serializers.ChoiceField(
+        choices=SiteMessage.MessageType.choices, required=True
+    )
+
+    start_at = serializers.DateTimeField(required=False, allow_null=True)
+    end_at = serializers.DateTimeField(required=False, allow_null=True)
+
+    class Meta:
+        model = SiteMessage
+        fields = ["id", "message_type", "message_text", "start_at", "end_at"]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        message_type = attrs.get(
+            "message_type", self.instance.message_type if self.instance else None
+        )
+
+        if message_type not in {
+            SiteMessage.MessageType.SITE_ALERT,
+            SiteMessage.MessageType.SITE_NOTIFICATION,
+        }:
+            attrs["start_at"] = None
+            attrs["end_at"] = None
+
+        return attrs

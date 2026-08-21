@@ -243,7 +243,21 @@
 
 						text-align: center;
 						font-size: 12px;
-						font-weight: 900;
+						font-weight: 700;
+						color: #ffffff !important;
+
+						background: #777;
+					}
+
+					&.is_library ul li.score {
+						border-radius: 3px;
+
+						width: 54px;
+						height: 15px;
+
+						text-align: center;
+						font-size: 12px;
+						font-weight: 700;
 						color: #ffffff !important;
 
 						background: #b944cc;
@@ -899,6 +913,133 @@
 					cursor: pointer;
 					vertical-align: middle;
 				}
+			}
+		}
+
+		.community-library-container {
+			display: inline-block;
+			padding: 22px 20px 4px 20px;
+			width: 100%;
+			font-size: 10pt;
+			font-weight: 400;
+			margin: 0;
+			position: relative;
+			box-sizing: border-box;
+
+			&.draft {
+				cursor: default;
+				opacity: 0.75;
+				user-select: none;
+			}
+
+			.cl-options {
+				border-left: 8px solid rgba(185,68,204, 0.5);
+				background-color: rgba(185,68,204, 0.05);
+				display: flex;
+				flex-direction: row;
+				padding: 4px 10px;
+				gap: 10px;
+
+				button {
+					height: fit-content;
+					width: 100%;
+					margin: auto 0;
+					background: rgba(185,68,204, 1);
+					border: none;
+					border-radius: 4px;
+					padding: 8px;
+					color: #fff;
+					font-family: "Lato", Arial, sans-serif;
+					cursor: pointer;
+					flex-shrink: 0;
+					
+					transition: box-shadow 0.2s;
+
+					&:hover {
+						box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+					}
+
+					&.alt {
+						color: #fff;
+						background-color: rgba(93, 163, 203, 1);
+						// background-color: rgba(117, 191, 91, 1);
+						// background-color: #ffd439;
+						// color: #000;
+					}
+
+					&:disabled {
+						background: #777;
+						cursor: default;
+						&:hover {
+							box-shadow: none;
+						}
+					}
+				}
+
+				h4 {
+					margin-top: 2px;
+					margin-bottom: 7px;
+				}
+
+				a {
+					// display: block;
+					font-weight: 700;
+					margin-top: 2px;
+					margin-bottom: 5px;
+
+					// color: rgba(185,68,204, 1);
+				}
+
+				.state {
+					background-color: rgba(185,68,204, 1);
+					border-radius: 4px;
+					font-weight: 700;
+					color: #fff;
+					padding: 2px 4px;
+					margin-right: 4px;
+				}
+
+				.row {
+					display: flex;
+					flex-direction: row;
+					justify-content: space-between;
+					width: 100%;
+					// line-height: auto;
+
+					b {
+						font-weight: 700;
+					}
+
+					div {
+						margin: 0.5em 0;
+
+						&.cl-content {
+							width: 70%;
+						}
+
+						p {
+							margin: 4px 0px;
+							width: 100%;
+						}
+					}
+				}
+
+				.col {
+					display: flex;
+					flex-direction: column;
+					gap: 8px;
+					justify-content: center;
+
+					button {
+						margin: 0;
+					}
+				}
+			}
+
+			h3 {
+				font-size: 1.4em;
+				margin: 0;
+				margin-bottom: 8px;
 			}
 		}
 	}

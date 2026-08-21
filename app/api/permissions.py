@@ -16,6 +16,17 @@ class DenyAll(permissions.BasePermission):
         return False
 
 
+class IsInstructor(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if PermService.is_superuser_or_elevated(request.user):
+            return True
+
+        return (
+            request.user.is_authenticated
+            and request.user.groups.filter(name="basic_author").exists()
+        )
+
+
 class IsSuperuser(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_superuser
