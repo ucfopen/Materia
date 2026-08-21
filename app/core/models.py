@@ -912,6 +912,7 @@ class SiteImage(models.Model):
     )
 
     image_path = models.CharField(max_length=255)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
 class SiteMessage(models.Model):
@@ -935,6 +936,7 @@ class SiteMessage(models.Model):
 
     start_at = models.DateTimeField(default=None, null=True)
     end_at = models.DateTimeField(default=None, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
 class UserExtraAttempts(models.Model):
