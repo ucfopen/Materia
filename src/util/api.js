@@ -958,7 +958,7 @@ export const apiUploadSiteImage = (type, file) => {
 	return handleRequest(methods.POST, `/api/site-images/`, {}, { headers: { 'X-CSRFToken': getCSRFToken(), }, body: formData })
 }
 
-export const apiGetSiteMessages = (types, include_all=false) => {
+export const apiGetSiteMessages = (types, include_all=false, latest=true) => {
 
 	let path = '/api/site-messages/'
 
@@ -972,6 +972,10 @@ export const apiGetSiteMessages = (types, include_all=false) => {
 
 	if (include_all) {
 		path = `${path}${path.includes('?') ? '&' : '?'}include_expired=true`
+	}
+
+	if (latest) {
+		path = `${path}${path.includes('?') ? '&' : '?'}latest=true`
 	}
 
 	return handleRequest(methods.GET, path)
