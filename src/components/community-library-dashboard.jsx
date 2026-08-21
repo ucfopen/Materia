@@ -32,6 +32,11 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 	
 	const [mappedCategories, setMappedCategories] = useState({})
 
+	const [ featuredStrings, setFeaturedStrings ] = useState({
+		text: 'Explore a curated collection of widgets selected by the Materia team. Browse available options to find tools and resources that can enhance your course and support your teaching goals.',
+		header: 'Featured Widgets'
+	})
+
 	useEffect(() => {
 		if(!categories) return
 
@@ -91,25 +96,31 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 		retry: false
 	})
 
-	const {data: catalogTexts} = useQuery({
-		queryKey: ['catalog-texts'],
+	const {data: libraryFeaturedStrings} = useQuery({
+		queryKey: ['library-featured-strings'],
 		queryFn: async () => {
-			const messages = await apiGetSiteMessages(["CATALOG_TEXT"])
-			return messages.sort((a,b)=>b.id-a.id)
+			const messages = await apiGetSiteMessages(['LIBRARY_TEXT', 'LIBRARY_HEADER'])
+			console.log(messages)
+			return messages
 		},
 		refetchOnWindowFocus: false,
 		staleTime: Infinity,
 	})
 
-	const {data: catalogHeaders} = useQuery({
-		queryKey: ['catalog-headers'],
-		queryFn: async () => {
-			const messages = await apiGetSiteMessages(["CATALOG_HEADER"])
-			return messages.sort((a,b)=>b.id-a.id)
-		},
-		refetchOnWindowFocus: false,
-		staleTime: Infinity,
-	})
+	useEffect(() => {
+		if (!!libraryFeaturedStrings && libraryFeaturedStrings.length) {
+			libraryFeaturedStrings.forEach((string) => {
+				switch (string.message_type) {
+					case 'LIBRARY_TEXT':
+						setFeaturedStrings((featured) => ({...featured, text: string.message_text}))
+						break
+					case 'LIBRARY_HEADER':
+						setFeaturedStrings((featured) => ({...featured, header: string.message_text}))
+						break
+				}
+			})
+		}
+	},[libraryFeaturedStrings])
 
 	const mouseStopDrag = (e) => {
 		if(carouselDragging) {
@@ -138,15 +149,11 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 				'--featured-banner-image': `url("${libraryImages[0].image_path}")`
 			} : {}}>
 				<div className='row'>
-					<div style={{margin: "auto"}}>
+					<div>
 						<h3 className='featured-header'>
-							{catalogHeaders && catalogHeaders.length > 0 ? catalogHeaders[0].message_text : "Featured Widgets"}
+							{ featuredStrings.header }
 						</h3>
-						{
-							catalogTexts && catalogTexts.length > 0 ? <p>{catalogTexts[0].message_text}</p>
-							:
-							<p>Explore a curated collection of widgets selected by our LS&T staff. Browse available options to find tools and resources that can enhance your course and support your teaching goals.</p>
-						}
+						<p>{featuredStrings.text}</p>
 					</div>
 				</div>
 				<div className='content-container'>

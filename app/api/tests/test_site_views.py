@@ -1,11 +1,13 @@
 import io
 import tempfile
 
+from api.serializers import SiteMessageSerializer
 from api.tests.base import MateriaTestCase
-from core.models import SiteImage
+from core.models import SiteImage, SiteMessage
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import SimpleTestCase
 from PIL import Image
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -179,3 +181,38 @@ class TestSiteImageDestroy(SiteImageViewSetTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertTrue(SiteImage.objects.filter(id=target.id).exists())
+
+
+class SiteMessageSerializerTestCase(SimpleTestCase):
+    def test_scheduled_message_keeps_dates(self):
+        serializer = SiteMessageSerializer(
+            data={
+                "message_type": SiteMessage.MessageType.SITE_ALERT,
+                "message_text": "Scheduled alert",
+                "start_at": "2026-01-01T00:00:00Z",
+                "end_at": "2026-01-02T00:00:00Z",
+            }
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertIsNotNone(serializer.validated_data["start_at"])
+        self.assertIsNotNone(serializer.validated_data["end_at"])
+
+    def test_non_scheduled_message_clears_dates_on_update(self):
+        instance = SiteMessage(
+            message_type=SiteMessage.MessageType.CATALOG_TEXT,
+            message_text="Catalog text",
+        )
+        serializer = SiteMessageSerializer(
+            instance=instance,
+            data={
+                "message_text": "Updated catalog text",
+                "start_at": "2026-01-01T00:00:00Z",
+                "end_at": "2026-01-02T00:00:00Z",
+            },
+            partial=True,
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertIsNone(serializer.validated_data["start_at"])
+        self.assertIsNone(serializer.validated_data["end_at"])
