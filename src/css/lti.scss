@@ -580,6 +580,7 @@ html {
 			header.header-for-students {
 				display: flex;
 				flex-direction: column;
+				align-items: center;
 
 				img {
 					width: auto;
@@ -719,6 +720,7 @@ html {
 				border-top: dotted 1px #ccc;
 
 				header {
+					display: block;
 					width: 80%;
 					margin: 1em auto;
 					text-align: center;

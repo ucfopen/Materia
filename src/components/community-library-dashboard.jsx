@@ -145,7 +145,9 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 		</div>
 		{
 			featured && featured.length > 0 &&
-			<div className='category-box featured'>
+			<div className='category-box featured' style={ libraryImages && libraryImages.length > 0 ? {
+				'--featured-banner-image': `url("${libraryImages[0].image_path}")`
+			} : {}}>
 				<div className='row'>
 					<div>
 						<h3 className='featured-header'>
@@ -153,7 +155,6 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 						</h3>
 						<p>{featuredStrings.text}</p>
 					</div>
-					{ libraryImages && libraryImages.length > 0 && <img className="catalog-image" src={libraryImages[0].image_path}/>}
 				</div>
 				<div className='content-container'>
 					<button className='carousel left' aria-label='Move carousel to the left.'
@@ -200,6 +201,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 						{featured.map((entry, i) => (
 							// i>=2 ? null :
 							<div className='carousel-card'
+							key={i}
 							onClick={(e)=>{
 								if(carouselDragging) {
 									e.preventDefault()
