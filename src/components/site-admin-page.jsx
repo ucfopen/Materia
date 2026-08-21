@@ -105,7 +105,7 @@ const SiteAdminPage = () => {
 
 	const {data: siteMessages, refetch: refetchSiteMessages } = useQuery({
 		queryKey: ['site-messages', 'all'],
-		queryFn: () => apiGetSiteMessages([], true),
+		queryFn: () => apiGetSiteMessages([], true, false),
 		enabled: pageState.mode == 'message',
 		staleTime: Infinity,
 		retry: false
