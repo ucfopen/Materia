@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # =====================================================================================================
 # Build stage - compile Python packages
 # =====================================================================================================
@@ -58,10 +59,9 @@ RUN apk add --no-cache \
 # Create www-data user
 RUN adduser -u 33 -S -D -G www-data www-data
 
-# Copy and install pre-built wheels
-COPY --from=build_stage /wheels /wheels
-RUN pip install --no-cache-dir --no-index --find-links=/wheels /wheels/* \
-    && rm -rf /wheels
+# Install pre-built wheels, bind-mounted so they are never committed to a layer
+RUN --mount=type=bind,from=build_stage,source=/wheels,target=/wheels \
+    pip install --no-cache-dir --no-index --find-links=/wheels /wheels/*
 
 # Create directory structure
 RUN mkdir -p /var/www/html
