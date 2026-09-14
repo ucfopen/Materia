@@ -1295,7 +1295,11 @@ class WidgetInstance(models.Model):
         return qsets
 
     def duplicate(
-        self, owner: User, new_name: str, copy_existing_perms: bool = False
+        self,
+        owner: User,
+        new_name: str,
+        copy_existing_perms: bool = False,
+        copy_settings: bool = False,
     ) -> Self:
         dupe = WidgetInstance.objects.get(pk=self.pk)
 
@@ -1317,6 +1321,17 @@ class WidgetInstance(models.Model):
 
         # Manually update created_at
         dupe.created_at = timezone.now()
+
+        # Reset instance settings unless specifically desired
+        if not copy_settings:
+            dupe.open_at = None
+            dupe.close_at = None
+            dupe.attempts = -1
+            dupe.guest_access = False
+
+        # Dupes owned by students are always guest mode, regardless of original status
+        if PermService.user_is_student(owner):
+            dupe.guest_access = True
 
         # If original widget is student made, verify that the new user is a student or not.
         if dupe.is_student_made:
