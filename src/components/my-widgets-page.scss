@@ -926,7 +926,7 @@
 			position: relative;
 			box-sizing: border-box;
 
-			&.draft {
+			&.closed {
 				cursor: default;
 				opacity: 0.75;
 				user-select: none;
