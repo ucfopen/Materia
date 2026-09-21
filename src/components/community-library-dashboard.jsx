@@ -92,7 +92,6 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 		queryKey: ['library-featured-strings'],
 		queryFn: async () => {
 			const messages = await apiGetSiteMessages(['LIBRARY_TEXT', 'LIBRARY_HEADER'])
-			console.log(messages)
 			return messages
 		},
 		refetchOnWindowFocus: false,
