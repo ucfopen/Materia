@@ -115,10 +115,11 @@ export function useTagList(count, search, exclude) {
 
 export function useCategoryList() {
 	return useQuery({
-		queryKey: ['category-moderation'],
+		queryKey: ['cl-categories'],
 		queryFn: () => apiGetLibraryCategories(),
 		enabled: true,
-		staleTime: 30000
+		staleTime: 30000,
+		placeholderData: []
 	})
 }
 
