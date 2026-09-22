@@ -64,10 +64,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	useEffect(() => {
 		if (userList.error) {
-			setError(`User search failed with error: ${data.msg}`);
-			if (userList.error.title == "Invalid Login") {
-				setInvalidLogin(true)
-			}
+			setError(`User search failed with error: ${data.msg}`)
 		}
 	}, [userList.error])
 
@@ -205,15 +202,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 				}
 			},
 			errorFunc: (err) => {
-				if (err.message == "Share Not Allowed")
-				{
-					setState({...state, shareNotAllowed: true})
-				} else if (err.message == "Invalid Login")
-				{
-					setInvalidLogin(true)
-				} else {
-					setError((err.message || "Error") + ": Failed to save permissions.")
-				}
+				setError(err.message || "Failed to save permissions.")
 			}
 		})
 

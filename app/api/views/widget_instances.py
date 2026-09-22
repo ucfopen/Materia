@@ -85,7 +85,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
         seen = set()
 
         for tag_name in tag_names:
-            cleaned = " ".join((tag_name or "").strip().replace("#","").split())
+            cleaned = " ".join((tag_name or "").strip().replace("#", "").split())
             canonical = Tag.normalize_name(cleaned)
             if not canonical or canonical in seen:
                 continue
@@ -613,8 +613,11 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
             # If there was a refusal, return a message
             if len(refusals) > 0:
-                # TODO: evaluate logger level and details of `refusals`
-                logger.error(refusals)
+                logger.warning(
+                    "Perms updates requested by user %s refused for users: %s",
+                    requester.id,
+                    [user.id for user in refusals],
+                )
                 raise MsgFailure(
                     msg=f"Could not update {len(refusals)} out of {len(updates)} permissions."
                 )
