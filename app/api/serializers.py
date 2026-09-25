@@ -689,7 +689,7 @@ class ScoreSummarySerializer(serializers.Serializer):
 
         for log in logs:
 
-            semester_key = f"{log.created_at.year}-{log.semester.semester}"
+            semester_key = f"{log.semester.year}-{log.semester.semester}"
             user_id = 0 if log.user_id is None else log.user_id
 
             if semester_key not in summary:
@@ -720,7 +720,7 @@ class ScoreSummarySerializer(serializers.Serializer):
                 summary[semester_key] = {
                     "id": log.semester.id,
                     "term": log.semester.semester,
-                    "year": log.created_at.year,
+                    "year": log.semester.year,
                     "start_at": log.semester.start_at,
                     "students": 1,
                     "count": 1,
