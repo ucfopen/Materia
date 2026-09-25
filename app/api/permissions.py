@@ -14,13 +14,18 @@ logger = logging.getLogger(__name__)
 class DenyAll(permissions.BasePermission):
     def has_permission(self, request, view):
         return False
-    
+
+
 class IsInstructor(permissions.BasePermission):
     def has_permission(self, request, view):
         if PermService.is_superuser_or_elevated(request.user):
             return True
-        
-        return request.user.is_authenticated and request.user.groups.filter(name="basic_author").exists()
+
+        return (
+            request.user.is_authenticated
+            and request.user.groups.filter(name="basic_author").exists()
+        )
+
 
 class IsSuperuser(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -176,12 +181,17 @@ class PlayStorageInstancePermissions(permissions.BasePermission):
                 return True
 
             play_id = request.query_params.get("play_id")
-            play = LogPlay.objects.select_related("instance").filter(pk=play_id).first()
+            if play_id:
+                play = (
+                    LogPlay.objects.select_related("instance")
+                    .filter(pk=play_id)
+                    .first()
+                )
 
-            if not play.instance.playable_by_current_user(request.user):
-                return False
+                if not play or not play.instance.playable_by_current_user(request.user):
+                    return False
 
-            return True
+                return True
 
         elif request.method == "POST":
             play_id = request.data.get("play_id")

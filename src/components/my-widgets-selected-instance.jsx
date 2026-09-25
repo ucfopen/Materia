@@ -396,7 +396,36 @@ const MyWidgetSelectedInstance = ({
 
 	let communityLibraryContentRender = null
 
-	if (!inst.shared_to_library && !inst.copied_from_library) {
+	if (!isCustomizable) {
+		communityLibraryContentRender = (
+			<div className='row'>
+				<div className='cl-content'>
+					<h4>This widget type cannot be shared to the Community Library.</h4>
+					Widgets that can't be customized aren't eligible to be shared.
+				</div>
+			</div>
+		)
+	} else if (!state.perms.editable) {
+		communityLibraryContentRender = (
+			<div className='row'>
+				<div className='cl-content'>
+					<h4>You need edit access to share this widget to the Community Library.</h4>
+					Only users with Full access can share this widget.
+				</div>
+			</div>
+		)
+	} else if (inst.is_draft) {
+		communityLibraryContentRender = (
+			<div className='row'>
+				<div className='cl-content'>
+					<h4>Draft widgets can't be shared to the Community Library.</h4>
+					Publish this widget to make it eligible to be shared.
+				</div>
+			</div>
+		)
+	}
+
+	else if (!inst.shared_to_library && !inst.copied_from_library) {
 		if (currentUser?.library_banned) {
 			communityLibraryContentRender = (
 				<div className='row'>
@@ -417,7 +446,7 @@ const MyWidgetSelectedInstance = ({
 						<button
 							role='menuitem'
 							tabIndex="0"
-							disabled={inst.is_draft || inst.guest_access || !isCustomizable || !state.perms.editable}
+							disabled={inst.is_draft || !isCustomizable || !state.perms.editable}
 							onClick={() => setShowPublishDialog(true)}>
 							Share to Library
 						</button>
@@ -699,14 +728,8 @@ const MyWidgetSelectedInstance = ({
 			{provisionalAccessRender}
 
 			{ !currentUser?.is_student &&
-				<div className={`community-library-container closed ${(inst.is_draft || inst.guest_access || !isCustomizable || !state.perms.editable) ? 'draft' : ''}`}>
-					<h3>
-						{`${!isCustomizable ? `This widget type cannot be shared to the `
-							: !state.perms.editable ? `You need edit access to use the `
-							: inst.guest_access ? `Guest widgets cannot be shared to the ` 
-							: inst.is_draft ? `Publish to share to the ` 
-							: ``}Community Library`}
-					</h3>
+				<div className={`community-library-container ${(inst.is_draft || !isCustomizable || !state.perms.editable) ? 'closed' : ''}`}>
+					<h3>Community Library</h3>
 					<div className="cl-options">
 						{ communityLibraryContentRender }
 					</div>

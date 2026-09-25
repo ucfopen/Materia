@@ -689,7 +689,7 @@ class ScoreSummarySerializer(serializers.Serializer):
 
         for log in logs:
 
-            semester_key = f"{log.created_at.year}-{log.semester.semester}"
+            semester_key = f"{log.semester.year}-{log.semester.semester}"
             user_id = 0 if log.user_id is None else log.user_id
 
             if semester_key not in summary:
@@ -720,7 +720,8 @@ class ScoreSummarySerializer(serializers.Serializer):
                 summary[semester_key] = {
                     "id": log.semester.id,
                     "term": log.semester.semester,
-                    "year": log.created_at.year,
+                    "year": log.semester.year,
+                    "start_at": log.semester.start_at,
                     "students": 1,
                     "count": 1,
                     "total": log.percent,
@@ -774,6 +775,7 @@ class ScoreSummarySerializer(serializers.Serializer):
                     "id": data["id"],
                     "term": data["term"],
                     "year": data["year"],
+                    "start_at": data["start_at"],
                     "students": data["students"],
                     "average": round(data["total"] / data["count"], 2),
                     "distribution": data["distribution"],
@@ -781,7 +783,22 @@ class ScoreSummarySerializer(serializers.Serializer):
                 }
             )
 
-        return sorted(results, key=lambda x: (x["year"], x["term"]), reverse=True)
+        return sorted(results, key=lambda x: x["start_at"], reverse=True)
+
+
+class PerformanceAvailableSemesterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DateRange
+        fields = [
+            "id",
+            "semester",
+            "year",
+        ]
+
+
+# Used for validating the semester ID in the performance endpoint URL. Does NOT map to a model.
+class PerformanceSemesterSerializer(serializers.Serializer):
+    semester = serializers.PrimaryKeyRelatedField(queryset=DateRange.objects.all())
 
 
 # Used for incoming requests for qset generation. Does NOT map to a model.
@@ -1191,3 +1208,17 @@ class SiteMessageSerializer(serializers.ModelSerializer):
         model = SiteMessage
         fields = ["id", "message_type", "message_text", "start_at", "end_at"]
         read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        message_type = attrs.get(
+            "message_type", self.instance.message_type if self.instance else None
+        )
+
+        if message_type not in {
+            SiteMessage.MessageType.SITE_ALERT,
+            SiteMessage.MessageType.SITE_NOTIFICATION,
+        }:
+            attrs["start_at"] = None
+            attrs["end_at"] = None
+
+        return attrs

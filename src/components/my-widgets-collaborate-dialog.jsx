@@ -29,6 +29,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const popperRef = useRef(null)
 	const userList = useUserList(debouncedSearchTerm)
 	const [collabUsers, setCollabUsers] = useState({})
+	const [suOverride, setSuOverride] = useState(false)
 
 	const collabUsersQueryKey = [
 		'collab-users',
@@ -63,15 +64,16 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	useEffect(() => {
 		if (userList.error) {
-			setError(`User search failed with error: ${data.msg}`);
-			if (userList.error.title == "Invalid Login") {
-				setInvalidLogin(true)
-			}
+			setError(`User search failed with error: ${data.msg}`)
 		}
 	}, [userList.error])
 
 	useEffect(() => {
 		mounted.current = true
+
+		const currentUserPerms = queryClient.getQueryData(['isLoggedIn'])
+		if (currentUserPerms?.permLevel && (currentUserPerms?.permLevel == 'super_user') || currentUserPerms?.permLevel == 'support_user') setSuOverride(true)
+
 		return () => {
 			mounted.current = false
 		}
@@ -141,7 +143,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	// does the perms set contain the current user?
 	// supportUsers always have implicit access. Otherwise, verify the user is in the perms set and isn't pending removal.
 	const containsUser = () => {
-		if (myPerms?.isSupportUser) return true
+		if (suOverride) return true
 		for (const [id, val] of Array.from(state.updatedAllUserPerms)) {
 			if (id == currentUser.id) return !val.remove
 		}
@@ -156,7 +158,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 		let permsObj = [];
 
-		if (delCurrUser && myPerms.accessLevel != access.FULL)
+		if (delCurrUser && myPerms?.accessLevel != access.FULL)
 		{
 			// Only send a request to update current user perms so that it doesn't get no-perm'd by the server
 			let currentUserPerms = state.updatedAllUserPerms.get(currentUser.id);
@@ -200,15 +202,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 				}
 			},
 			errorFunc: (err) => {
-				if (err.message == "Share Not Allowed")
-				{
-					setState({...state, shareNotAllowed: true})
-				} else if (err.message == "Invalid Login")
-				{
-					setInvalidLogin(true)
-				} else {
-					setError((err.message || "Error") + ": Failed to save permissions.")
-				}
+				setError(err.message || "Failed to save permissions.")
 			}
 		})
 
@@ -236,7 +230,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	// Can't search unless you have full access.
 	let searchContainerRender = null
-	if (myPerms?.can?.share || myPerms?.isSupportUser) {
+	if (myPerms?.can?.share || suOverride) {
 		let searchResultsRender = null
 		if (debouncedSearchTerm !== '' && state.searchText !== '' && userList.users?.length && userList.users?.length !== 0) {
 			const searchResultElements = userList.users?.map(match =>
@@ -306,13 +300,18 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 						onlyOneFullPermHolder={onlyOneFullPermHolder}
 						removedCurrentUser={removedCurrentUser}
 						onChange={(userId, perms) => updatePerms(userId, perms)}
-						readOnly={myPerms?.can?.share === false}
+						readOnly={myPerms?.can?.share === false && !suOverride}
+						suOverride={suOverride}
 					/>
 				)
 
 				if (currentUser.id === user.id) userContentElement = rowElement
 				else mainContentElements.push(rowElement)
 			})
+
+			if (userContentElement == null && suOverride) {
+				userContentElement = <span className='not-shared'>You have implicit access to this widget due to your role as an elevated user.</span>
+			}
 
 			mainContentRender = (
 				<>
@@ -364,7 +363,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					<p className='disclaimer'>
 						Users with full access can edit this widget and can
 						add or remove people in this list. 
-						{onlyOneFullPermHolder && myPerms.accessLevel == access.FULL && (
+						{onlyOneFullPermHolder && myPerms?.accessLevel == access.FULL && (
 							<span>
 								<em>
 								{	'\u00A0'}Note: There must be at least one user with full access.

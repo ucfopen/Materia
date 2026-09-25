@@ -127,13 +127,20 @@ class CommunityLibraryListView(APIView):
             if show_deleted == "false":
                 qs = qs.filter(instance__is_deleted=False)
         else:
+            include_banned = ValidatorUtil.validate_bool(
+                request.query_params.get("include_banned")
+            ) and PermService.is_superuser_or_elevated(request.user)
+
+            filters = {
+                "instance__is_deleted": False,
+                "instance__is_draft": False,
+                "is_available": True,
+            }
+            if not include_banned:
+                filters["is_banned"] = False
+
             qs = annotate_library_counts(
-                LibraryEntry.objects.filter(
-                    instance__is_deleted=False,
-                    instance__is_draft=False,
-                    is_banned=False,
-                    is_available=True,
-                )
+                LibraryEntry.objects.filter(**filters)
                 .select_related(
                     "instance",
                     "instance__widget",
@@ -146,11 +153,27 @@ class CommunityLibraryListView(APIView):
         search = request.query_params.get("search")
         user = request.query_params.get("user", -1)
         if search:
-            qs = qs.filter(
-                Q(snapshots__name__icontains=search)
-                | Q(published_by__first_name__icontains=search)
-                | Q(published_by__last_name__icontains=search)
-            ).distinct()
+            terms = search.strip().split()
+            if len(terms) >= 2:
+                qs = qs.filter(
+                    Q(snapshots__name__icontains=search)
+                    | Q(
+                        published_by__first_name__icontains=terms[0],
+                        published_by__last_name__icontains=terms[1],
+                    )
+                    | Q(
+                        published_by__first_name__icontains=terms[1],
+                        published_by__last_name__icontains=terms[0],
+                    )
+                    | Q(published_by__first_name__icontains=search)
+                    | Q(published_by__last_name__icontains=search)
+                ).distinct()
+            else:
+                qs = qs.filter(
+                    Q(snapshots__name__icontains=search)
+                    | Q(published_by__first_name__icontains=search)
+                    | Q(published_by__last_name__icontains=search)
+                ).distinct()
         elif ValidatorUtil.is_positive_integer_or_zero(user):
             qs = qs.filter(published_by=user)
 

@@ -900,7 +900,7 @@ class SiteImage(models.Model):
     class ImageType(models.TextChoices):
         NO_TYPE = "NO_TYPE", gettext_lazy("No Type")
         PROFILE_IMAGE = "PROFILE_IMAGE", gettext_lazy("Profile Image")
-        # LIBRARY_BANNER = "LIBRARY_BANNER", gettext_lazy("Library Banner")
+        LIBRARY_BANNER = "LIBRARY_BANNER", gettext_lazy("Library Banner")
         CATALOG_BANNER = "CATALOG_BANNER", gettext_lazy("Catalog Banner")
 
     image_type = models.CharField(
@@ -912,6 +912,7 @@ class SiteImage(models.Model):
     )
 
     image_path = models.CharField(max_length=255)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
 class SiteMessage(models.Model):
@@ -922,6 +923,8 @@ class SiteMessage(models.Model):
         SITE_ALERT = "SITE_ALERT", gettext_lazy("Site Alert")
         CATALOG_HEADER = "CATALOG_HEADER", gettext_lazy("Catalog Header")
         CATALOG_TEXT = "CATALOG_TEXT", gettext_lazy("Catalog Text")
+        LIBRARY_HEADER = "LIBRARY_HEADER", gettext_lazy("Library Header")
+        LIBRARY_TEXT = "LIBRARY_TEXT", gettext_lazy("Library Text")
 
     message_type = models.CharField(
         max_length=26,
@@ -935,6 +938,7 @@ class SiteMessage(models.Model):
 
     start_at = models.DateTimeField(default=None, null=True)
     end_at = models.DateTimeField(default=None, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
 class UserExtraAttempts(models.Model):
@@ -1291,7 +1295,11 @@ class WidgetInstance(models.Model):
         return qsets
 
     def duplicate(
-        self, owner: User, new_name: str, copy_existing_perms: bool = False
+        self,
+        owner: User,
+        new_name: str,
+        copy_existing_perms: bool = False,
+        copy_settings: bool = False,
     ) -> Self:
         dupe = WidgetInstance.objects.get(pk=self.pk)
 
@@ -1313,6 +1321,17 @@ class WidgetInstance(models.Model):
 
         # Manually update created_at
         dupe.created_at = timezone.now()
+
+        # Reset instance settings unless specifically desired
+        if not copy_settings:
+            dupe.open_at = None
+            dupe.close_at = None
+            dupe.attempts = -1
+            dupe.guest_access = False
+
+        # Dupes owned by students are always guest mode, regardless of original status
+        if PermService.user_is_student(owner):
+            dupe.guest_access = True
 
         # If original widget is student made, verify that the new user is a student or not.
         if dupe.is_student_made:
@@ -1594,7 +1613,7 @@ class WidgetQset(models.Model):
 
 class UserSettings(models.Model):
 
-    DEFAULT_PROFILE_FIELDS = {"useGravatar": True, "theme": "light"}
+    DEFAULT_PROFILE_FIELDS = {"useGravatar": False, "theme": "light"}
 
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="profile_settings"
@@ -1617,6 +1636,9 @@ class UserSettings(models.Model):
             del updated_fields["darkMode"]
             self.profile_fields = updated_fields
             self.save()
+
+        elif "theme" not in self.profile_fields:
+            self.set_profile_fields("theme", "light")
 
         profile_images = SiteImage.objects.filter(
             image_type=SiteImage.ImageType.PROFILE_IMAGE

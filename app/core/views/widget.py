@@ -284,6 +284,11 @@ class WidgetPlayView(
         instance = WidgetInstance.objects.filter(pk=inst_id).first()
         context = None
 
+        # this check should not normally be required, but it's worth making sure the user is still authenticated
+        # following the LTI launch redirect
+        if not request.user.is_authenticated:
+            return lti_error_page(request, "error_launch_validation")
+
         if instance is None:
             return lti_error_page(request, "error_unknown_assignment")
 

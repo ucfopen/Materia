@@ -274,7 +274,7 @@ class PlayDataExporterService:
             for question in question_row_data["questions"]:
                 csv_question = {
                     "question_id": question_row_data["id"],
-                    "options": question_row_data["options"],
+                    "options": question_row_data.get("options", {}),
                     "id": question.get("id", ""),
                     "text": question["text"],
                 }
@@ -282,7 +282,7 @@ class PlayDataExporterService:
 
             # Grab out the keys of options, add them if not already in the list
             try:
-                for key in question_row_data["options"].keys():
+                for key in question_row_data.get("options", {}).keys():
                     if key in csv_options:
                         continue
                     csv_options.append(key)

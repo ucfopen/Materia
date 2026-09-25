@@ -97,7 +97,7 @@ const SiteAdminPage = () => {
 
 	const {data: profileImages, refetch: refetchProfileImages } = useQuery({
 		queryKey: ['profile-images'],
-		queryFn: () => apiGetSiteImages('profile'),
+		queryFn: () => apiGetSiteImages('profile', false),
 		enabled: pageState.mode == 'image',
 		staleTime: Infinity,
 		retry: false
@@ -105,7 +105,7 @@ const SiteAdminPage = () => {
 
 	const {data: siteMessages, refetch: refetchSiteMessages } = useQuery({
 		queryKey: ['site-messages', 'all'],
-		queryFn: () => apiGetSiteMessages([], true),
+		queryFn: () => apiGetSiteMessages([], true, false),
 		enabled: pageState.mode == 'message',
 		staleTime: Infinity,
 		retry: false
@@ -113,7 +113,14 @@ const SiteAdminPage = () => {
 
 	const {data: catalogImages, refetch: refetchCatalogImages } = useQuery({
 		queryKey: ['catalog-images'],
-		queryFn: () => apiGetSiteImages('catalog'),
+		queryFn: () => apiGetSiteImages('catalog', false),
+		staleTime: Infinity,
+		retry: false
+	})
+
+	const {data: libraryImages, refetch: refetchLibraryImages } = useQuery({
+		queryKey: ['library-images'],
+		queryFn: () => apiGetSiteImages('library', false),
 		staleTime: Infinity,
 		retry: false
 	})
@@ -148,7 +155,6 @@ const SiteAdminPage = () => {
 	},[profileImages])
 
 	useEffect(() => {
-		console.log(catalogImages)
 		if (catalogImages != undefined) {
 			setImageState((imageState) => ({
 				...imageState,
@@ -158,6 +164,17 @@ const SiteAdminPage = () => {
 			}))
 		}
 	},[catalogImages])
+
+	useEffect(() => {
+		if (libraryImages != undefined) {
+			setImageState((imageState) => ({
+				...imageState,
+				isUploadingImage: false,
+				imageUploadError: false,
+				libraryImages: libraryImages,
+			}))
+		}
+	},[libraryImages])
 
 	useEffect(() => {
 		if (siteMessages != undefined) {
@@ -175,6 +192,7 @@ const SiteAdminPage = () => {
 
 		let profileGalleryRender = null
 		let catalogImageRender = null
+		let libraryImageRender = null
 		if ( !!imageState.profileImages) {
 			const profileImageList = imageState.profileImages.map((img, index) => {
 				return (
@@ -215,6 +233,26 @@ const SiteAdminPage = () => {
 				</ul>
 			)
 		}
+		if(!!imageState.libraryImages) {
+			const libraryImageList = imageState.libraryImages.map((img, index) => {
+				return (
+					<li className="profile-image" key={index}>
+						<img src={img.image_path} alt="" />
+						<button 
+							className="action_button remove_profile_img"
+							data-ormid={img.id}
+							onClick={handleImageRemoveRequest}>
+								Remove
+							</button>
+					</li>
+				)
+			})
+			libraryImageRender = (
+				<ul className='profile-images'>
+					{libraryImageList}
+				</ul>
+			)
+		}
 
 		contentRender = (
 			<>
@@ -227,6 +265,7 @@ const SiteAdminPage = () => {
 								className="image_uploader_select"
 								name="image_type">
 									<option value="PROFILE_IMAGE">Profile Image</option>
+									<option value="LIBRARY_BANNER">Library Banner</option>
 									<option value="CATALOG_BANNER">Catalog Banner</option>
 								</select>
 							<input
@@ -248,6 +287,10 @@ const SiteAdminPage = () => {
 					<section className="management-subsection">
 						<h3>Catalog Banner</h3>
 						{catalogImageRender}
+					</section>
+					<section className="management-subsection">
+						<h3>Library Banner</h3>
+						{libraryImageRender}
 					</section>
 					<section className="management-subsection">
 						<h3>Profile Images</h3>
@@ -309,11 +352,13 @@ const SiteAdminPage = () => {
 									<option value="SITE_ALERT">System Alert</option>
 									<option value="CATALOG_HEADER">Catalog Header</option>
 									<option value="CATALOG_TEXT">Catalog Text</option>
+									<option value="LIBRARY_HEADER">Library Header</option>
+									<option value="LIBRARY_TEXT">Library Text</option>
 								</select>
 							<textarea id="message_content_input" name="message_content" className="message_uploader_input">
 							</textarea>
 							<section className="form-subsection">
-								<p>Note: Start and End values are optional.</p>
+								<p>Note: Start and End values are optional. These are only applied to <b>System Notifications</b> and <b>System Alerts</b>.</p>
 								<label htmlFor="message_start_time_input">Start At</label>
 								<input
 									id="message_start_time_input"
@@ -341,28 +386,6 @@ const SiteAdminPage = () => {
 					</section>
 				</section>
 			</>
-		)
-	}
-
-	let catalogGalleryRender = null
-	if ( !!imageState.catalogImages) {
-		const catalogImageList = imageState.catalogImages.map((img, index) => {
-			return (
-				<li className="profile-image" key={index}>
-					<img src={img.image_path} alt="" />
-					<button 
-						className="action_button remove_profile_img"
-						data-ormid={img.id}
-						onClick={handleImageRemoveRequest}>
-							Remove
-						</button>
-				</li>
-			)
-		})
-		catalogGalleryRender = (
-			<ul>
-				{catalogImageList}
-			</ul>
 		)
 	}
 

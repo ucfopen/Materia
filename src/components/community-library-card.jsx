@@ -35,7 +35,10 @@ const CommunityLibraryCard = ({ entry, categoryObject, highlightedTags = [], ski
 		return (<>
 			{tags.map((t, i) => {
 				if (i >= 2) return
-				return (<span className={`badge ${highlightedTags.includes(t) ? 'highlighted' : ''}`} key={i}>#{t}</span>)
+				const name = t.slice(0,15)
+				return (<span className={`badge ${highlightedTags.includes(t) ? 'highlighted' : ''}`} key={i}>
+					#{`${name}${t.length > 15 ? '...':''}`}
+				</span>)
 			})}
 			<span className='tiny-text'>{entry.tags.length > count ? `+${entry.tags.length-count}` : ""}</span>
 		</>)

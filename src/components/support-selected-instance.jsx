@@ -112,16 +112,14 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 			const myPerms = new Map()
 
 			perms.forEach(perm => {
+
+				const permToObj = rawPermsToObj(perm, isEditable)
 				
 				if (perm.user == currentUser?.id) {
-					myPerms.set(perm.user, rawPermsToObj(perm, isEditable))
+					myPerms.set(perm.user, permToObj)
 				}
-				else {
-					othersPerms.set(perm.user, rawPermsToObj(perm, isEditable))
-				}
+				othersPerms.set(perm.user, permToObj)
 			})
-			myPerms.isSupportUser = true
-
 			setAllPerms({myPerms: myPerms, otherUserPerms: othersPerms})
 		}
 	}, [perms])
@@ -267,10 +265,13 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 
 	let collaborateDialogRender = null
 	if (showCollab) {
+		const entries = allPerms.myPerms.entries()
+		let myPerms = null
+		if (entries && entries.length) myPerms = entries.next().value[1] ?? null
 		collaborateDialogRender = (
 			<MyWidgetsCollaborateDialog inst={inst}
 				currentUser={currentUser}
-				myPerms={allPerms.myPerms}
+				myPerms={myPerms}
 				otherUserPerms={allPerms.otherUserPerms}
 				setOtherUserPerms={(p) => setAllPerms({...allPerms, otherUserPerms: p})}
 				onClose={() => {setShowCollab(false)}}
@@ -483,7 +484,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 								name='available'
 								value={-1}
 								checked={availableDisabled}
-								onChange={() => {setAvailableDisabled(true); handleChange('open_at', -1)}}
+								onChange={() => {setAvailableDisabled(true); handleChange('open_at', null)}}
 							/>
 							<label htmlFor="now">Now</label>
 						</div>
@@ -514,7 +515,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 								id="never"
 								value={-1}
 								checked={closeDisabled}
-								onChange={() => {setCloseDisabled(true); handleChange('close_at', -1)}}
+								onChange={() => {setCloseDisabled(true); handleChange('close_at', null)}}
 							/>
 							<label htmlFor="never">Never</label>
 						</div>
