@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { apiGetScoreSummary } from '../util/api'
 import MyWidgetScoreSemester from './my-widgets-score-semester'
@@ -8,19 +8,36 @@ import NoScoreContent from './no-score-content'
 import './my-widgets-scores.scss'
 
 const MyWidgetsScores = ({inst, contexts, beardMode, setInvalidLogin}) => {
+
+	const visibilityAnchor = useRef(null)
+	const shouldScroll = useRef(false)
+
 	const [state, setState] = useState({
-		isShowingAll: false,
+		loadedSemesters: [],
+		nextSemesterToLoad: -1,
 		hasScores: false,
 		showExport: false
 	})
 	const [error, setError] = useState('')
-	const { data: currScores, isFetched, error: currScoresError } = useQuery({
-		queryKey: ['score-summary', inst.id],
-		queryFn: () => apiGetScoreSummary(inst.id),
-		enabled: !!inst && !!inst.id,
+
+	// memoize lastLoadedSemester for use as a query key
+	const lastLoadedSemester = useMemo(() => {
+
+		if (!state.loadedSemesters || !state.loadedSemesters.length) return -1
+		else return state.loadedSemesters[state.loadedSemesters.length -1].id
+
+	}, [state.loadedSemesters])
+
+	const { data: currScores, isFetching, error: currScoresError, refetch: getMoreScoreSummaries } = useQuery({
+		queryKey: ['score-summary', inst.id, lastLoadedSemester],
+		queryFn: () => {
+			if (state.nextSemesterToLoad == -1) return apiGetScoreSummary(inst.id, true)
+			else return apiGetScoreSummary(inst.id, false, state.nextSemesterToLoad)
+		},
+		enabled: !!inst && !!inst.id && lastLoadedSemester == -1,
 		staleTime: Infinity,
 		placeholderData: [],
-		retry: false
+		retry: false,
 	})
 
 	useEffect(() => {
@@ -34,26 +51,41 @@ const MyWidgetsScores = ({inst, contexts, beardMode, setInvalidLogin}) => {
 		}
 	}, [currScoresError])
 
-	// Initializes the data when widget changes
+	// reset loaded semester data when the selected instance changes
+	useEffect(() => {
+		setState(state => ({...state, loadedSemesters: [], nextSemesterToLoad: -1, hasScores: false, showExport: false}))
+		shouldScroll.current = false
+	},[inst.id])
+
+	// update score display when new semester data is loaded
 	useEffect(() => {
 		let hasScores = false
-		if (currScores) {
-			currScores.map(val => {
-				if (val.distribution) hasScores = true
+		const prevLoadedSemesterIds = state.loadedSemesters.map(term => term.id)
+		const prevLoadedSemesters = [ ...state.loadedSemesters ]
+
+		if (currScores && currScores.length > 0) {
+			currScores.forEach(semester => {
+				if (semester.distribution) hasScores = true
+				if (!prevLoadedSemesterIds.includes(semester.id)) prevLoadedSemesters.push(semester)
 			})
 
 			setState({
 				hasScores: hasScores,
-				showExport: false
+				showExport: false,
+				loadedSemesters: [...prevLoadedSemesters],
+				nextSemesterToLoad: currScores[currScores.length - 1].preceding_semester_id
 			})
 		}
+
 	}, [JSON.stringify(currScores)])
 
-	const displayedSemesters = useMemo(() => {
-		if (currScores && (state.isShowingAll || currScores.length < 2)) return currScores // all semester being displayed
-		else if (currScores) return currScores.slice(0,1) // show just one semester, gracefully handles empty array
-		else return [] // no scores yet
-	}, [currScores, state.isShowingAll])
+	// enable scrolling to new semester element when appropriate
+	useEffect(() => {
+		if (state.loadedSemesters.length > 1 && shouldScroll.current) {
+			visibilityAnchor.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+			shouldScroll.current = false
+		}
+	}, [state.loadedSemesters])
 
 	const openExport = () => {
 		if (!inst.is_draft) setState({...state, showExport: true})
@@ -64,7 +96,7 @@ const MyWidgetsScores = ({inst, contexts, beardMode, setInvalidLogin}) => {
 
 	const containsStorage = () => {
 		let hasStorageData = false
-		for(const semester of displayedSemesters) {
+		for(const semester of state.loadedSemesters) {
 			if (semester.storage) {
 				hasStorageData = true
 			}
@@ -73,16 +105,19 @@ const MyWidgetsScores = ({inst, contexts, beardMode, setInvalidLogin}) => {
 		return hasStorageData
 	}
 
-	const handleShowOlderClick = () => setState({...state, isShowingAll: !state.isShowingAll})
+	const handleShowOlderClick = () => {
+		getMoreScoreSummaries()
+		if (state.nextSemesterToLoad != -1) shouldScroll.current = true
+	}
 
 	let contentRender = <LoadingIcon />
 	if (error) {
 		contentRender = <div className='error'>{error}</div>
 	}
-	else if (isFetched) {
+	else if (!isFetching) {
 		contentRender = <NoScoreContent scorable={inst.widget.is_scorable} isDraft={inst.is_draft} beardMode={beardMode} />
 		if (state.hasScores || containsStorage()) {
-			const semesterElements = displayedSemesters.map(semester => (
+			const semesterElements = state.loadedSemesters.map(semester => (
 				<MyWidgetScoreSemester key={semester.id}
 					semester={semester}
 					instId={inst.id}
@@ -96,10 +131,11 @@ const MyWidgetsScores = ({inst, contexts, beardMode, setInvalidLogin}) => {
 				<div>
 					{ semesterElements }
 					<a role='button'
-						className={`show-older-scores-button ${currScores?.length > 1 ? '' : 'hide'}`}
+						className={`show-older-scores-button ${state.nextSemesterToLoad != -1  ? '' : 'hide'}`}
 						onClick={handleShowOlderClick}>
-						{ state.isShowingAll ? 'Hide' : 'Show' } older scores...
+						{ state.nextSemesterToLoad == -1 ? 'Hide' : 'Show' } older scores...
 					</a>
+					<div id='visibility-anchor' ref={visibilityAnchor}></div>
 				</div>
 			)
 		}
@@ -110,7 +146,6 @@ const MyWidgetsScores = ({inst, contexts, beardMode, setInvalidLogin}) => {
 		exportRender = (
 			<MyWidgetsExport onClose={closeExport}
 				inst={inst}
-				scores={currScores}
 			/>
 		)
 	}

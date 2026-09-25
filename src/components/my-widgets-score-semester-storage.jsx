@@ -31,8 +31,8 @@ const MyWidgetScoreSemesterStorage = ({semester, instId, setInvalidLogin}) => {
 	const mounted = useRef(false)
 	const [error, setError] = useState('')
 	const { data: results, error: scoreStorageError } = useQuery({
-		queryKey: ['score-storage', instId],
-		queryFn: () => apiGetStorageData(instId),
+		queryKey: ['score-storage', instId, semester.year, semester.term],
+		queryFn: () => apiGetStorageData(instId, semester.year, semester.term),
 		enabled: !!instId,
 		staleTime: Infinity,
 		placeholderData: {},

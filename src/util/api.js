@@ -400,10 +400,24 @@ export const apiGetWidgetInstancePreviewScores = (playId, previewInstId, snapsho
  * @param {string} instId - The ID of the widget instance.
  * @returns {Promise<any>} - Parsed response data.
  */
-export const apiGetScoreSummary = instId => {
-	return handleRequest(methods.GET, `/api/instances/${instId}/performance/`)
+export const apiGetScoreSummary = (instId, mostRecent = false, semesterId = -1) => {
+
+	let url = `/api/instances/${instId}/performance/`
+
+	if (mostRecent) url += 'latest/'
+	else if (semesterId != -1) url += `semester/${semesterId}/`
+
+	return handleRequest(methods.GET, url)
 	.then(data => {
-		const scores = data
+
+		if (Array.isArray(data) && !data.length) return []
+
+		let scores = data
+
+		if (mostRecent || semesterId != -1) {
+			scores = data.results
+		}
+
 		const ranges = [
 			'0-9',
 			'10-19',
@@ -416,13 +430,23 @@ export const apiGetScoreSummary = instId => {
 			'80-89',
 			'90-100',
 		]
-		scores.forEach(semester => {
+		scores.forEach((semester, index) => {
 			semester.graphData = semester.distribution?.length ? semester.distribution?.map((d, i) => ({ label: ranges[i], value: d })) : null
 			semester.totalScores = semester.distribution?.length ? semester.distribution?.reduce((total, count) => total + count) : 0
+			semester.preceding_semester_id = data.preceding_semester_id ?? (scores[index - 1] != undefined ? scores[index - 1].id : -1)
 		})
 
 		return scores
 	})
+}
+
+/**
+ * Takes a widget instance ID, and returns a list of semesters that contain play data.
+ * @param {string} instId - The ID of the widget instance.
+ * @returns {Promise<any>} - Parsed response data.
+ */
+export const apiGetSemestersAvailable = (instId) => {
+	return handleRequest(methods.GET, `/api/instances/${instId}/performance/available/`)
 }
 
 /**
@@ -486,8 +510,11 @@ export const apiGetPlayLogs = (instId, term, year, contexts, page_number) => {
 		})
 }
 
-export const apiGetStorageData = instId => {
-	return handleRequest(methods.GET, `/api/storage/?inst_id=${instId}`);
+export const apiGetStorageData = (instId, year = null, term = null) => {
+	const params = new URLSearchParams({ inst_id: instId })
+	if (year !== null) params.set('year', year)
+	if (term !== null) params.set('term', term)
+	return handleRequest(methods.GET, `/api/storage/?${params}`);
 }
 
 /**

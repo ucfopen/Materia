@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { apiGetSemestersAvailable } from '../util/api'
 import Modal from './modal'
+import LoadingIcon from './loading-icon'
 import './my-widgets-export.scss'
-import {useMutation} from "@tanstack/react-query";
+import {useMutation} from "@tanstack/react-query"
 
 const DEFAULT_OPTIONS = ['Questions and Answers']
 
@@ -14,21 +17,26 @@ const initState = () => ({
 	semesterOptions: []
 })
 
-const MyWidgetsExport = ({onClose, inst, scores}) => {
+const MyWidgetsExport = ({onClose, inst}) => {
 	const [state, setState] = useState(initState())
 	const [error, setError] = useState(null)
 	const [showOptions, setShowOptions] = useState(false)
 
+	const { data: semestersAvailable, isFetched, error: fetchError } = useQuery({
+		queryKey: ['semesters-available', inst.id],
+		queryFn: () => apiGetSemestersAvailable(inst.id),
+		enabled: !!inst && !!inst.id,
+		staleTime: Infinity,
+		placeholderData: [],
+		retry: false
+	})
+
 	// Initializes data
 	useEffect (() => {
-		let hasScores = false
+		let hasScores = semestersAvailable && semestersAvailable.length
 		let tmpOps = DEFAULT_OPTIONS
 
-		scores.forEach((val) => {
-			if (val.distribution) hasScores = true
-		})
-
-		if (scores.length === 0 || !hasScores) {
+		if (!hasScores) {
 			setState({...state, exportOptions: DEFAULT_OPTIONS, exportType: tmpOps[0], header: 'Export Options Limited, No Scores Available'})
 		}
 		else {
@@ -39,11 +47,11 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 				tmpOps = tmpOps.concat(inst.widget.meta_data.playdata_exporters)
 			}
 
-			let options = new Array(scores.length).fill(false)
+			let options = new Array(semestersAvailable.length).fill(false)
 			options[0] = true
 			setState({...state, exportOptions: tmpOps, exportType: tmpOps[0], semesterOptions: options})
 		}
-	}, [])
+	}, [semestersAvailable])
 
 	// Sets selected semesters and their respective header text
 	useEffect(() => {
@@ -59,8 +67,8 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 						str_cpy += ','
 					}
 
-					str += scores[i].year + ' ' + scores[i].term
-					str_cpy += scores[i].year + '-' + scores[i].term
+					str += semestersAvailable[i].year + ' ' + semestersAvailable[i].semester
+					str_cpy += semestersAvailable[i].year + '-' + semestersAvailable[i].semester
 				}
 			}
 
@@ -79,7 +87,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 
 	const checkAllVals = () => {
 		if (state.semesterOptions.length > 0) {
-			const arr = new Array(scores.length).fill(!state.checkAll)
+			const arr = new Array(semestersAvailable.length).fill(!state.checkAll)
 			setState({...state, semesterOptions: arr, checkAll: !state.checkAll})
 		}
 	}
@@ -162,22 +170,26 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 		exportDataDownloader.mutate()
 	}
 
-	const semesterOptionElements = scores.map((val, index) => (
-		<li key={index}>
-			<label className='checkbox-wrapper' htmlFor={val.id}>
-				<input type='checkbox'
-					id={val.id}
-					className='semester'
-					name={val.id}
-					disabled={scores.length === 1}
-					checked={state.semesterOptions[index] || false} // makes sure it will never be null
-					onChange={() => {semesterCheck(index)}}></input>
-				<span className='custom-checkbox'></span>
-				{val.year + ' ' + val.term}
-			</label>
+	let semesterOptionElements = <LoadingIcon />
 
-		</li>
-	))
+	if (isFetched) {
+		semesterOptionElements = semestersAvailable.map((val, index) => (
+			<li key={index}>
+				<label className='checkbox-wrapper' htmlFor={val.id}>
+					<input type='checkbox'
+						id={val.id}
+						className='semester'
+						name={val.id}
+						disabled={semestersAvailable.length === 1}
+						checked={state.semesterOptions[index] || false} // makes sure it will never be null
+						onChange={() => {semesterCheck(index)}}></input>
+					<span className='custom-checkbox'></span>
+					{val.year + ' ' + val.semester}
+				</label>
+
+			</li>
+		))
+	}
 
 	return (
 		<Modal onClose={onClose} noGutter>
@@ -228,11 +240,11 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 			<div className={`download-options ${ showOptions ? 'active' : ''}`}>
 				<h4>Semesters</h4>
 				<p className='export_which'>Export which semesters?</p>
-				<p className={`export-none ${scores.length === 0 ? 'active' : ''}`}>
+				<p className={`export-none ${semestersAvailable.length === 0 ? 'active' : ''}`}>
 					No semesters available
 				</p>
 				<ul>
-					<li className={`${scores.length > 1 ? 'active' : ''}`}>
+					<li className={`${semestersAvailable.length > 1 ? 'active' : ''}`}>
 						<label className='checkbox-wrapper' htmlFor='checkall'>
 							<input type='checkbox'
 								id='checkall'

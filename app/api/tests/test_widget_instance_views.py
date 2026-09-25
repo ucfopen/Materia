@@ -931,6 +931,112 @@ class TestInstancePerformance(WidgetInstanceViewSetTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
 
+    def test_performance_latest_returns_latest_logged_semester(self):
+        latest_semester = (
+            DateRange.objects.filter(year=2025).order_by("start_at").first()
+        )
+        LogPlay.objects.create(
+            id=str(uuid.uuid4()),
+            instance=self.author_instance,
+            user=self.regular_user,
+            is_valid=False,
+            is_complete=True,
+            score=90,
+            score_possible=100,
+            percent=90.0,
+            elapsed=300,
+            qset=self.author_qset,
+            ip="127.0.0.1",
+            auth="",
+            referrer_url="",
+            context_id="",
+            semester=latest_semester,
+        )
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(
+            f"/api/instances/{self.author_instance.id}/performance/latest/",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["results"][0]["id"], latest_semester.id)
+        self.assertEqual(response.data["preceding_semester_id"], self.semester.id)
+
+    def test_performance_semester_returns_requested_semester(self):
+        latest_semester = (
+            DateRange.objects.filter(year=2025).order_by("start_at").first()
+        )
+        LogPlay.objects.create(
+            id=str(uuid.uuid4()),
+            instance=self.author_instance,
+            user=self.regular_user,
+            is_valid=False,
+            is_complete=True,
+            score=90,
+            score_possible=100,
+            percent=90.0,
+            elapsed=300,
+            qset=self.author_qset,
+            ip="127.0.0.1",
+            auth="",
+            referrer_url="",
+            context_id="",
+            semester=latest_semester,
+        )
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(
+            f"/api/instances/{self.author_instance.id}/performance/semester/{self.semester.id}/",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["results"][0]["id"], self.semester.id)
+        self.assertIsNone(response.data["preceding_semester_id"])
+
+    def test_performance_available_returns_semester_ids_with_logs(self):
+        latest_semester = (
+            DateRange.objects.filter(year=2025).order_by("start_at").first()
+        )
+        LogPlay.objects.create(
+            id=str(uuid.uuid4()),
+            instance=self.author_instance,
+            user=self.regular_user,
+            is_valid=False,
+            is_complete=True,
+            score=90,
+            score_possible=100,
+            percent=90.0,
+            elapsed=300,
+            qset=self.author_qset,
+            ip="127.0.0.1",
+            auth="",
+            referrer_url="",
+            context_id="",
+            semester=latest_semester,
+        )
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(
+            f"/api/instances/{self.author_instance.id}/performance/available/"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            [dict(semester) for semester in response.data],
+            [
+                {
+                    "id": latest_semester.id,
+                    "semester": latest_semester.semester,
+                    "year": latest_semester.year,
+                },
+                {
+                    "id": self.semester.id,
+                    "semester": self.semester.semester,
+                    "year": self.semester.year,
+                },
+            ],
+        )
+
 
 class TestInstancePerms(WidgetInstanceViewSetTestCase):
     """Tests for GET/PUT /api/instances/{id}/perms/"""
