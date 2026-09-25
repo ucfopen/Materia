@@ -41,6 +41,7 @@ webpack-stats.json
 
 # Installed Widgets
 public/widget/**/*
+public/site_img/**/*
 spec/widgets/*
 
 # Any widget zip packages
