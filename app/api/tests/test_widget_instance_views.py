@@ -1,4 +1,5 @@
 import uuid
+from datetime import timedelta
 from unittest.mock import patch
 
 from api.tests.base import MateriaTestCase
@@ -1478,6 +1479,72 @@ class TestInstanceCopy(WidgetInstanceViewSetTestCase):
         self.assertEqual(response.data["is_draft"], self.author_instance.is_draft)
         # Should have permissions copied from original
         self.assertTrue(new_instance.permissions.exists())
+
+    def test_copy_does_not_carry_over_settings(self):
+        """Copying an instance should not carry over close_at, attempts, or guest_access"""
+        settings_instance = WidgetInstance.objects.create(
+            id="settings1",
+            widget=self.widget,
+            user=self.author_user,
+            name="Settings Instance",
+            is_draft=False,
+            guest_access=True,
+            attempts=5,
+            close_at=timezone.now() + timedelta(days=1),
+        )
+        ObjectPermission.objects.create(
+            user=self.author_user,
+            content_object=settings_instance,
+            permission=ObjectPermission.PERMISSION_FULL,
+        )
+        WidgetQset.objects.create(
+            instance=settings_instance,
+            data="eyJ0ZXN0IjogImRhdGEifQ==",
+            version="1",
+        )
+
+        self.client.force_authenticate(user=self.author_user)
+        response = self.client.put(
+            f"/api/instances/{settings_instance.id}/copy/",
+            {"new_name": "Settings Copy", "copy_existing_perms": False},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data["close_at"])
+        self.assertEqual(response.data["attempts"], -1)
+        self.assertFalse(response.data["guest_access"])
+
+    def test_student_copy_of_non_guest_instance_enables_guest_access(self):
+        """When a student copies a non-guest widget, the duplicate should have guest access enabled"""
+        non_guest_instance = WidgetInstance.objects.create(
+            id="nonguest1",
+            widget=self.widget,
+            user=self.author_user,
+            name="Non-Guest Instance",
+            is_draft=False,
+            guest_access=False,
+        )
+        ObjectPermission.objects.create(
+            user=self.regular_user,
+            content_object=non_guest_instance,
+            permission=ObjectPermission.PERMISSION_FULL,
+        )
+        WidgetQset.objects.create(
+            instance=non_guest_instance,
+            data="eyJ0ZXN0IjogImRhdGEifQ==",
+            version="1",
+        )
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.put(
+            f"/api/instances/{non_guest_instance.id}/copy/",
+            {"new_name": "Student Copy", "copy_existing_perms": False},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["guest_access"])
 
 
 class TestInstanceExportPlaydata(WidgetInstanceViewSetTestCase):

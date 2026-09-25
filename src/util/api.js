@@ -827,8 +827,9 @@ export const apiManageUserBan = (user) => {
 	return handleRequest(methods.POST, `/api/users/${user}/ban/`)
 }
 
-export const apiGetUserLibraryEntries = ({pageParam = 1, userId = null}) => {
-	const url = `/api/community-library/?page=${pageParam}&user=${userId}`
+export const apiGetUserLibraryEntries = ({pageParam = 1, userId = null, includeBanned = false}) => {
+	let url = `/api/community-library/?page=${pageParam}&user=${userId}`
+	if (includeBanned) url += '&include_banned=true'
 
 	return handleRequest(methods.GET, url)
 }

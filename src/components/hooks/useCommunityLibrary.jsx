@@ -65,7 +65,7 @@ export function useCommunityLibraryList(limit, search, widgetId, categories, cou
 	}
 }
 
-export function useUserPublishedEntriesList(userId) {
+export function useUserPublishedEntriesList(userId, includeBanned) {
 	const formatData = (list) => {
 		if (list?.pages) {
 			return list.pages.flatMap((page) =>
@@ -82,7 +82,7 @@ export function useUserPublishedEntriesList(userId) {
 		useInfiniteQuery({
 			queryKey: ['community-library', 'user', userId],
 			queryFn: ({ pageParam = 1 }) =>
-				apiGetUserLibraryEntries({pageParam, userId}),
+				apiGetUserLibraryEntries({pageParam, userId, includeBanned}),
 			getNextPageParam: (lastPage) =>
 				lastPage.next != null ? lastPage.next.match(/page=([0-9]+)/)[1] : undefined,
 			refetchOnWindowFocus: false,

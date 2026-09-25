@@ -251,6 +251,9 @@ class UserViewSet(viewsets.ModelViewSet):
         settings.library_banned = not settings.library_banned
         settings.save()
 
+        if settings.library_banned:
+            user.published_entries.update(is_banned=True)
+
         return Response({"success": True, "banned": settings.library_banned})
 
 

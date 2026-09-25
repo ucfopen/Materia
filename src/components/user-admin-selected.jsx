@@ -13,7 +13,7 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 	const queryClient = useQueryClient()
 	const [updatedUser, setUpdatedUser] = useState({...selectedUser})
 	const instancesOwned = useInstanceList(updatedUser.id)
-	const entriesOwned = useUserPublishedEntriesList(updatedUser.id)
+	const entriesOwned = useUserPublishedEntriesList(updatedUser.id, true)
 	const userLogs = useGetPlaySessions(updatedUser.id, false, true)
 	const [isSuper, setIsSuper] = useState(false)
 	const scrollAnchorRef = useRef(null)
@@ -202,6 +202,7 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 				<span>
 					<label>Ban Action: </label> <button className='action_button' onClick={applyUserBan}>{ updatedUser.library_banned ? 'Revoke Ban' : 'Ban User'}</button>
 				</span>
+				<p>Banning a user will additionally ban all of their published Community Library entries. Note that revoking a user-level ban will not automatically revoke bans on individual instances.</p>
 			</div>
 			<div className='info-holder'>
 				{ suRender }

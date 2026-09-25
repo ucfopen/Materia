@@ -190,6 +190,10 @@ section.page {
                 border-color: #D0ECFF;
             }
 
+            &.copy-btn:disabled {
+                border-style: dashed;
+            }
+
             &.like {
                 background-color: #FFF1F2;
                 border-color: #FFE4E6;
