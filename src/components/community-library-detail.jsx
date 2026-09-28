@@ -36,7 +36,10 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 		else if (!!queryError) {
 			setErrorState('error')
 		}
-	}, [queryError])
+		else if (!entry?.is_available) {
+			setErrorState('unavailable')
+		}
+	}, [queryError, entry])
 
 	useEffect(() => {
 		if (!!entry && !errorState) {
@@ -160,9 +163,6 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 						<div>{!entry ? "Loading" : `Created ${(new Date(entry.created_at)).toLocaleDateString(undefined, dateOptions)}`}</div>
 					</div>
 				</div>
-				{
-					
-				}
 				<div className='col' style={{gap:"16px"}}>
 					{
 						dontAllow && errorState == 'error' &&
@@ -177,6 +177,14 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 						<div className='card side red center shadow alt-border'>
 							<div className='content'>
 								This entry has been banned from the Community Library.
+							</div>
+						</div>
+					}
+					{
+						dontAllow && errorState == 'unavailable' &&
+						<div className='card side blue center shadow alt-border'>
+							<div className='content'>
+								This widget is no longer available. The author has chosen to unpublish it.
 							</div>
 						</div>
 					}
