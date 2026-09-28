@@ -1,15 +1,31 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { iconUrl } from '../util/icon-url'
+import { apiGetLibraryModeration } from '../util/api'
 import useSearchInstances from './hooks/useSearchInstances'
 import useDebounce from './hooks/useDebounce'
 import LoadingIcon from './loading-icon'
+
+import {
+	useTagList,
+	useDeleteTag,
+	useRenameTag
+} from './hooks/useCommunityLibrary'
 
 const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
 	const [error, setError] = useState('')
 	const [showDeleted, setShowDeleted] = useState(false)
+	const [moderationFilter, setModerationFilter] = useState('')
 	const debouncedSearchTerm = useDebounce(searchText, 500)
 	const instanceList = useSearchInstances(debouncedSearchTerm, showDeleted)
+
+	const { data: moderationData, isFetching: moderationLoading, refetch: refetchModeration } = useQuery({
+		queryKey: ['library-moderation', moderationFilter, showDeleted],
+		queryFn: () => apiGetLibraryModeration(moderationFilter, showDeleted),
+		enabled: true,
+		staleTime: 30000,
+	})
 
 	useEffect(() => {
 		if (instanceList.error) {
@@ -24,32 +40,32 @@ const SupportSearch = ({onClick = () => {}}) => {
 	const handleSearchChange = e => setSearchText(e.target.value)
 	const handleShowDeletedClick = () => setShowDeleted(!showDeleted)
 
-	let loadingRender = null
-	if ((instanceList.isFetching || !instanceList.instances) && searchText.length > 0) {
-		loadingRender = (
-			<div className='loading'>
+	const renderInstanceSearch = () => {
+		let loadingRender = null
+		if ((instanceList.isFetching || !instanceList.instances) && searchText.length > 0) {
+			loadingRender = (
+				<div className='loading'>
+					<LoadingIcon size="sm" width="50px"></LoadingIcon>
+					<p className="loading-text">Searching Widget Instances ...</p>
+				</div>
+			)
+		} else if (instanceList.isFetching) {
+			loadingRender = <div className="loading">
 				<LoadingIcon size="sm" width="50px"></LoadingIcon>
-				<p className="loading-text">Searching Widget Instances ...</p>
+				<p className="loading-text">Loading widget instances...</p>
+			</div>
+		}
+
+		let searchPromptRender = (
+			<div>
+				<p>{`${searchText.length == 0 || (instanceList.instances && instanceList.instances.length > 0) || instanceList.isFetching ? 'Search for a widget instance by entering its name or ID' : 'No widgets match your description'}`}</p>
 			</div>
 		)
-	} else if (instanceList.isFetching) {
-		loadingRender = <div className="loading">
-			<LoadingIcon size="sm" width="50px"></LoadingIcon>
-			<p className="loading-text">Loading widget instances...</p>
-		</div>
-	}
 
-	let searchPromptRender = (
-		<div>
-			<p>{`${searchText.length == 0 || (instanceList.instances && instanceList.instances.length > 0) || instanceList.isFetching ? 'Search for a widget instance by entering its name or ID' : 'No widgets match your description'}`}</p>
-		</div>
-	)
-
-	let searchResultsRender = null
-
-	if (instanceList.instances && instanceList.instances.length !== 0) {
-		searchResultsRender = (
-			<div className='search_list'>
+		let searchResultsRender = null
+		if (instanceList.instances && instanceList.instances.length !== 0) {
+			searchResultsRender = (
+				<div className='search_list'>
 					{instanceList.instances.map((match) =>
 						<div
 							key={match.id}
@@ -70,7 +86,36 @@ const SupportSearch = ({onClick = () => {}}) => {
 							</div>
 						</div>
 					)}
-			</div>
+				</div>
+			)
+		}
+
+		return (
+			<>
+				<div className='search'>
+					{ searchPromptRender }
+					<input tabIndex='0'
+						value={searchText}
+						onChange={handleSearchChange}
+						className='instance_search'
+						type='text'
+						placeholder="Enter a Materia widget instance's info"
+					/>
+					<div className='show_deleted'>
+						<label className='checkbox-wrapper'>
+							<input tabIndex='0'
+								type='checkbox'
+								checked={showDeleted}
+								onChange={handleShowDeletedClick}
+							/>
+							<span className='custom-checkbox'></span>
+							Show Deleted Instances?
+						</label>
+					</div>
+				</div>
+				{ loadingRender }
+				{ searchResultsRender }
+			</>
 		)
 	}
 
@@ -79,29 +124,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 			<div className='top'>
 				<h1>Instance Admin</h1>
 			</div>
-			<div className='search'>
-				{ searchPromptRender }
-				<input tabIndex='0'
-					value={searchText}
-					onChange={handleSearchChange}
-					className='instance_search'
-					type='text'
-					placeholder="Enter a Materia widget instance's info"
-				/>
-				<div className='show_deleted'>
-					<label className='checkbox-wrapper'>
-						<input tabIndex='0'
-							type='checkbox'
-							checked={showDeleted}
-							onChange={handleShowDeletedClick}
-						/>
-						<span className='custom-checkbox'></span>
-						Show Deleted Instances?
-					</label>
-				</div>
-			</div>
-			{ loadingRender }
-			{ searchResultsRender }
+			{ renderInstanceSearch() }
 		</section>
 	)
 }

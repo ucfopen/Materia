@@ -13,10 +13,15 @@ html {
 
 	#app {
 		height: 100%;
+
 		#lti-select-wrapper {
 			display: flex;
 			flex-direction: column;
 			height: 100%;
+
+			header h1 {
+				width: 100%;
+			}
 		}
 	}
 
@@ -580,6 +585,7 @@ html {
 			header.header-for-students {
 				display: flex;
 				flex-direction: column;
+				align-items: center;
 
 				img {
 					width: auto;
@@ -719,6 +725,7 @@ html {
 				border-top: dotted 1px #ccc;
 
 				header {
+					display: block;
 					width: 80%;
 					margin: 1em auto;
 					text-align: center;

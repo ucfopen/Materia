@@ -10,6 +10,7 @@ INSTALLED_APPS = [
     "django_filters",
     "rest_framework",
     # apps
+    "community_library",
     "core",
     "corsheaders",
     "lti_tool",
