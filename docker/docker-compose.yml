@@ -15,6 +15,7 @@ services:
       - ../public:/var/www/html/staticfiles:ro
       - ../theme/img:/var/www/html/staticfiles/theme/img:ro
       - ../public/widget:/var/www/html/staticfiles/widget/:ro
+      - ../public/site_img:/var/www/html/staticfiles/site_img/:ro
       - ./config/nginx/sites-enabled/site.dev.conf:/etc/nginx/conf.d/site.conf:ro
     networks:
       - frontend
@@ -47,6 +48,8 @@ services:
       - ../app:/var/www/html
       - uploaded_media:/var/www/html/media/
       - ../public/widget:/var/www/html/staticfiles/widget/:rw
+      - ../public/img/default/profile_images:/var/www/html/staticfiles/img/default/profile_images/:rw
+      - ../public/site_img:/var/www/html/staticfiles/site_img/:rw
     command: /wait_for_it.sh mysql:3306 -t 15 -- gunicorn materia.wsgi:application --bind 0.0.0.0:8001 --reload --workers 4 --threads 2 --timeout 150 --log-level info --access-logfile - --error-logfile -
 
   mysql:
@@ -78,7 +81,7 @@ services:
       - backend
 
   redis:
-    image: redis:3.2
+    image: redis:8.8.0
     ports:
       - "6379:6379"
     networks:

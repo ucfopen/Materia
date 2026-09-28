@@ -4,11 +4,10 @@ import types
 from pathlib import Path
 from typing import Optional, Type
 
-from django.utils import timezone
-
-from core.models import Log, LogPlay, User, WidgetInstance
-from scoring.module import ScoreModule, EmptyScoreModule
+from core.models import Log, LogPlay, User, WidgetInstance, WidgetQset
 from core.services.semester_service import SemesterService
+from django.utils import timezone
+from scoring.module import EmptyScoreModule, ScoreModule
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +59,7 @@ class ScoreModuleFactory:
         preview_id: str,
         logs: list,
         user: User,
+        qset_override: Optional[WidgetQset] = None,
     ) -> Optional[ScoreModule]:
         """
         Since previews don't use Logs and LogPlays from the ORM,
@@ -77,12 +77,16 @@ class ScoreModuleFactory:
             created_at=timezone.now(),
             user=user,
             elapsed=0,
-            qset=instance.get_latest_qset(),
+            qset=qset_override if qset_override else instance.get_latest_qset(),
             auth="",
             semester=SemesterService.get_current_semester(),
         )
 
         module = cls.create_score_module(instance=instance, play=synthetic_play)
+
+        if qset_override:
+            module.questions = []
+
         synthetic_logs = []
         for log in logs:
             synthetic_log = Log(

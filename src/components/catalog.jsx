@@ -50,7 +50,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 			results = results.filter(w => {
 				const {features, supported_data, accessibility_keyboard, accessibility_reader} = w.meta_data
 				return state.activeFilters.every(f =>{
-					if (features.includes(f) || supported_data.includes(f)) return true
+					if (features?.includes(f) || supported_data?.includes(f)) return true
 					if (accessibility_keyboard && f === 'Keyboard Accessible') return true
 					if (accessibility_reader && f === 'Screen Reader Accessible') return true
 
