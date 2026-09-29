@@ -874,7 +874,7 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
 
             entry.is_available = False
             entry.featured = False
-            entry.save(update_fields=["is_available, featured"])
+            entry.save(update_fields=["is_available", "featured"])
 
             tag_ids = list(
                 TagEntry.objects.filter(entry=entry).values_list("tag_id", flat=True)
