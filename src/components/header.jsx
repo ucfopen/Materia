@@ -112,6 +112,9 @@ const Header = ({
 					<li>
 						<a className='elevated' href='/admin/instance'>Instances</a>
 					</li>
+					<li>
+						<a className='elevated' href='/admin/library'>Library</a>
+					</li>
 				</ul>
 			</li>
 		)

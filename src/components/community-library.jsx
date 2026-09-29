@@ -378,11 +378,11 @@ const CommunityLibrary = ({ widgets = [] }) => {
 		}
 
 		if(tags && tags.length >= 1 && tempTag != "") {
-			if(e.key == "ArrowDown") {
+			if (e.key == "ArrowDown" || (e.key == "Tab" && !e.shiftKey)) {
 				e.preventDefault()
 				let newInd = focusedTag + 1 < tags.length ? focusedTag + 1 : -1
 				setFocusedTag(newInd)
-			} else if(e.key == "ArrowUp") {
+			} else if (e.key == "ArrowUp" || (e.key == "Tab" && e.shiftKey)) {
 				e.preventDefault()
 				let newInd = focusedTag - 1 >= -1 ? focusedTag - 1 : tags.length - 1
 				setFocusedTag(newInd)
@@ -448,10 +448,6 @@ const CommunityLibrary = ({ widgets = [] }) => {
 
 	return (
 		<div className="community-library">
-			{/* <div aria-live='assertive' className='live'>
-				{tags && tags.length > 0 && focusedTag > -1 && 
-				`Tag selection menu: Selected "${tags.at(focusedTag).name}", used in ${tags.at(focusedTag).used_count} widget${tags.at(focusedTag).used_count > 1 ? "s" : ""}.`}
-			</div> */}
 			<link rel="preload" href="/img/chevron-down.svg" />
 			<div className="container">
 				<section className="page">

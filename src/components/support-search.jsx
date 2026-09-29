@@ -1,31 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import React, { useState, useEffect } from 'react'
 import { iconUrl } from '../util/icon-url'
-import { apiGetLibraryModeration } from '../util/api'
 import useSearchInstances from './hooks/useSearchInstances'
 import useDebounce from './hooks/useDebounce'
 import LoadingIcon from './loading-icon'
-
-import {
-	useTagList,
-	useDeleteTag,
-	useRenameTag
-} from './hooks/useCommunityLibrary'
 
 const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
 	const [error, setError] = useState('')
 	const [showDeleted, setShowDeleted] = useState(false)
-	const [moderationFilter, setModerationFilter] = useState('')
 	const debouncedSearchTerm = useDebounce(searchText, 500)
 	const instanceList = useSearchInstances(debouncedSearchTerm, showDeleted)
-
-	const { data: moderationData, isFetching: moderationLoading, refetch: refetchModeration } = useQuery({
-		queryKey: ['library-moderation', moderationFilter, showDeleted],
-		queryFn: () => apiGetLibraryModeration(moderationFilter, showDeleted),
-		enabled: true,
-		staleTime: 30000,
-	})
 
 	useEffect(() => {
 		if (instanceList.error) {
