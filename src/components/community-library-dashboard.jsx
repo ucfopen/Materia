@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef, useDeferredValue } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { apiGetUser, apiGetSiteImages, apiGetSiteMessages } from '../util/api'
+import { apiGetUser, apiGetSiteImages } from '../util/api'
 import './community-library.scss'
 import CommunityLibraryCard from './community-library-card'
 import CommunityLibraryCategorySection from './community-library-category-section'
@@ -8,6 +8,10 @@ import {
 	useCommunityLibraryList,
 	useCategoryList
 } from './hooks/useCommunityLibrary'
+import useSiteMessages from './hooks/useSiteMessages'
+
+const DEFAULT_FEATURED_HEADER = 'Featured Widgets'
+const DEFAULT_FEATURED_TEXT = 'Explore a curated collection of widgets selected by the Materia team. Browse available options to find tools and resources that can enhance your course and support your teaching goals.'
 
 const CommunityLibraryDashboard = ({setCategories}) => {
 
@@ -24,10 +28,7 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 	
 	const [mappedCategories, setMappedCategories] = useState({})
 
-	const [ featuredStrings, setFeaturedStrings ] = useState({
-		text: 'Explore a curated collection of widgets selected by the Materia team. Browse available options to find tools and resources that can enhance your course and support your teaching goals.',
-		header: 'Featured Widgets'
-	})
+	const { messages: libraryMessages } = useSiteMessages({ types: ['LIBRARY_TEXT', 'LIBRARY_HEADER'] })
 
 	useEffect(() => {
 		if(!categories) return
@@ -88,31 +89,6 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 		retry: false
 	})
 
-	const {data: libraryFeaturedStrings} = useQuery({
-		queryKey: ['library-featured-strings'],
-		queryFn: async () => {
-			const messages = await apiGetSiteMessages(['LIBRARY_TEXT', 'LIBRARY_HEADER'])
-			return messages
-		},
-		refetchOnWindowFocus: false,
-		staleTime: Infinity,
-	})
-
-	useEffect(() => {
-		if (!!libraryFeaturedStrings && libraryFeaturedStrings.length) {
-			libraryFeaturedStrings.forEach((string) => {
-				switch (string.message_type) {
-					case 'LIBRARY_TEXT':
-						setFeaturedStrings((featured) => ({...featured, text: string.message_text}))
-						break
-					case 'LIBRARY_HEADER':
-						setFeaturedStrings((featured) => ({...featured, header: string.message_text}))
-						break
-				}
-			})
-		}
-	},[libraryFeaturedStrings])
-
 	const mouseStopDrag = (e) => {
 		if(carouselDragging) {
 			setCarouselShift(Math.min(Math.max(carouselShift + Math.round(carouselDrag / featuredCardSize), 0), maxShift()))
@@ -142,9 +118,9 @@ const CommunityLibraryDashboard = ({setCategories}) => {
 				<div className='row'>
 					<div>
 						<h3 className='featured-header'>
-							{ featuredStrings.header }
+							{ libraryMessages.LIBRARY_HEADER ?? DEFAULT_FEATURED_HEADER }
 						</h3>
-						<p>{featuredStrings.text}</p>
+						<p>{libraryMessages.LIBRARY_TEXT ?? DEFAULT_FEATURED_TEXT}</p>
 					</div>
 				</div>
 				<div className='content-container'>
