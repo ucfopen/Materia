@@ -434,6 +434,14 @@ section.page {
     }
 }
 
+@media (max-width: 1100px) {
+    section.page {
+        .header .row.between {
+            flex-direction: column;
+        }
+    }
+}
+
 @media (max-width: 900px) {
     section.page {
         margin-bottom: 32px;
@@ -445,6 +453,10 @@ section.page {
             &.side {
                 width: 100%;
             }
+        }
+
+        .header .author {
+            text-align: center;
         }
     }
 }
