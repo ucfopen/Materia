@@ -36,7 +36,10 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 		else if (!!queryError) {
 			setErrorState('error')
 		}
-	}, [queryError])
+		else if (entry && !entry.is_available) {
+			setErrorState('unavailable')
+		}
+	}, [queryError, entry])
 
 	useEffect(() => {
 		if (!!entry && !errorState) {
@@ -160,33 +163,33 @@ const CommunityLibraryDetail = ({entry, queryError}) => {
 						<div>{!entry ? "Loading" : `Created ${(new Date(entry.created_at)).toLocaleDateString(undefined, dateOptions)}`}</div>
 					</div>
 				</div>
-				{
-					
-				}
 				<div className='col' style={{gap:"16px"}}>
 					{
-						dontAllow && errorState == 'error' &&
+						errorState == 'error' ?
 						<div className='card side red center shadow alt-border'>
 							<div className='content'>
 								There was an error accessing this Community Library entry.
 							</div>
 						</div>
-					}
-					{
-						((dontAllow && errorState == 'banned') || entry?.is_banned) &&
+						: ((errorState == 'banned') || entry?.is_banned) ?
 						<div className='card side red center shadow alt-border'>
 							<div className='content'>
 								This entry has been banned from the Community Library.
 							</div>
 						</div>
-					}
-					{
-						dontAllow && errorState == false &&
+						: errorState == 'unavailable' ?
+						<div className='card side blue center shadow alt-border'>
+							<div className='content'>
+								This widget is no longer available. The author has chosen to unpublish it.
+							</div>
+						</div>
+						: dontAllow ?
 						<div className='card side blue center shadow alt-border'>
 							<div className='content'>
 								You must be authenticated as an instructor to access widgets in the Community Library.
 							</div>
 						</div>
+						: null
 					}
 					<div className='card side blue center shadow alt-border'>
 						<div className='content'>
