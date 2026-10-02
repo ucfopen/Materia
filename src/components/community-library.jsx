@@ -574,7 +574,7 @@ const CommunityLibrary = ({ widgets = [] }) => {
 											</>
 										}
 										</div>	
-										{searchInput && <button className="search-close" onClick={clearSearch} />}
+										{searchInput && <button className="search-close" onClick={clearSearch} aria-label='Close Search'/>}
 									</div>
 								</div>
 								
