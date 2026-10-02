@@ -6,6 +6,7 @@ import { player } from './materia-constants'
 import Alert from './alert'
 import usePlayStorageDataSave from './hooks/usePlayStorageDataSave'
 import usePlayLogSave from './hooks/usePlayLogSave'
+import useSiteMessages from './hooks/useSiteMessages'
 import LoadingIcon from './loading-icon'
 import './widget-player.scss'
 
@@ -112,6 +113,8 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 
 	const savePlayLog = usePlayLogSave()
 	const saveStorage = usePlayStorageDataSave()
+	const { messages: siteMessages } = useSiteMessages({ types: ['SITE_NOTIFICATION', 'SITE_ALERT'] })
+	const [showSiteMessage, setShowSiteMessage] = useState(true)
 
 	const previewPlayId = useMemo(() => {
 		if (!isPreview) return null
@@ -586,6 +589,10 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 		}
 	}
 
+	const _closeSiteMessage = e => {
+		setShowSiteMessage(false)
+	}
+
 	/*********************** component rendering ***********************/
 
 	let previewBarRender = null
@@ -622,6 +629,29 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 		)
 	}
 
+	let messagesRender = null
+	if (isEmbedded && !!siteMessages) {
+		if (!!siteMessages.SITE_ALERT && showSiteMessage) {
+			messagesRender = (
+				<div role='alert' className='site-message alert'>
+					<img className='warning-icon' src='/img/warning.svg' aria-hidden='true' />
+					{siteMessages.SITE_ALERT}
+					<button className='close-btn' onClick={_closeSiteMessage} aria-label='close system alert'>&#10005;</button>
+				</div>
+			)
+		}
+
+		else if (!!siteMessages.SITE_NOTIFICATION && showSiteMessage) {
+			messagesRender = (
+				<div role='status' className='site-message notification'>
+					<img className='warning-icon' src='/img/warning.svg' aria-hidden='true' />
+					{siteMessages.SITE_NOTIFICATION}
+					<button className='close-btn' onClick={_closeSiteMessage} aria-label='close system message' tabIndex='0'>&#10005;</button>
+				</div>
+			)
+		}
+	}
+
 	let footerRender = null
 	if (!isPreview && showFooter) {
 		const logoPath = darkModeRef.current ? "/static/img/materia-logo-thin-darkmode.svg" : "/static/img/materia-logo-thin.svg"
@@ -651,6 +681,7 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 					/>
 					{ loadingRender }
 				</div>
+				{ messagesRender }
 				{ footerRender }
 			</section>
 		</>
