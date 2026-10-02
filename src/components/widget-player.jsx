@@ -633,10 +633,10 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 	if (isEmbedded && !!siteMessages) {
 		if (!!siteMessages.SITE_ALERT && showSiteMessage) {
 			messagesRender = (
-				<div role='status' className='site-message alert'>
-					<img className='warning-icon' src='/img/warning.svg' alt='Warning Icon' />
+				<div role='alert' className='site-message alert'>
+					<img className='warning-icon' src='/img/warning.svg' aria-hidden='true' />
 					{siteMessages.SITE_ALERT}
-					<button className='close-btn' onClick={_closeSiteMessage}>&#10005;</button>
+					<button className='close-btn' onClick={_closeSiteMessage} aria-label='close system alert'>&#10005;</button>
 				</div>
 			)
 		}
@@ -644,9 +644,9 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 		else if (!!siteMessages.SITE_NOTIFICATION && showSiteMessage) {
 			messagesRender = (
 				<div role='status' className='site-message notification'>
-					<img className='warning-icon' src='/img/warning.svg' alt='Warning Icon' />
+					<img className='warning-icon' src='/img/warning.svg' aria-hidden='true' />
 					{siteMessages.SITE_NOTIFICATION}
-					<button className='close-btn' onClick={_closeSiteMessage} aria-label='close message' tabIndex='0'>&#10005;</button>
+					<button className='close-btn' onClick={_closeSiteMessage} aria-label='close system message' tabIndex='0'>&#10005;</button>
 				</div>
 			)
 		}
