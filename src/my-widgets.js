@@ -1,6 +1,6 @@
 import React from 'react'
 import {createRoot} from 'react-dom/client'
-import { QueryClient, QueryClientProvider, QueryCache } from 'react-query'
+import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query'
 import MyWidgetsPage from './components/my-widgets-page'
 import { onError } from './util/global-cache-options'
 
