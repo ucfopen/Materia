@@ -4,7 +4,7 @@ from api.permissions import IsSuperuser
 from api.serializers import SiteImageSerializer, SiteMessageSerializer
 from core.models import SiteImage, SiteMessage
 from core.utils.validator_util import ValidatorUtil
-from django.db.models import Q
+from django.db.models import F, OuterRef, Q, Subquery
 from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny
@@ -95,8 +95,15 @@ class SiteMessageViewSet(viewsets.ModelViewSet):
             )
 
         if latest_only:
-            queryset = queryset.order_by("-created_at")
-            latest = queryset.first()
-            queryset = queryset.filter(pk=latest.pk) if latest else queryset.none()
+            latest_for_type = (
+                queryset.filter(message_type=OuterRef("message_type"))
+                .order_by("-created_at", "-pk")
+                .values("pk")[:1]
+            )
+            queryset = (
+                queryset.annotate(_latest_id=Subquery(latest_for_type))
+                .filter(pk=F("_latest_id"))
+                .order_by("-created_at", "-pk")
+            )
 
         return queryset

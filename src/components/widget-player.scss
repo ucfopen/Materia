@@ -137,6 +137,53 @@ section.widget {
 			}
 		}
 	}
+
+	div.site-message {
+
+		position: absolute;
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		gap: 0.5em;
+		bottom: 0.5em;
+		left: 1.5em;
+		max-width: 80%;
+		padding: 0.5em;
+
+		font-weight: 400;
+
+
+
+		&.notification {
+			background: $color-yellow-bg;
+		}
+
+		&.alert {
+			color: #fff;
+			background: $color-red-bg;
+
+			img {
+				filter: invert(1);
+			}
+
+			button {
+				color: #fff;
+			}
+		}
+
+		button {
+			background: none;
+			outline: none;
+			border: none;
+			cursor: pointer;
+
+			&:hover,
+			&:focus {
+				filter: invert(1);
+			}
+		}
+
+	}
 }
 
 .embedded {

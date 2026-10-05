@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { apiUploadSiteImage, apiGetSiteImages, apiDeleteSiteImage, apiGetSiteMessages, apiUploadSiteMessage, apiDeleteSiteMessage } from '../util/api'
+import { apiUploadSiteImage, apiGetSiteImages, apiDeleteSiteImage, apiUploadSiteMessage, apiDeleteSiteMessage } from '../util/api'
+import useSiteMessages from './hooks/useSiteMessages'
 import React, { useState, useRef, useEffect } from 'react'
 import Header from './header'
 import './site-admin-page.scss'
@@ -103,12 +104,10 @@ const SiteAdminPage = () => {
 		retry: false
 	})
 
-	const {data: siteMessages, refetch: refetchSiteMessages } = useQuery({
-		queryKey: ['site-messages', 'all'],
-		queryFn: () => apiGetSiteMessages([], true, false),
-		enabled: pageState.mode == 'message',
-		staleTime: Infinity,
-		retry: false
+	const { data: siteMessages, refetch: refetchSiteMessages } = useSiteMessages({
+		includeExpired: true,
+		latest: false,
+		enabled: pageState.mode == 'message'
 	})
 
 	const {data: catalogImages, refetch: refetchCatalogImages } = useQuery({

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { apiGetUser, apiUserVerify, apiGetSiteMessages } from '../util/api'
+import { apiGetUser, apiUserVerify } from '../util/api'
 import Notifications from './notifications'
+import useSiteMessages from './hooks/useSiteMessages'
 
 const Header = ({
 	allowLogins = true
@@ -12,9 +13,6 @@ const Header = ({
 	const [user, setUser] = useState(null)
 	const [verified, setVerified] = useState(false)
 	const [permLevel, setPermLevel] = useState('anonymous')
-
-	const [headerNotification, setHeaderNotification] = useState(null)
-	const [headerAlert, setHeaderAlert] = useState(null)
 
 	const { data: userPerms } = useQuery({
 		queryKey: ['isLoggedIn'],
@@ -29,22 +27,7 @@ const Header = ({
 		enabled: !!verified
 	})
 
-	const {data: siteMessages } = useQuery({
-		queryKey: ['site-messages', 'notification', 'alert'],
-		queryFn: () => apiGetSiteMessages(['SITE_NOTIFICATION', 'SITE_ALERT']),
-		staleTime: Infinity,
-		retry: false,
-		refetchOnWindowFocus: false
-	})
-
-	useEffect(() => {
-		if (siteMessages != undefined) {
-			siteMessages.forEach((msg) => {
-				if (msg.message_type == 'SITE_NOTIFICATION') setHeaderNotification(msg.message_text)
-				else if (msg.message_type == 'SITE_ALERT') setHeaderAlert(msg.message_text)
-			})
-		}
-	},[siteMessages])
+	const { messages: siteMessages } = useSiteMessages({ types: ['SITE_NOTIFICATION', 'SITE_ALERT'] })
 
 	useEffect(() => {
 		if (userData != undefined) {
@@ -199,21 +182,21 @@ const Header = ({
 
 	let siteNotificationRender = null
 
-	if (headerNotification != null) {
+	if (siteMessages.SITE_NOTIFICATION != null) {
 		siteNotificationRender = (
 			<section className='site-notification'>
 				<img className="warning-icon" src="/img/warning.svg" alt="" />
-				{headerNotification}
+				{siteMessages.SITE_NOTIFICATION}
 			</section>
 		)
 	}
 
 	let siteAlertRender = null
-	if (headerAlert != null) {
+	if (siteMessages.SITE_ALERT != null) {
 		siteAlertRender = (
 			<section className='site-alert'>
 				<img className="warning-icon" src="/img/warning.svg" alt="" />
-				{headerAlert}
+				{siteMessages.SITE_ALERT}
 			</section>
 		)
 	}
