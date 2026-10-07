@@ -119,7 +119,7 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 			<div className="publish-dialog">
 				<h2>Share to Community Library</h2>
 				<p className="dialog-subtitle">
-					Share "<b>{inst.name}</b>" with the Materia community! Other instructors will be able to find, copy, and adapt this widget for their own courses. Your original widget will remain unchanged.
+					Share "<strong>{inst.name}</strong>" with the Materia community! Other instructors will be able to find, copy, and adapt this widget for their own courses. Your original widget will remain unchanged.
 				</p>
 				<label>
 					Discipline <span className="required">*</span>
@@ -143,6 +143,11 @@ const CommunityLibraryPublishDialog = ({ inst, onClose, onSuccess }) => {
 						))}
 					</select>
 				</label>
+
+				<p className="dialog-subtitle">
+					Use <strong>Tags</strong> to categorize your widget with additional specificity. For example, a widget about astronomy may include an <strong>#astronomy</strong> tag. 
+					You can apply multiple tags to your widget.
+				</p>
 
 				<div className='label'>
 					Tags
