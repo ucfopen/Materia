@@ -1,6 +1,6 @@
 import React, {useMemo, useRef, useState} from 'react'
 import WidgetUpdateTableRow from "@/components/widget-update-table-row";
-import {useMutation, useQueryClient} from "react-query";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {apiCheckAllWidgetsForUpdates, apiInstallWidgetUpdate} from "@/util/api";
 
 const WidgetUpdater = ({ widgets = [], isLoading = true }) => {
@@ -9,7 +9,8 @@ const WidgetUpdater = ({ widgets = [], isLoading = true }) => {
   const queryClient = useQueryClient()
   const widgetRefetchDebounceTimer = useRef()
 
-  const updateMutation = useMutation(apiCheckAllWidgetsForUpdates, {
+  const updateMutation = useMutation({
+    mutationFn: apiCheckAllWidgetsForUpdates,
     onSuccess: (data) => {
       // Reset update tracker with new data
       const newUpdateTracker = {}
@@ -27,7 +28,8 @@ const WidgetUpdater = ({ widgets = [], isLoading = true }) => {
     }
   })
 
-  const updateIndividualWidgetMutation = useMutation((widgetId) => apiInstallWidgetUpdate(widgetId), {
+  const updateIndividualWidgetMutation = useMutation({
+    mutationFn: (widgetId) => apiInstallWidgetUpdate(widgetId),
     onMutate: ((widgetId) => {
       setUpdateTracker((oldUpdateTracker) => {
         const newUpdateTracker = {...oldUpdateTracker}
@@ -51,10 +53,10 @@ const WidgetUpdater = ({ widgets = [], isLoading = true }) => {
       })
     }),
     onSettled: ((_, __, widgetId) => {
-      queryClient.refetchQueries(['widget-update-check', widgetId])
+      queryClient.refetchQueries({ queryKey: ['widget-update-check', widgetId] })
       if (widgetRefetchDebounceTimer.current) clearTimeout(widgetRefetchDebounceTimer.current)
       widgetRefetchDebounceTimer.current = setTimeout(() => {
-        queryClient.refetchQueries(['widgets'])
+        queryClient.refetchQueries({ queryKey: ['widgets'] })
       }, 1000)
     })
   })
