@@ -1,10 +1,10 @@
-import { useMutation } from 'react-query'
+import { useMutation } from '@tanstack/react-query'
 import { apiSavePlayLogs } from '../../util/api'
 
 export default function usePlayLogSave() {
 	return useMutation(
-		apiSavePlayLogs,
 		{
+			mutationFn: apiSavePlayLogs,
 			onSuccess: (data, variables) => {
 				variables.successFunc(data)
 			},
