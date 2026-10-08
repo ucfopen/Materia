@@ -17,5 +17,5 @@ python-dateutil==2.9.0
 pytz==2024.1
 PyYAML==6.0.1
 sentry-sdk[django]~=2.50.0
-urllib3==2.7.0
+urllib3==2.8.0
 whitenoise==6.9.0
