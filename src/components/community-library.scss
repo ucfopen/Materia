@@ -867,7 +867,6 @@
 
 		.welcome-banner {
 			background-color: #3fa7e3;
-			// box-shadow: 0 2px 8px #00000040;
 			border-radius: 4px;
 
 			display: flex;
@@ -875,13 +874,12 @@
 
 			min-height: 200px;
 			width: 100%;
-			padding: 24px 48px;
+			padding: 18px 36px;
 			box-sizing: border-box;
 
 			h2 {
+				margin: 0;
 				color: #fff;
-				margin: auto 0;
-				// width: 250px;
 				text-align: center;
 			}
 

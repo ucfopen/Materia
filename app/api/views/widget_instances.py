@@ -828,6 +828,12 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
                 status=400,
             )
 
+        if not instance.is_shared_to_library:
+            return Response(
+                {"error": "Can't update an unpublished library entry."},
+                status=403,
+            )
+
         if entry.is_banned:
             return Response(
                 {"error": "This widget cannot be updated as the entry is banned."},
@@ -869,9 +875,6 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             )
 
         with transaction.atomic():
-            instance.library_entry = None
-            instance.save(update_fields=["library_entry"])
-
             entry.is_available = False
             entry.featured = False
             entry.save(update_fields=["is_available", "featured"])

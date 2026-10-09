@@ -1269,7 +1269,7 @@ class TestUpdateInLibrary(CommunityLibraryViewSetTestCase):
         self.shared_instance.save(update_fields=["library_entry"])
 
     def test_unpublish_preserves_entry_and_snapshots(self):
-        """Unpublishing should keep entry/snapshots and clear instance.library_entry pointer."""
+        """Unpublishing should keep entry/snapshots."""
         entry_id = self.library_entry.id
         self.client.force_authenticate(user=self.author_user)
         self.client.put(
@@ -1278,7 +1278,7 @@ class TestUpdateInLibrary(CommunityLibraryViewSetTestCase):
         self.assertTrue(LibraryEntry.objects.filter(id=entry_id).exists())
         self.assertTrue(LibrarySnapshot.objects.filter(entry_id=entry_id).exists())
         self.shared_instance.refresh_from_db()
-        self.assertIsNone(self.shared_instance.library_entry_id)
+        self.assertFalse(self.shared_instance.library_entry.is_available)
 
         self.shared_instance.library_entry = self.library_entry
         self.shared_instance.save(update_fields=["library_entry"])
