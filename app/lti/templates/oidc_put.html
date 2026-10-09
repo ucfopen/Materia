@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width" />
+        <title>LTI OIDC Auth - Put</title>
+        <style>
+            p {
+              font-family: Arial, Helvetica, sans-serif;
+            }
+        </style>
+        {{redirect_uri | json_script:"redirect_script"}}
+        {{params | json_script:"params_script"}}
+        <script>
+            window.addEventListener('load', () => {
+                let platformOIDCLoginURL = JSON.parse(document.getElementById('redirect_script').textContent);
+                let urlOBJ = new URL(platformOIDCLoginURL)
+                let platformOrigin = urlOBJ.origin;
+
+                const state = urlOBJ.searchParams.get("state")
+                const nonce = urlOBJ.searchParams.get("nonce")
+
+                if(!state || !nonce) {
+                    document.getElementById("status").innerHTML = "There was an issue verifying your launch."
+                    return
+                }
+
+                const params = JSON.parse(JSON.parse(document.getElementById('params_script').textContent));
+                
+                let frameName = params["lti_storage_target"];
+                let parent = window.parent || window.opener;
+                let targetFrame = frameName === "_parent" ? parent : parent.frames[frameName];
+
+                let messageId = self.crypto.randomUUID();
+
+                window.addEventListener('message', function (event) {
+                    if (typeof event.data !== "object") return
+                    if (event.data.subject !== "lti.put_data.response") return
+                    if (event.data.message_id !== messageId) return
+                    if (event.origin !== platformOrigin) returns
+                    if (event.source !== targetFrame) return
+
+                    // handle errors
+                    if (event.data.error){
+                        // handle errors
+                        console.log(event.data.error.code)
+                        console.log(event.data.error.message)
+                        return;
+                    }
+
+                    // It's the response we expected
+                    // The state and nonce values were successfully stored, redirect to Platform
+                    window.location.href = urlOBJ.toString()
+                });
+
+                targetFrame.postMessage({
+                    "subject": "lti.put_data",
+                    "message_id": messageId,
+                    "key": state,
+                    "value": state.replace("state_", "")
+                } , platformOrigin )
+    
+    
+                targetFrame.postMessage({
+                    "subject": "lti.put_data",
+                    "message_id": messageId,
+                    "key": nonce,
+                    "value": nonce.replace("nonce_", "")
+                } , platformOrigin )
+            })
+        </script>
+    </head>
+    <body>
+        <p id="status">Authenticating with your LMS. Please wait...</p>
+    </body>
+</html>

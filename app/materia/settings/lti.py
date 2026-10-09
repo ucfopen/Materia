@@ -40,3 +40,7 @@ LTI_SAVE_ASSOCIATIONS = True
 LTI_URL_CONFIGS = {
     "tool_url": os.environ.get("BASE_URL", "").rstrip("/"),
 }
+
+LTI_OIDC_POST_MESSAGE_TIMEOUT = int(
+    os.environ.get("LTI_OIDC_POST_MESSAGE_TIMEOUT", "300")
+)
