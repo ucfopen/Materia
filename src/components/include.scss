@@ -608,11 +608,10 @@ header {
 
 		&:after {
 			content: 'NEW';
-			position: absolute;
-			display: block;
-			left: 0px;
-			top: -12px;
-
+			position: relative;
+			display: inline-block;
+			top: -1px;
+			margin-left: 0.4em;
 			padding: 2px 4px;
 
 			font-size: 0.5em;
@@ -1102,10 +1101,10 @@ header {
 	#app > header nav > ul {
 		li:nth-child(2) {
 			padding-left: 32px;
-			&:after {
-				top: 10px;
-				left: 0px;
-			}
+			// &:after {
+			// 	top: 10px;
+			// 	left: 0px;
+			// }
 		}
 	}
 }
