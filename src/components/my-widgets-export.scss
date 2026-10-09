@@ -203,6 +203,12 @@
 		margin: 1.375em 0 0 0;
 	}
 
+	.icon-holder .loading-icon {
+		background: #fff;
+		border: solid 30px #fff;
+		border-radius: 15px;
+	}
+
 	li {
 		margin-bottom: 10px;
 
@@ -252,5 +258,11 @@
 		&:first-of-type {
 			border-bottom: 1px #d6d6d6 solid;
 		}
+	}
+
+	.icon-holder .loading-icon {
+		background: #1d1f25;
+		border: solid 30px #1d1f25;
+		border-radius: 15px;
 	}
 }

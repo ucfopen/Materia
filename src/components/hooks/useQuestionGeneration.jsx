@@ -1,15 +1,15 @@
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { apiGenerateQset } from "../../util/api";
 
 export default function useQuestionGeneration() {
     return useMutation(
-        apiGenerateQset,
         {
-            onSuccess: (qset, variables) => {
-                variables.successFunc(qset)
+            mutationFn: apiGenerateQset,
+            onSuccess: (data, variables) => {
+                variables.successFunc(data)
             },
-            onError: (error, variables, context) => {
-                variables.errorFunc(error)
+            onError: (err, variables, context) => {
+                variables.errorFunc(err)
             }
         }
     )

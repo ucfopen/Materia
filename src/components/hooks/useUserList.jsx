@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useInfiniteQuery } from 'react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { apiSearchUsers } from '../../util/api'
 
 export default function useUserList(query = "") {

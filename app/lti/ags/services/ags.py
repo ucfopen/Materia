@@ -94,12 +94,14 @@ class AGSService:
 
         # The remaining exceptions come from requests's raise_for_status() method
         except Exception as e:
-            if e.response.status_code:
+            response = getattr(e, "response", None)
+
+            if response and response.status_code:
                 # Canvas responds with a 422 when the attempt limit is reached OR
                 # if the AGS payload is invalid
                 # Because of that we have to inspect the message body as well
-                if e.response.status_code == 422:
-                    body = e.response.json()
+                if response.status_code == 422:
+                    body = response.json()
                     if (
                         "errors" in body
                         and "message" in body["errors"]
