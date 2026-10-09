@@ -602,32 +602,6 @@ header {
 	}
 }
 
-#app > header {
-	nav > ul li:nth-child(2) {
-		position: relative;
-
-		&:after {
-			content: 'NEW';
-			position: relative;
-			display: inline-block;
-			top: -1px;
-			margin-left: 0.4em;
-			padding: 2px 4px;
-
-			font-size: 0.5em;
-			font-weight: 700;
-
-			color: #fff;
-			background: $color-purple;
-			border-radius: 4px;
-		}
-	}
-
-	nav > ul li.admin ul li:after, nav > ul li.support ul li:after {
-		display: none;
-	}
-}
-
 .checkbox-wrapper {
 	display: flex;
 	align-items: center;
@@ -1096,16 +1070,6 @@ header {
 			display: none;
 		}
 
-	}
-
-	#app > header nav > ul {
-		li:nth-child(2) {
-			padding-left: 32px;
-			// &:after {
-			// 	top: 10px;
-			// 	left: 0px;
-			// }
-		}
 	}
 }
 
