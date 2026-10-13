@@ -781,7 +781,7 @@ const MyWidgetSelectedInstance = ({
 				</div>
 
 				<p className="view-more">
-					<a href='https://ucfopen.github.io/Materia-Docs/create/assigning-widgets.html' target='_blank'> View all sharing options. </a>
+					<a href='https://ucfopen.github.io/Materia-Docs/v11/users/introduction-for-instructors.html' target='_blank'> Learn more about widget creation and sharing. </a>
 				</p>
 
 			</div>
