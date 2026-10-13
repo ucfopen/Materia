@@ -47,7 +47,7 @@ from core.services.perm_service import PermService
 from core.services.play_data_exporter_service import PlayDataExporterService
 from core.services.semester_service import SemesterService
 from django.db import transaction
-from django.db.models import F
+from django.db.models import Count, F
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
@@ -84,6 +84,10 @@ class WidgetInstanceViewSet(viewsets.ModelViewSet):
             "performance_semester",
         ):
             return WidgetInstance.objects.select_related("widget")
+        elif self.action == "list":
+            return WidgetInstance.objects.select_related(
+                "widget", "library_entry__category", "library_snapshot"
+            ).annotate(lti_embed_count=Count("lti_embeds", distinct=True))
         else:
             return WidgetInstance.objects.all()
 

@@ -1439,6 +1439,8 @@ class WidgetInstance(models.Model):
 
     @property
     def is_embedded(self):
+        if "lti_embed_count" in self.__dict__:
+            return self.lti_embed_count > 0
         return self.lti_embeds.count() > 0
 
     @classproperty
