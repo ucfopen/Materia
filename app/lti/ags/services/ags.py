@@ -96,7 +96,7 @@ class AGSService:
         except Exception as e:
             response = getattr(e, "response", None)
 
-            if response and response.status_code:
+            if response is not None:
                 # Canvas responds with a 422 when the attempt limit is reached OR
                 # if the AGS payload is invalid
                 # Because of that we have to inspect the message body as well

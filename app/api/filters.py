@@ -11,6 +11,7 @@ from core.models import (
 from core.services.perm_service import PermService
 from core.services.semester_service import SemesterService
 from django.db.models import OuterRef, Q, Subquery
+from django.utils import timezone
 from django_filters import rest_framework
 from rest_framework import filters
 
@@ -33,27 +34,26 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
         user_query = request.query_params.get("user")
         search_query = request.query_params.get("search")
 
-        if user_query == "me":
-            queryset = PermService.get_all_objects_of_type_for_user(
-                WidgetInstance,
-                user,
-                [ObjectPermission.PERMISSION_FULL, ObjectPermission.PERMISSION_VISIBLE],
+        def filter_by_perms(target_user):
+            return queryset.filter(
+                Q(permissions__expires_at__isnull=True)
+                | Q(permissions__expires_at__gt=timezone.now()),
+                permissions__user=target_user,
+                permissions__permission__in=[
+                    ObjectPermission.PERMISSION_FULL,
+                    ObjectPermission.PERMISSION_VISIBLE,
+                ],
             )
-            queryset = queryset.filter(is_deleted=False)
+
+        if user_query == "me":
+            queryset = filter_by_perms(user).filter(is_deleted=False)
         elif user_query is not None:
             if (
                 user.is_superuser
                 or user.groups.filter(name="support_user").exists()
                 or str(user.id) == user_query
             ):
-                queryset = PermService.get_all_objects_of_type_for_user(
-                    WidgetInstance,
-                    user_query,
-                    [
-                        ObjectPermission.PERMISSION_FULL,
-                        ObjectPermission.PERMISSION_VISIBLE,
-                    ],
-                )
+                queryset = filter_by_perms(user_query)
             else:
                 return queryset.none()
         elif search_query is not None:
