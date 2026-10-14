@@ -88,7 +88,7 @@ class MsgNoPerm(MsgException):
         title: str = "Permission Denied",
         msg: str = "You do not have permission to access the requested content",
     ):
-        super().__init__(title, msg, MsgSeverity.WARN, False, 401)
+        super().__init__(title, msg, MsgSeverity.WARN, False, 403)
 
 
 class MsgFailure(MsgException):
@@ -125,5 +125,5 @@ class MsgBuilder:
     #     title: str = "Share Not Allowed",
     #     msg: str = "Students cannot be added as collaborator to widgets that have guest access disabled",
     # ) -> Msg:
-    #     return Msg(title, msg, MsgType.STUDENT_COLLAB, MsgSeverity.ERROR, False, 401)
+    #     return Msg(title, msg, MsgType.STUDENT_COLLAB, MsgSeverity.ERROR, False, 403)
     pass

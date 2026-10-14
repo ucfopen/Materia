@@ -2,11 +2,25 @@ import logging
 
 from django.conf import settings
 from lti_tool.views import OIDCLoginInitView
+from pylti1p3.exception import OIDCException
 
 logger = logging.getLogger(__name__)
 
 
 class MateriaOIDCLoginInitView(OIDCLoginInitView):
+
+    def get(self, request, *args, **kwargs):
+        """
+        Overrides OIDCLoginInitView's `get` method to intercept and handle OIDCExceptions.
+        The intended behavior is to handle situations where a LTI registration has been disabled.
+        """
+        registration_uuid = kwargs.get("registration_uuid")
+        try:
+            return self.get_oidc_response(request, registration_uuid, request.GET)
+        except OIDCException:
+            from lti.views.lti import error_page as lti_error_page
+
+            return lti_error_page(request, "error_registration_disabled")
 
     def get_redirect_url(self, target_link_uri: str) -> str:
         """

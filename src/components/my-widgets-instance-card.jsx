@@ -5,8 +5,13 @@ const MyWidgetsInstanceCard = ({inst, indexVal, hidden = false, selected = false
 	const {id, widget, name, is_draft, img} = inst
 	// Handle multiple conditional classes by keeping an array of all classes to apply, then imploding it in the render
 	const classes = ['my-widgets-instance-card', 'widget']
+	const library = inst.copied_from_library || inst.shared_to_library
+
 	if (hidden) classes.push('hidden')
+	
 	if (is_draft) classes.push('is_draft')
+	else if (library) classes.push('is_library')
+	
 	if (beard) classes.push('bearded', `small_${beard}`)
 	if (selected) classes.push('selected')
 
@@ -44,7 +49,7 @@ const MyWidgetsInstanceCard = ({inst, indexVal, hidden = false, selected = false
 					dangerouslySetInnerHTML={{ __html: widgetNameTextRender }}>
 				</li>
 				<li className='score'>
-					{is_draft ? 'Draft' : ''}
+					{library ? 'Library' : is_draft ? 'Draft' : ''}
 				</li>
 			</ul>
 		</div>

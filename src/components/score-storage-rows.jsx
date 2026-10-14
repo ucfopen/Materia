@@ -8,7 +8,7 @@ const PaginateButtons = ({isLoading, selectedValues, tableKeys}) => {
 	useEffect(() => {
 		if (isLoading === false)
 		{
-			const tmpVals = selectedValues.map((row, index) =>
+			const tmpVals = selectedValues?.map((row, index) =>
 				<tr key={index}>
 					<td>{ row.play.user }</td>
 					<td>{ row.play.firstName }</td>
@@ -27,12 +27,12 @@ const PaginateButtons = ({isLoading, selectedValues, tableKeys}) => {
 		}
 	}, [isLoading, selectedValues])
 
-	const variableKeysRender = tableKeys.map((columName, index) =>
+	const variableKeysRender = tableKeys?.map((columName, index) =>
 		<th key={index}>{columName}</th>
 	)
 
 	let storageRowsRender = <tr style={{height: '50px'}}></tr>
-	if (rowVals.length > 0) {
+	if (rowVals?.length > 0) {
 		storageRowsRender = rowVals
 	}
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetQuestionsByType } from '../util/api'
 
 import './question-importer.scss'
@@ -20,7 +20,7 @@ const QuestionImporter = () => {
 	const tableRef = useRef(null)
 
 	const { data: allQuestions, isLoading } = useQuery({
-		queryKey: 'questions',
+		queryKey: ['questions'],
 		queryFn: () => apiGetQuestionsByType(null, _getType()),
 		enabled: state.displayQuestions == null,
 		staleTime: Infinity

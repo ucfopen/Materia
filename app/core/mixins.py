@@ -5,6 +5,7 @@ from core.services.widget_play_services import WidgetPlayValidationService
 from core.utils.context_util import ContextUtil
 from django.contrib.auth.mixins import AccessMixin
 from django.http import Http404, HttpRequest, HttpResponse
+from pylti1p3.exception import LtiException
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +119,14 @@ class MateriaWidgetPlayProcessor:
             if not instance:
                 raise Http404("A widget instance with this ID does not exist.")
             is_embedded = kwargs.get("is_embed", False)
-            validation = self.get_validation(request, instance)
+            try:
+                validation = self.get_validation(request, instance)
+            except LtiException:
+                from core.services.widget_play_services import (
+                    WidgetPlayValidationService,
+                )
+
+                validation = WidgetPlayValidationService.INVALID_RECOVERY_TOKEN
 
             request._widget_play_state = {
                 "instance": instance,

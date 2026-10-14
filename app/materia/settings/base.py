@@ -35,6 +35,7 @@ DIRS = {
     "media_uploads": os.path.realpath(
         os.path.join(APP_PATH, "media", "uploads")
     ),  # + os.sep,
+    "site_images": os.path.realpath(os.path.join(APP_PATH, "staticfiles", "site_img")),
     "widgets": os.path.realpath(
         os.path.join(APP_PATH, "staticfiles", "widget")
     ),  # + os.sep

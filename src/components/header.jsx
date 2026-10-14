@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetUser, apiUserVerify } from '../util/api'
 import Notifications from './notifications'
+import useSiteMessages from './hooks/useSiteMessages'
 
 const Header = ({
 	allowLogins = true
@@ -14,7 +15,7 @@ const Header = ({
 	const [permLevel, setPermLevel] = useState('anonymous')
 
 	const { data: userPerms } = useQuery({
-		queryKey: 'isLoggedIn',
+		queryKey: ['isLoggedIn'],
 		queryFn: apiUserVerify,
 		staleTime: Infinity,
 		retry: false
@@ -25,6 +26,8 @@ const Header = ({
 		staleTime: Infinity,
 		enabled: !!verified
 	})
+
+	const { messages: siteMessages } = useSiteMessages({ types: ['SITE_NOTIFICATION', 'SITE_ALERT'] })
 
 	useEffect(() => {
 		if (userData != undefined) {
@@ -56,7 +59,7 @@ const Header = ({
 	let elevatedPermsNavRender = null
 	if (permLevel == 'super_user') {
 		elevatedPermsNavRender = (
-			<li className='nav_expandable'>
+			<li className='nav_expandable admin'>
 				<span className='elevated admin'>Admin</span>
 				<ul>
 					<li>
@@ -69,6 +72,12 @@ const Header = ({
 						<a className='elevated' href='/admin/instance'>Instances</a>
 					</li>
 					<li>
+						<a className='elevated' href='/admin/site'>Site</a>
+					</li>
+					<li>
+						<a className='elevated' href='/admin/library'>Library</a>
+					</li>
+					<li>
 						<a className='elevated' href='/admin/' target="_blank">Django Admin</a>
 					</li>
 				</ul>
@@ -77,7 +86,7 @@ const Header = ({
 	}
 	else if (permLevel == 'support_user') {
 		elevatedPermsNavRender = (
-			<li className='nav_expandable'>
+			<li className='nav_expandable support'>
 				<span className='elevated support'>Support</span>
 				<ul>
 					<li>
@@ -85,6 +94,9 @@ const Header = ({
 					</li>
 					<li>
 						<a className='elevated' href='/admin/instance'>Instances</a>
+					</li>
+					<li>
+						<a className='elevated' href='/admin/library'>Library</a>
 					</li>
 				</ul>
 			</li>
@@ -168,24 +180,39 @@ const Header = ({
 		)
 	}
 
+	let siteNotificationRender = null
+
+	if (siteMessages.SITE_NOTIFICATION != null) {
+		siteNotificationRender = (
+			<section className='site-notification'>
+				<img className="warning-icon" src="/img/warning.svg" alt="" />
+				{siteMessages.SITE_NOTIFICATION}
+			</section>
+		)
+	}
+
+	let siteAlertRender = null
+	if (siteMessages.SITE_ALERT != null) {
+		siteAlertRender = (
+			<section className='site-alert'>
+				<img className="warning-icon" src="/img/warning.svg" alt="" />
+				{siteMessages.SITE_ALERT}
+			</section>
+		)
+	}
+
 	return (
 		<header className={userData ? 'logged-in' : 'logged-out'} >
-			<h1 className='logo'><a href='/'>Materia</a></h1>
-			{ userRender }
-			<div className="mobile-notifications">
-				{ notificationRender }
-			</div>
-			<button id='mobile-menu-toggle'
-				aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-				className={menuOpen ? 'expanded' : ''}
-				onClick={toggleMobileNavMenu}>
-				<div/>
-			</button>
-
+			{siteAlertRender}
+			{siteNotificationRender}
+			<h1 className='logo'><a href='/' aria-label='Materia'></a></h1>
 			<nav>
 				<ul>
 					<li>
 						<a href='/widgets/' >Widget Catalog</a>
+					</li>
+					<li>
+						<a href='/community-library'>Community Library</a>
 					</li>
 					<li>
 						<a href='/my-widgets/'>My Widgets</a>
@@ -200,6 +227,16 @@ const Header = ({
 					{ logoutNavRender }
 				</ul>
 			</nav>
+			{ userRender }
+			<div className="mobile-notifications">
+				{ notificationRender }
+			</div>
+			<button id='mobile-menu-toggle'
+				aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+				className={menuOpen ? 'expanded' : ''}
+				onClick={toggleMobileNavMenu}>
+				<div/>
+			</button>
 
 		</header>
 	)

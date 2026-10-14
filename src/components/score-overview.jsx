@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { apiGetScoreSummary } from '../util/api'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import BarGraph from './bar-graph'
 import ScoreOverviewLtiStatus from './score-overview-lti-status'
 import LoadingIcon from './loading-icon'

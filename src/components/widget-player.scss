@@ -7,22 +7,24 @@ body {
 }
 
 #app {
+	display: flex;
+	flex-direction: column;
+
 	position: relative;
 	height: calc(100% - 42px);
 }
 
 section.widget {
 	display: none;
-	position: absolute;
-	left: 20px;
-	right: 20px;
-	bottom: 20px;
-	top: 95px;
+	height: 100%;
 	min-height: 400px;
 	min-width: 400px;
 
+	padding: 0 1em;
+
+
 	&.preview {
-		top: 150px;
+		padding: 2.5em 1em 0 1em;
 
 		.center {
 			top: -44px;
@@ -134,6 +136,53 @@ section.widget {
 				}
 			}
 		}
+	}
+
+	div.site-message {
+
+		position: absolute;
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		gap: 0.5em;
+		bottom: 0.5em;
+		left: 1.5em;
+		max-width: 80%;
+		padding: 0.5em;
+
+		font-weight: 400;
+
+
+
+		&.notification {
+			background: $color-yellow-bg;
+		}
+
+		&.alert {
+			color: #fff;
+			background: $color-red-bg;
+
+			img {
+				filter: invert(1);
+			}
+
+			button {
+				color: #fff;
+			}
+		}
+
+		button {
+			background: none;
+			outline: none;
+			border: none;
+			cursor: pointer;
+
+			&:hover,
+			&:focus {
+				filter: invert(1);
+			}
+		}
+
 	}
 }
 

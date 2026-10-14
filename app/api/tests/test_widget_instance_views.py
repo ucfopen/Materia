@@ -1,4 +1,5 @@
 import uuid
+from datetime import timedelta
 from unittest.mock import patch
 
 from api.tests.base import MateriaTestCase
@@ -930,6 +931,112 @@ class TestInstancePerformance(WidgetInstanceViewSetTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
 
+    def test_performance_latest_returns_latest_logged_semester(self):
+        latest_semester = (
+            DateRange.objects.filter(year=2025).order_by("start_at").first()
+        )
+        LogPlay.objects.create(
+            id=str(uuid.uuid4()),
+            instance=self.author_instance,
+            user=self.regular_user,
+            is_valid=False,
+            is_complete=True,
+            score=90,
+            score_possible=100,
+            percent=90.0,
+            elapsed=300,
+            qset=self.author_qset,
+            ip="127.0.0.1",
+            auth="",
+            referrer_url="",
+            context_id="",
+            semester=latest_semester,
+        )
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(
+            f"/api/instances/{self.author_instance.id}/performance/latest/",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["results"][0]["id"], latest_semester.id)
+        self.assertEqual(response.data["preceding_semester_id"], self.semester.id)
+
+    def test_performance_semester_returns_requested_semester(self):
+        latest_semester = (
+            DateRange.objects.filter(year=2025).order_by("start_at").first()
+        )
+        LogPlay.objects.create(
+            id=str(uuid.uuid4()),
+            instance=self.author_instance,
+            user=self.regular_user,
+            is_valid=False,
+            is_complete=True,
+            score=90,
+            score_possible=100,
+            percent=90.0,
+            elapsed=300,
+            qset=self.author_qset,
+            ip="127.0.0.1",
+            auth="",
+            referrer_url="",
+            context_id="",
+            semester=latest_semester,
+        )
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(
+            f"/api/instances/{self.author_instance.id}/performance/semester/{self.semester.id}/",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["results"][0]["id"], self.semester.id)
+        self.assertIsNone(response.data["preceding_semester_id"])
+
+    def test_performance_available_returns_semester_ids_with_logs(self):
+        latest_semester = (
+            DateRange.objects.filter(year=2025).order_by("start_at").first()
+        )
+        LogPlay.objects.create(
+            id=str(uuid.uuid4()),
+            instance=self.author_instance,
+            user=self.regular_user,
+            is_valid=False,
+            is_complete=True,
+            score=90,
+            score_possible=100,
+            percent=90.0,
+            elapsed=300,
+            qset=self.author_qset,
+            ip="127.0.0.1",
+            auth="",
+            referrer_url="",
+            context_id="",
+            semester=latest_semester,
+        )
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(
+            f"/api/instances/{self.author_instance.id}/performance/available/"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            [dict(semester) for semester in response.data],
+            [
+                {
+                    "id": latest_semester.id,
+                    "semester": latest_semester.semester,
+                    "year": latest_semester.year,
+                },
+                {
+                    "id": self.semester.id,
+                    "semester": self.semester.semester,
+                    "year": self.semester.year,
+                },
+            ],
+        )
+
 
 class TestInstancePerms(WidgetInstanceViewSetTestCase):
     """Tests for GET/PUT /api/instances/{id}/perms/"""
@@ -1478,6 +1585,72 @@ class TestInstanceCopy(WidgetInstanceViewSetTestCase):
         self.assertEqual(response.data["is_draft"], self.author_instance.is_draft)
         # Should have permissions copied from original
         self.assertTrue(new_instance.permissions.exists())
+
+    def test_copy_does_not_carry_over_settings(self):
+        """Copying an instance should not carry over close_at, attempts, or guest_access"""
+        settings_instance = WidgetInstance.objects.create(
+            id="settings1",
+            widget=self.widget,
+            user=self.author_user,
+            name="Settings Instance",
+            is_draft=False,
+            guest_access=True,
+            attempts=5,
+            close_at=timezone.now() + timedelta(days=1),
+        )
+        ObjectPermission.objects.create(
+            user=self.author_user,
+            content_object=settings_instance,
+            permission=ObjectPermission.PERMISSION_FULL,
+        )
+        WidgetQset.objects.create(
+            instance=settings_instance,
+            data="eyJ0ZXN0IjogImRhdGEifQ==",
+            version="1",
+        )
+
+        self.client.force_authenticate(user=self.author_user)
+        response = self.client.put(
+            f"/api/instances/{settings_instance.id}/copy/",
+            {"new_name": "Settings Copy", "copy_existing_perms": False},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data["close_at"])
+        self.assertEqual(response.data["attempts"], -1)
+        self.assertFalse(response.data["guest_access"])
+
+    def test_student_copy_of_non_guest_instance_enables_guest_access(self):
+        """When a student copies a non-guest widget, the duplicate should have guest access enabled"""
+        non_guest_instance = WidgetInstance.objects.create(
+            id="nonguest1",
+            widget=self.widget,
+            user=self.author_user,
+            name="Non-Guest Instance",
+            is_draft=False,
+            guest_access=False,
+        )
+        ObjectPermission.objects.create(
+            user=self.regular_user,
+            content_object=non_guest_instance,
+            permission=ObjectPermission.PERMISSION_FULL,
+        )
+        WidgetQset.objects.create(
+            instance=non_guest_instance,
+            data="eyJ0ZXN0IjogImRhdGEifQ==",
+            version="1",
+        )
+
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.put(
+            f"/api/instances/{non_guest_instance.id}/copy/",
+            {"new_name": "Student Copy", "copy_existing_perms": False},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["guest_access"])
 
 
 class TestInstanceExportPlaydata(WidgetInstanceViewSetTestCase):
