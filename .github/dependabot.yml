@@ -1,0 +1,20 @@
+version: 2
+updates:
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev/11.2.0" # update on master to current dev branch
+
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev/11.2.0" # update on master to current dev branch
+
+  - package-ecosystem: "pip"
+    directory: "/app"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev/11.2.0" # update on master to current dev branch
