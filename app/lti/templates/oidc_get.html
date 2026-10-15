@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width" />
+        <title>LTI OIDC Auth - Get</title>
+        <style>
+            p {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+        </style>
+        {{ handoff_id|json_script:"handoff_id" }}
+        {{ state_key|json_script:"state_key" }}
+        {{ nonce_key|json_script:"nonce_key" }}
+        {{ storage_target|json_script:"storage_target" }}
+        {{ platform_origin|json_script:"platform_origin" }}
+        <script>
+            window.addEventListener('load', () => {
+                const readValue = id => JSON.parse(document.getElementById(id).textContent)
+                const handoffId = readValue('handoff_id')
+                const stateKey = readValue('state_key')
+                const nonceKey = readValue('nonce_key')
+                const frameName = readValue('storage_target')
+                const platformOrigin = readValue('platform_origin')
+
+                const parent = window.parent || window.opener;
+                const targetFrame = frameName === "_parent" ? parent : parent.frames[frameName];
+                const status = document.getElementById('status')
+
+                if (!targetFrame) {
+                    status.textContent = 'There was an issue locating the LMS storage frame.'
+                    return
+                }
+
+                const requests = new Map()
+                const timeoutMilliseconds = 10000
+
+                window.addEventListener('message', event => {
+                    if (typeof event.data !== "object") return
+                    if (event.data.subject !== "lti.get_data.response") return
+                    if (event.origin !== platformOrigin) returns
+                    if (event.source !== targetFrame) return
+
+                    // ensure that the request has been made and saved
+                    const pending = requests.get(event.data.message_id)
+                    if (!pending || event.data.key !== pending.key) return
+
+                    // cancel LMS timeout hook
+                    clearTimeout(pending.timeout)
+                    requests.delete(event.data.message_id)
+                    if (event.data.error) {
+                        pending.reject(new Error(event.data.error.message || 'LMS storage error'))
+                        return
+                    }
+
+                    // make sure we get a proper state/nonce value back
+                    if (typeof event.data.value !== 'string') {
+                        pending.reject(new Error('The LMS returned an invalid storage value'))
+                        return
+                    }
+
+                    // resolve get_data promise with the returned data from LMS
+                    pending.resolve(event.data.value)
+                })
+
+                // sends a get_data request to the LMS
+                // returns a promise that is resolved by the message event
+                const getData = key => new Promise((resolve, reject) => {
+                    const messageId = self.crypto.randomUUID()
+                    // handle LMS response timeout
+                    const timeout = setTimeout(() => {
+                        requests.delete(messageId)
+                        reject(new Error('The LMS storage request timed out'))
+                    }, timeoutMilliseconds)
+
+                    // store the request promise parameters
+                    requests.set(messageId, {key, resolve, reject, timeout})
+                    // post message to LMS
+                    targetFrame.postMessage({
+                        subject: 'lti.get_data',
+                        message_id: messageId,
+                        key,
+                    }, platformOrigin)
+                })
+
+                // create POST get_data requests for state and nonce
+                // catch then upon being resolved
+                Promise.all([ getData(stateKey), getData(nonceKey) ])
+                    .then(([ platformState, platformNonce ]) => {
+                        // prepare completion message, send back to tool
+                        // uses a form to send data back to the /ltilaunch endpoint* 
+                        // *or whatever endpoint sent us here
+                        document.getElementById('handoff_input').value = handoffId
+                        document.getElementById('state_input').value = platformState
+                        document.getElementById('nonce_input').value = platformNonce
+                        document.getElementById('validation_form').submit()
+                    })
+                    .catch(error => {
+                        status.textContent = error.message
+                    })
+            })
+        </script>
+    </head>
+    <body>
+        <p id="status">Validating the request with your LMS. Please wait...</p>
+        <form id="validation_form" method="post">
+            <!-- tell launch endpoint that we have retrieved state/nonce from the LMS -->
+            <input type="hidden" name="oidc_storage_complete" value="1" />
+            <!-- route tool to validate using message storage rather than cookies-->
+            <input type="hidden" name="lti_storage_target" value="{{ storage_target }}" />
+            <!-- track specific validation request -->
+            <input id="handoff_input" type="hidden" name="handoff_id" />
+            <input id="state_input" type="hidden" name="platform_state" />
+            <input id="nonce_input" type="hidden" name="platform_nonce" />
+        </form>
+    </body>
+</html>
