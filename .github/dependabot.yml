@@ -6,15 +6,18 @@ updates:
     schedule:
       interval: "weekly"
     target-branch: "dev/11.2.0" # update on master to current dev branch
+    open-pull-requests-limit: 0
 
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
     target-branch: "dev/11.2.0" # update on master to current dev branch
+    open-pull-requests-limit: 0
 
   - package-ecosystem: "pip"
     directory: "/app"
     schedule:
       interval: "weekly"
     target-branch: "dev/11.2.0" # update on master to current dev branch
+    open-pull-requests-limit: 0
