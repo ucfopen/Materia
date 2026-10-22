@@ -1,10 +1,10 @@
 # =====================================================================================================
 # Base stage used for build and final stages
 # =====================================================================================================
-FROM php:8.1.11-fpm-alpine3.16 AS base_stage
+FROM php:8.2.35-fpm-alpine AS base_stage
 
 ARG PHP_EXT="bcmath gd pdo_mysql xml zip opcache"
-ARG PHP_MEMCACHED_VERSION="v3.1.5"
+ARG PHP_MEMCACHED_VERSION="v3.3.0"
 
 ARG COMPOSER_VERSION="2.5.4"
 ARG COMPOSER_INSTALLER_URL="https://raw.githubusercontent.com/composer/getcomposer.org/be31d0a5e5e835063c29bb45804bd94eefd4cf34/web/installer"

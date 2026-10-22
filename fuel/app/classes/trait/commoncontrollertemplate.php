@@ -9,6 +9,7 @@ trait Trait_CommonControllerTemplate
 	use Trait_Analytics;
 	use Trait_DarkMode;
 
+	protected $theme;
 	protected $_disable_browser_cache = false;
 
 	public function before()
