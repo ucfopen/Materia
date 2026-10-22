@@ -13,7 +13,8 @@ set -o xtrace
 
 DCTEST="docker compose -f docker-compose.yml -f docker-compose.override.test.yml"
 
-$DCTEST pull --ignore-pull-failures app fakes3_test
+$DCTEST pull --ignore-pull-failures fakes3_test
+$DCTEST build app
 
 # annoying workaround to get host mounted file ownership mapped to the user inside the container
 docker run --rm \
