@@ -32,6 +32,7 @@ class Msg
 	public $halt;
 	public $msg;
 	public $payload;
+	public $status;
 	public $title;
 	public $type;
 

@@ -33,7 +33,7 @@
     "platform": {
     },
     "require": {
-        "php": ">=8.0",
+        "php": "^8.2",
         "ext-pdo": "*",
         "ext-gd": "*",
         "ext-mbstring": "*",

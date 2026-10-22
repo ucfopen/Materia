@@ -18,7 +18,7 @@ class Oauth
 			if ($timestamp < (time() - $lti_config['timeout'])) throw new \Exception('Authorization signature is too old.');
 
 			$hasher   = new \Eher\OAuth\HmacSha1(); // THIS CODE ASSUMES HMACSHA1, could be more versetile, but hey
-			$consumer = new \Eher\OAuth\Consumer(null, $lti_config['secret']);
+			$consumer = new Consumer(null, $lti_config['secret']);
 			$request  = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', \Uri::current(), \Input::post());
 			$new_sig  = $request->build_signature($hasher, $consumer, false);
 
@@ -53,7 +53,7 @@ class Oauth
 
 		$params   = array_merge($params, $oauth_params);
 		$hmcsha1  = new \Eher\OAuth\HmacSha1();
-		$consumer = new \Eher\OAuth\Consumer('', $secret);
+		$consumer = new Consumer('', $secret);
 		$request  = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', $endpoint, $params);
 
 		$request->sign_request($hmcsha1, $consumer, '');
@@ -66,7 +66,7 @@ class Oauth
 		// ================ BUILD OAUTH REQUEST =========================
 		$body_hash = base64_encode(sha1($body, true)); // hash the contents of the body
 		$hmcsha1   = new \Eher\OAuth\HmacSha1();
-		$consumer  = new \Eher\OAuth\Consumer($key, $secret);
+		$consumer  = new Consumer($key, $secret);
 		$request   = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', $endpoint, ['oauth_body_hash' => $body_hash]);
 		$request->sign_request($hmcsha1, $consumer, null);
 
