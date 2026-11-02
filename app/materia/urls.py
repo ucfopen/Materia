@@ -19,6 +19,7 @@ from api.views.users import UsersApi
 from core.views import login as login_views
 from core.views import main as core_views
 from core.views import profile as profile_views
+from core.views.embedded import embedded_shell
 from core.views.admin import instance as instance_admin
 from core.views.admin import site as site_admin
 from core.views.admin import user as user_admin
@@ -49,6 +50,8 @@ from django.urls import include, path, re_path
 from lti.urls import urlpatterns as lti_urlpatterns
 
 urlpatterns = [
+    path("embedded/", embedded_shell, name="embedded-launch-shell"),
+    path("embedded/<slug:widget_instance_id>/", embedded_shell, name="embedded-shell"),
     # api router and endpoint registration in api_urls
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("", core_views.index, name="home page"),

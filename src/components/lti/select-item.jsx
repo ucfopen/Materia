@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
-import { getCSRFToken } from '../../util/api'
+import { getCSRFToken, handleRequest } from '../../util/api'
 import useInstanceList from '../hooks/useInstanceList'
 import LoadingIcon from '../loading-icon'
 
-const SelectItem = () => {
+const getEmbeddedInstances = (user, page) => handleRequest('GET', `/api/embedded/deep-link/instances/?page=${page}`)
+
+const SelectItem = ({ embedded=false }) => {
 	const [strHeader, setStrHeader] = useState('Select a Widget:')
 	const [selectedInstance, setSelectedInstance] = useState(null)
 	const [searchText, setSearchText] = useState('')
@@ -11,11 +13,12 @@ const SelectItem = () => {
 	const [showRefreshArrow, setShowRefreshArrow] = useState(false)
 	const [displayState, setDisplayState] = useState('selectInstance')
 	const fillRef = useRef(null)
+	const submittingRef = useRef(false)
 	const [progressComplete, setProgressComplete] = useState(false)
 	const [error, setError] = useState("")
 	const [launchID, setLaunchID] = useState('')
 
-	const instanceList = useInstanceList("me")
+	const instanceList = useInstanceList("me", embedded ? getEmbeddedInstances : undefined)
 
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search)
@@ -64,11 +67,15 @@ const SelectItem = () => {
 	}
 
 	const cancelProgress = () => {
+		if (submittingRef.current) return
+		setProgressComplete(false)
 		setDisplayState('selectInstance')
 		setSelectedInstance(null)
 	}
 
 	const embedInstance = (instance) => {
+		setError('')
+		setProgressComplete(false)
 		setDisplayState('progress')
 		setSelectedInstance(instance)
 	}
@@ -76,6 +83,33 @@ const SelectItem = () => {
 	useEffect(() => {
 		// End progress bar
 		if (progressComplete && !!selectedInstance) {
+			if (embedded) {
+				if (submittingRef.current) return
+				submittingRef.current = true
+				handleRequest('POST', '/api/embedded/deep-link/selection/', { instanceId: selectedInstance.id })
+					.then(response => {
+						if (!response?.JWT || !response?.return_url) throw new Error('Materia did not return a deep-link response.')
+						const form = document.createElement('form')
+						form.method = 'POST'
+						form.action = response.return_url
+						const input = document.createElement('input')
+						input.type = 'hidden'
+						input.name = 'JWT'
+						input.value = response.JWT
+						form.appendChild(input)
+						document.body.appendChild(form)
+						form.submit()
+						form.remove()
+					})
+					.catch(err => {
+						setError(err.message)
+						setDisplayState('selectInstance')
+						setSelectedInstance(null)
+						setProgressComplete(false)
+						submittingRef.current = false
+					})
+				return
+			}
 			let pg = document.querySelector('.progress-container')
 			let pgSpan = document.querySelector('.progress-container span')
 			pg.classList.add('success')
@@ -296,7 +330,8 @@ const SelectItem = () => {
 	if (showRefreshArrow) refreshArrow = <div className="qtip right lti">Click to see your new widget</div>
 
 	return (
-		<div id="lti-select-wrapper">
+		<div id="lti-select-wrapper" className='lti'>
+			{error && <p role="alert">{error}</p>}
 			<header>
 				<h1>{strHeader}</h1>
 				<div id="logo"></div>

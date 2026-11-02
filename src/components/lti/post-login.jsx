@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { waitForWindow } from '../../util/wait-for-window'
 
 
-const PostLogin = () => {
+const PostLogin = ({ embeddedContext=null }) => {
 
-	const [isAuthor, setIsAuthor] = useState(false)
+	const [isAuthor, setIsAuthor] = useState(embeddedContext?.isAuthor ?? false)
 
 	useEffect(() => {
+		if (embeddedContext) return
 		waitForWindow(['IS_AUTHOR']).then(() => {
 			setIsAuthor(window.IS_AUTHOR)
 		})
@@ -239,7 +240,7 @@ const PostLogin = () => {
 	)
 
 	return (
-		<section id="lti-login-section">
+		<section id="lti-login-section" className='lti'>
 			{isAuthor ? instructor_page : student_page}
 		</section>
 	)

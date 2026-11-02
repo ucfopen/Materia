@@ -49,6 +49,7 @@ DEBUG = os.environ.get("DJANGO_ENV", "prod") == "dev"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        "api.authentication.EmbeddedBearerAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
     "EXCEPTION_HANDLER": "core.exception_handlers.materia_exception_handler",
@@ -111,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "US/Eastern"
+TIME_ZONE = "America/New_York"
 
 USE_I18N = True
 

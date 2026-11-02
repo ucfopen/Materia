@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
 import fetchWriteOptions from './fetch-options'
 import { useQueryClient } from '@tanstack/react-query'
+import { embeddedRequestOptions, isEmbeddedAuth, reportEmbeddedAuthError } from './embedded-auth'
 
 export const getCSRFToken = () => {
+	if (isEmbeddedAuth()) return ''
 	const cookies = document.cookie.split(';')
 	for (let cookie of cookies) {
 		if (cookie.trim().startsWith('csrftoken=')) {
@@ -33,14 +35,14 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 	try {
 		let response
 		if (method == methods.GET || method == methods.HEAD) {
-			response = await fetch(url)
+			response = await fetch(url, embeddedRequestOptions(url, options))
 		}
 		else {
 			const add_options = {
 				...fetchWriteOptions(method, { body: data }),
 				...options
 			}
-			response = await fetch(url, add_options)
+			response = await fetch(url, embeddedRequestOptions(url, add_options))
 		}
 
 		if (!response.ok) {
@@ -55,7 +57,7 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 			// Create a rich error object with all available info
 			const error = new Error(
 				// For some reason, Django uses msg.detail="", while we use msg=""
-				errorData?.msg?.detail ?? errorData?.msg ?? errorData?.title ?? `HTTP error ${response.status}: ${response.statusText}`
+				errorData?.msg?.detail ?? errorData?.msg ?? errorData?.detail ?? errorData?.title ?? `HTTP error ${response.status}: ${response.statusText}`
 			)
 
 			// Add extra properties to the error
@@ -87,6 +89,7 @@ export const handleRequest = async (method, url, data = {}, options = {}) => {
 			return null
 		}
 	} catch (error) {
+		reportEmbeddedAuthError(error)
 		// Re-throw any error to ensure proper rejection
 		throw error;
 	}
@@ -370,7 +373,7 @@ export const apiSearchInstances = (input, pageParam = 1, include_deleted = false
  * @returns {Promise<any>} - Parsed response data.
  */
 export const apiGetWidgetInstanceScores = (instId, userId, contextId=null) => {
-	const url = `/api/scores/?inst_id=${instId}&user=${userId}${contextId != null ? '&context=' + contextId : ''}`
+	const url = `/api/scores/?inst_id=${instId}&user=${userId}${contextId != null ? '&context=' + encodeURIComponent(contextId) : ''}`
 	return handleRequest(methods.GET, url)
 }
 
@@ -602,8 +605,10 @@ export const apiSavePlayLogs = ({ request }) => {
 	return handleRequest(methods.PUT, `/api/play-sessions/${request.playId}/`, { ...request })
 }
 
-export const apiPlayResubmit = (play_id) => {
-	return handleRequest(methods.POST, `/api/play-sessions/${play_id}/resubmit/`)
+export const apiPlayResubmit = (play_id, embeddedReview=false) => {
+	return embeddedReview
+		? handleRequest(methods.POST, '/api/embedded/scores/resubmit/', { play_id })
+		: handleRequest(methods.POST, `/api/play-sessions/${play_id}/resubmit/`)
 }
 
 export const apiGetQuestionsByType = (arrayOfQuestionIds, questionTypes) => {

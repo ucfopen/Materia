@@ -13,6 +13,7 @@ CSS_GROUPS = {
     "cl-detail": [CSS_BASEURL + "cl-detail.css"],
     "detail": [CSS_BASEURL + "detail.css"],
     "player": [CSS_BASEURL + "player-page.css"],
+    "embedded-player": [CSS_BASEURL + "embedded-player.css"],
     "creator": [CSS_BASEURL + "creator-page.css"],
     "login": [CSS_BASEURL + "login.css"],
     "profile": [CSS_BASEURL + "profile.css"],

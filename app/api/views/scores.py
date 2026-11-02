@@ -1,5 +1,7 @@
 import logging
 
+from api.authentication import EmbeddedGrant
+from api.score_services import can_review_scores, score_history, score_report
 from api.serializers import (
     QuestionSetSerializer,
     ScoreDetailsForPlaySerializer,
@@ -10,10 +12,8 @@ from community_library.models import LibraryEntry
 from core.message_exception import MsgExpired, MsgNoPerm
 from core.models import LogPlay, WidgetInstance
 from core.services.perm_service import PermService
-from core.services.semester_service import SemesterService
 from core.utils.b64_util import Base64Util
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -79,34 +79,10 @@ class ScoresView(APIView):
             plays = LogPlay.objects.filter(
                 user=user, instance=instance, is_complete=True
             )
+            if isinstance(request.auth, EmbeddedGrant):
+                plays = request.auth.plays().filter(is_complete=True)
 
-            semester = SemesterService.get_current_semester()
-
-            scores = []
-            for play in plays.order_by("-created_at"):
-
-                current_context = (
-                    play.context_id == context and play.semester == semester
-                )
-
-                scores.append(
-                    {
-                        "id": play.id,
-                        "created_at": play.created_at.isoformat(),
-                        "percent": play.percent,
-                        "current_context": current_context,
-                        "lti": play.auth == "lti",
-                    }
-                )
-
-            attempts_left = instance.attempts_left_for_user(user, context)
-
-            return Response(
-                {
-                    "scores": scores,
-                    "attemptsLeft": attempts_left,
-                }
-            )
+            return Response(score_history(plays, instance, user, context))
 
 
 class ScoresDetailView(APIView):
@@ -207,61 +183,14 @@ class ScoresDetailView(APIView):
                     associated with the play, all anonymous plays are visible
                     to everyone
                 """
-                user_id = (
-                    None if request.user.is_authenticated is False else request.user.id
-                )
-                play_user_id = None if play.user is None else play.user.id
-
-                is_author_or_staff = False
+                launch = None
                 if LTILaunchService.is_lti_launch(
                     request
                 ) and LTILaunchService.is_last_launch_still_valid(request):
                     launch = request.lti_launch.get_launch_data()
-                    is_author_or_staff = LTIAuthService.is_user_course_author(
-                        launch
-                    ) or LTIAuthService.is_user_staff(launch)
-
-                if (
-                    user_id != play_user_id
-                    and play_user_id is not None
-                    and not play.instance.permissions.filter(user=request.user).exists()
-                    and not PermService.is_superuser_or_elevated(request.user)
-                    and not is_author_or_staff
+                if not can_review_scores(
+                    request.user, play.instance, play=play, launch_data=launch
                 ):
                     raise MsgNoPerm()
 
-                module = ScoreModuleFactory.create_score_module(
-                    instance=play.instance, play=play
-                )
-
-                response = module.get_score_report()
-                qset_data = play.qset
-                response["qset"] = (
-                    QuestionSetSerializer(qset_data).data
-                    if qset_data
-                    else {"version": None, "data": None}
-                )
-
-                response["lti"] = None
-                if play.auth == "lti":
-                    play_state = (
-                        play.lti_play_state if hasattr(play, "lti_play_state") else None
-                    )
-
-                    if play_state is None:
-                        response["lti"] = {
-                            "is_legacy": True,
-                        }
-                    else:
-                        response["lti"] = {
-                            "is_legacy": False,
-                            "status": play_state.submission_status,
-                            "submit_attempts": play_state.submission_attempts,
-                            "submission_available": (
-                                timezone.now() - play.created_at
-                            ).total_seconds()
-                            <= 86400,
-                            "max_score": play_state.score_submitted,
-                        }
-
-                return Response(response)
+                return Response(score_report(play))

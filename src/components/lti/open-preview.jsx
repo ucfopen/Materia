@@ -5,24 +5,26 @@ import LoadingIcon from '../loading-icon'
 import { iconUrl as getIconUrl } from '../../util/icon-url'
 import { waitForWindow } from '../../util/wait-for-window'
 
-const SelectItem = () => {
+const SelectItem = ({ embeddedContext=null }) => {
 
 	const [state, setState] = useState({
 		iconUrl: '',
-		instID: '',
-		provisionalAccess: false,
-		previewEmbedUrl: ''
+		instID: embeddedContext?.instanceId ?? '',
+		provisionalAccess: embeddedContext?.provisionalAccess ?? false,
+		previewEmbedUrl: embeddedContext?.previewEmbedUrl ?? ''
 	})
 
 	const { data: instance } = useQuery({
 		queryKey: ['instance'],
 		queryFn: () => apiGetWidgetInstance(state.instID),
 		placeholderData: {},
-		enabled: !!state.instID,
+		initialData: embeddedContext?.instance,
+		enabled: !embeddedContext && !!state.instID,
 		staleTime: Infinity,
 	})
 
 	useEffect(() => {
+		if (embeddedContext) return
 		waitForWindow(['BASE_URL', 'INST_ID', 'PREVIEW_EMBED_URL', 'PROVISIONAL_ACCESS']).then(() => {
 			setState(prevState => ({
 				...prevState,
@@ -83,13 +85,13 @@ const SelectItem = () => {
 	}
 
 	return (
-		<>
+		<div className='lti'>
 			<header className={`${state.provisionalAccess ? 'preview-warning' : 'preview-success'}`}>
 				<h1>Materia Widget Embedded</h1>
 				<div id="logo"></div>
 			</header>
 			{sectionRender}
-		</>
+		</div>
 	)
 }
 

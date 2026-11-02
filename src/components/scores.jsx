@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef} from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetWidgetInstancePlayScores, apiGetWidgetInstancePreviewScores, apiGetSnapshotInstance } from '../util/api'
+import { handleRequest, apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetWidgetInstancePlayScores, apiGetWidgetInstancePreviewScores, apiGetSnapshotInstance } from '../util/api'
 
 import LoadingIcon from './loading-icon'
 import ScoreOverview from './score-overview'
@@ -14,7 +14,7 @@ const STATE_INVALID = 'invalid'
 const STATE_EXPIRED = 'expired'
 const STATE_NO_SCORES = 'no_scores'
 
-const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedded, isPreview, isSingle}) => {
+const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedded, isPreview, isSingle, onPlayAgain=null, embeddedReview=false}) => {
 
 	const [playID, setPlayID] = useState(playIDProp)
 	const [errorState, setErrorState] = useState(null)
@@ -70,6 +70,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	const { isLoading: scoresAreLoading, data: instanceScores, error: instanceScoresError, refetch: loadInstanceScores } = useQuery({
 		queryKey: ['inst-scores', instID, contextID],
 		queryFn: () => {
+			if (embeddedReview) return handleRequest('GET', '/api/embedded/scores/')
 			return apiGetWidgetInstanceScores(instID, userID, contextID)
 		},
 		enabled: !isPreview && !isSingle && !instanceIsLoading && !instance['guest_access'] && !!userID && !!instID,
@@ -84,6 +85,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	const { data: playScores, error: playScoresError } = useQuery({
 		queryKey: ['play-scores', playID],
 		queryFn: () => {
+			if (embeddedReview) return handleRequest('GET', `/api/embedded/scores/?play_id=${encodeURIComponent(playID)}`)
 			if (isPreview) return apiGetWidgetInstancePreviewScores(playID, instID, snapshotParam, entryParam)
 			else return apiGetWidgetInstancePlayScores(playID)
 		},
@@ -138,7 +140,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 				...attributes,
 				href: path,
 				title: instance.name,
-				hidePlayAgain: isSingle,
+				hidePlayAgain: isSingle || embeddedReview,
 				hidePreviousAttempts: instance.guest_access || attributes.hidePreviousAttempts,
 				showResultsTable: !score_screen
 			})
@@ -350,6 +352,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	Handler for incoming postMessages from the custom score screen frame
 	*/
 	const onPostMessage = (e) => {
+		if (e.source !== scoreWidgetRef.current?.contentWindow || typeof e.data !== 'string') return
 		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
 			const msg = JSON.parse(e.data)
@@ -522,11 +525,14 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 
 	let playAgainBtn = null
 	if (!attributes.hidePlayAgain && (attemptsLeft > 0 || attemptsLeft == -1)) {
+		const PlayAgainControl = onPlayAgain ? 'button' : 'a'
 		playAgainBtn = (
-			<a id='play-again' className='action_button' href={attributes.href}>
+			<PlayAgainControl id='play-again' className='action_button'
+				href={onPlayAgain ? undefined : attributes.href}
+				onClick={onPlayAgain ?? undefined}>
 				{isPreview ? 'Preview' : 'Play'} Again
 				{attemptsLeft > 0 ? <span>{`(${attemptsLeft} Left)`}</span> : <></>}
-			</a>
+			</PlayAgainControl>
 		)
 	}
 
@@ -577,7 +583,7 @@ const Scores = ({ instID, playID: playIDProp, userID, token, contextID, isEmbedd
 	}
 
 	return (
-		<article className={`container ${instanceIsLoading || scoresAreLoading ? 'loading' : 'ready'}`}>
+		<article className={`score-screen container ${instanceIsLoading || scoresAreLoading ? 'loading' : 'ready'}`}>
 			<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
 			{scoreHeaderRender}
 			{overviewRender}

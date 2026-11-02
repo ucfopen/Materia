@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		{% csrf_token %}
+		{% if not embedded_auth %}{% csrf_token %}{% endif %}
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
 		{{ partials.meta|default:'' }}

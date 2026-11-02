@@ -3,18 +3,18 @@ import logging
 from api.filters import LogPlayFilterBackend
 from api.paginators import PageNumberWithTotalPagination
 from api.permissions import PlaySessionInstancePermissions
+from api.score_services import resubmit_score
 from api.serializers import (
     PlayLogUpdateSerializer,
     PlaySessionCreateSerializer,
     PlaySessionSerializer,
 )
 from core.message_exception import MsgFailure, MsgInvalidInput
-from core.models import Log, LogPlay, LtiPlayState, WidgetInstance
+from core.models import Log, LogPlay, WidgetInstance
 from core.services.perm_service import PermService
 from core.services.widget_play_services import WidgetPlayInitService
 from core.utils.validator_util import ValidatorUtil
 from django.http import JsonResponse
-from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from lti.ags.exceptions import AGSNoPlayState
 from lti.ags.services.ags import AGSService
@@ -294,42 +294,5 @@ class PlaySessionViewSet(viewsets.ModelViewSet):
         """
         play = LogPlay.objects.select_related("lti_play_state").get(pk=pk)
         self.check_object_permissions(request, play)
-
-        if not hasattr(play, "lti_play_state"):
-            return Response(
-                {"success": False, "message": "No LTI play state found."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        play_state = play.lti_play_state
-
-        if play_state.submission_status == LtiPlayState.SubmissionStatus.ERR_FAILURE:
-            # The student is restricted to a certain number of submissions
-            # Elevated users are not
-            if (
-                play_state.submission_attempts < 4
-                or PermService.is_superuser_or_elevated(request.user)
-            ):
-                submit_status = AGSService.submit_score_for_play(play)
-
-                if submit_status == LtiPlayState.SubmissionStatus.SUCCESS:
-                    return Response({"success": True}, status=status.HTTP_200_OK)
-                else:
-                    return Response(
-                        {
-                            "success": False,
-                            "status": submit_status,
-                            "submitted_at": timezone.now(),
-                        },
-                        status=status.HTTP_403_FORBIDDEN,
-                    )
-            else:
-                return Response(
-                    {"success": False, "message": "No remaining retry attempts."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-        else:
-            return Response(
-                {"success": False, "message": "Invalid play state for resubmission."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        data, response_status = resubmit_score(request.user, play)
+        return Response(data, status=response_status)

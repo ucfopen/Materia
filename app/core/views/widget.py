@@ -9,7 +9,6 @@ from core.mixins import (
 )
 from core.models import (
     LogPlay,
-    Lti,
     LtiPlayState,
     User,
     Widget,
@@ -24,13 +23,11 @@ from core.utils.context_util import ContextUtil
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
-from django.db.models import Q
 from django.http import Http404, HttpRequest
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
-from lti.ags.util import AGSUtil
 from lti.mixins import LtiLaunchMixin
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
@@ -198,30 +195,7 @@ class WidgetPlayView(
                         self.request
                     )
 
-                    play.auth = "lti"
-                    play.lti_token = play.id
-                    play.context_id = LTILaunchService.get_context_id(launch_data)
-
-                    launch_resource_link = LTILaunchService.get_resource_link(
-                        launch_data
-                    )
-
-                    lti_assoc = Lti.objects.filter(
-                        widget_instance_id=instance.id,
-                        resource_link=launch_resource_link,
-                    ).first()
-
-                    play_lti_state = LtiPlayState(
-                        play=play,
-                        lti_association=lti_assoc,
-                        ags_line_item=AGSUtil.get_line_item_from_launch(launch_data)
-                        or "",
-                        ags_user_id=AGSUtil.get_ags_user_id(launch_data) or "",
-                        ags_scoring_enabled=AGSUtil.is_ags_scoring_available(
-                            launch_data
-                        ),
-                    )
-                    play_lti_state.save()
+                    WidgetPlayInitService.attach_lti_state(play, instance, launch_data)
 
                     lti_token = play.id
 
@@ -306,20 +280,13 @@ class WidgetPlayView(
                     # a. unrestricted permissions to the instance (context_id == None) OR
                     # b. restricted permission to the instance for the current context ID
                     context_id = LTILaunchService.get_context_id(launch)
-                    has_visibility = (
-                        instance.permissions.filter(user=request.user)
-                        .filter(Q(context_id__isnull=True) | Q(context_id=context_id))
-                        .exists()
+                    provisional = LTILaunchService.ensure_instructor_visibility(
+                        request.user, instance, context_id
                     )
 
                     # current user IS an author in the course but does NOT have access
                     # grant them implicit access and provide the provisional flag to the frontend
-                    if not has_visibility:
-                        instance.permissions.create(
-                            user=request.user,
-                            permission="visible",
-                            context_id=context_id,
-                        )
+                    if provisional:
                         context = _create_lti_success_page(
                             request, instance, provisional=True
                         )

@@ -18,6 +18,18 @@ from rest_framework import filters
 logger = logging.getLogger("django")
 
 
+def visible_instances(queryset, user):
+    return queryset.filter(
+        Q(permissions__expires_at__isnull=True)
+        | Q(permissions__expires_at__gt=timezone.now()),
+        permissions__user=user,
+        permissions__permission__in=[
+            ObjectPermission.PERMISSION_FULL,
+            ObjectPermission.PERMISSION_VISIBLE,
+        ],
+    )
+
+
 class AssetFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         return PermService.get_all_objects_of_type_for_user(
@@ -35,15 +47,7 @@ class UserInstanceFilterBackend(filters.BaseFilterBackend):
         search_query = request.query_params.get("search")
 
         def filter_by_perms(target_user):
-            return queryset.filter(
-                Q(permissions__expires_at__isnull=True)
-                | Q(permissions__expires_at__gt=timezone.now()),
-                permissions__user=target_user,
-                permissions__permission__in=[
-                    ObjectPermission.PERMISSION_FULL,
-                    ObjectPermission.PERMISSION_VISIBLE,
-                ],
-            )
+            return visible_instances(queryset, target_user)
 
         if user_query == "me":
             queryset = filter_by_perms(user).filter(is_deleted=False)

@@ -1,5 +1,4 @@
 import logging
-from django.http import HttpResponseNotFound, HttpResponseServerError
 from django.conf import settings
 from django.shortcuts import render
 from core.utils.context_util import ContextUtil
@@ -42,10 +41,7 @@ def handler404(request, exception):
     )
 
     # Render the template with context
-    content = render(request, "react.html", context)
-
-    # Return a 404 response with the rendered content
-    return HttpResponseNotFound(content)
+    return render(request, "react.html", context, status=404)
 
 
 def handler500(request):
@@ -60,7 +56,4 @@ def handler500(request):
     )
 
     # Render the template with context
-    content = render(request, "react.html", context)
-
-    # Return a 500 response with the rendered content
-    return HttpResponseServerError(content)
+    return render(request, "react.html", context, status=500)

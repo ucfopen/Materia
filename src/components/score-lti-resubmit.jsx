@@ -9,13 +9,13 @@ const ScoreLtiResubmit = ({ lti, playId, callback }) => {
 	const [attempts, setAttempts] = useState(lti.submit_attempts)
 
 	const MAX_SUBMISSIONS = 4
-	const canResubmit = adminMode || (lti.submission_available && MAX_SUBMISSIONS - attempts > 0)
+	const canResubmit = lti.canResubmit !== false && (adminMode || (lti.submission_available && MAX_SUBMISSIONS - attempts > 0))
 
 	const { data: submission, error, refetch: queryResubmit, isFetching } = useQuery({
 		queryKey: ['resubmit', playId],
 		queryFn: async () => {
 			try {
-				const data = await apiPlayResubmit(playId)
+				const data = await apiPlayResubmit(playId, lti.resubmit_url === '/api/embedded/scores/resubmit/')
 				return { success: true, status: 'SUCCESS', ...data }
 			} catch (err) {
 				if (err.data?.status) {
