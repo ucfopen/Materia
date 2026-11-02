@@ -1,4 +1,5 @@
-# Evaluates permissions for embedded grants that are scoped to individual launches
+# Permission definitions for embedded contexts, when grant tokens are used instead of session cookies.
+# Evaluates permissions for embedded grants that are scoped to individual launches.
 
 # Permissions are defined for each route and method explicitly. Defines a Rule for each
 # combination that specifies a purpose and scope.

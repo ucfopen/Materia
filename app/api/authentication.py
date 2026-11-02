@@ -3,8 +3,6 @@ import secrets
 from dataclasses import dataclass
 from collections.abc import Mapping
 
-import logging
-
 from api.embedded_permissions import EMBEDDED_RULES
 from core.models import LogPlay, WidgetInstance
 from django.conf import settings
@@ -14,7 +12,12 @@ from lti_tool.models import LtiDeployment
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 
-logger = logging.getLogger(__name__)
+# Auth definitions and logic for embedded grant tokens
+# These are used in lieu of session cookies in embedded contexts
+# This file contains three elements of the token auth system:
+# 1. the EmbeddedGrant class
+# 2. Grant token issuance
+# 3. The EmbeddedBearerAuthentication class which is applied as a Django auth class
 
 
 @dataclass(frozen=True)
