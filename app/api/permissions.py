@@ -158,7 +158,7 @@ class PlaySessionInstancePermissions(permissions.BasePermission):
             # with the /resubmit action; owners of the associated instance also have authority
             if obj.user != request.user and not (
                 view.action == "resubmit"
-                and obj.instance.permissions.filter(user=request.user).exists()
+                and obj.instance.viewable_by_current_user(request.user)
             ):
                 return False
 
@@ -175,7 +175,7 @@ class PlayStorageInstancePermissions(permissions.BasePermission):
             inst_id = request.query_params.get("inst_id")
             if inst_id:
                 instance = WidgetInstance.objects.filter(pk=inst_id).first()
-                if not instance or not instance.playable_by_current_user(request.user):
+                if not instance or not instance.viewable_by_current_user(request.user):
                     return False
 
                 return True
@@ -188,7 +188,7 @@ class PlayStorageInstancePermissions(permissions.BasePermission):
                     .first()
                 )
 
-                if not play or not play.instance.playable_by_current_user(request.user):
+                if not play or not play.instance.viewable_by_current_user(request.user):
                     return False
 
                 return True
