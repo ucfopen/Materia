@@ -24,7 +24,6 @@ from core.utils.context_util import ContextUtil
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import BadRequest
-from django.db.models import Q
 from django.http import Http404, HttpRequest
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
@@ -308,7 +307,8 @@ class WidgetPlayView(
                     context_id = LTILaunchService.get_context_id(launch)
                     has_visibility = (
                         instance.viewable_by_current_user(request.user)
-                        .filter(Q(context_id__isnull=True) | Q(context_id=context_id))
+                        or instance.permissions.filter(user=request.user)
+                        .filter(context_id=context_id)
                         .exists()
                     )
 
