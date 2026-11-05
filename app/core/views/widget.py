@@ -307,7 +307,7 @@ class WidgetPlayView(
                     # b. restricted permission to the instance for the current context ID
                     context_id = LTILaunchService.get_context_id(launch)
                     has_visibility = (
-                        instance.permissions.filter(user=request.user)
+                        instance.viewable_by_current_user(request.user)
                         .filter(Q(context_id__isnull=True) | Q(context_id=context_id))
                         .exists()
                     )
