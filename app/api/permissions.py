@@ -194,13 +194,20 @@ class PlayStorageInstancePermissions(permissions.BasePermission):
                 return True
 
         elif request.method == "POST":
+
+            if not request.user.is_authenticated:
+                return False
+
             play_id = request.data.get("play_id")
             play = LogPlay.objects.filter(pk=play_id).first()
 
             if play is None:
                 return False
 
-            if request.user.is_authenticated and play.user_id != request.user.id:
+            if not play.instance.widget.is_storage_enabled:
+                return False
+
+            if play.user_id != request.user.id:
                 return False
 
             return True
