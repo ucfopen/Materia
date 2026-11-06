@@ -1528,8 +1528,11 @@ class WidgetQset(models.Model):
                 qset=self,
                 item_id=question["id"] if question.get("id", None) is not None else "",
             )
-            new_question.save()
             questions_set.append(new_question)
+        Question.objects.bulk_create(
+            questions_set,
+            batch_size=25,  # arbitrary
+        )
 
         return questions_set
 
