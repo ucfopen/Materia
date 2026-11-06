@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class LtiWidgetInstancesInCourseView(APIView):
     def get(self, request, context_id):
-        return MsgFailure(msg="This endpoint is not available.")
+        raise MsgFailure(msg="This endpoint is not available.")
 
     # def get(self, request, context_id):
 
