@@ -74,4 +74,4 @@ def error_page(request, error_type: str = ""):
         request=request,
     )
 
-    return render(request, "react.html", context)
+    return render(request, "react.html", context, status=400)
