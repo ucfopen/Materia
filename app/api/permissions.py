@@ -138,10 +138,13 @@ class PlaySessionInstancePermissions(permissions.BasePermission):
             except WidgetInstance.DoesNotExist:
                 return False
 
-        # is the pk of the request a play ID?
-        play = LogPlay.objects.get(pk=view.kwargs.get("pk"))
-        if play is not None:
-            return play.instance.guest_access
+        try:
+            # is the pk of the request a play ID?
+            play = LogPlay.objects.get(pk=view.kwargs.get("pk"))
+            if play is not None:
+                return play.instance.guest_access
+        except LogPlay.DoesNotExist:
+            pass
 
         return False
 
