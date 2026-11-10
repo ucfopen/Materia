@@ -1,11 +1,19 @@
 import logging
 
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from lti.exceptions import LTIAuthException
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
+from lti.utils import (
+    consume_post_message_initiation,
+    consume_post_message_handoff,
+    create_post_message_handoff,
+    get_launch_from_request,
+)
 from lti.views.lti import error_page
+from lti_tool.constants import SESSION_KEY
 from lti_tool.types import LtiHttpRequest
+from lti_tool.utils import sync_data_from_launch
 from lti_tool.views import LtiLaunchBaseView
 from pylti1p3.exception import LtiException
 
@@ -19,10 +27,70 @@ class ApplicationLaunchView(LtiLaunchBaseView):
         Overrides django-lti's post method in order to intercept validation exceptions
         """
         try:
-            return super().post(request, *args, **kwargs)
+            storage_target = request.POST.get("lti_storage_target")
+            if storage_target != "post_message_forwarding":
+                # launch using cookies if we cant use post messages
+                return super().post(request, *args, **kwargs)
+
+            # if we have not retrieved storage values yet, route to oidc_get template
+            if request.POST.get("oidc_storage_complete") != "1":
+                return self.prepare_post_message_validation(request, storage_target)
+
+            handoff = consume_post_message_handoff(
+                request.POST.get("handoff_id", ""), storage_target
+            )
+
+            launch_post = request.POST.copy()
+            launch_post["state"] = handoff["state"]
+            launch_post["id_token"] = handoff["id_token"]
+
+            request.POST = launch_post
+
+            request.session.clear()
+            lti_launch = get_launch_from_request(request)
+            return self.process_validated_launch(request, lti_launch)
         except LtiException:
             logger.error("LTI: Launch validation failed", exc_info=True)
             return error_page(request, "error_launch_validation")
+
+    def prepare_post_message_validation(self, request, storage_target):
+        state = request.POST.get("state")
+        id_token = request.POST.get("id_token")
+        if not state or not id_token:
+            raise LtiException("Missing state or id_token")
+
+        initiation = consume_post_message_initiation(state, storage_target)
+        handoff_id = create_post_message_handoff(initiation, id_token)
+        return render(
+            request,
+            "oidc_get.html",
+            {
+                "handoff_id": handoff_id,
+                "state_key": initiation["state"],
+                "nonce_key": initiation["nonce"],
+                "storage_target": storage_target,
+                "platform_origin": initiation["platform_origin"],
+            },
+        )
+
+    def process_validated_launch(self, request, lti_launch):
+        sync_data_from_launch(lti_launch)
+        self.launch_setup(request, lti_launch)
+        if not lti_launch.deployment.is_active:
+            return self.handle_inactive_deployment(request, lti_launch)
+
+        request.session[SESSION_KEY] = lti_launch.get_launch_id()
+        request.lti_launch = lti_launch
+        if request.lti_launch.is_resource_launch:
+            return self.handle_resource_launch(request, lti_launch)
+        if request.lti_launch.is_deep_link_launch:
+            return self.handle_deep_linking_launch(request, lti_launch)
+        if request.lti_launch.is_submission_review_launch:
+            return self.handle_submission_review_launch(request, lti_launch)
+        if request.lti_launch.is_data_privacy_launch:
+            return self.handle_data_privacy_launch(request, lti_launch)
+
+        raise LtiException("Unsupported LTI launch message type")
 
     def handle_resource_launch(self, request, lti_launch):
         launch_data = lti_launch.get_launch_data()
