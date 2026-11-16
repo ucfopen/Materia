@@ -1247,13 +1247,16 @@ class WidgetInstance(models.Model):
         return self.guest_access or user.is_authenticated
 
     # user has explicit view rights to this instance in My Widgets
-    def viewable_by_current_user(self, user: User | AnonymousUser):
+    def viewable_by_current_user(self, user: User | AnonymousUser, context_id=None):
         if isinstance(user, AnonymousUser):
             return False
 
-        return self.permissions.filter(
-            Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()), user=user
-        ).exists()
+        return (
+            self.permissions.filter(user=user)
+            .filter(Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()))
+            .filter(Q(context_id__isnull=True) | Q(context_id=context_id))
+            .exists()
+        )
 
     # user has explicit edit rights to this instance in My Widgets
     def editable_by_current_user(self, user: User | AnonymousUser):

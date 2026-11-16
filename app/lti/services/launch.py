@@ -16,7 +16,18 @@ logger = logging.getLogger(__name__)
 class LTILaunchService:
 
     @staticmethod
-    def register_association(launch, user, instance):
+    def ensure_instructor_visibility(user, instance, context_id):
+        has_visibility = instance.viewable_by_current_user(user, context_id)
+        if not has_visibility:
+            instance.permissions.update_or_create(
+                user=user,
+                context_id=context_id,
+                defaults={"permission": "visible", "expires_at": None},
+            )
+        return not has_visibility
+
+    @staticmethod
+    def register_association(launch, user, instance, *, deployment=None):
         """
         LTI associations were not really used in PHP Materia
         With LTI 1.3, we want to have a way to cross-reference resource link ids with instances
@@ -26,8 +37,9 @@ class LTILaunchService:
         resource_link_1p1 = LTILaunchService.get_resource_link_1p1(launch)
         resource_link_1p3 = LTILaunchService.get_resource_link(launch)
 
-        launch_deployment = LTILaunchService.get_deployment_from_launch(launch)
-        deployment = LtiDeployment.objects.get(deployment_id=launch_deployment)
+        if deployment is None:
+            launch_deployment = LTILaunchService.get_deployment_from_launch(launch)
+            deployment = LtiDeployment.objects.get(deployment_id=launch_deployment)
 
         legacy_association = Lti.objects.filter(
             widget_instance=instance, resource_link=resource_link_1p1
@@ -48,7 +60,9 @@ class LTILaunchService:
 
         else:
             association_1p3 = Lti.objects.filter(
-                widget_instance=instance, resource_link=resource_link_1p3
+                widget_instance=instance,
+                resource_link=resource_link_1p3,
+                deployment=deployment,
             ).first()
             if association_1p3:
                 return association_1p3
@@ -234,7 +248,9 @@ class LTILaunchService:
 
     @staticmethod
     def get_context_id(launch):
-        context_claim = launch.get("https://purl.imsglobal.org/spec/lti/claim/context")
+        context_claim = launch.get(
+            "https://purl.imsglobal.org/spec/lti/claim/context", {}
+        )
         return context_claim.get("id")
 
     @staticmethod

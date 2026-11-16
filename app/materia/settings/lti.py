@@ -40,3 +40,12 @@ LTI_SAVE_ASSOCIATIONS = True
 LTI_URL_CONFIGS = {
     "tool_url": os.environ.get("BASE_URL", "").rstrip("/"),
 }
+
+LTI_OIDC_POST_MESSAGE_TIMEOUT = int(
+    os.environ.get("LTI_OIDC_POST_MESSAGE_TIMEOUT", "300")
+)
+
+EMBEDDED_AUTH_ENABLED = (
+    os.environ.get("EMBEDDED_AUTH_ENABLED", "false").lower() == "true"
+)
+EMBEDDED_AUTH_TOKEN_TTL = int(os.environ.get("EMBEDDED_AUTH_TOKEN_TTL", "14400"))

@@ -1,16 +1,37 @@
 import io
 import tempfile
+from unittest.mock import patch
 
 from api.serializers import SiteMessageSerializer
 from api.tests.base import MateriaTestCase
 from core.models import SiteImage, SiteMessage
+from core.views.main import handler404, handler500
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser, User
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import SimpleTestCase
+from django.test import RequestFactory, SimpleTestCase
 from PIL import Image
 from rest_framework import status
 from rest_framework.test import APIClient
+
+
+class ErrorHandlerTests(SimpleTestCase):
+    def test_error_handlers_do_not_finish_request_before_returning_response(self):
+        request = RequestFactory().get("/missing-page/")
+        request.user = AnonymousUser()
+        for handler, args, expected_status in (
+            (handler404, (request, Exception("Not found")), 404),
+            (handler500, (request,), 500),
+        ):
+            with self.subTest(status=expected_status):
+                with patch("django.core.signals.request_finished.send") as finished:
+                    response = handler(*args)
+                    self.assertEqual(response.status_code, expected_status)
+                    self.assertIn(b'<div id="app"></div>', response.content)
+                    self.assertFalse(response.closed)
+                    finished.assert_not_called()
+                    response.close()
+                    finished.assert_called_once()
 
 
 class SiteImageViewSetTestCase(MateriaTestCase):

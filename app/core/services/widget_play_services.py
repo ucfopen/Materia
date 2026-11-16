@@ -1,16 +1,54 @@
 import logging
 import uuid
 
-from core.models import Log, LogPlay
+from core.models import Log, LogPlay, Lti, LtiPlayState
 from core.services.semester_service import SemesterService
 from core.utils.http_util import parse_bool
 from django.contrib.auth.models import AnonymousUser
+from django.db import transaction
 from django.utils import timezone
+from lti.ags.util import AGSUtil
+from lti.services.launch import LTILaunchService
 
 logger = logging.getLogger(__name__)
 
 
 class WidgetPlayInitService:
+
+    @staticmethod
+    @transaction.atomic
+    def init_lti_play(request, instance, user, launch_data, *, deployment_id):
+        play = WidgetPlayInitService.init_play(request, instance, user)
+        WidgetPlayInitService.attach_lti_state(
+            play, instance, launch_data, deployment_id=deployment_id
+        )
+        return play
+
+    @staticmethod
+    def attach_lti_state(play, instance, launch_data, *, deployment_id=None):
+        play.auth = "lti"
+        play.lti_token = play.id
+        play.context_id = LTILaunchService.get_context_id(launch_data)
+        play.save()
+        associations = Lti.objects.filter(
+            widget_instance=instance,
+            resource_link=LTILaunchService.get_resource_link(launch_data),
+        )
+        if deployment_id is not None:
+            association = associations.get(deployment_id=deployment_id)
+        else:
+            association = associations.get(
+                deployment__deployment_id=LTILaunchService.get_deployment_from_launch(
+                    launch_data
+                )
+            )
+        LtiPlayState.objects.create(
+            play=play,
+            lti_association=association,
+            ags_line_item=AGSUtil.get_line_item_from_launch(launch_data) or "",
+            ags_user_id=AGSUtil.get_ags_user_id(launch_data) or "",
+            ags_scoring_enabled=AGSUtil.is_ags_scoring_available(launch_data),
+        )
 
     @staticmethod
     def init_play(request, instance, user):

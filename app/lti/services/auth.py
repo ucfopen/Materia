@@ -96,7 +96,7 @@ class LTIAuthService:
         return False
 
     @staticmethod
-    def authenticate(request, launch):
+    def authenticate(request, launch, *, use_session=True):
 
         auth_data = {
             "email": launch.get("email"),
@@ -142,7 +142,13 @@ class LTIAuthService:
 
             LTIAuthService.provision_roles(user, auth_data["roles"])
 
-            login(request, user)
+            if not user.is_active:
+                raise LTIAuthException("The user is inactive.")
+
+            # only call login for session-based auth
+            # embedded auth skips this step, since there is no auth session
+            if use_session:
+                login(request, user)
 
             return user
 
@@ -150,5 +156,6 @@ class LTIAuthService:
             logger.error(
                 "LTI auth: Error with user creation from launch data", exc_info=True
             )
-            logout(request)
+            if use_session:
+                logout(request)
             return None

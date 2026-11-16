@@ -5,7 +5,7 @@ import { iconUrl } from '../../util/icon-url'
 
 // facilitates paginated requests for widget instances. Returns a flat list with some handlers associated with the query.
 // will default to the current user ("me"), but allows requests for another user id if passed as a param on init or via the exposed setUser method.
-export default function useInstanceList(user) {
+export default function useInstanceList(user, fetchInstances=apiGetWidgetInstances) {
 
 	const [errorState, setErrorState] = useState(false)
 
@@ -35,7 +35,7 @@ export default function useInstanceList(user) {
 	}
 
 	const getInstances = ({pageParam = 1}) => {
-		return apiGetWidgetInstances(user, pageParam)
+		return fetchInstances(user, pageParam)
 	}
 
 	const {
@@ -48,7 +48,7 @@ export default function useInstanceList(user) {
 		status,
 		refetch
 	} = useInfiniteQuery({
-		queryKey: ['instances', user],
+		queryKey: fetchInstances === apiGetWidgetInstances ? ['instances', user] : ['embedded-instances', user],
 		queryFn: getInstances,
 		getNextPageParam: (lastPage, pages) => lastPage.next != null ? lastPage.next.match(/page=([0-9]+)/)[1] : undefined,
 		refetchOnWindowFocus: false

@@ -17,7 +17,11 @@
               "display_type": "in_nav_context",
               "placement": "course_navigation",
               "message_type": "LtiResourceLinkRequest",
-              "target_link_uri": "{{ app_hostname }}/ltilaunch/"
+              "target_link_uri": "{{ app_hostname }}/ltilaunch/",
+              "custom_fields": {
+                "start_time": "$ResourceLink.avaliable.startDateTime",
+                "end_time": "$ResourceLink.avaliable.endDateTime"
+              }
             },
             {
               "text":"Materia Widget",
@@ -26,7 +30,11 @@
               "selection_width":"800",
               "selection_height":"600",
               "message_type":"LtiDeepLinkingRequest",
-              "target_link_uri": "{{ app_hostname }}/ltilaunch/"
+              "target_link_uri": "{{ app_hostname }}/ltilaunch/",
+              "custom_fields": {
+                "start_time": "$ResourceLink.avaliable.startDateTime",
+                "end_time": "$ResourceLink.avaliable.endDateTime"
+              }
             },
             {
               "text":"Materia Widget",
@@ -35,7 +43,11 @@
               "selection_width":"600",
               "selection_height":"400",
               "message_type":"LtiDeepLinkingRequest",
-              "target_link_uri": "{{ app_hostname }}/ltilaunch/"
+              "target_link_uri": "{{ app_hostname }}/ltilaunch/",
+              "custom_fields": {
+                "start_time": "$ResourceLink.avaliable.startDateTime",
+                "end_time": "$ResourceLink.avaliable.endDateTime"
+              }
             }
           ]
         },

@@ -49,6 +49,7 @@ DEBUG = os.environ.get("DJANGO_ENV", "prod") == "dev"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        "api.authentication.EmbeddedBearerAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_RENDERER_CLASSES": [

@@ -69,7 +69,7 @@ const ScoreOverviewLtiStatus = ({ lti, single, playId, score }) => {
 					<>
 						<h3>Submission Error</h3>
 						<p>There was an error during the grade submission process.</p>
-						<ScoreLtiResubmit lti={lti} playId={playId} callback={resubmitCallback} />
+						{lti.canResubmit !== false && <ScoreLtiResubmit lti={lti} playId={playId} callback={resubmitCallback} />}
 					</>
 				)
 				break

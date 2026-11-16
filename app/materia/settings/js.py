@@ -13,6 +13,7 @@ JS_GROUPS = {
     "cl-detail": [JS_BASEURL + "cl-detail.js"],
     "detail": [JS_BASEURL + "detail.js"],
     "player": [JS_BASEURL + "player-page.js"],
+    "embedded-player": [JS_BASEURL + "embedded-player.js"],
     "creator": [JS_BASEURL + "creator-page.js"],
     "login": [JS_BASEURL + "login.js"],
     "closed": [JS_BASEURL + "closed.js"],

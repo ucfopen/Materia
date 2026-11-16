@@ -107,7 +107,8 @@ const ErrorGeneral = () => {
 			break;
 	}
 
-	return <>
+	return (
+	<div className='lti'>
 		<header>
 			<h1>{title}</h1>
 			<div id="logo"></div>
@@ -116,7 +117,8 @@ const ErrorGeneral = () => {
 		{content}
 
 		<SupportInfo/>
-	</>
+	</div>
+	)
 }
 
 export default ErrorGeneral

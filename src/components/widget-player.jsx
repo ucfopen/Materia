@@ -88,7 +88,7 @@ const isPreview = window.location.href.includes('/preview/') || window.location.
 const isSnapshotPreview = window.location.pathname.includes('/preview/snapshot/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/') || window.location.href.includes('/lti/assignment')
 
-const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null, minHeight=0, minWidth=0,showFooter=true}) => {
+const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null, minHeight=0, minWidth=0,showFooter=true, embedded=false, onComplete=null}) => {
 
 	const [alert, setAlert] = useState({
 		msg: '',
@@ -128,7 +128,7 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 	const darkModeRef = useRef(false)
 
 	const urlParams = new URLSearchParams(window.location.search)
-	const hasLti = urlParams.has('token')
+	const hasLti = embedded || urlParams.has('token')
 
 	/*********************** queries ***********************/
 
@@ -172,7 +172,7 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 						msg: "You are no longer logged in.",
 						title: 'Invalid Play Session',
 						fatal: true,
-						showLoginButton: true
+						showLoginButton: !embedded
 					})
 					break
 				}
@@ -319,8 +319,9 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 
 	/******* !!!!!! this is the hook that actually navigates to the score screen !!!!! *******/
 	useEffect(() => {
-		if (playState == 'end' && readyForScoreScreen && scoreScreenUrlRef.current) {
-			window.location.assign(scoreScreenUrlRef.current)
+		if (playState == 'end' && readyForScoreScreen) {
+			if (onComplete) onComplete()
+			else if (scoreScreenUrlRef.current) window.location.assign(scoreScreenUrlRef.current)
 		}
 	}, [playState, readyForScoreScreen])
 
@@ -336,6 +337,7 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 
 	// Receives messages from widget player
 	const _onPostMessage = e => {
+		if (embedded && (e.source !== frameRef.current?.contentWindow || typeof e.data !== 'string')) return
 		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
 			const msg = JSON.parse(e.data)
@@ -456,6 +458,10 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 				else setQueueProcessing(false)
 			},
 			errorFunc: (err) => {
+				if (embedded && err.status === 401) {
+					setQueueProcessing(false)
+					return
+				}
 				setAlert({
 					title: 'We encountered a problem',
 					msg: 'An error occurred when saving play logs',
@@ -689,4 +695,3 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 }
 
 export default WidgetPlayer
-
