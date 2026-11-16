@@ -9,7 +9,6 @@ from api.tests.base import MateriaTestCase
 from core.models import (
     Log,
     LogPlay,
-    LogStorage,
     Lti,
     LtiPlayState,
     ObjectPermission,
@@ -313,7 +312,7 @@ class EmbeddedAuthTests(MateriaTestCase):
         self.assertFalse(LtiPlayState.objects.filter(play=play).exists())
         self.assertIsNone(response.data["userId"])
 
-    def test_guest_storage_is_anonymous_without_cookies_or_csrf(self):
+    def test_play_storage_is_unavailable_for_guest_users(self):
         response = self.start_play(self.guest)
         play_id = response.data["playId"]
         response = self.client.post(
@@ -324,8 +323,7 @@ class EmbeddedAuthTests(MateriaTestCase):
             },
             format="json",
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertIsNone(LogStorage.objects.get(play_log_id=play_id).user_id)
+        self.assertEqual(response.status_code, 403)
 
     def test_lti_and_guest_logs_complete_and_scores_load_without_cookies(self):
         for instance in (self.instance, self.guest):
@@ -610,9 +608,9 @@ class EmbeddedAuthTests(MateriaTestCase):
             response = ApplicationLaunchView().get_embedded_launch_response(
                 request, self.launch
             )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "error_lti_guest_mode")
-        self.assertNotContains(response, "EMBEDDED_ACCESS_TOKEN")
+        self.assertEqual(response.status_code, 400)
+        self.assertContains(response, text="error_lti_guest_mode", status_code=400)
+        self.assertNotContains(response, text="EMBEDDED_ACCESS_TOKEN", status_code=400)
         authenticate.assert_not_called()
 
     def use_grant(self, purpose, *, instance=None, play=None, data=None):
@@ -1023,8 +1021,12 @@ class EmbeddedAuthTests(MateriaTestCase):
                     response = ApplicationLaunchView().get_embedded_launch_response(
                         request, self.launch
                     )
-                self.assertContains(response, "error_unknown_assignment")
-                self.assertNotContains(response, "EMBEDDED_ACCESS_TOKEN")
+                self.assertContains(
+                    response, text="error_unknown_assignment", status_code=400
+                )
+                self.assertNotContains(
+                    response, text="EMBEDDED_ACCESS_TOKEN", status_code=400
+                )
                 issue.assert_not_called()
                 authenticate.assert_not_called()
         self.assertFalse(LogPlay.objects.exists())
@@ -1048,7 +1050,9 @@ class EmbeddedAuthTests(MateriaTestCase):
                 response = ApplicationLaunchView().get_embedded_launch_response(
                     request, self.launch
                 )
-            self.assertContains(response, "error_launch_validation")
+            self.assertContains(
+                response, text="error_launch_validation", status_code=400
+            )
             issue.assert_not_called()
 
     def test_guest_and_missing_score_targets_fail_before_provisioning(self):
@@ -1073,7 +1077,7 @@ class EmbeddedAuthTests(MateriaTestCase):
                     response = ApplicationLaunchView().get_embedded_launch_response(
                         request, self.launch
                     )
-                self.assertContains(response, error)
+                self.assertContains(response, text=error, status_code=400)
                 authenticate.assert_not_called()
                 issue.assert_not_called()
 
@@ -1096,7 +1100,9 @@ class EmbeddedAuthTests(MateriaTestCase):
                     response = ApplicationLaunchView().get_embedded_launch_response(
                         request, self.launch
                     )
-                self.assertContains(response, "error_unknown_user")
+                self.assertContains(
+                    response, text="error_unknown_user", status_code=400
+                )
                 authenticate.assert_called_once_with(
                     request, self.launch_data, use_session=False
                 )
@@ -1129,7 +1135,7 @@ class EmbeddedAuthTests(MateriaTestCase):
             response = ApplicationLaunchView().get_embedded_launch_response(
                 request, self.launch
             )
-        self.assertContains(response, "error_launch_validation")
+        self.assertContains(response, text="error_launch_validation", status_code=400)
         authenticate.assert_called_once_with(request, data, use_session=False)
         review.assert_called_once_with(
             self.user, self.instance, play=play, launch_data=data
@@ -1172,7 +1178,7 @@ class EmbeddedAuthTests(MateriaTestCase):
             response = ApplicationLaunchView().get_embedded_launch_response(
                 request, self.launch
             )
-        self.assertContains(response, "error_launch_validation")
+        self.assertContains(response, text="error_launch_validation", status_code=400)
         self.assertEqual(
             [call[0] for call in calls.mock_calls],
             ["authenticate", "visibility", "register", "issue"],
