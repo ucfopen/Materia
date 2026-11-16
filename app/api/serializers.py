@@ -965,11 +965,21 @@ class PlayStorageTableSerializer(serializers.Serializer):
         return LogStorageService.build_log_tables_from_queryset(queryset, anonymize)
 
 
+class PlayStoragePacketSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=64, trim_whitespace=False)
+    data = serializers.DictField(child=serializers.JSONField(allow_null=True))
+
+    def validate_name(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("This field may not be blank.")
+        return value
+
+
 class PlayStorageSaveSerializer(serializers.Serializer):
     play_id = serializers.PrimaryKeyRelatedField(
         queryset=LogPlay.objects.all(), required=True
     )
-    logs = serializers.JSONField()
+    logs = serializers.ListField(child=PlayStoragePacketSerializer())
 
 
 class TagSerializer(serializers.ModelSerializer):

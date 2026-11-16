@@ -578,7 +578,7 @@ export const apiSessionVerify = (playId) => {
 /**
  * Takes a play ID, and a list of storage log objects to save.
  * @param {string} playId - The ID of the play.
- * @param {Object[]} logs - Array of storage logs, arbitrary format.
+ * @param {{name: string, data: Object}[]} logs - Packets with nonblank names (max 64 characters) and object data containing arbitrary JSON values.
  * @returns {Promise<any>} - Parsed response data.
  */
 export const apiSavePlayStorage = ({ play_id, logs }) => {

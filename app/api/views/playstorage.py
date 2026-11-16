@@ -51,7 +51,7 @@ class PlayStorageViewSet(viewsets.ModelViewSet):
             user = None
 
         for storage_packet in log_data:
-            stringified_data = json.dumps(storage_packet.get("data"))
+            stringified_data = json.dumps(storage_packet["data"])
             byte_data = stringified_data.encode("utf-8")
             encoded = base64.b64encode(byte_data).decode("ascii")
 
@@ -60,7 +60,7 @@ class PlayStorageViewSet(viewsets.ModelViewSet):
                     instance=instance,
                     play_log=play,
                     user=user,
-                    name=storage_packet.get("name"),
+                    name=storage_packet["name"],
                     data=encoded,
                 )
             )
