@@ -70,7 +70,7 @@ class ScoresView(APIView):
 
             if (
                 request.user.id != user.id
-                and not instance.permissions.filter(user=request.user).exists()
+                and not instance.viewable_by_current_user(request.user)
                 and not PermService.is_superuser_or_elevated(request.user)
                 and not is_author_or_staff
             ):

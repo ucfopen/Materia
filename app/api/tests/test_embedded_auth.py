@@ -1,5 +1,6 @@
-from types import SimpleNamespace
 import time
+from datetime import timedelta
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import jwt
@@ -11,6 +12,7 @@ from core.models import (
     LogStorage,
     Lti,
     LtiPlayState,
+    ObjectPermission,
     Widget,
     WidgetInstance,
     WidgetQset,
@@ -21,11 +23,13 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
 from django.test import RequestFactory, SimpleTestCase, override_settings
 from django.urls import Resolver404, resolve
-from lti.views.launch import ApplicationLaunchView
+from django.utils import timezone
 from lti.exceptions import LTIAuthException
+from lti.services.launch import LTILaunchService
+from lti.views.launch import ApplicationLaunchView
 from lti_tool.models import Key, LtiDeployment, LtiRegistration
-from rest_framework.test import APIClient
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
+from rest_framework.test import APIClient
 
 CLAIM = "https://purl.imsglobal.org/spec/lti/claim/"
 
@@ -671,8 +675,9 @@ class EmbeddedAuthTests(MateriaTestCase):
         )
 
     def test_deep_link_lists_only_currently_visible_instances_and_paginates(self):
-        from django.utils import timezone
         from datetime import timedelta
+
+        from django.utils import timezone
 
         self.instance.permissions.create(user=self.user, permission="full")
         self.guest.permissions.create(
@@ -970,6 +975,31 @@ class EmbeddedAuthTests(MateriaTestCase):
                         ).exists()
                     )
         self.assertEqual(LogPlay.objects.count(), 1)
+
+    def test_instructor_visibility_reactivates_expired_context_permission(self):
+        permission = self.instance.permissions.create(
+            user=self.user,
+            permission=ObjectPermission.PERMISSION_VISIBLE,
+            context_id="course",
+            expires_at=timezone.now() - timedelta(days=1),
+        )
+
+        provisional = LTILaunchService.ensure_instructor_visibility(
+            self.user, self.instance, "course"
+        )
+
+        permission.refresh_from_db()
+        self.assertTrue(provisional)
+        self.assertIsNone(permission.expires_at)
+        self.assertTrue(
+            self.instance.viewable_by_current_user(self.user, context_id="course")
+        )
+        self.assertEqual(
+            self.instance.permissions.filter(
+                user=self.user, context_id="course"
+            ).count(),
+            1,
+        )
 
     def test_malformed_or_unrelated_launch_targets_do_not_issue_credentials(self):
         request = RequestFactory().post("/ltilaunch/")

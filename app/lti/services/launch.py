@@ -4,7 +4,6 @@ import time
 
 from core.message_exception import MsgNotFound
 from core.models import LogPlay, Lti, LtiPlayState, WidgetInstance
-from django.db.models import Q
 from lti_tool.models import LtiDeployment, LtiLaunch, LtiRegistration
 from lti_tool.utils import get_launch_from_request
 
@@ -18,14 +17,12 @@ class LTILaunchService:
 
     @staticmethod
     def ensure_instructor_visibility(user, instance, context_id):
-        has_visibility = (
-            instance.permissions.filter(user=user)
-            .filter(Q(context_id__isnull=True) | Q(context_id=context_id))
-            .exists()
-        )
+        has_visibility = instance.viewable_by_current_user(user, context_id)
         if not has_visibility:
-            instance.permissions.create(
-                user=user, permission="visible", context_id=context_id
+            instance.permissions.update_or_create(
+                user=user,
+                context_id=context_id,
+                defaults={"permission": "visible", "expires_at": None},
             )
         return not has_visibility
 

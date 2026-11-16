@@ -14,7 +14,7 @@ def can_review_scores(user, instance, *, play=None, launch_data=None):
     if play is not None and (play.user_id is None or play.user_id == user.id):
         return True
     return (
-        instance.permissions.filter(user=user).exists()
+        play.instance.viewable_by_current_user(user)
         or PermService.is_superuser_or_elevated(user)
         or bool(
             launch_data

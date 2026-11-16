@@ -13,8 +13,8 @@ from lti.exceptions import LTIAuthException
 from lti.services.auth import LTIAuthService
 from lti.services.launch import LTILaunchService
 from lti.utils import (
-    consume_post_message_initiation,
     consume_post_message_handoff,
+    consume_post_message_initiation,
     create_post_message_handoff,
     get_launch_from_request,
 )
@@ -79,6 +79,9 @@ class ApplicationLaunchView(LtiLaunchBaseView):
             return self.process_validated_launch(request, lti_launch)
         except LtiException:
             logger.error("LTI: Launch validation failed", exc_info=True)
+            return error_page(request, "error_launch_validation")
+        except Exception:
+            logger.error("LTI: Malformed or invalid POST to ltilaunch", exc_info=True)
             return error_page(request, "error_launch_validation")
 
     def prepare_post_message_validation(self, request, storage_target):

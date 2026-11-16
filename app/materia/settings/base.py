@@ -52,6 +52,9 @@ REST_FRAMEWORK = {
         "api.authentication.EmbeddedBearerAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ],
     "EXCEPTION_HANDLER": "core.exception_handlers.materia_exception_handler",
 }
 
