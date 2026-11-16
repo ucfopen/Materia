@@ -175,16 +175,8 @@ class PlayStorageInstancePermissions(permissions.BasePermission):
     def has_permission(self, request, view):
 
         if request.method == "GET":
-            inst_id = request.query_params.get("inst_id")
-            if inst_id:
-                instance = WidgetInstance.objects.filter(pk=inst_id).first()
-                if not instance or not instance.viewable_by_current_user(request.user):
-                    return False
-
-                return True
-
             play_id = request.query_params.get("play_id")
-            if play_id:
+            if play_id is not None:
                 play = (
                     LogPlay.objects.select_related("instance")
                     .filter(pk=play_id)
@@ -192,6 +184,14 @@ class PlayStorageInstancePermissions(permissions.BasePermission):
                 )
 
                 if not play or not play.instance.viewable_by_current_user(request.user):
+                    return False
+
+                return True
+
+            inst_id = request.query_params.get("inst_id")
+            if inst_id:
+                instance = WidgetInstance.objects.filter(pk=inst_id).first()
+                if not instance or not instance.viewable_by_current_user(request.user):
                     return False
 
                 return True
