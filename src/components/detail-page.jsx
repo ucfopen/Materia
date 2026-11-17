@@ -1,7 +1,7 @@
 import React from 'react'
 import Header from './header'
 import Detail from './detail'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGetWidget } from '../util/api'
 import LoadingIcon from './loading-icon'
 
@@ -9,7 +9,7 @@ const DetailPage = () => {
 	const nameArr = window.location.pathname.replace('/widgets/', '').replace(/\/$/, "").split('/')
 	const widgetID = nameArr.pop().split('-').shift()
 	const { data: widget, isFetching: isFetching} = useQuery({
-		queryKey: 'widget',
+		queryKey: ['widget'],
 		queryFn: () => apiGetWidget(widgetID),
 		enabled: !!widgetID,
 		placeholderData: {},

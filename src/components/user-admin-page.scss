@@ -332,14 +332,20 @@
 				}
 			}
 
-			&.instances {
+			&.instances, &.entries {
+
+				button.show_more_activity {
+					display: block;
+					margin: 10px auto;
+					padding: 8px 20px;
+				}
 
 				ul {
 					padding: 0;
 					flex-direction: row;
 					list-style-type: none;
 
-					li.instance {
+					li.instance, li.library-entry {
 						margin: 0 0 10px 0;
 
 						border-radius: 3px;

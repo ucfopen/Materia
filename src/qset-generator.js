@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { QueryClient, QueryClientProvider, QueryCache } from 'react-query'
+import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query'
 import QsetGenerator from './components/question-generator'
 
 const queryCache = new QueryCache()

@@ -501,8 +501,11 @@ class LogPlay(models.Model):
         db_table = "log_play"
         indexes = [
             models.Index(fields=["created_at"], name="log_play_created_at"),
-            models.Index(fields=["is_complete"], name="log_play_is_complete"),
             models.Index(fields=["percent"], name="log_play_percent"),
+            models.Index(
+                fields=["instance", "is_complete", "-created_at", "semester_id"],
+                name="log_play_perf_lookup",
+            ),
         ]
 
 
@@ -630,6 +633,7 @@ class LtiPlayState(models.Model):
     )
     submission_attempts = models.PositiveIntegerField(default=0)
     last_submitted = models.DateTimeField(default=None, null=True)
+    score_submitted = models.FloatField(null=True)
 
 
 # this sucks
@@ -703,7 +707,12 @@ class Notification(models.Model):
         )
 
         # Send email, if not sent already
-        self.send_email()
+        try:
+            self.send_email()
+        except Exception:
+            logger.error(
+                "Failed to send email for user %s:", self.to_id.id, exc_info=True
+            )
 
     @classmethod
     def create_instance_notification(
@@ -758,6 +767,8 @@ class Notification(models.Model):
                     f"The widget is currently being used within a course in your LMS."
                 )
                 action = "access_request"
+            case "restored":
+                content = f"{user_link} restored {widget_type} widget '{widget_name}'."
             case _:
                 return None
 
@@ -882,6 +893,52 @@ class Question(models.Model):
 
     class Meta:
         db_table = "question"
+
+
+class SiteImage(models.Model):
+
+    class ImageType(models.TextChoices):
+        NO_TYPE = "NO_TYPE", gettext_lazy("No Type")
+        PROFILE_IMAGE = "PROFILE_IMAGE", gettext_lazy("Profile Image")
+        LIBRARY_BANNER = "LIBRARY_BANNER", gettext_lazy("Library Banner")
+        CATALOG_BANNER = "CATALOG_BANNER", gettext_lazy("Catalog Banner")
+
+    image_type = models.CharField(
+        max_length=26,
+        blank=True,
+        null=True,
+        choices=ImageType.choices,
+        default=ImageType.NO_TYPE,
+    )
+
+    image_path = models.CharField(max_length=255)
+    created_at = models.DateTimeField(default=timezone.now)
+
+
+class SiteMessage(models.Model):
+
+    class MessageType(models.TextChoices):
+        NO_TYPE = "NO_TYPE", gettext_lazy("No Type")
+        SITE_NOTIFICATION = "SITE_NOTIFICATION", gettext_lazy("Site Notification")
+        SITE_ALERT = "SITE_ALERT", gettext_lazy("Site Alert")
+        CATALOG_HEADER = "CATALOG_HEADER", gettext_lazy("Catalog Header")
+        CATALOG_TEXT = "CATALOG_TEXT", gettext_lazy("Catalog Text")
+        LIBRARY_HEADER = "LIBRARY_HEADER", gettext_lazy("Library Header")
+        LIBRARY_TEXT = "LIBRARY_TEXT", gettext_lazy("Library Text")
+
+    message_type = models.CharField(
+        max_length=26,
+        blank=True,
+        null=True,
+        choices=MessageType.choices,
+        default=MessageType.NO_TYPE,
+    )
+
+    message_text = models.TextField()
+
+    start_at = models.DateTimeField(default=None, null=True)
+    end_at = models.DateTimeField(default=None, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
 class UserExtraAttempts(models.Model):
@@ -1067,11 +1124,40 @@ class WidgetInstance(models.Model):
         null=True,
         db_column="published_by",
     )
+    library_entry = models.ForeignKey(
+        "community_library.LibraryEntry",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="copied_instances",
+        db_column="library_entry",
+    )
+    library_snapshot = models.ForeignKey(
+        "community_library.LibrarySnapshot",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="instance",
+        db_column="library_snapshot",
+    )
+
     permissions = GenericRelation(ObjectPermission)
 
     @property
     def dir(self):
         return f"{self.id}-{self.clean_name}{os.sep}"
+
+    @property
+    def is_shared_to_library(self):
+        return (
+            self.library_entry is not None
+            and self.library_entry.is_available is True
+            and self.library_snapshot is None
+        )
+
+    @property
+    def is_copied_from_library(self):
+        return self.library_entry is not None and self.library_snapshot is not None
 
     def attempts_left_for_user(self, user: User, context: str = ""):
         from core.services.semester_service import SemesterService
@@ -1156,9 +1242,20 @@ class WidgetInstance(models.Model):
             )
         return self.get_latest_qset()
 
+    # user can play this instance
     def playable_by_current_user(self, user: User | AnonymousUser):
         return self.guest_access or user.is_authenticated
 
+    # user has explicit view rights to this instance in My Widgets
+    def viewable_by_current_user(self, user: User | AnonymousUser):
+        if isinstance(user, AnonymousUser):
+            return False
+
+        return self.permissions.filter(
+            Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()), user=user
+        ).exists()
+
+    # user has explicit edit rights to this instance in My Widgets
     def editable_by_current_user(self, user: User | AnonymousUser):
         if isinstance(user, AnonymousUser):
             return False
@@ -1209,7 +1306,11 @@ class WidgetInstance(models.Model):
         return qsets
 
     def duplicate(
-        self, owner: User, new_name: str, copy_existing_perms: bool = False
+        self,
+        owner: User,
+        new_name: str,
+        copy_existing_perms: bool = False,
+        copy_settings: bool = False,
     ) -> Self:
         dupe = WidgetInstance.objects.get(pk=self.pk)
 
@@ -1226,9 +1327,22 @@ class WidgetInstance(models.Model):
 
         # These fields should default to False for new instances (since the new instance won't have any play history)
         dupe.embedded_only = False
+        dupe.library_entry = None
+        dupe.library_snapshot = None
 
         # Manually update created_at
         dupe.created_at = timezone.now()
+
+        # Reset instance settings unless specifically desired
+        if not copy_settings:
+            dupe.open_at = None
+            dupe.close_at = None
+            dupe.attempts = -1
+            dupe.guest_access = False
+
+        # Dupes owned by students are always guest mode, regardless of original status
+        if PermService.user_is_student(owner):
+            dupe.guest_access = True
 
         # If original widget is student made, verify that the new user is a student or not.
         if dupe.is_student_made:
@@ -1336,6 +1450,8 @@ class WidgetInstance(models.Model):
 
     @property
     def is_embedded(self):
+        if "lti_embed_count" in self.__dict__:
+            return self.lti_embed_count > 0
         return self.lti_embeds.count() > 0
 
     @classproperty
@@ -1412,8 +1528,11 @@ class WidgetQset(models.Model):
                 qset=self,
                 item_id=question["id"] if question.get("id", None) is not None else "",
             )
-            new_question.save()
             questions_set.append(new_question)
+        Question.objects.bulk_create(
+            questions_set,
+            batch_size=25,  # arbitrary
+        )
 
         return questions_set
 
@@ -1510,12 +1629,13 @@ class WidgetQset(models.Model):
 
 class UserSettings(models.Model):
 
-    DEFAULT_PROFILE_FIELDS = {"useGravatar": True, "theme": "light"}
+    DEFAULT_PROFILE_FIELDS = {"useGravatar": False, "theme": "light"}
 
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="profile_settings"
     )
     profile_fields = models.JSONField(default=dict)
+    library_banned = models.BooleanField(default=False)
 
     def set_profile_fields(self, key, value):
         self.profile_fields[key] = value
@@ -1533,10 +1653,42 @@ class UserSettings(models.Model):
             self.profile_fields = updated_fields
             self.save()
 
+        elif "theme" not in self.profile_fields:
+            self.set_profile_fields("theme", "light")
+
+        profile_images = SiteImage.objects.filter(
+            image_type=SiteImage.ImageType.PROFILE_IMAGE
+        )
+
+        if "profileImage" not in self.profile_fields or self.profile_fields[
+            "profileImage"
+        ] not in profile_images.values_list("id", flat=True):
+
+            random_profile_image = profile_images.order_by("?").first()
+            self.profile_fields["profileImage"] = (
+                random_profile_image.id if random_profile_image else -1
+            )
+            self.save()
+
         return self.profile_fields
 
     def initialize_profile_fields(self):
-        self.profile_fields = {**self.DEFAULT_PROFILE_FIELDS}
+
+        random_profile_image_id = (
+            SiteImage.objects.filter(image_type=SiteImage.ImageType.PROFILE_IMAGE)
+            .order_by("?")
+            .values_list("id", flat=True)
+            .first()
+        )
+
+        if random_profile_image_id is None:
+            random_profile_image_id = -1
+
+        self.profile_fields = {
+            **self.DEFAULT_PROFILE_FIELDS,
+            "profileImage": random_profile_image_id,
+        }
+
         self.save()
 
 
@@ -1549,4 +1701,8 @@ def create_user_settings(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_settings(sender, instance, **kwargs):
-    instance.profile_settings.save()
+    try:
+        instance.profile_settings.save()
+    except UserSettings.DoesNotExist:
+        settings = UserSettings.objects.create(user=instance)
+        settings.initialize_profile_fields()

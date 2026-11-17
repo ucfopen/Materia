@@ -63,7 +63,7 @@ const CatalogCard = ({
 				</div>
 
 				<div className='img-holder'>
-					<img src={iconUrl('/widget/', dir, 275)} />
+					<img src={iconUrl('/widget/', dir, 275)} alt=""/>
 				</div>
 
 				<div className='widget-info'>

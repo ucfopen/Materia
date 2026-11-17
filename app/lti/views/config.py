@@ -2,8 +2,7 @@ import json
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.http import JsonResponse
-from django.shortcuts import redirect
+from django.http import Http404, JsonResponse
 from django.template.loader import render_to_string
 from lti_tool.models import LtiRegistration
 
@@ -19,10 +18,9 @@ def lti_config(request, provider):
     # domain is the tool (your instance of Materia) URL, NOT the provider domain
     domain = urlparse(settings.LTI_URL_CONFIGS["tool_url"]).netloc or "localhost"
 
-    try:
-        registration = LtiRegistration.objects.filter(name__icontains=provider).first()
-    except Exception:
-        return redirect("/404")
+    registration = LtiRegistration.objects.filter(name__icontains=provider).first()
+    if registration is None:
+        raise Http404("This registration is not available.")
 
     json_template = render_to_string(
         "lti.json",

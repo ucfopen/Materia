@@ -1,9 +1,7 @@
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiGetUsers } from '../../util/api'
 
 export default function useGetUsers() {
-	const queryClient = useQueryClient()
-
 	return useMutation(
 		{
 			mutationFn: (variables) => {

@@ -20,13 +20,20 @@ from core.views import login as login_views
 from core.views import main as core_views
 from core.views import profile as profile_views
 from core.views.admin import instance as instance_admin
+from core.views.admin import site as site_admin
 from core.views.admin import user as user_admin
 from core.views.admin import widget as widget_admin
+from core.views.admin import library as library_admin
 from core.views.catalog import CatalogView
+from core.views.community_library import (
+    CommunityLibraryView,
+    CommunityLibraryDetailView
+)
 from core.views.media import MediaImportView, MediaRender, MediaUpload
 from core.views.my_widgets import MyWidgetsView
 from core.views.scores import ScoresView, ScoresViewSingle
 from core.views.widget import (
+    SnapshotPreviewView,
     WidgetCreatorView,
     WidgetDemoView,
     WidgetDetailView,
@@ -48,6 +55,8 @@ urlpatterns = [
     path("help/", core_views.help, name="help"),
     # Widgets
     path("widgets/", CatalogView.index, name="widget catalog"),
+    path("community-library/", CommunityLibraryView.index, name="community library"),
+    path("community-library/<slug:entry_id>/", CommunityLibraryDetailView.as_view(), name="community library detail"),
     path(
         "widgets/<slug:widget_slug>/", WidgetDetailView.as_view(), name="widget detail"
     ),
@@ -82,6 +91,11 @@ urlpatterns = [
         WidgetPlayView.as_view(),
         {"is_embed": True},
         name="widget embed",
+    ),
+    path(
+        "preview/snapshot/<int:snapshot_id>/",
+        SnapshotPreviewView.as_view(),
+        name="snapshot preview",
     ),
     path(
         "preview/<slug:widget_instance_id>/",
@@ -156,7 +170,9 @@ urlpatterns = [
     path("users/login", login_views.login, name="login"),
     path("login/", login_views.login, name="login"),
     path("admin/widget", widget_admin, name="widget admin"),
+    path("admin/site", site_admin, name="site admin"),
     path("admin/instance", instance_admin, name="instance admin"),
+    path("admin/library", library_admin, name="library admin"),
     path("admin/user", user_admin, name="user admin"),
     path("admin/", admin.site.urls),
     path("users/logout/", UsersApi.logout, name="logout"),

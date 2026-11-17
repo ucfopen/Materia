@@ -36,6 +36,7 @@ DIRS = {
     "media_uploads": os.path.realpath(
         os.path.join(APP_PATH, "media", "uploads")
     ),  # + os.sep,
+    "site_images": os.path.realpath(os.path.join(APP_PATH, "staticfiles", "site_img")),
     "widgets": os.path.realpath(
         os.path.join(APP_PATH, "staticfiles", "widget")
     ),  # + os.sep
@@ -50,6 +51,9 @@ DEBUG = os.environ.get("DJANGO_ENV", "prod") == "dev"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
     ],
     "EXCEPTION_HANDLER": "core.exception_handlers.materia_exception_handler",
 }
@@ -111,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "US/Eastern"
+TIME_ZONE = "America/New_York"
 
 USE_I18N = True
 

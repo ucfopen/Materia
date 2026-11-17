@@ -66,6 +66,7 @@ class AGSService:
             # If no exception is caught, indicates a 200
             play_state.submission_status = LtiPlayState.SubmissionStatus.SUCCESS
             play_state.last_submitted = timezone.now()
+            play_state.score_submitted = max_score
 
             logger.info(
                 "LTI-AGS: successfully transmitted %s score for play %s",
@@ -93,12 +94,14 @@ class AGSService:
 
         # The remaining exceptions come from requests's raise_for_status() method
         except Exception as e:
-            if e.response.status_code:
+            response = getattr(e, "response", None)
+
+            if response is not None:
                 # Canvas responds with a 422 when the attempt limit is reached OR
                 # if the AGS payload is invalid
                 # Because of that we have to inspect the message body as well
-                if e.response.status_code == 422:
-                    body = e.response.json()
+                if response.status_code == 422:
+                    body = response.json()
                     if (
                         "errors" in body
                         and "message" in body["errors"]

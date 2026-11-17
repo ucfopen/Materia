@@ -23,6 +23,9 @@ class ApplicationLaunchView(LtiLaunchBaseView):
         except LtiException:
             logger.error("LTI: Launch validation failed", exc_info=True)
             return error_page(request, "error_launch_validation")
+        except Exception:
+            logger.error("LTI: Malformed or invalid POST to ltilaunch", exc_info=True)
+            return error_page(request, "error_launch_validation")
 
     def handle_resource_launch(self, request, lti_launch):
         launch_data = lti_launch.get_launch_data()

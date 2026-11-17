@@ -1,6 +1,5 @@
 import {apiCheckWidgetForUpdate, apiInstallWidgetUpdate, apiUpdateWidgetEngine} from '../util/api'
 import React, {useState, useEffect, useMemo} from 'react'
-import {useMutation, useQuery, useQueryClient} from "react-query";
 
 const WidgetListCard = ({widget = null}) => {
     const [state, setState] = useState({
@@ -119,7 +118,7 @@ const WidgetListCard = ({widget = null}) => {
         <li key={state.widget.id}>
             <div className="clickable widget-title" onClick={handleWidgetClick}>
                 <span className="img-holder">
-                    <img src={state.widget.icon}/>
+                    <img src={state.widget.icon} alt=""/>
                 </span>
                 <span className="title">{state.widget.name}</span>
             </div>

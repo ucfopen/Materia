@@ -1,25 +1,37 @@
-import React, { useState, useEffect } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import React, { useState, useEffect, useRef } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import UserAdminInstanceAvailable from './user-admin-instance-available'
 import UserAdminInstancePlayed from './user-admin-instance-played'
+import UserAdminLibraryEntries from './user-admin-library-entries'
+import { useUserPublishedEntriesList } from './hooks/useCommunityLibrary'
 import useInstanceList from './hooks/useInstanceList'
 import useGetPlaySessions from './hooks/useGetPlaySessions'
 import UserAdminRoleManager from './user-admin-role-manager'
-import { apiUpdateUser } from '../util/api'
+import { apiUpdateUser, apiManageUserBan } from '../util/api'
 
 const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 	const queryClient = useQueryClient()
 	const [updatedUser, setUpdatedUser] = useState({...selectedUser})
 	const instancesOwned = useInstanceList(updatedUser.id)
-	const userLogs = useGetPlaySessions(updatedUser.id, true)
+	const entriesOwned = useUserPublishedEntriesList(updatedUser.id, true)
+	const userLogs = useGetPlaySessions(updatedUser.id, false, true)
 	const [isSuper, setIsSuper] = useState(false)
+	const scrollAnchorRef = useRef(null)
+	const scrollToIndex = useRef(null)
+
+	useEffect(() => {
+		if (scrollToIndex.current !== null) {
+			scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+			scrollToIndex.current = null
+		}
+	}, [userLogs.plays?.length])
 
 	const [errorText, setErrorText] = useState('')
 	const [successText, setSuccessText] = useState('')
 
 	useEffect(() => {
 		if (currentUser) {
-			const userPerms = queryClient.getQueryData('isLoggedIn')
+			const userPerms = queryClient.getQueryData(['isLoggedIn'])
 			if (userPerms?.permLevel && userPerms?.permLevel == 'super_user') setIsSuper(true)
 		}
 	},[currentUser])
@@ -32,6 +44,18 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 		setUpdatedUser({...updatedUser, [attr]: value})
 	}
 
+	const applyUserBan = () => {
+		try {
+			apiManageUserBan(updatedUser.id)
+			.then((res) => {
+				setSuccessText(res.banned ? 'User banned from Community Library.' : 'User unbanned from Community Library.')
+			})
+		}
+		catch {
+			setErrorText('User ban failed.')
+		}
+	}
+
 	const applyChanges = () => {
 		try {
 			apiUpdateUser({
@@ -40,6 +64,7 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 			})
 			.then((res) => {
 				setSuccessText('User updated.')
+
 			})
 		}
 		catch {
@@ -70,19 +95,47 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 	}
 
 	let instancesPlayed = <span>Play history loading...</span>
-	if (!userLogs.isFetching) {
-		if (!!userLogs.plays && userLogs.plays.length > 0) {
-			instancesPlayed = userLogs.plays?.map((play, index) => {
-				return (<UserAdminInstancePlayed play={play} key={index} />)
-			})
-		} else {
-			instancesPlayed = <span>This user has not played any widgets.</span>
+	let loadMoreButton = null
+	if (!!userLogs.plays && userLogs.plays.length > 0) {
+		instancesPlayed = userLogs.plays?.map((play, index) => {
+			return (
+				<React.Fragment key={index}>
+					{index === scrollToIndex.current && <li ref={scrollAnchorRef} />}
+					<UserAdminInstancePlayed play={play} />
+				</React.Fragment>
+			)
+		})
+		if (userLogs.hasNextPage) {
+			loadMoreButton = (
+				<button className="action_button show_more_activity" onClick={() => {
+					scrollToIndex.current = userLogs.plays.length
+					userLogs.fetchNextPage()
+				}}>
+					{userLogs.isFetching ? <span>Loading...</span> : <span>Show more</span>}
+				</button>
+			)
 		}
+	} else if (!userLogs.isFetching) {
+		instancesPlayed = <span>This user has not played any widgets.</span>
 	}
 
 	let suRender = null
 	if (isSuper) {
 		suRender = <UserAdminRoleManager selectedUser={selectedUser} roles={roles} />
+	}
+
+	let entriesRender = <span>Library Entries are loading...</span>
+	let userReportCount = 0
+
+	if (!entriesOwned.isFetching) {
+		if (!!entriesOwned && entriesOwned.entries.length > 0) {
+			entriesRender = entriesOwned.entries?.map((entry, index) => {
+				userReportCount += parseInt(entry.report_count)
+				return (<UserAdminLibraryEntries entry={entry} key={index} />)
+			})
+		} else {
+			entriesRender = <span>No published entries.</span>
+		}
 	}
 
 	return (
@@ -139,6 +192,17 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 				<span>
 					<label>Theme: </label>{ updatedUser.profile_fields.theme }
 				</span>
+				<h3>Community Library</h3>
+				<span>
+					<label>Library Status: </label>
+					{ 
+					updatedUser.library_banned ? 'Banned' : (userReportCount > 0 ? `${userReportCount} Total Report(s) for Entries` : 'In Good Standing') 
+					}
+				</span>
+				<span>
+					<label>Ban Action: </label> <button className='action_button' onClick={applyUserBan}>{ updatedUser.library_banned ? 'Revoke Ban' : 'Ban User'}</button>
+				</span>
+				<p>Banning a user will additionally ban all of their published Community Library entries. Note that revoking a user-level ban will not automatically revoke bans on individual instances.</p>
 			</div>
 			<div className='info-holder'>
 				{ suRender }
@@ -150,6 +214,14 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 						{ instancesAvailable }
 					</ul>
 				</div>
+				<div className='entries admin-subsection'>
+					<div className='top'>
+						<h2>Published Community Library Entries:</h2>
+					</div>
+					<ul>
+						{ entriesRender || 'No published entries.' }
+					</ul>
+				</div>
 				<div className='instances admin-subsection'>
 					<div className='top'>
 						<h2>Instance Play History:</h2>
@@ -157,6 +229,7 @@ const UserAdminSelected = ({selectedUser, currentUser, roles, onReturn}) => {
 					<ul>
 						{ instancesPlayed }
 					</ul>
+					{ loadMoreButton }
 				</div>
 			</div>
 		</section>

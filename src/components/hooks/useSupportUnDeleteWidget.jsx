@@ -1,15 +1,16 @@
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiUnDeleteWidget } from '../../util/api'
 
 export default function useSupportUnDeleteWidget() {
 	const queryClient = useQueryClient()
 
 	return useMutation(
-		apiUnDeleteWidget,
 		{
+			mutationFn: apiUnDeleteWidget,
 			onSuccess: (data, variables) => {
-				variables.successFunc()
-				queryClient.removeQueries('search-widgets', {
+				variables.successFunc(data)
+				queryClient.invalidateQueries({
+					queryKey: ['search-widgets'],
 					exact: false
 				})
 			},

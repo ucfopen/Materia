@@ -9,6 +9,8 @@ CSS_GROUPS = {
     "my-widgets": [CSS_BASEURL + "my-widgets.css"],
     "help": [CSS_BASEURL + "help.css"],
     "catalog": [CSS_BASEURL + "catalog.css"],
+    "community-library": [CSS_BASEURL + "community-library.css"],
+    "cl-detail": [CSS_BASEURL + "cl-detail.css"],
     "detail": [CSS_BASEURL + "detail.css"],
     "player": [CSS_BASEURL + "player-page.css"],
     "creator": [CSS_BASEURL + "creator-page.css"],
@@ -19,6 +21,8 @@ CSS_GROUPS = {
     "media": [CSS_BASEURL + "media.css"],
     "support": [CSS_BASEURL + "support.css"],
     "user_admin": [CSS_BASEURL + "user-admin.css"],
+    "site_admin": [CSS_BASEURL + "site-admin.css"],
+    "library_admin": [CSS_BASEURL + "library-admin.css"],
     "no-permission": [CSS_BASEURL + "no-permission.css"],
     "pre-embed": [CSS_BASEURL + "pre-embed-placeholder.css"],
     "lti": [

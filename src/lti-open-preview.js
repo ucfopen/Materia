@@ -1,6 +1,6 @@
 import React from 'react'
 import {createRoot} from 'react-dom/client'
-import { QueryClient, QueryClientProvider, QueryCache } from 'react-query'
+import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query'
 import OpenPreview from './components/lti/open-preview'
 
 const queryCache = new QueryCache()

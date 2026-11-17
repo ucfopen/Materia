@@ -29,8 +29,9 @@ class LtiLaunchMixin:
                         and request.user.is_authenticated
                     ):
                         logger.error(
-                            f"LTI: ERROR: launch recovery username mismatch detected between "
-                            f"{request.user.username} and {play_state.play.user.username}!"
+                            "LTI: ERROR: launch recovery username mismatch detected between %s and %s!",
+                            request.user.username,
+                            play_state.play.user.username,
                         )
                         return self.on_lti_launch_failure(request)
 

@@ -278,7 +278,7 @@ class LTILaunchService:
         """
         Returns the associated LtiPlayState model instance for a given play ID.
         """
-        play = LogPlay.objects.get(pk=play_id)
+        play = LogPlay.objects.filter(pk=play_id).first()
         if play:
             launch = LtiPlayState.objects.filter(play_id=play.id).first()
             return launch

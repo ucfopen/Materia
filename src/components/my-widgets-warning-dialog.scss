@@ -1,8 +1,10 @@
 .warning-modal {
 	display: flex;
 	flex-direction: column;
-	width: 600px;
-	height: 320px;
+	width: 100%;
+	height: 100%;
+	justify-content: center;
+	box-sizing: border-box;
 
 	.title {
 		width: 450px;
@@ -18,10 +20,63 @@
 	}
 
 	.buttons {
-		margin: 15px auto 0 auto;
+		margin-top: 15px;
+		width: 100%;
+		display: flex;
+		gap: 8px;
+		justify-content: center;
 
 		.cancel_button {
 			cursor: pointer;
+		}
+
+		a:hover {
+			text-decoration: none;
+		}
+
+		.btn {
+			padding: 8px 20px;
+			border-radius: 4px;
+			font-size: 16px;
+			cursor: pointer;
+			border: none;
+			font-weight: 500;
+
+			&.cancel {
+				background: #f1f3f4;
+				color: #333;
+
+				&:hover {
+					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+				}
+			}
+
+			&.pull {
+				background: rgb(185, 68, 204);
+				color: #fff;
+
+				&:hover {
+					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+				}
+
+				&:disabled {
+					opacity: 0.7;
+					cursor: default;
+				}
+			}
+		}
+	}
+}
+
+.darkMode {
+	.warning-modal {
+		.buttons {
+			.btn {
+				&.cancel {
+					background: #30323b;
+					color: #eee;
+				}
+			}
 		}
 	}
 }

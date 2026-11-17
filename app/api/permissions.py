@@ -16,6 +16,17 @@ class DenyAll(permissions.BasePermission):
         return False
 
 
+class IsInstructor(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if PermService.is_superuser_or_elevated(request.user):
+            return True
+
+        return (
+            request.user.is_authenticated
+            and request.user.groups.filter(name="basic_author").exists()
+        )
+
+
 class IsSuperuser(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_superuser
@@ -127,10 +138,13 @@ class PlaySessionInstancePermissions(permissions.BasePermission):
             except WidgetInstance.DoesNotExist:
                 return False
 
-        # is the pk of the request a play ID?
-        play = LogPlay.objects.get(pk=view.kwargs.get("pk"))
-        if play is not None:
-            return play.instance.guest_access
+        try:
+            # is the pk of the request a play ID?
+            play = LogPlay.objects.get(pk=view.kwargs.get("pk"))
+            if play is not None:
+                return play.instance.guest_access
+        except LogPlay.DoesNotExist:
+            pass
 
         return False
 
@@ -147,7 +161,7 @@ class PlaySessionInstancePermissions(permissions.BasePermission):
             # with the /resubmit action; owners of the associated instance also have authority
             if obj.user != request.user and not (
                 view.action == "resubmit"
-                and obj.instance.permissions.filter(user=request.user).exists()
+                and obj.instance.viewable_by_current_user(request.user)
             ):
                 return False
 
@@ -164,27 +178,39 @@ class PlayStorageInstancePermissions(permissions.BasePermission):
             inst_id = request.query_params.get("inst_id")
             if inst_id:
                 instance = WidgetInstance.objects.filter(pk=inst_id).first()
-                if not instance or not instance.playable_by_current_user(request.user):
+                if not instance or not instance.viewable_by_current_user(request.user):
                     return False
 
                 return True
 
             play_id = request.query_params.get("play_id")
-            play = LogPlay.objects.select_related("instance").filter(pk=play_id).first()
+            if play_id:
+                play = (
+                    LogPlay.objects.select_related("instance")
+                    .filter(pk=play_id)
+                    .first()
+                )
 
-            if not play.instance.playable_by_current_user(request.user):
-                return False
+                if not play or not play.instance.viewable_by_current_user(request.user):
+                    return False
 
-            return True
+                return True
 
         elif request.method == "POST":
+
+            if not request.user.is_authenticated:
+                return False
+
             play_id = request.data.get("play_id")
             play = LogPlay.objects.filter(pk=play_id).first()
 
             if play is None:
                 return False
 
-            if request.user.is_authenticated and play.user_id != request.user.id:
+            if not play.instance.widget.is_storage_enabled:
+                return False
+
+            if play.user_id != request.user.id:
                 return False
 
             return True

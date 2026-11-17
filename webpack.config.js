@@ -49,9 +49,13 @@ module.exports = {
 		devMiddleware: {
 			writeToDisk: true
 		},
-		proxy: {
-			target: 'https://127.0.0.1:443'
-		},
+		proxy: [
+			{
+				target: 'https://127.0.0.1:443',
+				secure: false,
+				changeOrigin: true
+			}
+		],
 		webSocketServer: false
 	},
 	entry,

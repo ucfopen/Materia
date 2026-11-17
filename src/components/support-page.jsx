@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useQuery } from 'react-query'
-import { apiGetUser, apiGetWidgetInstance} from '../util/api'
+import { useQuery } from '@tanstack/react-query'
+import { apiGetUser, apiGetWidgetInstance } from '../util/api'
 import SupportSearch from './support-search'
 import SupportSelectedInstance from './support-selected-instance'
 import Header from './header'
@@ -11,7 +11,7 @@ const SupportPage = () => {
 	const [widgetHash, setWidgetHash] = useState(window.location.href.split('#')[1])
 	const [error, setError] = useState('')
 	const mounted = useRef(false)
-	const { data: currentUser} = useQuery({
+	const { data: currentUser, isError: currentUserError } = useQuery({
 		queryKey: ['user', 'me'],
 		queryFn: ({ queryKey }) => {
 			const [_key, user] = queryKey
@@ -19,10 +19,13 @@ const SupportPage = () => {
 		},
 		staleTime: Infinity,
 		retry: false,
-		onError: (err) => {
+	})
+
+	useEffect(() => {
+		if (currentUserError) {
 			window.location.href = '/login'
 		}
-	})
+	}, [currentUserError])
 
 	const { data: instFromHash } = useQuery({
 		queryKey: ['search-widgets', widgetHash],
