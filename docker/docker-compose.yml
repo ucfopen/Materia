@@ -75,7 +75,7 @@ services:
     volumes:
       - s3_media:/s3mnt/fakes3_root/fake_bucket/media/
     ports:
-      - "10001:10001"
+      - "11111:11111"
     networks:
       - frontend
       - backend
