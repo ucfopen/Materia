@@ -6,6 +6,7 @@ import { player } from './materia-constants'
 import Alert from './alert'
 import usePlayStorageDataSave from './hooks/usePlayStorageDataSave'
 import usePlayLogSave from './hooks/usePlayLogSave'
+import usePlayerPromptStream from './hooks/usePlayerPromptStream'
 import useSiteMessages from './hooks/useSiteMessages'
 import LoadingIcon from './loading-icon'
 import './widget-player.scss'
@@ -115,6 +116,8 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 	const saveStorage = usePlayStorageDataSave()
 	const { messages: siteMessages } = useSiteMessages({ types: ['SITE_NOTIFICATION', 'SITE_ALERT'] })
 	const [showSiteMessage, setShowSiteMessage] = useState(true)
+
+	const sendPlayerPromptStream = usePlayerPromptStream()
 
 	const previewPlayId = useMemo(() => {
 		if (!isPreview) return null
@@ -360,6 +363,8 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 					return _setHeight(msg.data[0])
 				case 'setVerticalScroll':
 					return _setVerticalScroll(msg.data[0])
+				case 'generationStreamingRequest':
+					return _submitGenerationRequestForPlayer(msg.data[0], msg.data[1])
 				case 'initialize':
 					break
 				default:
@@ -569,6 +574,25 @@ const WidgetPlayer = ({instanceId, playId, snapshotId=null, snapshotEntryId=null
 		const containerElement = frameRef.current
 		const calculatedLocation = window.scrollY + containerElement.getBoundingClientRect().y + location
 		window.scrollTo(0, calculatedLocation)
+	}
+
+	const _submitGenerationRequestForPlayer = (conversation, systemPrompt = "") => {
+		sendPlayerPromptStream.mutate({
+			request: {
+				conversation: conversation,
+				systemPrompt: systemPrompt
+			},
+			onChunk: (chunk, fullText) => {
+				_sendToWidget('promptResponse', [fullText, false])
+			},
+			successFunc: (result) => {
+				_sendToWidget('promptResponse', [result.response, true])
+			},
+			errorFunc: (err) => {
+				console.log('submit generation error!', err)
+				_sendToWidget('promptRejection', [])
+			}
+		})
 	}
 
 	const _onLoadFail = msg => setAlert({

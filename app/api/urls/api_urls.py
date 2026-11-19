@@ -66,7 +66,10 @@ urlpatterns = [
         "community-library/<int:pk>/snapshot_qset/<int:snapshot_id>/",
         community_library.CommunityLibrarySnapshotQsetView.as_view(),
     ),
-    path("community-library/categories/", community_library.CommunityLibraryCategoryView.as_view()),
+    path(
+        "community-library/categories/",
+        community_library.CommunityLibraryCategoryView.as_view(),
+    ),
     path("session/verify/", sessions.SessionView.as_view(), name="session-verify"),
     # User
     path("user/login/", users.UsersApi.service_user_login, name="service_user_login"),
@@ -76,5 +79,6 @@ urlpatterns = [
     # AI generation
     path("generate/qset/", generation.GenerateQsetView.as_view()),
     path("generate/from_prompt/", generation.GenerateFromPromptView.as_view()),
+    path("generate/streaming/", generation.GenerateStreamingResponseView.as_view()),
     path("lti/<slug:context_id>/instances/", LtiWidgetInstancesInCourseView.as_view()),
 ]

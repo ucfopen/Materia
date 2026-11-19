@@ -8,6 +8,7 @@ from core.utils.validator_util import ValidatorUtil
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from .apps import *  # noqa: F401, F403
+from .aws import *  # noqa: F401, F403
 from .css import *  # noqa: F401, F403
 from .db import *  # noqa: F401, F403
 
